@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><link href="../../../assets/styles.css" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create Account | Craftify</title>
+<!-- Google Fonts: Noto Serif & Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+</link></head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col"><nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-surface-container">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between items-center h-16">
+<!-- Logo -->
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+<span class="text-on-primary font-serif italic text-xl select-none">A</span>
+</div>
+<span class="font-headline font-bold text-xl text-on-surface tracking-tight">Craftify</span>
+</div>
+<!-- Center Links -->
+<div class="hidden md:flex items-center space-x-8">
+<a class="text-sm font-label font-medium text-secondary hover:text-primary transition-colors active" href=".../index.html">Home</a>
+<a class="text-sm font-label font-medium text-secondary hover:text-primary transition-colors" href="..../auctions/live-auctions.html">Auctions</a>
+</div>
+<!-- Right Icons -->
+<div class="flex items-center space-x-4">
+<button class="p-2 text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="p-2 text-secondary hover:text-primary transition-colors relative">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+<button class="p-2 text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-primary">account_circle</span>
+</button>
+</div>
+</div>
+</div>
+</nav>
+<!-- Sticky Top Navigation Bar -->
+<main class="flex-grow flex items-center justify-center px-4 py-12">
+<!-- Auth Card -->
+<div class="w-full max-auto max-w-[480px] bg-surface-container-lowest rounded-xl shadow-[0px_20px_40px_rgba(25,28,30,0.06)] overflow-hidden">
+<!-- Brand Anchor (Simplified for Card Internal) -->
+<div class="pt-10 pb-6 flex flex-col items-center">
+<div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-6">
+<span class="text-on-primary font-serif italic text-3xl select-none">A</span>
+</div>
+<!-- Auth Tabs -->
+<div class="flex space-x-8 border-b border-surface-container-high w-full justify-center">
+<button class="pb-3 text-sm font-label tracking-wide uppercase text-secondary hover:text-primary transition-colors">
+                        Sign In
+                    </button>
+<button class="pb-3 text-sm font-label tracking-wide uppercase text-primary border-b-2 border-primary font-bold">
+                        Create Account
+                    </button>
+</div>
+</div>
+<!-- Content Area -->
+<div class="px-8 pb-10 pt-4">
+<header class="text-center mb-8">
+<h1 class="font-headline text-3xl font-bold text-on-surface mb-2 tracking-tight">Join our community</h1>
+<p class="text-secondary font-body text-sm">Create an account to start supporting artisans</p>
+</header>
+<form class="space-y-5">
+<!-- Full Name -->
+<div class="space-y-1.5">
+<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Full Name</label>
+<div class="relative group">
+<input class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-0 focus:bg-surface-container-highest transition-colors placeholder:text-outline/50 text-on-surface" placeholder="John Doe" type="text"/>
+<div class="absolute left-0 top-1/4 bottom-1/4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+</div>
+</div>
+<!-- Email -->
+<div class="space-y-1.5">
+<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Email Address</label>
+<div class="relative group">
+<input class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-0 focus:bg-surface-container-highest transition-colors placeholder:text-outline/50 text-on-surface" placeholder="you@example.com" type="email"/>
+<div class="absolute left-0 top-1/4 bottom-1/4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+</div>
+</div>
+<!-- Password Grid (Asymmetric Layout Hint) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="space-y-1.5">
+<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Password</label>
+<div class="relative group">
+<input class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-0 focus:bg-surface-container-highest transition-colors placeholder:text-outline/50 text-on-surface" placeholder="Create a password" type="password"/>
+<div class="absolute left-0 top-1/4 bottom-1/4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Confirm Password</label>
+<div class="relative group">
+<input class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-0 focus:bg-surface-container-highest transition-colors placeholder:text-outline/50 text-on-surface" placeholder="Confirm your password" type="password"/>
+<div class="absolute left-0 top-1/4 bottom-1/4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+</div>
+</div>
+</div>
+<!-- Terms Checkbox -->
+<div class="flex items-start pt-2">
+<div class="flex items-center h-5">
+<input class="h-5 w-5 rounded-lg border-outline-variant text-primary focus:ring-primary/20 bg-surface-container-low transition-all" id="terms" name="terms" type="checkbox"/>
+</div>
+<div class="ml-3 text-sm">
+<label class="font-body text-secondary leading-tight" for="terms">
+                                I agree to the <a class="text-on-surface underline decoration-primary/30 underline-offset-4 hover:decoration-primary transition-all" href="..../auth/create-account.html">Terms of Service</a> and <a class="text-on-surface underline decoration-primary/30 underline-offset-4 hover:decoration-primary transition-all" href="..../auth/create-account.html">Privacy Policy</a>
+</label>
+</div>
+</div>
+<!-- Primary Action -->
+<div class="pt-4">
+<button class="w-full bg-primary-container text-on-primary-container font-label font-bold uppercase tracking-widest py-4 rounded-xl shadow-sm hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center space-x-2" type="submit">
+<span>Create Account</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<!-- Redirect Link -->
+<p class="text-center text-sm font-body text-secondary pt-4">
+                        Already have an account? 
+                        <a class="text-primary font-bold hover:underline underline-offset-4 ml-1" href="..../auth/sign-in.html">Sign in</a>
+</p>
+</form>
+</div>
+</div>
+</main>
+<!-- Artistic Accent (Asymmetric overlap) -->
+<div class="fixed bottom-0 right-0 p-12 pointer-events-none opacity-20 hidden md:block">
+<div class="relative">
+<div class="w-64 h-64 border-[1px] border-primary rounded-full absolute -right-20 -bottom-20"></div>
+<div class="w-48 h-48 border-[1px] border-primary/40 rounded-full absolute -right-10 -bottom-10"></div>
+</div>
+</div>
+<!-- Decorative Corner Element -->
+<div class="fixed top-0 left-0 p-12 mt-16 pointer-events-none opacity-10 hidden md:block">
+<span class="font-serif italic text-[120px] text-primary select-none">Artisan</span>
+</div>
+</body></html>
+<!-- Artisan Registration - Success (Updated Navbar) -->

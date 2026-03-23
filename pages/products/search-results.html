@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><link href="../../../assets/styles.css" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Search Results - Craftify</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Noto+Serif:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+</link></head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container/30"><header class="sticky top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm dark:shadow-slate-950/50">
+<div class="flex justify-between items-center px-6 py-4 max-w-full mx-auto">
+<div class="flex items-center gap-8">
+<a class="flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-slate-100 font-noto-serif" href="..../products/search-results.html">
+<span>Craftify</span>
+</a>
+<nav class="hidden md:flex gap-6 font-medium text-sm font-body">
+<a class="text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors active" href=".../index.html">Home</a>
+<a class="text-amber-600 dark:text-amber-500 border-b-2 border-amber-600 dark:border-amber-500 pb-1" href="..../auctions/live-auctions.html">Auctions</a>
+<a class="text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors" href="..../products/search-results.html">Dashboard</a>
+<a class="text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors" href="..../products/search-results.html">Admin</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative group hidden sm:block">
+<input class="bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-amber-500 w-64 transition-all" placeholder="Search..." type="text" value="ceramic vase"/>
+<span class="material-symbols-outlined absolute right-3 top-2 text-slate-500" data-icon="search">search</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="gavel">gavel</span>
+</button>
+<button class="p-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</button>
+<button class="p-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<!-- Top Navigation Bar -->
+<main class="pt-8 pb-16 px-6 max-w-7xl mx-auto">
+<!-- Search Header & Suggestions -->
+<section class="mb-12">
+<div class="flex flex-col gap-4">
+<h1 class="font-headline text-4xl text-on-surface">Showing 18 results for <span class="italic text-primary">"ceramic vase"</span></h1>
+<div class="flex flex-wrap gap-2 items-center">
+<span class="text-xs font-semibold uppercase tracking-widest text-secondary mr-2">Suggestions:</span>
+<button class="px-4 py-1.5 rounded-full bg-secondary-container text-on-secondary-container text-sm hover:bg-primary-container transition-colors">Hand-thrown</button>
+<button class="px-4 py-1.5 rounded-full bg-secondary-container text-on-secondary-container text-sm hover:bg-primary-container transition-colors">Stone Glaze</button>
+<button class="px-4 py-1.5 rounded-full bg-secondary-container text-on-secondary-container text-sm hover:bg-primary-container transition-colors">Minimalist Decor</button>
+<button class="px-4 py-1.5 rounded-full bg-secondary-container text-on-secondary-container text-sm hover:bg-primary-container transition-colors">Rustic Clay</button>
+</div>
+</div>
+</section>
+<!-- Tabs Navigation -->
+<div class="flex gap-8 border-b border-surface-variant mb-10 overflow-x-auto whitespace-nowrap scrollbar-hide">
+<button class="pb-4 text-secondary hover:text-primary transition-colors font-medium">All</button>
+<button class="pb-4 text-primary border-b-2 border-primary font-bold">Products</button>
+<button class="pb-4 text-secondary hover:text-primary transition-colors font-medium">Artisans</button>
+<button class="pb-4 text-secondary hover:text-primary transition-colors font-medium">Auctions</button>
+</div>
+<div class="flex flex-col lg:flex-row gap-12">
+<!-- Sidebar Filters -->
+<aside class="w-full lg:w-72 flex-shrink-0 space-y-10">
+<!-- Categories -->
+<div>
+<h3 class="font-headline text-lg mb-4">Category</h3>
+<div class="space-y-3">
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="rounded border-outline-variant text-primary focus:ring-primary h-5 w-5 transition-all" type="checkbox"/>
+<span class="text-on-surface group-hover:text-primary">Pottery</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded border-outline-variant text-primary focus:ring-primary h-5 w-5 transition-all" type="checkbox"/>
+<span class="text-on-surface group-hover:text-primary">Textiles</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded border-outline-variant text-primary focus:ring-primary h-5 w-5 transition-all" type="checkbox"/>
+<span class="text-on-surface group-hover:text-primary">Woodwork</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded border-outline-variant text-primary focus:ring-primary h-5 w-5 transition-all" type="checkbox"/>
+<span class="text-on-surface group-hover:text-primary">Jewelry</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded border-outline-variant text-primary focus:ring-primary h-5 w-5 transition-all" type="checkbox"/>
+<span class="text-on-surface group-hover:text-primary">Glassware</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded border-outline-variant text-primary focus:ring-primary h-5 w-5 transition-all" type="checkbox"/>
+<span class="text-on-surface group-hover:text-primary">Leather</span>
+</label>
+</div>
+</div>
+<!-- Price Range -->
+<div>
+<h3 class="font-headline text-lg mb-4">Price Range</h3>
+<div class="relative pt-6 px-2">
+<div class="h-1 bg-surface-container-high rounded-full w-full"></div>
+<div class="absolute top-6 left-0 h-1 bg-primary rounded-full w-3/4"></div>
+<div class="absolute top-4 left-0 w-5 h-5 bg-white border-2 border-primary rounded-full shadow-sm cursor-pointer"></div>
+<div class="absolute top-4 left-3/4 w-5 h-5 bg-white border-2 border-primary rounded-full shadow-sm cursor-pointer"></div>
+</div>
+<div class="flex justify-between mt-6 text-sm font-medium text-secondary">
+<span>$0</span>
+<span>$500</span>
+</div>
+</div>
+<!-- Star Rating -->
+<div>
+<h3 class="font-headline text-lg mb-4">Reviews</h3>
+<div class="space-y-3">
+<button class="flex items-center gap-2 group w-full">
+<div class="flex text-primary-container">
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm" data-icon="star">star</span>
+</div>
+<span class="text-sm text-secondary group-hover:text-primary transition-colors">&amp; Up</span>
+</button>
+</div>
+</div>
+<!-- Artisan Search -->
+<div>
+<h3 class="font-headline text-lg mb-4">Maker</h3>
+<div class="relative">
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary transition-all" placeholder="Search Artisan..." type="text"/>
+</div>
+</div>
+<!-- Toggle -->
+<div class="flex items-center justify-between">
+<span class="font-medium text-on-surface">In Stock Only</span>
+<button class="relative inline-flex h-6 w-11 items-center rounded-full bg-primary transition-colors">
+<span class="inline-block h-4 w-4 translate-x-6 transform rounded-full bg-white transition-transform"></span>
+</button>
+</div>
+<!-- Clear Filters -->
+<button class="text-tertiary font-medium underline underline-offset-4 hover:opacity-80 transition-opacity">Clear All Filters</button>
+</aside>
+<!-- Product Grid -->
+<div class="flex-grow">
+<!-- Toolbar -->
+<div class="flex flex-wrap justify-between items-center gap-4 mb-8 bg-surface-container-lowest p-4 rounded-xl shadow-sm">
+<div class="flex items-center gap-4">
+<span class="text-sm text-secondary font-medium">Sort by:</span>
+<div class="relative">
+<select class="appearance-none bg-transparent border-none font-bold text-on-surface focus:ring-0 cursor-pointer pr-8">
+<option>Relevance</option>
+<option>Newest Arrivals</option>
+<option>Price: Low to High</option>
+<option>Price: High to Low</option>
+</select>
+<span class="material-symbols-outlined absolute right-0 top-1 text-secondary pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<div class="flex items-center bg-surface-container-low p-1 rounded-lg">
+<button class="p-2 rounded-md bg-white shadow-sm text-primary"><span class="material-symbols-outlined" data-icon="grid_view">grid_view</span></button>
+<button class="p-2 rounded-md text-secondary hover:bg-white/50 transition-colors"><span class="material-symbols-outlined" data-icon="view_list">view_list</span></button>
+</div>
+</div>
+<!-- Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+<!-- Product Card 1 -->
+<div class="group flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 p-4">
+<div class="relative aspect-square mb-6 overflow-hidden rounded-lg">
+<img alt="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Minimalist handcrafted ceramic vase with matte finish" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnyYZe70qfwUGZF-RvrlEQ8IKiQ0KXG4pcs1vFrGC-VlEI2B0LfN6fN6jcNu2pH3PaH_JcPLAQwG2OwhxiENHEDVgl_NRRZUGC_0-NnbW6iRoY62aXu2aJnT5M3iwJ0uWNZLrlQyTPeOwR1mGYRua32jWcKfaxmOsAIYTij-Pby64COdlnDW9RXKgVfV9n9iGnegMOCQhDTl8YIhxcttMll2SI-PAbYEVfDsT8Tl71js3vOCRFukxmt-z_HH-3lgfQBMq8IfU4fsU"/>
+<button class="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur rounded-full text-secondary hover:text-tertiary transition-all shadow-sm">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+</button>
+<span class="absolute bottom-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-secondary shadow-sm">Ceramics</span>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline text-lg leading-tight">
+                                Hand-thrown <span class="text-primary font-bold">Ceramic Vase</span> in Sand
+                            </h3>
+<p class="text-xs text-secondary italic">by Elena Wood</p>
+<div class="flex items-center gap-1 pt-2">
+<div class="flex text-primary-container">
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+</div>
+<span class="text-[10px] text-secondary-fixed-dim">(48)</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-6">
+<span class="font-headline text-xl text-on-surface">$120.00</span>
+<button class="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition-opacity active:scale-95">Add to Cart</button>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="group flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 p-4">
+<div class="relative aspect-square mb-6 overflow-hidden rounded-lg">
+<img alt="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Blue speckled tall ceramic vase on wooden table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB809Vc5Dj25Fpq81BGLt0FVSaPlEDBfGSAoEa-BTDTDTRzyqDTmlnl3VENdzQVnSH3bT6h5CTzoBtdKrI0Xckvftn2IUSH94ds4p_a7oT-uD5eUIhoTXlVlbo4TkyDTqugo5QhU4FNzNmc1HaRmThpMJGMt4uq963TGvd5H8VoUm7_UvMBrbsTq6mV4YCeW-6SS4EbojHFaTEdS1jbEZ04xwPsJ12Z-jYzMYFuvRF5AnfJpfKLb4t2DxpNT-9dG3l7AgLWbIIFHeg"/>
+<button class="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur rounded-full text-secondary hover:text-tertiary transition-all shadow-sm">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+</button>
+<span class="absolute bottom-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-secondary shadow-sm">Ceramics</span>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline text-lg leading-tight">
+                                Tall <span class="text-primary font-bold">Vase</span> with Cobalt Speckle
+                            </h3>
+<p class="text-xs text-secondary italic">by Studio Maru</p>
+<div class="flex items-center gap-1 pt-2">
+<div class="flex text-primary-container">
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star_half">star_half</span>
+</div>
+<span class="text-[10px] text-secondary-fixed-dim">(32)</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-6">
+<span class="font-headline text-xl text-on-surface">$85.00</span>
+<button class="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition-opacity active:scale-95">Add to Cart</button>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="group flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 p-4">
+<div class="relative aspect-square mb-6 overflow-hidden rounded-lg">
+<img alt="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Textured earth-tone ceramic pottery collection" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7JMGcZ7jXJiCm2ETPNR5UCFaIAL872GbgjVt8QMgONHGQitsg564hXTiBCMqDvx9Eu1SeByGUmxa8UciiQ0PQkb0eynJyhlhQzQD6ItHeine9WMrJ_Pvf1tW98Pkidze7WLrK8o36JHijJnM0hNrRu4bidP52uYyUJp0Ub2jV8Afe2FD0sjkyRH3GjIgKv0BajFAnt_5A9nrdlRxAOxz77_XBE5gpAPd3TmRpue4N9UBN41ekFcl7g2ggdfOSslpzVWva1NyH5_w"/>
+<button class="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur rounded-full text-secondary hover:text-tertiary transition-all shadow-sm">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+</button>
+<span class="absolute bottom-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-secondary shadow-sm">Ceramics</span>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline text-lg leading-tight">
+                                Terracotta <span class="text-primary font-bold">Vase</span> - Medium
+                            </h3>
+<p class="text-xs text-secondary italic">by Earth &amp; Fire</p>
+<div class="flex items-center gap-1 pt-2">
+<div class="flex text-primary-container">
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+</div>
+<span class="text-[10px] text-secondary-fixed-dim">(15)</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-6">
+<span class="font-headline text-xl text-on-surface">$65.00</span>
+<button class="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition-opacity active:scale-95">Add to Cart</button>
+</div>
+</div>
+<!-- Product Card 4 -->
+<div class="group flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 p-4">
+<div class="relative aspect-square mb-6 overflow-hidden rounded-lg">
+<img alt="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Crackle glaze ceramic pitcher vase" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7c7gig5WkBHRE1XB3lARMfZ-15YleJqTNveblm8k42dlDsLqbjSKBQJucSlF8gWtVJebrcyV2bCT-0-X58gkYaVAnOX1Hqzu0do-zXCJGSOSoNA_5fQ0mfwJ9-UJ5mDSMUouUyqOXfG2rgPL56I9_Ams8SmoLBW8hyznIc4sh5yTBIswS5kiIZVOf5z_XZiw8ajS-Y66aoz5yY9Vh8WMHmHmaz_7STNyrNgZWhd8YWc3ka5K1TtgMfybOjYo9USCbuRiCNHRUv5E"/>
+<button class="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur rounded-full text-secondary hover:text-tertiary transition-all shadow-sm">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+</button>
+<span class="absolute bottom-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-secondary shadow-sm">Ceramics</span>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline text-lg leading-tight">
+                                Crackle Glaze <span class="text-primary font-bold">Ceramic Vase</span>
+</h3>
+<p class="text-xs text-secondary italic">by Artisan Guild</p>
+<div class="flex items-center gap-1 pt-2">
+<div class="flex text-primary-container">
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm" data-icon="star">star</span>
+</div>
+<span class="text-[10px] text-secondary-fixed-dim">(21)</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-6">
+<span class="font-headline text-xl text-on-surface">$145.00</span>
+<button class="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition-opacity active:scale-95">Add to Cart</button>
+</div>
+</div>
+<!-- Product Card 5 -->
+<div class="group flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 p-4">
+<div class="relative aspect-square mb-6 overflow-hidden rounded-lg">
+<img alt="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Modern geometric ceramic vase set" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSA3pCaQ7DSszIJYQvSlNRWS2zTL30LjzKhrPlBfvLofSjO_8z_CMs35Ed0BN0myyvf_RIWwAFET2LpzOK7jvsY24ZoCixVwpuR2-d9bs1n2CnVSafCVQpPHiVLYJD2Agg2bQrjnOzXA34CGS2bDaFQZ5512NbsMzYLPZdd2oWrl10ZlW2Rjb-sZMJbS9a0EoXC5kTgF9krEMrykiS7IvQr6bkfuYGpIQMC4gQlriyyhbJZijbB2_n9kN3nbOria1HIwO_yI-1jX4"/>
+<button class="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur rounded-full text-secondary hover:text-tertiary transition-all shadow-sm">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+</button>
+<span class="absolute bottom-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-secondary shadow-sm">Ceramics</span>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline text-lg leading-tight">
+                                Geometric <span class="text-primary font-bold">Vase</span> Set
+                            </h3>
+<p class="text-xs text-secondary italic">by Line &amp; Form</p>
+<div class="flex items-center gap-1 pt-2">
+<div class="flex text-primary-container">
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+</div>
+<span class="text-[10px] text-secondary-fixed-dim">(56)</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-6">
+<span class="font-headline text-xl text-on-surface">$210.00</span>
+<button class="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition-opacity active:scale-95">Add to Cart</button>
+</div>
+</div>
+<!-- Product Card 6 -->
+<div class="group flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 p-4">
+<div class="relative aspect-square mb-6 overflow-hidden rounded-lg">
+<img alt="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Handcrafted rustic ceramic flower vase" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJb__G2-V8soyq9zDNj4mAa82dFkpqxGlfueCXoA91jKw3qrigrjKZ2W5NctAo9Mg3vB_YCtM7xTqWWSXRCw9DQJmykN6XZhbpOtBVhAiFaJaxrUEadjJT-jc4BpbznRvUD3nsdYBsM-KhpDrJihlpYNEHxd9-AW8OHQOhasRAaCL8qOto34YgXohbcVKgeMBMuaQ6WcivE5xiGOaQLEHk2uHyMjqLJU-TNzmLxJ7pwQjizkCz7AWv7M0WhX9Ety1sIBS_URTqems"/>
+<button class="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur rounded-full text-secondary hover:text-tertiary transition-all shadow-sm">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+</button>
+<span class="absolute bottom-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-secondary shadow-sm">Ceramics</span>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline text-lg leading-tight">
+                                Rustic <span class="text-primary font-bold">Ceramic Vase</span>
+</h3>
+<p class="text-xs text-secondary italic">by Wildwood Clay</p>
+<div class="flex items-center gap-1 pt-2">
+<div class="flex text-primary-container">
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm inl-font-var-02e95d" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm" data-icon="star">star</span>
+<span class="material-symbols-outlined text-sm" data-icon="star">star</span>
+</div>
+<span class="text-[10px] text-secondary-fixed-dim">(9)</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-6">
+<span class="font-headline text-xl text-on-surface">$55.00</span>
+<button class="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition-opacity active:scale-95">Add to Cart</button>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<nav class="flex justify-center items-center gap-2 mt-16">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-container-low text-secondary hover:text-primary transition-all active:scale-90 disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-white font-bold shadow-sm">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-container-low text-secondary hover:bg-surface-container-high transition-all">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-container-low text-secondary hover:bg-surface-container-high transition-all">3</button>
+<span class="px-2 text-secondary">...</span>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-container-low text-secondary hover:bg-surface-container-high transition-all">6</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-container-low text-secondary hover:text-primary transition-all active:scale-90">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</nav>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full border-t border-[#E6E8EA]/20 bg-[#F2F4F6] dark:bg-[#121416] py-16">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8 px-8 max-w-7xl mx-auto font-['Inter'] text-sm leading-relaxed">
+<div class="col-span-2 md:col-span-1 space-y-4">
+<span class="font-['Noto_Serif'] text-lg font-semibold text-[#191C1E] dark:text-[#F7F9FB]">Craftify</span>
+<p class="text-[#545F73] dark:text-[#B0B3B8]">Celebrating the timeless tradition of the handmade, connected through the modern lens of the Digital Atelier.</p>
+</div>
+<div class="space-y-4">
+<h4 class="font-bold text-[#191C1E] dark:text-[#F7F9FB]">Company</h4>
+<ul class="space-y-2">
+<li><a class="text-[#545F73] dark:text-[#B0B3B8] hover:underline decoration-[#F59E0B] underline-offset-4 transition-opacity" href="..../products/search-results.html">Our Story</a></li>
+<li><a class="text-[#545F73] dark:text-[#B0B3B8] hover:underline decoration-[#F59E0B] underline-offset-4 transition-opacity" href="..../products/search-results.html">Maker Spotlights</a></li>
+<li><a class="text-[#545F73] dark:text-[#B0B3B8] hover:underline decoration-[#F59E0B] underline-offset-4 transition-opacity" href="..../products/search-results.html">Contact Support</a></li>
+</ul>
+</div>
+<div class="space-y-4">
+<h4 class="font-bold text-[#191C1E] dark:text-[#F7F9FB]">Customer Care</h4>
+<ul class="space-y-2">
+<li><a class="text-[#545F73] dark:text-[#B0B3B8] hover:underline decoration-[#F59E0B] underline-offset-4 transition-opacity" href="..../products/search-results.html">Shipping &amp; Returns</a></li>
+<li><a class="text-[#545F73] dark:text-[#B0B3B8] hover:underline decoration-[#F59E0B] underline-offset-4 transition-opacity" href="..../products/search-results.html">Privacy Policy</a></li>
+</ul>
+</div>
+<div class="col-span-2 md:col-span-1 space-y-4">
+<h4 class="font-bold text-[#191C1E] dark:text-[#F7F9FB]">Join the Atelier</h4>
+<p class="text-[#545F73] dark:text-[#B0B3B8]">Stories from the studio, straight to your inbox.</p>
+<div class="flex gap-2">
+<input class="bg-white/50 border-none rounded-lg px-4 py-2 text-xs focus:ring-1 focus:ring-primary w-full" placeholder="Email address" type="email"/>
+<button class="bg-primary text-white p-2 rounded-lg hover:opacity-90 transition-opacity"><span class="material-symbols-outlined" data-icon="send">send</span></button>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto px-8 mt-16 pt-8 border-t border-outline-variant/10 text-center">
+<p class="text-[#545F73] dark:text-[#B0B3B8] text-xs">© 2024 Craftify. Built for the Digital Atelier.</p>
+</div>
+</footer>
+</body></html>
+<!-- Artisan Profile - Updated Navbar -->

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><link href="../../../assets/styles.css" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+</link></head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col"><nav class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 w-full z-50 shadow-sm dark:shadow-none flex justify-between items-center px-6 py-4 max-w-full mx-auto">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2 text-2xl font-bold font-['Noto_Serif'] italic text-amber-600 dark:text-amber-500">
+                Craftify
+            </div>
+<div class="hidden md:flex gap-6 items-center">
+<a class="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors active" href=".../index.html">Home</a>
+<a class="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors" href="..../auctions/live-auctions.html">Auctions</a>
+<a class="text-sm font-medium text-amber-600 dark:text-amber-500 border-b-2 border-amber-600 dark:border-amber-500 pb-1" href="..../user/messaging-chat.html">Dashboard</a>
+<a class="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors" href="..../user/messaging-chat.html">Admin</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg px-4 py-1.5 transition-all">
+<span class="material-symbols-outlined text-amber-600 dark:text-amber-500 text-lg mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 font-body" placeholder="Search crafts..." type="text"/>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined">gavel</span>
+</button>
+<button class="p-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+<button class="p-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-amber-600 dark:text-amber-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- TopNavBar (Updated from COMPONENTS_61) -->
+<!-- Main Content Canvas -->
+<main class="flex-grow flex max-h-[calc(100vh-72px)] overflow-hidden">
+<!-- Left Panel: Messages List (30%) -->
+<aside class="w-full md:w-[30%] lg:w-[25%] bg-surface-container-lowest border-r border-outline-variant/10 flex flex-col h-full">
+<div class="p-6 pb-4">
+<div class="flex items-center justify-between mb-6">
+<h1 class="text-2xl font-bold font-headline text-on-surface flex items-center gap-2">
+                        Messages
+                        <span class="bg-tertiary text-on-tertiary text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">3</span>
+</h1>
+<button class="p-2 text-secondary hover:bg-surface-container-low rounded-full transition-colors">
+<span class="material-symbols-outlined">edit_square</span>
+</button>
+</div>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-lg group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-0 transition-all" placeholder="Search conversations..." type="text"/>
+</div>
+</div>
+<!-- Thread List -->
+<div class="flex-grow overflow-y-auto px-2 space-y-1 pb-20 md:pb-4">
+<!-- Active Thread: Elena Rodriguez -->
+<div class="flex items-start gap-3 p-4 bg-primary-container/10 rounded-2xl cursor-pointer group transition-all relative">
+<div class="relative flex-shrink-0">
+<img alt="Elena" class="w-12 h-12 rounded-full object-cover border-2 border-primary-container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPl0limI7GJcAByvrJRfk2WclGoXYE8NGNy2X0uhOQAAiPg0Asgu2QY75zYit5KtldUikYRhprzkBPkdSzw9oK_RVaDRy2d5x2z3hYk_ezLm4my9oI7xAvRSptCFFIusYHiIMSm-ADjIqziblH5C8Ddi1wbzLoWy_CDgBNtwIj-_jNCyR5n2gzUWODnel0oWAAN-YMgdcsYXIS7sERvMBnHhX-d-13BmS7Q2URIZDtn1tLyr6qdThOAdk7rDMtSF7Kj9VxZvTEyrY"/>
+<div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
+</div>
+<div class="flex-grow min-w-0">
+<div class="flex justify-between items-baseline mb-0.5">
+<h3 class="font-semibold text-on-surface truncate">Elena Rodriguez</h3>
+<span class="text-[10px] font-medium text-secondary uppercase tracking-tighter">12:45 PM</span>
+</div>
+<div class="flex items-center gap-1.5 mb-1">
+<span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">Artisan</span>
+</div>
+<p class="text-xs text-on-surface-variant truncate font-medium">The glaze finish on the vase will be ready by...</p>
+</div>
+<div class="absolute right-4 bottom-4 w-2 h-2 bg-blue-500 rounded-full"></div>
+</div>
+<!-- Thread: Marco Silva -->
+<div class="flex items-start gap-3 p-4 hover:bg-surface-container-low rounded-2xl cursor-pointer group transition-all">
+<div class="flex-shrink-0">
+<img alt="Marco" class="w-12 h-12 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJR5V3gAv_wWHbZU5aCe8QUEKQy5L9fWb0iQ8quOj7ZZDlUAH1lQLoIJ53sTdz5ac1X0GdCT7H9aoyeI2u4tec24QssYRDv920PludDWEJMpNqjrACeJHvjCTr3c3mYqW98AbXSeEsVwOtxflAo4har1uS-6tWByg6IovxTHb32LVmjbIG6mjvo9rv3O8pyLtyt5WASOc-gsGojq36rQfeCRwdPcA0DaKuLbdxZkYWyq-XeFLtLjiieDzKnND1jyB3XR7eFj3rnMM"/>
+</div>
+<div class="flex-grow min-w-0">
+<div class="flex justify-between items-baseline mb-0.5">
+<h3 class="font-semibold text-on-surface truncate">Marco Silva</h3>
+<span class="text-[10px] text-secondary uppercase tracking-tighter">Yesterday</span>
+</div>
+<div class="flex items-center gap-1.5 mb-1">
+<span class="bg-surface-container-high text-on-surface-variant text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">Customer</span>
+</div>
+<p class="text-xs text-secondary truncate">Has the custom piece been shipped yet?</p>
+</div>
+</div>
+<!-- Thread: Anya Volkov -->
+<div class="flex items-start gap-3 p-4 hover:bg-surface-container-low rounded-2xl cursor-pointer group transition-all">
+<div class="flex-shrink-0">
+<img alt="Anya" class="w-12 h-12 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxGnQkGU-1Ih1FSKj7TzuZTKynFWpL6XVuqG4rZaOLIveR3I0LC0GpznyKFyVx7eYjHLGHn43Q7aymSzZq0qsaHPiXgt5mKH3FuwNSzSkv7UqmBRFauBim30YZkQMi8pCKbrxdSdfjNt3xPFC-_KecqX7836qWGXByT1khAeIVjEBreesPvJubMhXxIdpZQW-AsphMFtV9DlJbLINnySIRSAumGbPf-A41peVMCuDyiZkglxiSSnee66rwdwLzVppFIMJimS1rsz8"/>
+</div>
+<div class="flex-grow min-w-0">
+<div class="flex justify-between items-baseline mb-0.5">
+<h3 class="font-semibold text-on-surface truncate">Anya Volkov</h3>
+<span class="text-[10px] text-secondary uppercase tracking-tighter">Mar 20</span>
+</div>
+<div class="flex items-center gap-1.5 mb-1">
+<span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">Artisan</span>
+</div>
+<p class="text-xs text-secondary truncate">Your exhibition proposal has been approved!</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Right Panel: Chat Area (70%) -->
+<section class="hidden md:flex flex-col flex-grow bg-surface relative">
+<!-- Chat Header -->
+<header class="bg-surface/80 backdrop-blur-xl px-8 py-4 flex items-center justify-between border-b border-outline-variant/5">
+<div class="flex items-center gap-4">
+<div class="relative">
+<img alt="Elena" class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVLhII8sGqPPbcAt020-brMLCXZdnqqXFUwTxtqKE7lkLMdPo5n2JDK1WW-_PC6pmInSWUO1HaxcXWDe9sbBwCVRupwRgFjvaUdcgfH8C9jnixSewRloY5cvWlDklG5wPQppSrWW3PAgdx9RjNy50vchbONheWxdtyop2xakLq_u20-AeVgXjz6fK0IO0monSEVOHv1E4lreLQHv4E2uRMtd46mFhGv8JyPCL1OYCd7E2A5u4GA01AQEA2vFVLtB0VpiF6K6ul1RQ"/>
+<div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-surface rounded-full"></div>
+</div>
+<div>
+<h2 class="font-bold font-headline text-lg leading-tight">Elena Rodriguez</h2>
+<div class="flex items-center gap-2">
+<span class="text-[10px] text-green-600 font-bold uppercase tracking-widest">Online</span>
+<span class="text-xs text-secondary/40">•</span>
+<a class="text-xs text-primary font-medium hover:underline" href="..../user/artisan-profile.html">View Profile</a>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-secondary hover:bg-surface-container-high rounded-full transition-all">
+<span class="material-symbols-outlined">call</span>
+</button>
+<button class="p-2 text-secondary hover:bg-surface-container-high rounded-full transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</header>
+<!-- Conversation -->
+<div class="flex-grow overflow-y-auto p-8 space-y-6">
+<div class="flex justify-center">
+<span class="px-4 py-1.5 bg-surface-container text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em] rounded-full">March 22, 2026</span>
+</div>
+<!-- Received Message -->
+<div class="flex items-start gap-3 max-w-[75%]">
+<img alt="Elena" class="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdMBmcsOoGJCphzm-em1eur6bkVvaEaI9bA6CrOcCSq-76t35AYh2zkMYE1tftnoSCcFM9sJNDRXck1pw6yQpuCpgkQNwNVxV2gxSWtisvu-rpA3kGrTotAIe4-WLsYgkkgmoeGwkE-qm7s3cY5k7oRWzvJ28MXR5EG2pvVqwT60wdAOk8hpBIe3O6bfIyAISVLzi6SoCJQL0BznRKQ3GeKsfP4W3EFanRNQqgukFMR7gaJhH9G8qxI66Dar87jNeKR98XSSsmN5M"/>
+<div class="space-y-1">
+<div class="bg-surface-container-low text-on-surface p-4 rounded-2xl rounded-tl-none leading-relaxed text-sm">
+                            Hello! I've started working on the custom ceramic vase we discussed. The terracotta clay is currently drying before the first firing.
+                        </div>
+<span class="text-[10px] text-secondary ml-1">10:15 AM</span>
+</div>
+</div>
+<!-- Sent Message -->
+<div class="flex flex-row-reverse items-start gap-3 max-w-[75%] ml-auto">
+<div class="space-y-1 text-right">
+<div class="bg-primary text-on-primary p-4 rounded-2xl rounded-tr-none leading-relaxed text-sm shadow-lg shadow-primary/10">
+                            That's wonderful news! Do you think we could add a slightly more textured finish near the base? I saw a similar piece in your portfolio.
+                        </div>
+<span class="text-[10px] text-secondary mr-1">10:32 AM</span>
+</div>
+</div>
+<!-- Received Message with Image -->
+<div class="flex items-start gap-3 max-w-[75%]">
+<img alt="Elena" class="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQ0ImRrAGmcZKifSSVfRhuTaPXtbyM7WBFqPqbtr78iyfhMwWVlsyJUzVUAEYL7nBeV0AIRLk61Fo1XpjpnMEsYFxcQIius6YhJMwzHfuaa7bZK1oRG6SK6eM-d6zPrmTPjwk66B4UF3p5gtvlbRDLTp4vG6EnRchfur2NWHkHaKaN4sKGslD613DCRGFZAAJZ3C2ripXZ5ZndGBUD6AY6KDQTCJyXUbq54lD1WMOzUIY4ogWAMZm1S136enGwTytxxszut23nTsg"/>
+<div class="space-y-3">
+<div class="bg-surface-container-low text-on-surface p-4 rounded-2xl rounded-tl-none leading-relaxed text-sm">
+                            Absolutely! Here is a close-up of the texture I'm planning for the base. It creates a nice contrast with the smooth glaze above.
+                        </div>
+<div class="rounded-2xl overflow-hidden border border-outline-variant/10 max-w-sm">
+<img alt="Ceramic Texture" class="w-full h-48 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDz_bEvPoIEtWZ0litge3xLEdCiNGW8N6-FE0sR_S0z5a_x6hq8qKHpQG1LfykUHTOZtMq-aMzhOjOKXeOP7hLxCAGeyRJREXWTSPqRG1aySZ482JVAKRa_QUPQ1RcM53s406PFqnuwHVVl-VQ6mB-prDaKKpw_1CsC_I76Eyow_MJ4nIJPVn4dI4gON7giukv19Nes054fX3hZlx4867En1q5TC11A0usx8J1Pr4Uu8DRdfWApaPAkQlEDaZiEXFXxvxasjh-Xf4I"/>
+</div>
+<span class="text-[10px] text-secondary ml-1">12:43 PM</span>
+</div>
+</div>
+<!-- Received Message Latest -->
+<div class="flex items-start gap-3 max-w-[75%]">
+<img alt="Elena" class="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsa6Y6ft2NbVLPzOCCPsZHJHznS2j3PP6Y1nusMCh9DLoelBF5WrZ9BIcEdVtCC_K6l8Hp_vx3HhLUWGyQeBpoJ15cjsO3N36BpDcembKgGydHOx7_jAfRPw2GVWtFZAuEzrm9BZa4xyKuG1zgOVjVOSE0lFIqZqfQaugHanbUmb66W4imOeehb8_3mLgodcYu4I4UJjLDuKIOlMamZjIm9JHQKzl3C_OEiaaWKvx1okHCYEHKWAWsFBj0PvI-_vKaZgko7s6tGqs"/>
+<div class="space-y-1">
+<div class="bg-surface-container-low text-on-surface p-4 rounded-2xl rounded-tl-none leading-relaxed text-sm">
+                            The glaze finish on the vase will be ready by Thursday for your final approval.
+                        </div>
+<span class="text-[10px] text-secondary ml-1">12:45 PM</span>
+</div>
+</div>
+</div>
+<!-- Input Area -->
+<footer class="p-6 bg-surface-container-lowest border-t border-outline-variant/10">
+<div class="max-w-4xl mx-auto flex items-end gap-3 bg-surface-container-low p-2 rounded-2xl">
+<button class="p-2.5 text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined">add_circle</span>
+</button>
+<button class="p-2.5 text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined">image</span>
+</button>
+<textarea class="flex-grow bg-transparent border-none focus:ring-0 text-sm py-2.5 resize-none min-h-[40px] max-h-32" placeholder="Type a message..." rows="1"></textarea>
+<button class="bg-primary text-on-primary w-10 h-10 flex items-center justify-center rounded-xl hover:bg-primary-container hover:text-on-primary-container transition-all shadow-md shadow-primary/20 active:scale-95">
+<span class="material-symbols-outlined inl-font-var-02e95d">send</span>
+</button>
+</div>
+</footer>
+</section>
+<!-- Placeholder for Mobile (Small screens only) -->
+<section class="flex-grow md:hidden bg-surface flex flex-col items-center justify-center p-8 text-center">
+<span class="material-symbols-outlined text-6xl text-primary/20 mb-4">forum</span>
+<h2 class="font-headline text-xl font-bold mb-2">Select a Conversation</h2>
+<p class="text-secondary text-sm">Choose a chat from the message list to start talking with an artisan.</p>
+</section>
+</main>
+<!-- BottomNavBar (Hidden on Desktop) -->
+<nav class="md:hidden bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 border-t border-[#F2F4F6]/20 shadow-[0px_-10px_30px_rgba(25,28,30,0.04)] rounded-t-3xl">
+<a class="flex flex-col items-center justify-center text-[#545F73] dark:text-slate-500 px-5 py-2 hover:bg-[#F2F4F6] rounded-xl transition-all active:scale-90 duration-200" href="..../user/messaging-chat.html">
+<span class="material-symbols-outlined">storefront</span>
+<span class="font-['Inter'] text-[11px] font-medium tracking-wide uppercase mt-1">Shop</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#F59E0B]/10 text-[#613B00] dark:text-[#F59E0B] rounded-2xl px-5 py-2 active:scale-90 duration-200" href="..../user/messaging-chat.html">
+<span class="material-symbols-outlined inl-font-var-02e95d">chat_bubble</span>
+<span class="font-['Inter'] text-[11px] font-medium tracking-wide uppercase mt-1">Messages</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#545F73] dark:text-slate-500 px-5 py-2 hover:bg-[#F2F4F6] rounded-xl transition-all active:scale-90 duration-200" href="..../user/messaging-chat.html">
+<span class="material-symbols-outlined">local_mall</span>
+<span class="font-['Inter'] text-[11px] font-medium tracking-wide uppercase mt-1">Orders</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#545F73] dark:text-slate-500 px-5 py-2 hover:bg-[#F2F4F6] rounded-xl transition-all active:scale-90 duration-200" href="..../user/messaging-chat.html">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Inter'] text-[11px] font-medium tracking-wide uppercase mt-1">Account</span>
+</a>
+</nav>
+</body></html>
+<!-- Craftify Homepage - Updated Navbar -->

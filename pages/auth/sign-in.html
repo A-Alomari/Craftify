@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><link href="../../../assets/styles.css" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sign In | Craftify</title>
+<!-- Google Fonts: Noto Serif & Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+</link></head>
+<body class="bg-surface-container-low min-h-screen flex flex-col"><nav class="sticky top-0 z-50 w-full bg-white border-b border-outline-variant/10 shadow-sm">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between items-center h-16 md:h-20">
+<!-- Logo -->
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center shadow-sm">
+<span class="text-on-primary font-serif text-xl font-bold italic">A</span>
+</div>
+<span class="font-serif text-xl text-on-surface font-bold">Craftify</span>
+</div>
+<!-- Center Links -->
+<div class="hidden md:flex items-center gap-10">
+<a class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors active" href=".../index.html">Home</a>
+<a class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors" href="..../auctions/live-auctions.html">Auctions</a>
+</div>
+<!-- Right Icons -->
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors relative">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</div>
+</nav>
+<!-- Navigation Shell -->
+<!-- Main Content Canvas -->
+<main class="flex-grow flex items-center justify-center px-4 py-12 md:py-20">
+<div class="w-full max-w-md">
+<!-- Centered Branding Header -->
+<div class="text-center mb-8">
+<div class="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-full mb-4 shadow-sm">
+<span class="text-on-primary font-serif text-3xl font-bold italic leading-none">A</span>
+</div>
+<h1 class="text-on-surface text-3xl font-bold tracking-tight mb-2">Welcome back</h1>
+<p class="text-on-surface-variant font-body text-sm">Sign in to your account to continue shopping</p>
+</div>
+<!-- Login Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+<!-- Tab Navigation -->
+<div class="flex border-b border-outline-variant/10">
+<button class="flex-1 py-4 text-sm font-semibold text-primary border-b-2 border-primary-container">
+                        Sign In
+                    </button>
+<button class="flex-1 py-4 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors">
+                        Create Account
+                    </button>
+</div>
+<div class="p-8">
+<form action="#" class="space-y-6" method="POST">
+<!-- Email Field -->
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2" for="email">Email Address</label>
+<input class="w-full px-4 py-3 rounded-xl bg-surface-container-low border-none focus:ring-2 focus:ring-primary-container/50 text-on-surface placeholder:text-on-surface-variant/50 transition-all outline-none" id="email" name="email" placeholder="you@example.com" type="email"/>
+</div>
+<!-- Password Field -->
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2" for="password">Password</label>
+<div class="relative">
+<input class="w-full px-4 py-3 rounded-xl bg-surface-container-low border-none focus:ring-2 focus:ring-primary-container/50 text-on-surface transition-all outline-none" id="password" name="password" type="password" value="••••••••"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/60 hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</div>
+<!-- Utilities Row -->
+<div class="flex items-center justify-between">
+<label class="flex items-center space-x-2 cursor-pointer group">
+<input class="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary-container" type="checkbox"/>
+<span class="text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Remember me</span>
+</label>
+<a class="text-sm font-semibold text-primary hover:text-on-primary-fixed-variant transition-colors" href="..../auth/sign-in.html">Forgot password?</a>
+</div>
+<!-- Primary CTA -->
+<button class="w-full bg-primary-container text-on-primary-container font-bold py-3.5 rounded-xl hover:opacity-90 active:scale-[0.98] transition-all shadow-sm" type="submit">
+                            Sign In
+                        </button>
+</form>
+<!-- Divider -->
+<div class="relative my-8 text-center">
+<div aria-hidden="true" class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-outline-variant/20"></div>
+</div>
+<span class="relative px-4 bg-surface-container-lowest text-xs font-bold uppercase tracking-widest text-on-surface-variant/60">Or continue with</span>
+</div>
+<!-- Social Logins -->
+<div class="grid grid-cols-2 gap-4">
+<button class="flex items-center justify-center space-x-2 py-3 border border-outline-variant/30 rounded-xl hover:bg-surface-container transition-colors active:scale-[0.98]">
+<img alt="" class="w-4 h-4" data-alt="Google logo icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKpWRTlTa9zbgnh8Viq442-hxIvh8qHHeR_KK0O2juuVt3Cmu9-ls1FowEJpzWjuOiNU11ViE6AFsajjfvzcL-HYVumdROyoNWMaK5mGE5qDygvc7UsDZaWOy1gVTl8Edky62RXgd36wPbwIyUq3b24SkUtm7dIbduk3ovtKcvqNfyPhAg1dDPmm0A6A-51-lsXDxIvkq9cLTucV6MOxo2Ls3d48sNHKz70LFaPB-RTtAeTWyhqzsu7TFoovQaOU4v_Lj6vifornI"/>
+<span class="text-sm font-semibold text-on-surface">Google</span>
+</button>
+<button class="flex items-center justify-center space-x-2 py-3 border border-outline-variant/30 rounded-xl hover:bg-surface-container transition-colors active:scale-[0.98]">
+<img alt="" class="w-4 h-4" data-alt="Apple logo icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAya9ZDNekBD3wt6ZYcyyG7wj45csSyeoqLDV7LNA7rRJkYmcDNJP86vRrb8lVIbV1u-oywRMdCZKzctKQFoJqr_7YGIQ4dPHl0ugygd1mRfIK_keqo6PXEeuRsaDYLHL5Kg8XppwBH0YyD3uus__rq2Yd3N2PbDJ97iVHWPC3_IW70R60t_m2_7sxIxoEzaI2SWEuBx-yJYo3kGb9NBjRNtXpF_TEpt9zU2KdapzmvT7EFJirNfctrA8nFmn7fWnMNiNNcdiWY4lI"/>
+<span class="text-sm font-semibold text-on-surface">Apple</span>
+</button>
+</div>
+<!-- Footer Link -->
+<div class="mt-8 text-center">
+<p class="text-sm text-on-surface-variant">
+                            Don't have an account? 
+                            <a class="font-bold text-primary hover:underline underline-offset-4 ml-1" href="..../auth/sign-in.html">Create one</a>
+</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Component -->
+<footer class="bg-[#F2F4F6] dark:bg-[#121416] w-full border-t border-slate-200/20 dark:border-slate-800/20 mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-8 py-12 max-w-7xl mx-auto">
+<div class="mb-6 md:mb-0">
+<span class="font-serif text-lg text-slate-900 dark:text-slate-100 italic">Craftify</span>
+<p class="font-sans text-sm tracking-tight text-slate-500 dark:text-slate-400 mt-2">© 2024 Craftify. Handcrafted with intention.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-x-8 gap-y-4">
+<a class="font-sans text-sm tracking-tight text-slate-500 hover:text-amber-600 underline decoration-amber-500/30 underline-offset-4 transition-opacity duration-300 hover:opacity-80" href="..../auth/sign-in.html">Privacy Policy</a>
+<a class="font-sans text-sm tracking-tight text-slate-500 hover:text-amber-600 underline decoration-amber-500/30 underline-offset-4 transition-opacity duration-300 hover:opacity-80" href="..../auth/sign-in.html">Terms of Service</a>
+<a class="font-sans text-sm tracking-tight text-slate-500 hover:text-amber-600 underline decoration-amber-500/30 underline-offset-4 transition-opacity duration-300 hover:opacity-80" href="..../auth/sign-in.html">Maker Directory</a>
+<a class="font-sans text-sm tracking-tight text-slate-500 hover:text-amber-600 underline decoration-amber-500/30 underline-offset-4 transition-opacity duration-300 hover:opacity-80" href="..../auth/sign-in.html">Contact</a>
+</div>
+</div>
+</footer>
+</body></html>
+<!-- Create Account (Updated Navbar) -->

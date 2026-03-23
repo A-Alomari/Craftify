@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><link href="../../../assets/styles.css" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Live Auctions | Craftify</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Serif:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+</link></link></head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-fixed selection:text-on-primary-fixed"><nav class="sticky top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md no-border shadow-sm dark:shadow-none bg-surface-container-lowest">
+<div class="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
+<div class="flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-slate-100 font-serif">Craftify</div>
+<div class="hidden md:flex items-center space-x-8">
+<a class="text-sm font-medium font-sans text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors" href=".../index.html">Home</a>
+<a class="text-sm font-medium font-sans text-amber-600 dark:text-amber-500 border-b-2 border-amber-600 dark:border-amber-500 pb-1 active" href="..../auctions/live-auctions.html">Auctions</a>
+<a class="text-sm font-medium font-sans text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors" href="..../auctions/live-auctions.html">Dashboard</a>
+<a class="text-sm font-medium font-sans text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors" href="..../auctions/live-auctions.html">Admin</a>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden lg:flex items-center bg-slate-100 dark:bg-slate-800 rounded-full px-4 py-2">
+<span class="material-symbols-outlined text-secondary text-sm mr-2" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 font-sans" placeholder="Search unique crafts..." type="text"/>
+</div>
+<div class="flex items-center space-x-1">
+<button class="p-2 text-secondary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform"><span class="material-symbols-outlined" data-icon="gavel">gavel</span></button>
+<button class="p-2 text-secondary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform"><span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span></button>
+<button class="p-2 text-secondary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform"><span class="material-symbols-outlined" data-icon="notifications">notifications</span></button>
+<button class="p-2 text-secondary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform"><span class="material-symbols-outlined" data-icon="account_circle">account_circle</span></button>
+</div>
+</div>
+</div>
+</nav>
+<!-- TopNavBar -->
+<main class="max-w-7xl mx-auto px-8 py-16">
+<!-- Header Section -->
+<header class="mb-12">
+<div class="flex items-center gap-3 mb-4">
+<h1 class="text-5xl font-serif font-extrabold tracking-tight">Live Auctions</h1>
+<span class="flex h-3 w-3 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-error"></span>
+</span>
+</div>
+<p class="max-w-2xl text-lg text-secondary leading-relaxed font-sans">
+                Bid on exclusive, one-of-a-kind pieces directly from the artisan's studio. These unique items are available for a limited time only.
+            </p>
+</header>
+<!-- Filters and Controls -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+<div class="flex flex-wrap gap-3">
+<button class="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2">
+                    All Auctions
+                </button>
+<button class="bg-surface-container-high text-on-surface-variant px-6 py-2.5 rounded-full text-sm font-medium flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="schedule">schedule</span>
+                    Ending Soon
+                </button>
+<button class="bg-surface-container-high text-on-surface-variant px-6 py-2.5 rounded-full text-sm font-medium flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="north_east">north_east</span>
+                    New Arrivals
+                </button>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-8 border-t md:border-t-0 pt-4 md:pt-0">
+<span class="text-sm font-sans text-secondary italic">Showing 6 active auctions</span>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-on-surface">
+<span class="material-symbols-outlined text-[20px]" data-icon="tune">tune</span>
+                        Filter
+                    </button>
+<button class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-on-surface">
+<span class="material-symbols-outlined text-[20px]" data-icon="sort">sort</span>
+                        Sort
+                    </button>
+</div>
+</div>
+</div>
+<!-- Auction Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+<!-- Card 1 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col transition-all duration-300">
+<div class="relative aspect-[4/5] overflow-hidden">
+<img alt="Hand-thrown ceramic vase" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Close-up of a rustic, hand-thrown ceramic vase with earthy glaze textures sitting on a sunlit oak workshop table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhyGhSeXaqBXqr1He3FUmb2nXpdWB9TCfw4AgDgydW6HpHkD_8c-BtBRWSSdUSU9bkV9gpaaHqgLY9UOzWB2l2g1piAZXlWPAHr9Ak0zgc3rBsamTZUMg_QsAfMbqyMykV8tPtXpy_VToDrMUu_u-Pk49O1lXwPgyglawV28VLqdvr1JY6gTiPjKJmmEEV4XQ6hmTQyIN3g7Q_hzPGl52P0iv9K4DoKfMl97crawbclOTJKIUJrOWermh0jV5bdfGzpyCQI7QxNzo"/>
+<div class="absolute top-4 left-4 bg-tertiary text-white text-[10px] font-bold px-3 py-1 rounded-sm flex items-center gap-1.5 uppercase tracking-tighter">
+<span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                        LIVE BID
+                    </div>
+</div>
+<div class="p-5 flex flex-col flex-grow">
+<span class="font-sans text-[10px] font-extrabold uppercase tracking-[0.2em] text-secondary mb-2">POTTERY</span>
+<h3 class="font-serif text-xl font-bold mb-1 leading-tight text-on-surface">Vintage Kiln-Fired Vase</h3>
+<p class="text-xs text-secondary mb-6 italic">by Elena Rossi</p>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div>
+<span class="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Current Bid</span>
+<span class="text-xl font-serif font-bold text-primary">$145</span>
+</div>
+<div>
+<span class="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Time Left</span>
+<div class="flex items-center gap-1 text-sm font-bold text-error">
+<span class="material-symbols-outlined text-[16px]" data-icon="alarm">alarm</span>
+                                44m left
+                            </div>
+</div>
+</div>
+<div class="mt-auto">
+<p class="text-[11px] text-secondary-container bg-secondary/10 px-2 py-1 inline-block rounded-md font-medium mb-4">12 bids placed</p>
+<button class="w-full bg-primary-container text-on-primary-container py-3 rounded-lg font-bold text-sm uppercase tracking-widest hover:brightness-105 transition-all active:scale-95">
+                            Place Bid
+                        </button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col transition-all duration-300">
+<div class="relative aspect-[4/5] overflow-hidden">
+<img alt="Handcrafted wooden stool" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Minimalist solid walnut stool with hand-carved joinery details standing against a clean white gallery wall with dramatic shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB06CpT6f928Rcs4ZhWRfirdkcJkOskppMPSSfMie7hmnnfgr75FaWGRPYWtp2ouz021dlnsIOtf9fME33v_VvQ8qHm-CYX-GK1_YsZLiAeFg19TC3wFjU4QBDX7wxy-PCgw_8-WcUeEoY6EdafqTPFRghWt1wkxzkquF9HNv1tN-FZMHl_N8tjaoBOL31UWXpXydcO3bD-ciWBSdhLdWLZ764-oC5kTyK0qEAv6OxBJmxZnruZZ5SkEnuShCPp2uwrXWj9UgjbmUU"/>
+<div class="absolute top-4 left-4 bg-tertiary text-white text-[10px] font-bold px-3 py-1 rounded-sm flex items-center gap-1.5 uppercase tracking-tighter">
+<span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                        LIVE BID
+                    </div>
+</div>
+<div class="p-5 flex flex-col flex-grow">
+<span class="font-sans text-[10px] font-extrabold uppercase tracking-[0.2em] text-secondary mb-2">WOODWORK</span>
+<h3 class="font-serif text-xl font-bold mb-1 leading-tight text-on-surface">Walnut Joinery Stool</h3>
+<p class="text-xs text-secondary mb-6 italic">by Marcus Thorne</p>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div>
+<span class="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Current Bid</span>
+<span class="text-xl font-serif font-bold text-primary">$320</span>
+</div>
+<div>
+<span class="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Time Left</span>
+<div class="flex items-center gap-1 text-sm font-bold text-secondary">
+                                1d 1h
+                            </div>
+</div>
+</div>
+<div class="mt-auto">
+<p class="text-[11px] text-secondary-container bg-secondary/10 px-2 py-1 inline-block rounded-md font-medium mb-4">8 bids placed</p>
+<button class="w-full bg-primary-container text-on-primary-container py-3 rounded-lg font-bold text-sm uppercase tracking-widest hover:brightness-105 transition-all active:scale-95">
+                            Place Bid
+                        </button>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col transition-all duration-300">
+<div class="relative aspect-[4/5] overflow-hidden">
+<img alt="Loom woven textile wall hanging" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Intricate indigo dyed wool wall hanging with abstract geometric patterns and long tassels hanging in a modern bohemian living room" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCZooSVdY6ecWDOwIfRN-2XYRc5qoUnZk0Lc_ItHXIVyNyKjNL4y9ogPlBDJMdT9Ho5oUL8KY8InuW02l4kHpsq9MBD7PsTRzdMf_odlsIzrDVSjT6Rk9ZQO5E5IYimk8cTZFVu1SIPrQX8lRn1o_XvrYp_OH2WuHdnn8RaM9tKgfGMqjQge3zGtKKYrqOWDFifAmoow1LBijRVlV_kYGV0k-R1UakAKaZi9NYPZ0gfcqGCxN6rVRbcCQ7Cv4CqyfyqtsuEuIUxCk"/>
+<div class="absolute top-4 left-4 bg-tertiary text-white text-[10px] font-bold px-3 py-1 rounded-sm flex items-center gap-1.5 uppercase tracking-tighter">
+<span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                        LIVE BID
+                    </div>
+</div>
+<div class="p-5 flex flex-col flex-grow">
+<span class="font-sans text-[10px] font-extrabold uppercase tracking-[0.2em] text-secondary mb-2">TEXTILES</span>
+<h3 class="font-serif text-xl font-bold mb-1 leading-tight text-on-surface">Indigo Woven Hanging</h3>
+<p class="text-xs text-secondary mb-6 italic">by Sarah Jenkins</p>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div>
+<span class="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Current Bid</span>
+<span class="text-xl font-serif font-bold text-primary">$210</span>
+</div>
+<div>
+<span class="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Time Left</span>
+<div class="flex items-center gap-1 text-sm font-bold text-error">
+<span class="material-symbols-outlined text-[16px]" data-icon="alarm">alarm</span>
+                                12m left
+                            </div>
+</div>
+</div>
+<div class="mt-auto">
+<p class="text-[11px] text-secondary-container bg-secondary/10 px-2 py-1 inline-block rounded-md font-medium mb-4">24 bids placed</p>
+<button class="w-full bg-primary-container text-on-primary-container py-3 rounded-lg font-bold text-sm uppercase tracking-widest hover:brightness-105 transition-all active:scale-95">
+                            Place Bid
+                        </button>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col transition-all duration-300">
+<div class="relative aspect-[4/5] overflow-hidden">
+<img alt="Hand-forged silver ring" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Macro photo of a rough-hewn solid silver ring with an embedded raw turquoise stone resting on weathered driftwood" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDratdHRjNe2cgkISD65lKi69RUmqZZFDr-Jl53sIxOlhCtZsxEg-EhNyllKzU4DRl9a2OT7k6mPwqV3IiMg2iBCqpfHaKGCdApExoud0_KlVZFFdsQOBW-7geO_DQCbkegoKnH9Tcczb-n0rza_vKCSQPCl1FhyMtaLOqit3flnq-vI_iEciORwb-YhAaQAjU3HRy39ObxwEQyF6IL7rRCDZ6Wx9_W3H7__gBMhs0GeIINpCUKH-_n-OxShK0BFVG2Sr4yzZuG64Y"/>
+<div class="absolute top-4 left-4 bg-tertiary text-white text-[10px] font-bold px-3 py-1 rounded-sm flex items-center gap-1.5 uppercase tracking-tighter">
+<span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                        LIVE BID
+                    </div>
+</div>
+<div class="p-5 flex flex-col flex-grow">
+<span class="font-sans text-[10px] font-extrabold uppercase tracking-[0.2em] text-secondary mb-2">JEWELRY</span>
+<h3 class="font-serif text-xl font-bold mb-1 leading-tight text-on-surface">Raw Silver Signet Ring</h3>
+<p class="text-xs text-secondary mb-6 italic">by David Chen</p>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div>
+<span class="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Current Bid</span>
+<span class="text-xl font-serif font-bold text-primary">$85</span>
+</div>
+<div>
+<span class="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Time Left</span>
+<div class="flex items-center gap-1 text-sm font-bold text-secondary">
+                                4d 8h
+                            </div>
+</div>
+</div>
+<div class="mt-auto">
+<p class="text-[11px] text-secondary-container bg-secondary/10 px-2 py-1 inline-block rounded-md font-medium mb-4">5 bids placed</p>
+<button class="w-full bg-primary-container text-on-primary-container py-3 rounded-lg font-bold text-sm uppercase tracking-widest hover:brightness-105 transition-all active:scale-95">
+                            Place Bid
+                        </button>
+</div>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col transition-all duration-300">
+<div class="relative aspect-[4/5] overflow-hidden">
+<img alt="Handmade leather messenger bag" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Professional studio shot of a vegetable-tanned leather messenger bag with copper rivets and heavy saddle stitching on a dark slate background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBMlfqF0fWX4v4SpDKUHCMlDZK5xJx8dL7jKNZeQeiYP1vrcAlLLl-uwiBN2HD52MoKPYJH8HRFlXi6ir8BqgBnKsXCQ5wHbPHtmGfo5SOeT1tIobr0-x6OV4dm2OG6LJgC6choxM7tywuaAuhdzWnff1CFFsnhqWuMjJyPs7ZFXtIIv1XaxLJ03FJNLxV-rgXdRsmcQongCsIXgak0T03nGm49tnziVOFAyGrwbVpngP03EuNcPGsdQDwuWINyY07dpWNsHn8Xoc"/>
+<div class="absolute top-4 left-4 bg-tertiary text-white text-[10px] font-bold px-3 py-1 rounded-sm flex items-center gap-1.5 uppercase tracking-tighter">
+<span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                        LIVE BID
+                    </div>
+</div>
+<div class="p-5 flex flex-col flex-grow">
+<span class="font-sans text-[10px] font-extrabold uppercase tracking-[0.2em] text-secondary mb-2">LEATHER</span>
+<h3 class="font-serif text-xl font-bold mb-1 leading-tight text-on-surface">Artisan Satchel Bag</h3>
+<p class="text-xs text-secondary mb-6 italic">by Oliver Vance</p>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div>
+<span class="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Current Bid</span>
+<span class="text-xl font-serif font-bold text-primary">$450</span>
+</div>
+<div>
+<span class="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Time Left</span>
+<div class="flex items-center gap-1 text-sm font-bold text-secondary">
+                                2d 22h
+                            </div>
+</div>
+</div>
+<div class="mt-auto">
+<p class="text-[11px] text-secondary-container bg-secondary/10 px-2 py-1 inline-block rounded-md font-medium mb-4">19 bids placed</p>
+<button class="w-full bg-primary-container text-on-primary-container py-3 rounded-lg font-bold text-sm uppercase tracking-widest hover:brightness-105 transition-all active:scale-95">
+                            Place Bid
+                        </button>
+</div>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col transition-all duration-300">
+<div class="relative aspect-[4/5] overflow-hidden">
+<img alt="Hand-forged iron candle holder" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Blacksmith's forged iron candelabra with organic vine-like twists and hammered finish texture on a reclaimed wood surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCka9dCq7yavippgjwIDaDxyCSIV_9kXwwAkAPZcgyLpqvQUHLqdVRq16c47vCe23uVjfDIsugzi3Hl54XWr5JFihbOMsVQl-tJIdFPBwDj-7sdvupIMo7Boom4iZ7KNTtixeW3ZmnOZ7fI0IiemVDwEiYtlRpg-QaATPSb2vVaWVI6mlQcxngqZpxUHHIqnOaMGKF_Jdvg33tjjnwPztIOGbWpYzBEB8jbJ4q6S4M_IAW0v8N4GHqaSZoIjmg-cusO8XbY1qyM_-g"/>
+<div class="absolute top-4 left-4 bg-tertiary text-white text-[10px] font-bold px-3 py-1 rounded-sm flex items-center gap-1.5 uppercase tracking-tighter">
+<span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                        LIVE BID
+                    </div>
+</div>
+<div class="p-5 flex flex-col flex-grow">
+<span class="font-sans text-[10px] font-extrabold uppercase tracking-[0.2em] text-secondary mb-2">IRONWORK</span>
+<h3 class="font-serif text-xl font-bold mb-1 leading-tight text-on-surface">Forged Iron Candelabra</h3>
+<p class="text-xs text-secondary mb-6 italic">by Thomas Steel</p>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div>
+<span class="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Current Bid</span>
+<span class="text-xl font-serif font-bold text-primary">$180</span>
+</div>
+<div>
+<span class="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Time Left</span>
+<div class="flex items-center gap-1 text-sm font-bold text-error">
+<span class="material-symbols-outlined text-[16px]" data-icon="alarm">alarm</span>
+                                31m left
+                            </div>
+</div>
+</div>
+<div class="mt-auto">
+<p class="text-[11px] text-secondary-container bg-secondary/10 px-2 py-1 inline-block rounded-md font-medium mb-4">15 bids placed</p>
+<button class="w-full bg-primary-container text-on-primary-container py-3 rounded-lg font-bold text-sm uppercase tracking-widest hover:brightness-105 transition-all active:scale-95">
+                            Place Bid
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-[#F2F4F6] dark:bg-slate-950 full-width py-16 px-8 mt-auto tonal-shift from surface to surface-container-low">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 max-w-7xl mx-auto">
+<div class="col-span-1 md:col-span-1">
+<div class="text-xl font-serif font-semibold text-slate-800 dark:text-slate-200 mb-6">Craftify</div>
+<p class="font-sans Inter text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+                    Connecting discerning collectors with the world's most talented independent artisans.
+                </p>
+</div>
+<div>
+<h4 class="font-serif Noto Serif text-on-surface font-bold mb-6">Shop</h4>
+<ul class="space-y-4">
+<li><a class="font-sans Inter text-sm text-slate-500 dark:text-slate-400 hover:text-amber-600 underline transition-all" href="..../auctions/live-auctions.html">Shop All</a></li>
+<li><a class="font-sans Inter text-sm text-slate-500 dark:text-slate-400 hover:text-amber-600 underline transition-all" href="..../auctions/live-auctions.html">New Arrivals</a></li>
+<li><a class="font-sans Inter text-sm text-slate-500 dark:text-slate-400 hover:text-amber-600 underline transition-all" href="..../auctions/live-auctions.html">Sustainability</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-serif Noto Serif text-on-surface font-bold mb-6">Support</h4>
+<ul class="space-y-4">
+<li><a class="font-sans Inter text-sm text-slate-500 dark:text-slate-400 hover:text-amber-600 underline transition-all" href="..../auctions/live-auctions.html">Returns</a></li>
+<li><a class="font-sans Inter text-sm text-slate-500 dark:text-slate-400 hover:text-amber-600 underline transition-all" href="..../auctions/live-auctions.html">Contact Us</a></li>
+<li><a class="font-sans Inter text-sm text-slate-500 dark:text-slate-400 hover:text-amber-600 underline transition-all" href="..../auctions/live-auctions.html">Privacy Policy</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-serif Noto Serif text-on-surface font-bold mb-6">Newsletter</h4>
+<p class="font-sans Inter text-sm text-slate-500 dark:text-slate-400 mb-4">Join our community for exclusive artisan stories.</p>
+<div class="flex">
+<input class="bg-white dark:bg-slate-900 border-none rounded-l-lg text-sm w-full focus:ring-1 focus:ring-amber-500" placeholder="Email address" type="email"/>
+<button class="bg-amber-600 text-white px-4 rounded-r-lg hover:bg-amber-700 transition-colors">
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto mt-16 pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="font-sans Inter text-xs text-slate-500 dark:text-slate-400">© 2024 Craftify. Handcrafted with intention.</p>
+<div class="flex gap-6">
+<a class="text-slate-400 hover:text-amber-600 transition-colors" href="..../auctions/live-auctions.html"><span class="material-symbols-outlined text-[20px]" data-icon="share">share</span></a>
+<a class="text-slate-400 hover:text-amber-600 transition-colors" href="..../auctions/live-auctions.html"><span class="material-symbols-outlined text-[20px]" data-icon="public">public</span></a>
+<a class="text-slate-400 hover:text-amber-600 transition-colors" href="..../auctions/live-auctions.html"><span class="material-symbols-outlined text-[20px]" data-icon="thumb_up">thumb_up</span></a>
+</div>
+</div>
+</footer>
+</body></html>
+<!-- Admin Panel - Updated Navbar -->

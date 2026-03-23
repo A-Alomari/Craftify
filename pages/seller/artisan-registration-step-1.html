@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><link href="../../../assets/styles.css" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Artisan Registration | Craftify</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Noto+Serif:ital,wght@0,700;1,700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-primary-fixed"><nav class="sticky top-0 z-50 bg-white shadow-sm px-6 py-4 flex items-center justify-between">
+<div class="flex items-center gap-8">
+<!-- Logo -->
+<a class="flex items-center gap-3 group" href=".../index.html">
+<div class="w-10 h-10 bg-primary-container rounded-full flex items-center justify-center text-on-primary-container font-bold text-xl">
+                A
+            </div>
+<span class="serif-text italic text-2xl font-bold text-secondary">Craftify</span>
+</a>
+<!-- Center Links -->
+<div class="hidden md:flex items-center gap-6">
+<a class="text-secondary font-medium hover:text-primary transition-colors active" href=".../index.html">Home</a>
+<a class="text-secondary font-medium hover:text-primary transition-colors" href="..../auctions/live-auctions.html">Auctions</a>
+</div>
+</div>
+<!-- Right Icons -->
+<div class="flex items-center gap-4">
+<button class="p-2 text-secondary hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="p-2 text-secondary hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+<button class="p-2 text-secondary hover:bg-surface-container rounded-full transition-colors border border-surface-variant">
+<span class="material-symbols-outlined">person</span>
+</button>
+</div>
+</nav>
+<!-- Consistent Craftify Navbar -->
+<main class="flex-grow flex items-center justify-center px-4 py-16">
+<div class="max-w-3xl w-full">
+<!-- Brand Identity Anchor -->
+<div class="flex flex-col items-center mb-12">
+<div class="w-16 h-16 bg-primary-container rounded-full flex items-center justify-center mb-6 shadow-sm">
+<span class="material-symbols-outlined text-on-primary-container text-4xl" data-icon="palette">palette</span>
+</div>
+<h1 class="serif-text text-4xl font-bold text-on-surface tracking-tight mb-2">Become an Artisan Seller</h1>
+<p class="text-secondary font-body tracking-wide">Share your craft with a global community of collectors.</p>
+</div>
+<!-- Registration Card -->
+<div class="bg-surface-container-lowest rounded-xl p-8 md:p-12 shadow-[0px_20px_40px_rgba(25,28,30,0.06)]">
+<!-- Progress Indicator -->
+<div class="flex items-center justify-between mb-16 px-4 md:px-12 relative">
+<!-- Progress Line -->
+<div class="absolute top-1/2 left-0 w-full h-0.5 bg-surface-variant -translate-y-1/2 z-0"></div>
+<div class="absolute top-1/2 left-0 w-1/3 h-0.5 bg-primary-container -translate-y-1/2 z-0"></div>
+<!-- Step 1: Active -->
+<div class="relative z-10 flex flex-col items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-sm ring-8 ring-surface-container-lowest">
+                        1
+                    </div>
+<span class="text-xs font-bold text-on-surface uppercase tracking-widest whitespace-nowrap">Account Info</span>
+</div>
+<!-- Step 2 -->
+<div class="relative z-10 flex flex-col items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-variant text-secondary flex items-center justify-center font-bold text-sm ring-8 ring-surface-container-lowest">
+                        2
+                    </div>
+<span class="text-xs font-medium text-secondary uppercase tracking-widest whitespace-nowrap">Shop Details</span>
+</div>
+<!-- Step 3 -->
+<div class="relative z-10 flex flex-col items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-variant text-secondary flex items-center justify-center font-bold text-sm ring-8 ring-surface-container-lowest">
+                        3
+                    </div>
+<span class="text-xs font-medium text-secondary uppercase tracking-widest whitespace-nowrap">Confirmation</span>
+</div>
+</div>
+<!-- Step 1 Form -->
+<form class="space-y-8">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Full Name -->
+<div class="space-y-2">
+<label class="text-xs font-bold uppercase tracking-widest text-secondary ml-1">Full Name</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface placeholder:text-secondary/50 focus:bg-surface-container-high transition-all border-l-0 focus:border-l-4 focus:border-primary-container" placeholder="e.g. Julian Thorne" type="text"/>
+</div>
+<!-- Phone Number -->
+<div class="space-y-2">
+<label class="text-xs font-bold uppercase tracking-widest text-secondary ml-1">Phone Number</label>
+<div class="flex gap-2">
+<div class="w-24 bg-surface-container-low rounded-xl px-3 py-3 text-on-surface flex items-center justify-center text-sm font-medium">
+                                +1
+                            </div>
+<input class="flex-1 bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface placeholder:text-secondary/50 focus:bg-surface-container-high transition-all border-l-0 focus:border-l-4 focus:border-primary-container" placeholder="(555) 000-0000" type="tel"/>
+</div>
+</div>
+<!-- Email Address -->
+<div class="md:col-span-2 space-y-2">
+<label class="text-xs font-bold uppercase tracking-widest text-secondary ml-1">Email Address</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface placeholder:text-secondary/50 focus:bg-surface-container-high transition-all border-l-0 focus:border-l-4 focus:border-primary-container" placeholder="julian@artisan.com" type="email"/>
+</div>
+<!-- Password -->
+<div class="space-y-2">
+<label class="text-xs font-bold uppercase tracking-widest text-secondary ml-1">Password</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface placeholder:text-secondary/50 focus:bg-surface-container-high transition-all border-l-0 focus:border-l-4 focus:border-primary-container" placeholder="••••••••" type="password"/>
+<!-- Password Strength Bar -->
+<div class="pt-2 px-1">
+<div class="h-1 w-full bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full w-2/3 bg-primary-container rounded-full"></div>
+</div>
+<p class="text-[10px] text-primary mt-1 font-medium tracking-tight">Strength: Secure</p>
+</div>
+</div>
+<!-- Confirm Password -->
+<div class="space-y-2">
+<label class="text-xs font-bold uppercase tracking-widest text-secondary ml-1">Confirm Password</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface placeholder:text-secondary/50 focus:bg-surface-container-high transition-all border-l-0 focus:border-l-4 focus:border-primary-container" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<!-- Actions -->
+<div class="pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
+<p class="text-sm text-secondary max-w-xs">By clicking next, you agree to our <span class="text-primary font-medium underline underline-offset-4 cursor-pointer">Maker Guidelines</span>.</p>
+<button class="w-full md:w-auto px-12 py-4 bg-primary-container text-on-primary-container font-bold rounded-xl shadow-[0px_4px_0px_#613B00] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-2 group" type="button">
+                        Next
+                        <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</form>
+</div>
+<!-- Supporting Content (Editorial) -->
+<div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary mt-1" data-icon="verified_user">verified_user</span>
+<div>
+<h4 class="font-bold text-on-surface text-sm">Secure Merchant Accounts</h4>
+<p class="text-xs text-secondary leading-relaxed mt-1">Industrial-grade encryption for all financial transactions and private data.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary mt-1" data-icon="local_shipping">local_shipping</span>
+<div>
+<h4 class="font-bold text-on-surface text-sm">Artisan Logistics</h4>
+<p class="text-xs text-secondary leading-relaxed mt-1">Integrated shipping labels and discounted rates for fragile items.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary mt-1" data-icon="groups">groups</span>
+<div>
+<h4 class="font-bold text-on-surface text-sm">Global Community</h4>
+<p class="text-xs text-secondary leading-relaxed mt-1">Connect with 1M+ active collectors who value high-intent craftsmanship.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Shared Footer -->
+<footer class="w-full py-12 px-8 bg-[#F2F4F6] dark:bg-[#191C1E] flex flex-col md:flex-row justify-between items-center gap-6 border-t border-surface-variant/30">
+<div class="flex flex-col items-center md:items-start">
+<span class="font-['Noto_Serif'] italic text-xl text-[#545F73]">Craftify</span>
+<p class="font-['Inter'] text-sm tracking-wide text-[#545F73] dark:text-[#E6E8EA] mt-1">© 2024 Craftify. Handcrafted with intention.</p>
+</div>
+<nav class="flex flex-wrap justify-center gap-6">
+<a class="font-['Inter'] text-sm tracking-wide text-[#545F73] dark:text-[#E6E8EA] hover:text-[#F59E0B] underline-offset-4 transition-all" href="..../seller/artisan-registration-step-1.html">Privacy Policy</a>
+<a class="font-['Inter'] text-sm tracking-wide text-[#545F73] dark:text-[#E6E8EA] hover:text-[#F59E0B] underline-offset-4 transition-all" href="..../seller/artisan-registration-step-1.html">Terms of Service</a>
+<a class="font-['Inter'] text-sm tracking-wide text-[#545F73] dark:text-[#E6E8EA] hover:text-[#F59E0B] underline-offset-4 transition-all" href="..../seller/artisan-registration-step-1.html">Maker Guidelines</a>
+<a class="font-['Inter'] text-sm tracking-wide text-[#545F73] dark:text-[#E6E8EA] hover:text-[#F59E0B] underline-offset-4 transition-all" href="..../seller/artisan-registration-step-1.html">Support</a>
+</nav>
+</footer>
+</body></html>
+<!-- Product Detail - Updated Navbar -->
