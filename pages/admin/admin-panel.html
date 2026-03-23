@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><link href="../../../assets/styles.css" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin Panel - Craftify</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+</link></link></head>
+<body class="text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed"><nav class="sticky top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm dark:shadow-slate-950/50">
+<div class="flex justify-between items-center px-6 py-4 max-w-full mx-auto">
+<div class="flex items-center gap-8">
+<a class="flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-slate-100 font-['Noto_Serif']" href="..../admin/admin-panel.html">
+<span class="text-2xl font-bold">Craftify</span>
+</a>
+<div class="hidden md:flex items-center space-x-6">
+<a class="text-sm font-medium font-['Inter'] text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors active" href=".../index.html">Home</a>
+<a class="text-sm font-medium font-['Inter'] text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors" href="..../auctions/live-auctions.html">Auctions</a>
+<a class="text-sm font-medium font-['Inter'] text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors" href="..../admin/admin-panel.html">Dashboard</a>
+<a class="text-sm font-medium font-['Inter'] text-amber-600 dark:text-amber-500 border-b-2 border-amber-600 dark:border-amber-500 pb-1" href="..../admin/admin-panel.html">Admin</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden lg:flex items-center bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-lg text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-sm mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 font-body" placeholder="Global search..." type="text"/>
+</div>
+<div class="flex items-center gap-1">
+<button class="material-symbols-outlined p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150">gavel</button>
+<button class="material-symbols-outlined p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150">shopping_cart</button>
+<button class="material-symbols-outlined p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150">notifications</button>
+<button class="material-symbols-outlined p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150">account_circle</button>
+</div>
+</div>
+</div>
+</nav>
+<!-- TopNavBar -->
+<!-- Main Content Canvas -->
+<main class="pt-12 pb-20 px-8 max-w-7xl mx-auto min-h-screen">
+<!-- Header Section -->
+<header class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<span class="font-label text-xs uppercase tracking-[0.2em] text-secondary font-bold mb-2 block">System Overview</span>
+<h1 class="text-4xl font-bold text-on-surface">Admin Panel</h1>
+</div>
+<div class="flex gap-3">
+<button class="px-6 py-2.5 rounded-xl text-sm font-semibold text-secondary bg-surface-container-high hover:bg-surface-container-highest transition-all">
+                    System Health
+                </button>
+<button class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-primary-container text-on-primary-container shadow-sm hover:brightness-95 active:scale-95 transition-all">
+                    Generate Report
+                </button>
+</div>
+</header>
+<!-- Stats Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+<!-- Stat Card 1 -->
+<div class="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/10 shadow-[0px_20px_40px_rgba(25,28,30,0.04)] relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 w-20 h-20 bg-primary/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+<div class="relative z-10">
+<span class="material-symbols-outlined text-primary mb-4 text-3xl">group</span>
+<p class="font-label text-xs uppercase tracking-widest text-on-secondary-container font-medium">Total Users</p>
+<h2 class="text-4xl font-headline font-bold mt-1 text-on-surface">8</h2>
+</div>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/10 shadow-[0px_20px_40px_rgba(25,28,30,0.04)] relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 w-20 h-20 bg-secondary/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+<div class="relative z-10">
+<span class="material-symbols-outlined text-secondary mb-4 text-3xl">inventory_2</span>
+<p class="font-label text-xs uppercase tracking-widest text-on-secondary-container font-medium">Total Products</p>
+<h2 class="text-4xl font-headline font-bold mt-1 text-on-surface">8</h2>
+</div>
+</div>
+<!-- Stat Card 3 -->
+<div class="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/10 shadow-[0px_20px_40px_rgba(25,28,30,0.04)] relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 w-20 h-20 bg-tertiary/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+<div class="relative z-10">
+<span class="material-symbols-outlined text-tertiary mb-4 text-3xl">shopping_bag</span>
+<p class="font-label text-xs uppercase tracking-widest text-on-secondary-container font-medium">Total Orders</p>
+<h2 class="text-4xl font-headline font-bold mt-1 text-on-surface">5</h2>
+</div>
+</div>
+<!-- Stat Card 4 -->
+<div class="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/10 shadow-[0px_20px_40px_rgba(25,28,30,0.04)] relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 w-20 h-20 bg-primary-container/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+<div class="relative z-10">
+<span class="material-symbols-outlined text-primary mb-4 text-3xl">payments</span>
+<p class="font-label text-xs uppercase tracking-widest text-on-secondary-container font-medium">Total Revenue</p>
+<h2 class="text-4xl font-headline font-bold mt-1 text-on-surface">$45,230</h2>
+</div>
+</div>
+</section>
+<!-- Data Management Section -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0px_20px_40px_rgba(25,28,30,0.06)] overflow-hidden">
+<!-- Tabs & Action Bar -->
+<div class="px-8 pt-8 pb-4">
+<div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+<!-- Tabs -->
+<div class="flex gap-4 border-b border-surface-container-high w-full lg:w-auto">
+<button class="pb-4 px-2 flex items-center gap-2 text-primary font-semibold border-b-2 border-primary transition-all">
+<span class="material-symbols-outlined text-lg">person</span>
+                            Users
+                        </button>
+<button class="pb-4 px-2 flex items-center gap-2 text-secondary hover:text-primary transition-all">
+<span class="material-symbols-outlined text-lg">category</span>
+                            Products
+                        </button>
+<button class="pb-4 px-2 flex items-center gap-2 text-secondary hover:text-primary transition-all">
+<span class="material-symbols-outlined text-lg">receipt_long</span>
+                            Orders
+                        </button>
+</div>
+<!-- Action Bar -->
+<div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+<div class="relative flex-grow lg:flex-grow-0">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
+<input class="pl-12 pr-4 py-2.5 bg-surface-container-low border-none rounded-xl focus:ring-0 text-sm w-full lg:w-64 font-body transition-colors focus:bg-surface-container-high" placeholder="Search records..." type="text"/>
+</div>
+<button class="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-outline-variant/30 text-secondary hover:bg-surface-container-low transition-colors text-sm font-semibold">
+<span class="material-symbols-outlined text-lg">filter_list</span>
+                            Filter
+                        </button>
+<button class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary-container text-on-primary-container shadow-sm hover:brightness-95 transition-all text-sm font-semibold">
+<span class="material-symbols-outlined text-lg">download</span>
+                            Export Data
+                        </button>
+</div>
+</div>
+</div>
+<!-- Table Container -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low">
+<tr>
+<th class="px-8 py-4 font-label text-xs uppercase tracking-widest text-on-secondary-container font-bold">Name</th>
+<th class="px-8 py-4 font-label text-xs uppercase tracking-widest text-on-secondary-container font-bold">Email</th>
+<th class="px-8 py-4 font-label text-xs uppercase tracking-widest text-on-secondary-container font-bold">Role</th>
+<th class="px-8 py-4 font-label text-xs uppercase tracking-widest text-on-secondary-container font-bold">Joined date</th>
+<th class="px-8 py-4 font-label text-xs uppercase tracking-widest text-on-secondary-container font-bold text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold">SJ</div>
+<span class="font-headline font-semibold text-on-surface">Sarah Jenkins</span>
+</div>
+</td>
+<td class="px-8 py-6 font-body text-sm text-secondary">s.jenkins@craftify.com</td>
+<td class="px-8 py-6">
+<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-primary-fixed text-on-primary-fixed-variant">artisan</span>
+</td>
+<td class="px-8 py-6 font-body text-sm text-secondary">Oct 12, 2023</td>
+<td class="px-8 py-6 text-right">
+<button class="text-primary font-headline italic hover:underline underline-offset-4 font-medium transition-all">Edit</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed font-bold">DC</div>
+<span class="font-headline font-semibold text-on-surface">David Chen</span>
+</div>
+</td>
+<td class="px-8 py-6 font-body text-sm text-secondary">d.chen88@gmail.com</td>
+<td class="px-8 py-6">
+<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-secondary-container text-on-secondary-container">customer</span>
+</td>
+<td class="px-8 py-6 font-body text-sm text-secondary">Nov 05, 2023</td>
+<td class="px-8 py-6 text-right">
+<button class="text-primary font-headline italic hover:underline underline-offset-4 font-medium transition-all">Edit</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-inverse-surface flex items-center justify-center text-inverse-on-surface font-bold">ER</div>
+<span class="font-headline font-semibold text-on-surface">Elena Rodriguez</span>
+</div>
+</td>
+<td class="px-8 py-6 font-body text-sm text-secondary">elena.admin@craftify.com</td>
+<td class="px-8 py-6">
+<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-secondary text-white">admin</span>
+</td>
+<td class="px-8 py-6 font-body text-sm text-secondary">Jan 15, 2023</td>
+<td class="px-8 py-6 text-right">
+<button class="text-primary font-headline italic hover:underline underline-offset-4 font-medium transition-all">Edit</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed font-bold">MW</div>
+<span class="font-headline font-semibold text-on-surface">Marcus Weber</span>
+</div>
+</td>
+<td class="px-8 py-6 font-body text-sm text-secondary">m.weber@studio.io</td>
+<td class="px-8 py-6">
+<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-primary-fixed text-on-primary-fixed-variant">artisan</span>
+</td>
+<td class="px-8 py-6 font-body text-sm text-secondary">Dec 20, 2023</td>
+<td class="px-8 py-6 text-right">
+<button class="text-primary font-headline italic hover:underline underline-offset-4 font-medium transition-all">Edit</button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold">LT</div>
+<span class="font-headline font-semibold text-on-surface">Lisa Thompson</span>
+</div>
+</td>
+<td class="px-8 py-6 font-body text-sm text-secondary">lisa.t@lifestyle.com</td>
+<td class="px-8 py-6">
+<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-secondary-container text-on-secondary-container">customer</span>
+</td>
+<td class="px-8 py-6 font-body text-sm text-secondary">Feb 02, 2024</td>
+<td class="px-8 py-6 text-right">
+<button class="text-primary font-headline italic hover:underline underline-offset-4 font-medium transition-all">Edit</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="px-8 py-6 flex items-center justify-between border-t border-surface-container">
+<span class="text-sm text-secondary font-body">Showing 5 of 8 users</span>
+<div class="flex gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant/30 text-secondary hover:bg-surface-container-low disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-primary-container text-on-primary-container font-semibold">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant/30 text-secondary hover:bg-surface-container-low">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant/30 text-secondary hover:bg-surface-container-low">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-[#F7F9FB] dark:bg-[#191C1E] w-full py-12 px-8 flex flex-col items-center justify-center space-y-6 w-full mt-auto">
+<div class="bg-[#F2F4F6] dark:bg-[#2A2D30] h-px w-full mb-8"></div>
+<div class="flex flex-wrap justify-center gap-8 mb-4">
+<a class="font-['Inter'] text-sm tracking-wide uppercase font-medium text-[#545F73] dark:text-[#E6E8EA] hover:text-[#F59E0B] underline decoration-2 transition-all" href="..../admin/admin-panel.html">Privacy Policy</a>
+<a class="font-['Inter'] text-sm tracking-wide uppercase font-medium text-[#545F73] dark:text-[#E6E8EA] hover:text-[#F59E0B] underline decoration-2 transition-all" href="..../admin/admin-panel.html">Terms of Service</a>
+<a class="font-['Inter'] text-sm tracking-wide uppercase font-medium text-[#545F73] dark:text-[#E6E8EA] hover:text-[#F59E0B] underline decoration-2 transition-all" href="..../admin/admin-panel.html">Maker Support</a>
+<a class="font-['Inter'] text-sm tracking-wide uppercase font-medium text-[#545F73] dark:text-[#E6E8EA] hover:text-[#F59E0B] underline decoration-2 transition-all" href="..../admin/admin-panel.html">Sustainability Report</a>
+</div>
+<div class="font-['Noto_Serif'] italic text-[#545F73] dark:text-[#E6E8EA] text-lg mb-2">Craftify Digital Atelier</div>
+<p class="font-['Inter'] text-sm tracking-wide uppercase font-medium text-[#545F73] dark:text-[#E6E8EA] opacity-80">© 2024 Craftify Digital Atelier. All Rights Reserved.</p>
+</footer>
+</body></html>
+<!-- Shopping Cart - Updated Navbar -->

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><link href="../../../assets/styles.css" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Write a Review | Craftify</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+</link></head>
+<body class="bg-surface font-body text-on-surface antialiased"><header class="fixed top-0 w-full z-50 bg-white shadow-sm border-b border-surface-container">
+<nav class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 bg-amber-700 rounded-full flex items-center justify-center">
+<span class="text-white font-bold text-xl font-headline">A</span>
+</div>
+<span class="text-2xl font-serif italic text-on-surface tracking-tight">Craftify</span>
+</div>
+<div class="hidden md:flex items-center space-x-10">
+<a class="text-secondary font-medium text-sm tracking-wide hover:text-primary transition-colors duration-300 active" href=".../index.html">Home</a>
+<a class="text-secondary font-medium text-sm tracking-wide hover:text-primary transition-colors duration-300" href="..../auctions/live-auctions.html">Auctions</a>
+</div>
+<div class="flex items-center space-x-5">
+<button class="material-symbols-outlined text-secondary hover:text-primary transition-colors">search</button>
+<div class="relative">
+<button class="material-symbols-outlined text-secondary hover:text-primary transition-colors">shopping_cart</button>
+<span class="absolute -top-1.5 -right-1.5 bg-primary text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">3</span>
+</div>
+<div class="relative">
+<button class="material-symbols-outlined text-secondary hover:text-primary transition-colors">notifications</button>
+<span class="absolute -top-1.5 -right-1.5 bg-primary text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">5</span>
+</div>
+<button class="material-symbols-outlined text-secondary hover:text-primary transition-colors">person</button>
+</div>
+</nav>
+</header>
+<!-- Top Navigation Shell -->
+<main class="min-h-screen pt-28 pb-20 px-4">
+<div class="max-w-3xl mx-auto">
+<!-- Review Form Card -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden p-8 md:p-12">
+<div class="mb-10 text-center">
+<h1 class="font-headline text-3xl md:text-4xl font-bold text-on-surface mb-2">Write a Review</h1>
+<p class="text-secondary font-label tracking-wide uppercase text-xs">Share your experience with our community</p>
+</div>
+<!-- Product Context -->
+<div class="flex items-center gap-6 p-6 bg-surface-container-low rounded-xl mb-10">
+<div class="w-24 h-24 flex-shrink-0 bg-surface-container-high rounded-lg overflow-hidden">
+<img alt="Product" class="w-full h-full object-cover" data-alt="Close-up of a rustic hand-thrown ceramic vase with subtle glaze textures on a clean neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8TlOPvlJny3SVr-0y18fXOApaINfcljvgJ0NFh3mr31F-ORnKbh8dcay8DpwzxUBlZrBlYh_taOLKeip9l5KAaf0ohPhHOsslxOJ7xfw8gEFJNG9S36UmBOtmG14i00gojUelSMd4tZyKH5gWIJb3YUgavyVP6lMlwHl1TXva_vzPPPxTjvqe16K5jPteDcP7aju6IkdTyv74_lnyY6Unm4YcOnw9bHWrDpAPfg_S21JPLw3Abp5D4FO0sYTggvOEJvHfZFWoAiI"/>
+</div>
+<div>
+<h2 class="font-headline text-xl font-bold text-on-surface">Hand-Thrown Ceramic Vase</h2>
+<p class="text-secondary text-sm">by Elena Rodriguez</p>
+<p class="text-on-surface-variant text-xs mt-2 italic">Purchased on March 15, 2026</p>
+</div>
+</div>
+<form class="space-y-8">
+<!-- Rating Section -->
+<div class="space-y-3">
+<label class="block text-on-surface-variant font-medium text-sm">Overall Rating</label>
+<div class="flex items-center gap-4">
+<div class="flex gap-1 text-primary-container">
+<span class="material-symbols-outlined text-4xl cursor-pointer inl-font-var-02e95d">star</span>
+<span class="material-symbols-outlined text-4xl cursor-pointer inl-font-var-02e95d">star</span>
+<span class="material-symbols-outlined text-4xl cursor-pointer inl-font-var-02e95d">star</span>
+<span class="material-symbols-outlined text-4xl cursor-pointer inl-font-var-02e95d">star</span>
+<span class="material-symbols-outlined text-4xl cursor-pointer">star</span>
+</div>
+<span class="text-secondary font-medium px-3 py-1 bg-surface-container rounded-full text-sm">Very Good</span>
+</div>
+</div>
+<!-- Title Input -->
+<div class="space-y-2">
+<label class="block text-on-surface-variant font-medium text-sm">Review Title</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="Summarize your experience" type="text"/>
+</div>
+<!-- Review Textarea -->
+<div class="space-y-2">
+<div class="flex justify-between items-end">
+<label class="block text-on-surface-variant font-medium text-sm">Your Review</label>
+<span class="text-[10px] text-secondary tracking-widest uppercase">0/500</span>
+</div>
+<textarea class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors resize-none" placeholder="Share your experience..." rows="5"></textarea>
+</div>
+<!-- Photo Upload -->
+<div class="space-y-3">
+<label class="block text-on-surface-variant font-medium text-sm">Add Photos</label>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<!-- Dropzone -->
+<div class="border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center justify-center p-4 hover:bg-surface-container-low transition-colors cursor-pointer group h-24">
+<span class="material-symbols-outlined text-secondary group-hover:text-primary transition-colors">photo_camera</span>
+<p class="text-[10px] text-center text-secondary mt-1">Drag &amp; drop photos</p>
+</div>
+<!-- Sample Thumbnails -->
+<div class="relative group h-24 rounded-xl overflow-hidden shadow-sm">
+<img alt="Review detail" class="w-full h-full object-cover" data-alt="Detailed macro shot of ceramic glaze showing delicate crackle patterns and warm earthy tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeiwsFrxDBusTcEscfYdaRPkjRJUFB2kharwU8_Nequ9ThRfVWq-MvmPPWRBmGMBdRaw8a777CXf4TByQCt6FfN3ZBJcngQnnkIBP_7ra2g_M9-vTjyxZ1L7ob15QRn8d_3b0WKKlRs-y1DUiB9NNtOy3zD2DNiTJ1YIg06AfLDor0THqR2MP_OHf5eWqLH5p2jQXTBMljBAEI78xCv1CdoDf2k8NwsvMQ4x1ckt6NkRgdo20pamieGeozk_EOXFHnNHET-WT4m_I"/>
+<button class="absolute top-1 right-1 bg-on-background/60 text-white rounded-full p-0.5 hover:bg-on-background transition-colors" type="button">
+<span class="material-symbols-outlined text-xs">close</span>
+</button>
+</div>
+<div class="relative group h-24 rounded-xl overflow-hidden shadow-sm">
+<img alt="Review context" class="w-full h-full object-cover" data-alt="Ceramic vase placed on a minimalist wooden sideboard with soft morning light hitting the surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyfGK1SX5H67HnB3Zz6U7uxKYtDXCCxfOezPv-PvAUgfBOghMuLW_8Gx-gubYwOhOmmhLfvyIWbifQrSKnAqqxqUj3G5mMM8O4RSh8IbmyoowVndnaYv4y72zbfCSaTvzR004hmmAAKB64Neik0RzZAHKw_jvQrWL-Y9P3vSlK_sWZwxzksSlCjI3Oz5PlEdtNKSTADJA6N4SdavsQp2jzDmARAQ2GVtWtqJnPWz9q3Y0tA4Kk3-Dc0MP2lC2Ht2prYDeWoViI7So"/>
+<button class="absolute top-1 right-1 bg-on-background/60 text-white rounded-full p-0.5 hover:bg-on-background transition-colors" type="button">
+<span class="material-symbols-outlined text-xs">close</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Confirmation -->
+<label class="flex items-start gap-3 cursor-pointer group">
+<div class="relative flex items-center pt-0.5">
+<input class="peer h-5 w-5 rounded border-outline-variant bg-surface-container-low text-primary focus:ring-primary/20" type="checkbox"/>
+</div>
+<span class="text-sm text-secondary leading-relaxed select-none">I confirm this review is based on my genuine experience and I have not received incentives to influence the content.</span>
+</label>
+<!-- Actions -->
+<div class="flex flex-col md:flex-row items-center gap-4 pt-4">
+<button class="w-full md:w-auto px-10 py-4 bg-primary-container text-on-primary-container font-bold rounded-xl shadow-lg shadow-primary-container/20 hover:scale-[1.02] active:scale-95 transition-all" type="submit">Submit Review</button>
+<button class="w-full md:w-auto px-10 py-4 border border-outline-variant text-secondary font-medium rounded-xl hover:bg-surface-container-low transition-colors" type="button">Cancel</button>
+</div>
+</form>
+</section>
+<!-- Success State Section (Hidden typically) -->
+<div class="hidden mt-12 text-center p-12 bg-surface-container-lowest rounded-xl shadow-sm border border-primary/10">
+<div class="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-6">
+<span class="material-symbols-outlined text-4xl inl-font-var-0578a5">check</span>
+</div>
+<h3 class="font-headline text-2xl font-bold text-on-surface mb-2">Thank you for your review!</h3>
+<p class="text-secondary max-w-sm mx-auto">Your feedback helps Elena Rodriguez and our artisan community thrive.</p>
+<button class="mt-8 text-primary font-headline font-bold underline decoration-primary/30 underline-offset-8 hover:decoration-primary transition-all">Back to Collection</button>
+</div>
+</div>
+</main>
+<!-- Footer Shell -->
+<footer class="bg-[#F2F4F6] dark:bg-[#121416] w-full mt-20">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-8 py-12 max-w-7xl mx-auto">
+<div class="space-y-4">
+<div class="font-serif text-lg text-on-surface-variant italic">Craftify.</div>
+<p class="font-['Inter'] text-sm leading-relaxed text-secondary">Crafted for the Modern Merchant. Our mission is to connect soulful makers with conscious collectors.</p>
+</div>
+<div>
+<h4 class="font-sans text-xs font-bold uppercase tracking-widest text-on-surface mb-6">Company</h4>
+<ul class="space-y-3">
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-amber-600 underline decoration-amber-500/30 underline-offset-4 text-sm" href="..../user/write-review.html">Our Story</a></li>
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-amber-600 underline decoration-amber-500/30 underline-offset-4 text-sm" href="..../user/write-review.html">Maker Spotlight</a></li>
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-amber-600 underline decoration-amber-500/30 underline-offset-4 text-sm" href="..../user/write-review.html">Ethical Sourcing</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-sans text-xs font-bold uppercase tracking-widest text-on-surface mb-6">Support</h4>
+<ul class="space-y-3">
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-amber-600 underline decoration-amber-500/30 underline-offset-4 text-sm" href="..../user/write-review.html">Care Guide</a></li>
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-amber-600 underline decoration-amber-500/30 underline-offset-4 text-sm" href="..../user/write-review.html">Returns</a></li>
+</ul>
+</div>
+<div class="flex flex-col justify-between">
+<div>
+<h4 class="font-sans text-xs font-bold uppercase tracking-widest text-on-surface mb-6">Newsletter</h4>
+<div class="relative">
+<input class="w-full bg-surface-container-high border-none rounded-xl px-4 py-2 text-sm focus:ring-1 focus:ring-primary" placeholder="Email address" type="email"/>
+</div>
+</div>
+<div class="mt-8 pt-8 border-t border-outline-variant/10 text-[10px] text-slate-400 uppercase tracking-widest">
+                    © 2024 Craftify.
+                </div>
+</div>
+</div>
+</footer>
+</body></html>
+<!-- Artisan Registration - Step 2 (Updated Navbar) -->

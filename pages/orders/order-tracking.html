@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><link href="../../../assets/styles.css" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Track Your Order - Craftify</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+</link></link></head>
+<body class="text-on-surface antialiased"><nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-outline-variant/10">
+<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+<!-- Logo -->
+<div class="flex items-center gap-3 shrink-0">
+<div class="w-10 h-10 bg-[#855300] rounded-full flex items-center justify-center text-white font-bold text-xl">
+                    A
+                </div>
+<span class="text-xl font-headline font-bold text-on-surface">Craftify</span>
+</div>
+<!-- Center Links -->
+<div class="hidden md:flex items-center gap-8">
+<a class="text-sm font-medium text-on-surface-variant hover:text-primary transition-colors active" href=".../index.html">Home</a>
+<a class="text-sm font-medium text-on-surface-variant hover:text-primary transition-colors" href="..../auctions/live-auctions.html">Auctions</a>
+</div>
+<!-- Right Icons -->
+<div class="flex items-center gap-5">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">search</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors relative">
+                    shopping_cart
+                    <span class="absolute -top-2 -right-2 w-4 h-4 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center">3</span>
+</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors relative">
+                    notifications
+                    <span class="absolute -top-2 -right-2 w-4 h-4 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center">5</span>
+</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">account_circle</button>
+</div>
+</div>
+</nav>
+<!-- Navbar -->
+<main class="max-w-7xl mx-auto px-6 py-12 md:px-12">
+<!-- Page Header -->
+<div class="mb-12">
+<h1 class="text-4xl md:text-5xl font-bold text-on-surface mb-2">Track Your Order</h1>
+<p class="text-secondary font-medium tracking-tight">Order ID: <span class="text-on-surface">#ORD-20260323-0047</span></p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+<!-- Left Column: Main Content -->
+<div class="lg:col-span-8 space-y-12">
+<!-- Order Summary Card -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/20 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700">
+                            Paid
+                        </span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div>
+<p class="text-xs uppercase tracking-widest text-on-surface-variant font-semibold mb-1">Order Date</p>
+<p class="text-lg font-headline font-semibold text-on-surface">March 20, 2026</p>
+</div>
+<div>
+<p class="text-xs uppercase tracking-widest text-on-surface-variant font-semibold mb-1">Delivery Estimate</p>
+<p class="text-lg font-headline font-semibold text-primary">March 27, 2026</p>
+</div>
+<div>
+<p class="text-xs uppercase tracking-widest text-on-surface-variant font-semibold mb-1">Total Amount</p>
+<p class="text-lg font-headline font-semibold text-on-surface">$230.00</p>
+</div>
+</div>
+</section>
+<!-- Horizontal Stepper Section -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/20">
+<div class="flex items-center justify-between">
+<!-- Step 1: Placed -->
+<div class="flex flex-col items-center flex-1">
+<div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-3">
+<span class="material-symbols-outlined text-xl inl-font-var-02e95d">check_circle</span>
+</div>
+<p class="text-xs font-bold uppercase tracking-widest text-emerald-600">Order Placed</p>
+</div>
+<div class="tracking-stepper-line completed mx-2 md:mx-4"></div>
+<!-- Step 2: Processing -->
+<div class="flex flex-col items-center flex-1">
+<div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-3">
+<span class="material-symbols-outlined text-xl inl-font-var-02e95d">sync_saved_locally</span>
+</div>
+<p class="text-xs font-bold uppercase tracking-widest text-emerald-600">Processing</p>
+</div>
+<div class="tracking-stepper-line active mx-2 md:mx-4"></div>
+<!-- Step 3: Shipped -->
+<div class="flex flex-col items-center flex-1">
+<div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-3 ring-4 ring-primary-container/20">
+<span class="material-symbols-outlined text-2xl inl-font-var-02e95d">local_shipping</span>
+</div>
+<p class="text-xs font-bold uppercase tracking-widest text-primary">Shipped</p>
+</div>
+<div class="tracking-stepper-line mx-2 md:mx-4"></div>
+<!-- Step 4: Delivered -->
+<div class="flex flex-col items-center flex-1">
+<div class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center mb-3">
+<span class="material-symbols-outlined text-xl">inventory_2</span>
+</div>
+<p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Delivered</p>
+</div>
+</div>
+</section>
+<!-- Vertical Timeline -->
+<section class="space-y-6">
+<h3 class="text-2xl font-bold mb-8">Tracking Details</h3>
+<div class="relative pl-8 space-y-10">
+<!-- Vertical Line -->
+<div class="absolute left-[11px] top-2 bottom-0 w-0.5 bg-surface-container-high"></div>
+<!-- Event 1 (Latest) -->
+<div class="relative">
+<div class="absolute -left-[30px] w-6 h-6 rounded-full bg-primary flex items-center justify-center ring-4 ring-background">
+<span class="w-2.5 h-2.5 rounded-full bg-white"></span>
+</div>
+<div>
+<p class="text-on-surface font-semibold text-lg">Package in transit, arrived at distribution center, Manama</p>
+<p class="text-secondary text-sm">Today, 2:45 PM</p>
+</div>
+</div>
+<!-- Event 2 -->
+<div class="relative">
+<div class="absolute -left-[30px] w-6 h-6 rounded-full bg-surface-dim flex items-center justify-center ring-4 ring-background">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+</div>
+<div>
+<p class="text-on-surface-variant font-medium">Package picked up by carrier — DHL Express</p>
+<p class="text-secondary text-sm">March 22, 2026 • 10:15 AM</p>
+</div>
+</div>
+<!-- Event 3 -->
+<div class="relative">
+<div class="absolute -left-[30px] w-6 h-6 rounded-full bg-surface-dim flex items-center justify-center ring-4 ring-background">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+</div>
+<div>
+<p class="text-on-surface-variant font-medium">Order shipped. Tracking number: <span class="text-primary font-bold">DHL-BH-928374</span></p>
+<p class="text-secondary text-sm">March 21, 2026 • 4:30 PM</p>
+</div>
+</div>
+<!-- Event 4 -->
+<div class="relative">
+<div class="absolute -left-[30px] w-6 h-6 rounded-full bg-surface-dim flex items-center justify-center ring-4 ring-background">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+</div>
+<div>
+<p class="text-on-surface-variant font-medium">Order confirmed and processing started</p>
+<p class="text-secondary text-sm">March 20, 2026 • 2:10 PM</p>
+</div>
+</div>
+<!-- Event 5 -->
+<div class="relative">
+<div class="absolute -left-[30px] w-6 h-6 rounded-full bg-surface-dim flex items-center justify-center ring-4 ring-background">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+</div>
+<div>
+<p class="text-on-surface-variant font-medium">Order placed successfully</p>
+<p class="text-secondary text-sm">March 20, 2026 • 1:55 PM</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Action Buttons -->
+<div class="flex flex-wrap gap-4 pt-6">
+<button class="px-8 py-3 rounded-md border-2 border-outline-variant font-semibold text-on-surface-variant hover:bg-surface-container-low transition-colors">
+                        Back to Order History
+                    </button>
+<button class="px-8 py-3 rounded-md border-2 border-outline-variant font-semibold text-on-surface-variant hover:bg-surface-container-low transition-colors">
+                        Contact Support
+                    </button>
+</div>
+</div>
+<!-- Right Column: Sidebar -->
+<aside class="lg:col-span-4 space-y-8">
+<!-- Order Items Card -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/20">
+<h4 class="text-xs uppercase tracking-widest text-on-surface-variant font-bold mb-6">Order Items</h4>
+<div class="space-y-6">
+<!-- Item 1 -->
+<div class="flex gap-4">
+<div class="w-20 h-20 bg-surface-container rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Ceramic Vase" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyt6KVX3W0umbcNxckVrU9xn4K0DLc9SQguUNur_RuIlr9lHvZPCZF9kEXJB4mHuZqqzqg9rMDky6DoTvy84vcPHdouDhPDzwMbFyIEivEbVsUSWDmq8tFO7Fg2b9zs2nTIsbaeOHSMDTipmXyMFdvWjM_PMos7pStgwcGC3rIIQ3JzT2eah44JiEslQ_lNGOdck9XolAlDzPI1t-yYDtVEN7HsgrCTL54mSJWSbm-SNzhiF7kJVlqVqCsU6UCyXS8oo_0lAh5gF8"/>
+</div>
+<div class="flex-1">
+<p class="font-headline font-semibold text-on-surface leading-tight">Hand-Thrown Ceramic Vase</p>
+<p class="text-xs text-secondary mt-1 italic">by Elena Rostova</p>
+<div class="flex justify-between items-center mt-2">
+<span class="text-sm text-on-surface-variant">Qty: 1</span>
+<span class="font-bold text-on-surface">$85.00</span>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex gap-4">
+<div class="w-20 h-20 bg-surface-container rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Serving Board" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4U7c7ykrabB1GMqgFsQgtAeS47-l6eWi6WS-mDTFTITloa_PTMKn9euOM1VIT0AHBYrrup8g4Wg-yd4l-AXylBRQwtYsF4rETUxOPa1lgXj71ebhGgDhsKX82WCJqROyK6Bgs1EtJtsl2tLL0Xw4LtIiR-MwMgeSM0v3KxXt6iIpsV5PZaEqvXvFytW7wuEqtDptMnf113SssK70Dwswz_BslrEJ-0xwd43ZLpMbbEmgLtt-YJOGRoWKzl4RzGjR02mtUu9PZgkc"/>
+</div>
+<div class="flex-1">
+<p class="font-headline font-semibold text-on-surface leading-tight">Walnut Serving Board</p>
+<p class="text-xs text-secondary mt-1 italic">by Oak &amp; Ash Collective</p>
+<div class="flex justify-between items-center mt-2">
+<span class="text-sm text-on-surface-variant">Qty: 2</span>
+<span class="font-bold text-on-surface">$130.00</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Shipping Info Card -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/20">
+<h4 class="text-xs uppercase tracking-widest text-on-surface-variant font-bold mb-6">Shipping Information</h4>
+<div class="space-y-5">
+<div>
+<p class="text-xs text-secondary font-medium uppercase tracking-tighter mb-1">Carrier</p>
+<p class="font-semibold text-on-surface">DHL Express</p>
+</div>
+<div>
+<p class="text-xs text-secondary font-medium uppercase tracking-tighter mb-1">Tracking Number</p>
+<p class="font-bold text-primary select-all">DHL-BH-928374</p>
+</div>
+<div class="pt-4 border-t border-outline-variant/10">
+<p class="text-xs text-secondary font-medium uppercase tracking-tighter mb-2">Delivery Address</p>
+<address class="not-italic text-on-surface leading-relaxed">
+<span class="block font-semibold">John Doe</span>
+                                123 Artisan Way<br/>
+                                Manama, Bahrain<br/>
+                                +973 1234 5678
+                            </address>
+</div>
+</div>
+</div>
+<!-- Map Widget -->
+<div class="relative h-48 rounded-xl overflow-hidden shadow-inner group cursor-pointer">
+<img alt="Map" class="w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9MDY0xBctFXo-aIlsFxz62OWcZBbRGdGcQpKyH6O8xwm_n4Q1uBXS15VRvWcwrlybynJPv40ZLzQnuXRAXFKxnLhpv987j3H8x7BeDhPVoVvZRHKQE-B_y410KQEvCp7s9p7fs0uWbx4Ke_xCEnf_bSBkEv5vGFXjmIIZWdE05c9I63W5_5X3FIdhb4XXWuHdqSjng0q3nfKj78MZzoOB-cleBYoYRdFuXlq-JZbO6aB9Tt9E9-g0xzTjuB9eyb7-I5T6QS2jJgM"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 to-transparent flex flex-col justify-end p-6">
+<p class="text-white text-xs font-bold uppercase tracking-widest">Current Location</p>
+<p class="text-white font-headline text-lg italic">Distribution Hub, Manama</p>
+</div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+<div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center animate-pulse">
+<span class="material-symbols-outlined text-white text-3xl">location_on</span>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-[#F2F4F6] dark:bg-slate-950 full-width pt-16 pb-8 mt-20">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 px-12 w-full max-w-7xl mx-auto">
+<div class="col-span-1">
+<div class="font-serif text-xl text-slate-900 dark:text-white mb-4">Craftify</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">© 2024 Craftify. Crafted for the modern maker.</p>
+</div>
+<div class="col-span-1">
+<h5 class="font-serif text-lg text-[#855300] dark:text-[#F59E0B] mb-4">Company</h5>
+<ul class="space-y-2">
+<li><a class="font-sans text-sm text-slate-500 dark:text-slate-400 hover:text-[#855300] dark:hover:text-[#F59E0B] underline transition-colors" href="..../orders/order-tracking.html">Sustainability</a></li>
+<li><a class="font-sans text-sm text-slate-500 dark:text-slate-400 hover:text-[#855300] dark:hover:text-[#F59E0B] underline transition-colors" href="..../orders/order-tracking.html">Artisan Grants</a></li>
+</ul>
+</div>
+<div class="col-span-1">
+<h5 class="font-serif text-lg text-[#855300] dark:text-[#F59E0B] mb-4">Support</h5>
+<ul class="space-y-2">
+<li><a class="font-sans text-sm text-slate-500 dark:text-slate-400 hover:text-[#855300] dark:hover:text-[#F59E0B] underline transition-colors" href="..../orders/order-tracking.html">Shipping &amp; Returns</a></li>
+<li><a class="font-sans text-sm text-slate-500 dark:text-slate-400 hover:text-[#855300] dark:hover:text-[#F59E0B] underline transition-colors" href="..../orders/order-tracking.html">Privacy Policy</a></li>
+</ul>
+</div>
+<div class="col-span-1">
+<h5 class="font-serif text-lg text-[#855300] dark:text-[#F59E0B] mb-4">Connect</h5>
+<ul class="space-y-2">
+<li><a class="font-sans text-sm text-slate-500 dark:text-slate-400 hover:text-[#855300] dark:hover:text-[#F59E0B] underline transition-colors" href="..../orders/order-tracking.html">Contact Us</a></li>
+<li><a class="font-sans text-sm text-slate-500 dark:text-slate-400 hover:text-[#855300] dark:hover:text-[#F59E0B] underline transition-colors" href="..../orders/order-tracking.html">Instagram</a></li>
+</ul>
+</div>
+</div>
+</footer>
+</body></html>
+<!-- Verify Code - Step 2 (Updated Navbar) -->

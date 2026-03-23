@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><link href="../../../assets/styles.css" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Order History - Craftify</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+</link></head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col"><header class="sticky top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm dark:shadow-none bg-surface-container-lowest">
+<div class="flex justify-between items-center px-6 py-4 max-w-full mx-auto">
+<div class="flex items-center gap-8">
+<a class="flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-slate-100 font-serif" href="..../orders/order-history.html">Craftify</a>
+<nav class="hidden md:flex gap-6 items-center">
+<a class="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors active" href=".../index.html">Home</a>
+<a class="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors" href="..../auctions/live-auctions.html">Auctions</a>
+<a class="text-sm font-medium text-amber-600 dark:text-amber-500 border-b-2 border-amber-600 dark:border-amber-500 pb-1" href="..../orders/order-history.html">Dashboard</a>
+<a class="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors" href="..../orders/order-history.html">Admin</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden lg:flex items-center bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg">
+<span class="material-symbols-outlined text-slate-500 text-sm mr-2" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-xs w-48 font-body text-slate-700 dark:text-slate-200" placeholder="Search orders..." type="text"/>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="gavel">gavel</span>
+</button>
+<button class="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</button>
+<button class="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<!-- TopNavBar -->
+<main class="flex-grow max-w-screen-xl mx-auto w-full px-6 py-12">
+<!-- Header -->
+<div class="mb-12">
+<h1 class="text-4xl font-serif font-bold text-on-surface mb-2">My Orders</h1>
+<p class="text-on-secondary-container font-body tracking-wide">View and manage all your past and current orders.</p>
+</div>
+<!-- Filter/Sort Row -->
+<div class="flex flex-col md:flex-row gap-4 mb-10 items-end justify-between bg-surface-container-low p-6 rounded-xl">
+<div class="flex flex-wrap gap-4 w-full md:w-auto">
+<div class="flex flex-col gap-1.5">
+<span class="text-[10px] uppercase tracking-widest font-bold text-outline px-1">Order Status</span>
+<select class="bg-surface-container-lowest border-none rounded-lg text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary-container min-w-[160px] text-on-surface">
+<option>All Orders</option>
+<option>Pending</option>
+<option>Shipped</option>
+<option>Delivered</option>
+<option>Cancelled</option>
+</select>
+</div>
+<div class="flex flex-col gap-1.5">
+<span class="text-[10px] uppercase tracking-widest font-bold text-outline px-1">Sort By</span>
+<select class="bg-surface-container-lowest border-none rounded-lg text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary-container min-w-[160px] text-on-surface">
+<option>Newest First</option>
+<option>Oldest First</option>
+</select>
+</div>
+</div>
+<div class="w-full md:w-72 lg:w-96">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full bg-surface-container-lowest border-none rounded-lg pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container" placeholder="Search order ID or product..." type="text"/>
+</div>
+</div>
+</div>
+<!-- Order Cards List -->
+<div class="space-y-8">
+<!-- Card 1: Delivered -->
+<div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/10 shadow-[0px_20px_40px_rgba(25,28,30,0.04)]">
+<!-- Header -->
+<div class="flex flex-wrap justify-between items-start gap-4 mb-8">
+<div class="flex gap-8">
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Order ID</p>
+<p class="font-serif font-bold text-on-surface">#ORD-20260323-0047</p>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Date Placed</p>
+<p class="font-medium text-on-surface">March 20, 2026</p>
+</div>
+</div>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-2"></span>
+                        Delivered
+                    </span>
+</div>
+<!-- Middle: Thumbnails -->
+<div class="flex items-center gap-4 mb-8">
+<div class="flex -space-x-3 overflow-hidden">
+<img alt="" class="inline-block h-20 w-20 rounded-lg ring-4 ring-surface-container-lowest object-cover" data-alt="Handcrafted ceramic mug with earth tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCn5Bf1-syDFKRiWG4UZ_5KFM5RD8BCu9-NNW1PXSghG_ZLRnXC02McA8dnX2VeQiTaqgnM0cYf2cLnTj9_vmWNFQhTsPv106KCK1pwvFIKidXnz8DYjr62EvedOb_o8S7ivxKv_62wyXqcBGxvi00ff8xcnC6lBZ0ez3BXc9amu9HrLH0y5QvCqT-1Dj-SQ5T0iXW4SZUgSH7i467Pknmxy6DaJoApgDobZwoqpNBn22qDvz1vWrJvZcjZTqndOQik6iQ4FCpEgxY"/>
+<img alt="" class="inline-block h-20 w-20 rounded-lg ring-4 ring-surface-container-lowest object-cover" data-alt="Small wooden carved sculpture of a bird" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrQNVeR7kZCEYPRSc-TNyqVOFlLlgzqbX_CkD7SLXc2W3n6-fmDjzUjDJmWQnD95JKTLKDTN6zgqgIU1P_BSl4Kb9J0QAt_rcO0IgzIzKUiixai70d9zSDmIBYvZhnxUhWPVJBwrh2UNVT1rmZPnlX4g-69tEdQIMhQErBBejeqrH_MKrMPqe3_Z2r1DBl8INKdNa6--PtKTy1-bPyDyG_Osy4HasrYJlYm5ibIxAiIGXaiADwjtbLblvLdwvQO0dPtTfCEdXT4_M"/>
+<img alt="" class="inline-block h-20 w-20 rounded-lg ring-4 ring-surface-container-lowest object-cover" data-alt="Woven textile coaster with geometric patterns" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCScXpmo4Z3fxWa3hi_D9yovVTjBhpYxDc3hIN0s4gHIz37sz3BzDCcDtxnp5_Zc70IlFbVL43dZNjw7b0ROr3pGBEydnYBT6go3mKPhYD8U-CtnLAwAu3tmZggDRhLw_LLEYbvcdRDBTFdLR2lg5-f9OWXLOvL_l8u6XR7j-VhiBOIDuZLxl2LK4vCiMFrl4kn4g1tQ9kadtCqT2EVuYa4FjYq7BbyGztHLM1VbC3ttygOLmhsV9v17VvFj1tFi30kzHl_vj1qaGY"/>
+</div>
+<div>
+<p class="text-sm font-medium text-on-surface">3 Items</p>
+<p class="text-xs text-outline italic">Curated Artisanal Set</p>
+</div>
+</div>
+<!-- Bottom Row -->
+<div class="flex flex-col sm:flex-row justify-between items-end sm:items-center pt-8 border-t border-outline-variant/10">
+<div class="flex gap-8 mb-4 sm:mb-0">
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Total Amount</p>
+<p class="font-serif text-xl font-bold text-primary">$230.00</p>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Payment Method</p>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm" data-icon="credit_card">credit_card</span>
+<p class="text-sm font-medium text-on-surface">Visa •••• 4242</p>
+</div>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-4">
+<a class="text-sm font-semibold text-primary hover:underline underline-offset-4" href="..../orders/order-history.html">Reorder</a>
+<a class="text-sm font-semibold text-primary hover:underline underline-offset-4" href="..../user/write-review.html">Write Review</a>
+<button class="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition-all scale-95 active:scale-90">View Details</button>
+</div>
+</div>
+</div>
+<!-- Card 2: Shipped -->
+<div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/10 shadow-[0px_20px_40px_rgba(25,28,30,0.04)]">
+<div class="flex flex-wrap justify-between items-start gap-4 mb-8">
+<div class="flex gap-8">
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Order ID</p>
+<p class="font-serif font-bold text-on-surface">#ORD-20260322-0032</p>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Date Placed</p>
+<p class="font-medium text-on-surface">March 18, 2026</p>
+</div>
+</div>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></span>
+                        Shipped
+                    </span>
+</div>
+<div class="flex items-center gap-4 mb-8">
+<img alt="" class="h-20 w-20 rounded-lg object-cover ring-4 ring-surface-container-lowest" data-alt="Handmade leather wallet in dark tan" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCABYzrWY5InM_7VCIAynJmiB2_q02ApQKEdTaQhlxvmhvaOHVcuFkDOJIxulyVpA2FbV2iFzRP3m8ttWXvPOCWQza7uQ1-Pwe2ISrRRrG-2kVCk4oszI70edA3OnmpDn6y5BpOUt1OoRr_oCoY9OccHOXzHa6iYf1cdsywcKwrQ3xG1Su4cO8pqLx28BbFqgZCYyhHy67fI0gR46ZaqOEoO1806Edrh6ZimUTWZc_fLiISC89AP9T5RklvhhKm_r-85Io3TlXIwcA"/>
+<div>
+<p class="text-sm font-medium text-on-surface">1 Item</p>
+<p class="text-xs text-outline italic">Full Grain Leather Wallet</p>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row justify-between items-end sm:items-center pt-8 border-t border-outline-variant/10">
+<div class="flex gap-8 mb-4 sm:mb-0">
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Total Amount</p>
+<p class="font-serif text-xl font-bold text-primary">$85.00</p>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Payment Method</p>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm" data-icon="credit_card">credit_card</span>
+<p class="text-sm font-medium text-on-surface">Mastercard •••• 1234</p>
+</div>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-4">
+<a class="text-sm font-semibold text-primary hover:underline underline-offset-4" href="..../orders/order-history.html">Reorder</a>
+<button class="border-2 border-primary-container text-primary px-6 py-2 rounded-lg text-sm font-bold hover:bg-primary-container/5 transition-all">Track Order</button>
+<button class="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition-all scale-95 active:scale-90">View Details</button>
+</div>
+</div>
+</div>
+<!-- Card 3: Pending -->
+<div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/10 shadow-[0px_20px_40px_rgba(25,28,30,0.04)]">
+<div class="flex flex-wrap justify-between items-start gap-4 mb-8">
+<div class="flex gap-8">
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Order ID</p>
+<p class="font-serif font-bold text-on-surface">#ORD-20260321-0015</p>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Date Placed</p>
+<p class="font-medium text-on-surface">March 15, 2026</p>
+</div>
+</div>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-2"></span>
+                        Pending
+                    </span>
+</div>
+<div class="flex items-center gap-4 mb-8">
+<div class="flex -space-x-3 overflow-hidden">
+<img alt="" class="inline-block h-20 w-20 rounded-lg ring-4 ring-surface-container-lowest object-cover" data-alt="Set of two hand-poured soy candles" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMMe79ELhmG7CbRe6uZ7mGm2MGWcnPOFLkCOV9xW6wEWjte6VJpTmxAbnXUSzzCfN_2KHpppicAScLnMwI6j9XljHz7EqQl6DLBihbcLvWGCp0ACdpg1sISl6gFukQ0LJZ6TbHAeiA1CjR-2WRMQhw149wURxNR36FY34mMFLjU3Q1WNK1YsdsemmKMeNXJgegR4428T9uL75oFUzfhAbbWd9OyBEwSyLwmnGKDOIYGIgNySxO_aq3i09e0O71bkFPfyuYFYPN9GA"/>
+<img alt="" class="inline-block h-20 w-20 rounded-lg ring-4 ring-surface-container-lowest object-cover" data-alt="Small jar of organic artisanal honey" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAi8UD4F6oH3gfzIuZVHYrCRcX5rAJRDeajsW8ZqEuwHf7sQasg87RyxEXfH7xJa2OlB87s8O5sPzsZY9KhRBnargCRuW5nw5-x4PsmZUdHt9ThtCUfJyRYJwV3UT2bxMmnHh559E_5bFAsRksfOkIEAQMp8zmnaDa8QUDeG3QHmplVRm52gFdGidUC9RRJGxrQQBFBEZbHyuvfcjQmCsZazPVQahQN8-jRhaIKiMfVRR0uhfdghKhY2lcCHnXQot5DGQnTqZ1her0"/>
+</div>
+<div>
+<p class="text-sm font-medium text-on-surface">2 Items</p>
+<p class="text-xs text-outline italic">Studio Essentials Pack</p>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row justify-between items-end sm:items-center pt-8 border-t border-outline-variant/10">
+<div class="flex gap-8 mb-4 sm:mb-0">
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Total Amount</p>
+<p class="font-serif text-xl font-bold text-primary">$120.00</p>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Payment Method</p>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm" data-icon="account_balance_wallet">account_balance_wallet</span>
+<p class="text-sm font-medium text-on-surface">Apple Pay</p>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition-all scale-95 active:scale-90">View Details</button>
+</div>
+</div>
+</div>
+<!-- Card 4: Cancelled -->
+<div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/10 shadow-[0px_20px_40px_rgba(25,28,30,0.04)] opacity-75">
+<div class="flex flex-wrap justify-between items-start gap-4 mb-8">
+<div class="flex gap-8">
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Order ID</p>
+<p class="font-serif font-bold text-on-surface">#ORD-20260320-0008</p>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Date Placed</p>
+<p class="font-medium text-on-surface">March 12, 2026</p>
+</div>
+</div>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span>
+                        Cancelled
+                    </span>
+</div>
+<div class="flex items-center gap-4 mb-8">
+<img alt="" class="h-20 w-20 rounded-lg object-cover ring-4 ring-surface-container-lowest" data-alt="Handcrafted brass letter opener" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTvRITB7hXy6OEZ-on_vmXVVq5hwytb_U6u5oUaSB7TksWFCZX4PsPutgf8whkDv_AVito_jnwa2bnR7xLorAKI-Hk2x3HW0AcaQqNg1apBdKLWfl2zN5NhSWOvkEHtYcwOpc49qC3GwPIVRtc-ArbPxSjAaMMJFj-Z_iqABpeTe4fto3wuMEawW1ZK7vf3a6rFFGcAUnc7Aab39FwMmtCWsgHkKr5fw4afvxMqBmfZ74a7_0dFco6XgvEgp2dkCuIBNPdjNMXLoc"/>
+<div>
+<p class="text-sm font-medium text-on-surface">1 Item</p>
+<p class="text-xs text-outline italic">Vintage Brass Opener</p>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row justify-between items-end sm:items-center pt-8 border-t border-outline-variant/10">
+<div class="flex gap-8 mb-4 sm:mb-0">
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Total Amount</p>
+<p class="font-serif text-xl font-bold text-primary">$45.00</p>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Payment Method</p>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm" data-icon="credit_card">credit_card</span>
+<p class="text-sm font-medium text-on-surface">Visa •••• 4242</p>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<a class="text-sm font-semibold text-primary hover:underline underline-offset-4" href="..../orders/order-history.html">Reorder</a>
+<button class="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition-all scale-95 active:scale-90">View Details</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="mt-16 flex justify-center items-center gap-3">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-container-high text-on-surface transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-on-primary font-bold text-sm">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface text-sm transition-all">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface text-sm transition-all">3</button>
+<span class="px-2 text-outline">...</span>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface text-sm transition-all">12</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-container-high text-on-surface transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-slate-100 dark:bg-slate-950 w-full mt-20">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 px-12 py-16 max-w-screen-2xl mx-auto">
+<div class="col-span-1 md:col-span-1">
+<a class="text-xl font-serif text-slate-900 dark:text-slate-100 mb-6 block" href="..../orders/order-history.html">Craftify</a>
+<p class="text-sm text-slate-500 dark:text-slate-400 font-body mb-6 leading-relaxed">Connecting conscious collectors with the world's most talented craftsmen. Every piece tells a story.</p>
+<div class="flex gap-4">
+<a class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center hover:bg-primary-container transition-colors" href="..../orders/order-history.html"><span class="material-symbols-outlined text-sm" data-icon="public">public</span></a>
+<a class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center hover:bg-primary-container transition-colors" href="..../orders/order-history.html"><span class="material-symbols-outlined text-sm" data-icon="share">share</span></a>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-2 col-span-1 md:col-span-2 gap-8">
+<div>
+<h4 class="uppercase tracking-widest text-[10px] font-bold text-on-surface mb-6">Marketplace</h4>
+<ul class="space-y-4">
+<li><a class="text-slate-500 text-sm hover:underline hover:text-slate-800 transition-colors" href="..../orders/order-history.html">Shop All</a></li>
+<li><a class="text-slate-500 text-sm hover:underline hover:text-slate-800 transition-colors" href="..../orders/order-history.html">Custom Orders</a></li>
+<li><a class="text-slate-500 text-sm hover:underline hover:text-slate-800 transition-colors" href="..../orders/order-history.html">Maker Stories</a></li>
+</ul>
+</div>
+<div>
+<h4 class="uppercase tracking-widest text-[10px] font-bold text-on-surface mb-6">Support</h4>
+<ul class="space-y-4">
+<li><a class="text-slate-500 text-sm hover:underline hover:text-slate-800 transition-colors" href="..../orders/order-history.html">Shipping &amp; Returns</a></li>
+<li><a class="text-slate-500 text-sm hover:underline hover:text-slate-800 transition-colors" href="..../orders/order-history.html">Artisan Support</a></li>
+<li><a class="text-slate-500 text-sm hover:underline hover:text-slate-800 transition-colors" href="..../orders/order-history.html">Privacy Policy</a></li>
+</ul>
+</div>
+</div>
+<div class="col-span-1">
+<h4 class="uppercase tracking-widest text-[10px] font-bold text-on-surface mb-6">The Artisan Journal</h4>
+<p class="text-xs text-slate-500 mb-4 italic">Get stories of craft delivered to your inbox.</p>
+<div class="flex gap-2">
+<input class="bg-surface-container-high border-none rounded-lg text-xs px-4 py-2 flex-grow focus:ring-1 focus:ring-primary" placeholder="Email address" type="email"/>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider">Join</button>
+</div>
+</div>
+</div>
+<div class="max-w-screen-2xl mx-auto px-12 py-8 border-t border-slate-200/50 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-[10px] uppercase tracking-widest text-slate-400">© 2024 Craftify. Handcrafted with intention.</p>
+<div class="flex gap-8">
+<a class="text-[10px] uppercase tracking-widest text-slate-400 hover:text-slate-800" href="..../orders/order-history.html">Terms</a>
+<a class="text-[10px] uppercase tracking-widest text-slate-400 hover:text-slate-800" href="..../orders/order-history.html">Privacy</a>
+<a class="text-[10px] uppercase tracking-widest text-slate-400 hover:text-slate-800" href="..../orders/order-history.html">Cookies</a>
+</div>
+</div>
+</footer>
+</body></html>
+<!-- Checkout - Updated Navbar -->

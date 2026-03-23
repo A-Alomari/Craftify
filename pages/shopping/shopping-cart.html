@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><link href="../../../assets/styles.css" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+</link></head>
+<body class="bg-background font-body text-on-surface"><nav class="sticky top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm dark:shadow-none bg-surface-container-lowest">
+<div class="flex justify-between items-center px-6 py-4 max-w-full mx-auto">
+<!-- Brand Logo -->
+<div class="flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-slate-100 font-noto-serif">
+      Craftify
+    </div>
+<!-- Navigation Links -->
+<div class="hidden md:flex items-center gap-6">
+<a class="text-sm font-medium Inter text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors active" href=".../index.html">Home</a>
+<a class="text-sm font-medium Inter text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors" href="..../auctions/live-auctions.html">Auctions</a>
+<a class="text-sm font-medium Inter text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors" href="..../shopping/shopping-cart.html">Dashboard</a>
+<a class="text-sm font-medium Inter text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors" href="..../shopping/shopping-cart.html">Admin</a>
+</div>
+<!-- Trailing Icon Actions -->
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform text-slate-700 dark:text-slate-300">
+<span class="material-symbols-outlined" data-icon="gavel">gavel</span>
+</button>
+<button class="relative p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform text-amber-600 dark:text-amber-500">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+<span class="absolute top-1 right-1 bg-amber-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">3</span>
+</button>
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform text-slate-700 dark:text-slate-300">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform text-slate-700 dark:text-slate-300">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- TopNavBar Implementation from {{DATA:COMPONENTS:COMPONENTS_61}} -->
+<main class="pt-12 pb-24 px-8 max-w-7xl mx-auto min-h-screen">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+<!-- Left Column: Cart Content -->
+<div class="lg:col-span-8 space-y-8">
+<h1 class="font-headline text-4xl font-bold text-on-surface mb-10">Shopping Cart</h1>
+<div class="space-y-6">
+<!-- Cart Item 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-6 transition-all hover:shadow-md">
+<div class="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container-low">
+<img alt="Ceramic Vase" class="w-full h-full object-cover" data-alt="Hand-thrown minimalist white ceramic vase with textured surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMG7dJI_SPc9v5EcEa5JyUi2gEyll1hR02gMDhKcXxudF5Sir5NZwm2YqtGKnYYvLYvpd8CXdqWiPC-mBAd31ftirR9HyEZej8te6fLVSPrnwbA0UGGcW1nSbQTSot9gIPyRCENcaXjFeFTolGrFueM83AR15pDKzxPQeM0Cjqwf2iS-j5WU5cCotP6cuEUNSx63jH2YUzVPYpZvqdRxZ8RBskOtb4QN39cbuWhb3c-Y_tZxiABBY7b72WASq0oB5kGYSu8Xs8rc4"/>
+</div>
+<div class="flex-grow space-y-1">
+<h3 class="font-headline text-lg font-bold text-on-surface">Hand-Thrown Ceramic Vase</h3>
+<p class="text-sm text-on-secondary-container">by Elena Rodriguez</p>
+<button class="flex items-center gap-1 text-xs text-error mt-4 hover:underline">
+<span class="material-symbols-outlined text-sm" data-icon="delete">delete</span>
+                Remove
+              </button>
+</div>
+<div class="flex items-center gap-4 bg-surface-container-low px-3 py-1 rounded-full border border-outline-variant/20">
+<button class="w-8 h-8 flex items-center justify-center text-on-surface hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="remove">remove</span>
+</button>
+<span class="font-bold w-4 text-center">1</span>
+<button class="w-8 h-8 flex items-center justify-center text-on-surface hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+</button>
+</div>
+<div class="text-right sm:min-w-[80px]">
+<span class="font-headline text-xl font-bold text-on-surface">$85</span>
+</div>
+</div>
+<!-- Cart Item 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-6 transition-all hover:shadow-md">
+<div class="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container-low">
+<img alt="Indigo Linen Throw" class="w-full h-full object-cover" data-alt="Soft indigo dyed linen throw blanket draped elegantly" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWm6Rarx-n_yerRL8xbYOkUpzz-QkbP6zgnMGxEczUO06j8m2rED2AnYJHmoHjd64ZktWM-zUFOLoqrJs7W_sCmSEaCwPUvj6gf2bBOw-YH8yrCjmLyhq7Cuyjz5u9kzYyCyqpg6-boAQ3EE0wmnMevuHGKZcs17HLJmjAUavbfLkNK6bGI8whIbonWbFrnkRxnAhQYIhhHFPOonw-6hBufqqDjljgm-bzHj4PFRcPZfQmy07lMADEhHTWv9HRNynAvqAmZSQDUAo"/>
+</div>
+<div class="flex-grow space-y-1">
+<h3 class="font-headline text-lg font-bold text-on-surface">Indigo Linen Throw</h3>
+<p class="text-sm text-on-secondary-container">by Weaver's Collective</p>
+<button class="flex items-center gap-1 text-xs text-error mt-4 hover:underline">
+<span class="material-symbols-outlined text-sm" data-icon="delete">delete</span>
+                Remove
+              </button>
+</div>
+<div class="flex items-center gap-4 bg-surface-container-low px-3 py-1 rounded-full border border-outline-variant/20">
+<button class="w-8 h-8 flex items-center justify-center text-on-surface hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="remove">remove</span>
+</button>
+<span class="font-bold w-4 text-center">2</span>
+<button class="w-8 h-8 flex items-center justify-center text-on-surface hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+</button>
+</div>
+<div class="text-right sm:min-w-[80px]">
+<span class="font-headline text-xl font-bold text-on-surface">$120</span>
+</div>
+</div>
+<!-- Cart Item 3 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-6 transition-all hover:shadow-md">
+<div class="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container-low">
+<img alt="Hand-Carved Spoon" class="w-full h-full object-cover" data-alt="Hand-carved dark walnut wooden spoon with intricate grain patterns" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMG453KEffx9VpFD5ri0ZV33payRiN19iYfFVaDyt_UiG2E1V1aDEYZJjRl2ctcjmLO2zpulvYHDJFkpdOh86tUHNMJyn4ILvACdPrjeQFeIf5FiLvl65wbRWjMZDCrERwtZ_toWSofrdvekNEkeqH994VmffLEB8fwTGb6y0LHAmDNFjK-O5UPYUa0xd5dseW7PoGBgB1DuGQBdEfyaKdD-9HlVRgbBLUd-XHbiTZtKm9fn7s28Da32mhKr5GX5aK1GeOYcwcWm0"/>
+</div>
+<div class="flex-grow space-y-1">
+<h3 class="font-headline text-lg font-bold text-on-surface">Hand-Carved Walnut Spoon</h3>
+<p class="text-sm text-on-secondary-container">by Silas Thorne</p>
+<button class="flex items-center gap-1 text-xs text-error mt-4 hover:underline">
+<span class="material-symbols-outlined text-sm" data-icon="delete">delete</span>
+                Remove
+              </button>
+</div>
+<div class="flex items-center gap-4 bg-surface-container-low px-3 py-1 rounded-full border border-outline-variant/20">
+<button class="w-8 h-8 flex items-center justify-center text-on-surface hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="remove">remove</span>
+</button>
+<span class="font-bold w-4 text-center">1</span>
+<button class="w-8 h-8 flex items-center justify-center text-on-surface hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+</button>
+</div>
+<div class="text-right sm:min-w-[80px]">
+<span class="font-headline text-xl font-bold text-on-surface">$45</span>
+</div>
+</div>
+</div>
+<!-- Continue Shopping -->
+<div class="pt-8">
+<a class="inline-flex items-center gap-2 font-serif text-amber-700 hover:text-amber-800 transition-colors group" href="..../shopping/shopping-cart.html">
+<span class="material-symbols-outlined group-hover:-translate-x-1 transition-transform" data-icon="arrow_back">arrow_back</span>
+            Continue Shopping
+          </a>
+</div>
+</div>
+<!-- Right Column: Order Summary -->
+<div class="lg:col-span-4">
+<div class="sticky top-32 space-y-6">
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/10">
+<h2 class="font-headline text-2xl font-bold mb-8 text-on-surface">Order Summary</h2>
+<div class="space-y-4 mb-8">
+<div class="flex justify-between items-center text-on-secondary-container">
+<span class="text-sm font-label uppercase tracking-wider">Subtotal</span>
+<span class="font-serif font-bold">$250.00</span>
+</div>
+<div class="flex justify-between items-center text-on-secondary-container">
+<span class="text-sm font-label uppercase tracking-wider">Shipping</span>
+<span class="font-serif font-bold italic">Calculated at checkout</span>
+</div>
+<div class="h-[1px] bg-outline-variant/30 w-full my-4"></div>
+<div class="flex justify-between items-center pt-2">
+<span class="text-lg font-bold text-on-surface">Total</span>
+<span class="font-headline text-3xl font-bold text-primary">$250.00</span>
+</div>
+</div>
+<button class="w-full bg-primary-container text-on-primary-container py-5 rounded-xl font-bold text-lg hover:shadow-lg hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+              Proceed to Checkout
+              <span class="material-symbols-outlined inl-font-var-02e95d" data-icon="lock" data-weight="fill">lock</span>
+</button>
+<div class="mt-6 flex flex-col items-center gap-3 text-on-secondary-container/70 text-xs tracking-tight">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm" data-icon="verified_user">verified_user</span>
+                Secure Checkout · Money-back Guarantee
+              </div>
+<div class="flex gap-4 opacity-50 grayscale hover:grayscale-0 transition-all cursor-not-allowed">
+<span class="material-symbols-outlined" data-icon="credit_card">credit_card</span>
+<span class="material-symbols-outlined" data-icon="account_balance">account_balance</span>
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+</div>
+</div>
+</div>
+<!-- Promo Code Card -->
+<div class="bg-tertiary-container/10 p-6 rounded-xl border border-tertiary-container/20">
+<label class="block text-xs font-bold uppercase tracking-widest text-tertiary mb-3">Apply Promo Code</label>
+<div class="flex gap-2">
+<input class="flex-grow bg-surface-container-lowest border-none rounded-lg text-sm px-4 py-3 focus:ring-2 focus:ring-tertiary" placeholder="Enter code" type="text"/>
+<button class="bg-tertiary text-on-tertiary px-6 py-3 rounded-lg text-sm font-bold uppercase tracking-wider hover:opacity-90">Apply</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer from Shared Components JSON -->
+<footer class="w-full py-16 mt-24 bg-[#F2F4F6] dark:bg-[#191C1E]">
+<div class="pt-16 border-t border-slate-200 dark:border-slate-800">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-12 px-12 max-w-7xl mx-auto text-left">
+<div class="col-span-2 md:col-span-1">
+<div class="font-serif text-xl font-black text-[#191C1E] dark:text-[#F7F9FB] mb-6">Craftify</div>
+<p class="font-sans text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400 leading-relaxed">
+            Honoring the Digital Atelier. Curated crafts from master makers worldwide.
+          </p>
+</div>
+<div class="space-y-4">
+<h4 class="font-sans text-xs font-bold uppercase tracking-widest text-amber-700 dark:text-amber-500">Shop</h4>
+<ul class="space-y-2">
+<li><a class="font-sans text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-amber-600 underline transition-all" href="..../shopping/shopping-cart.html">About Our Craft</a></li>
+<li><a class="font-sans text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-amber-600 underline transition-all" href="..../shopping/shopping-cart.html">Shipping &amp; Returns</a></li>
+</ul>
+</div>
+<div class="space-y-4">
+<h4 class="font-sans text-xs font-bold uppercase tracking-widest text-amber-700 dark:text-amber-500">Community</h4>
+<ul class="space-y-2">
+<li><a class="font-sans text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-amber-600 underline transition-all" href="..../shopping/shopping-cart.html">Maker Spotlight</a></li>
+<li><a class="font-sans text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-amber-600 underline transition-all" href="..../shopping/shopping-cart.html">Ethical Sourcing</a></li>
+</ul>
+</div>
+<div class="space-y-4">
+<h4 class="font-sans text-xs font-bold uppercase tracking-widest text-amber-700 dark:text-amber-500">Legal</h4>
+<ul class="space-y-2">
+<li><a class="font-sans text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-amber-600 underline transition-all" href="..../shopping/shopping-cart.html">Privacy</a></li>
+<li><a class="font-sans text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-amber-600 underline transition-all" href="..../shopping/shopping-cart.html">Contact</a></li>
+</ul>
+</div>
+</div>
+<div class="mt-16 px-12 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="font-sans text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400">
+          © 2024 Craftify. Honoring the Digital Atelier.
+        </p>
+<div class="flex gap-6">
+<span class="material-symbols-outlined text-slate-400 hover:text-amber-600 cursor-pointer" data-icon="language">language</span>
+<span class="material-symbols-outlined text-slate-400 hover:text-amber-600 cursor-pointer" data-icon="share">share</span>
+</div>
+</div>
+</div>
+</footer>
+</body></html>
+<!-- Order History - Updated Navbar -->

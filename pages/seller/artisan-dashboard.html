@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><link href="../../../assets/styles.css" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Artisan Dashboard - Craftify</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+</link></head>
+<body class="bg-surface text-on-surface"><nav class="sticky top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm dark:shadow-none bg-surface-container-lowest">
+<div class="flex justify-between items-center px-6 py-4 max-w-full mx-auto">
+<div class="flex items-center gap-2 text-2xl font-bold font-noto-serif text-amber-600 dark:text-amber-500">
+            Craftify
+        </div>
+<div class="hidden md:flex items-center gap-8 text-sm font-medium font-body">
+<a class="text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors active" href=".../index.html">Home</a>
+<a class="text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors" href="..../auctions/live-auctions.html">Auctions</a>
+<a class="text-amber-600 dark:text-amber-500 border-b-2 border-amber-600 dark:border-amber-500 pb-1" href="..../seller/artisan-dashboard.html">Dashboard</a>
+<a class="text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors" href="..../seller/artisan-dashboard.html">Admin</a>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden lg:block">
+<input class="bg-surface-container-low border-none rounded-xl px-4 py-2 text-sm focus:ring-1 focus:ring-primary w-64" placeholder="Search creations..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-2 text-slate-400 text-lg">search</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined cursor-pointer text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg p-2 transition-all active:scale-95 duration-150" data-icon="gavel">gavel</span>
+<span class="material-symbols-outlined cursor-pointer text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg p-2 transition-all active:scale-95 duration-150" data-icon="shopping_cart">shopping_cart</span>
+<span class="material-symbols-outlined cursor-pointer text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg p-2 transition-all active:scale-95 duration-150" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined cursor-pointer text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg p-2 transition-all active:scale-95 duration-150" data-icon="account_circle">account_circle</span>
+</div>
+</div>
+</div>
+</nav>
+<!-- TopNavBar -->
+<!-- Sidebar Wrapper -->
+<div class="flex">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-20 flex flex-col pt-4 h-[calc(100vh-5rem)] w-64 bg-slate-50 dark:bg-slate-950 font-sans text-sm font-medium Inter border-r-0 z-40">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden">
+<img alt="Merchant Profile" class="w-full h-full object-cover" data-alt="Profile photo of a master craftsman" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyJD4hC9qztEuxUBdC2qpJYZxQabp9Bv_r1iHGc1RlDz-QLryFjZ0EG2GaelWqJL1gV8XHDgl7ERPRJT1IRCVRbnxE7H2DsIwQXdwADn5Q1s2I61gFuKAoyUBubwnHkUBSc6XQJjXQZiLje3qseQ02b3WknYhgOXqodJ25UagBizgowpde-lJZTcdIGeryZmYi9j8kHxZ0JYjXh73lc7zT1dMT11EW2HnIZExp07ksZ3FeMBApBkybmb07pqiSaA2jYgp-Du4eMjA"/>
+</div>
+<div>
+<h3 class="text-on-surface font-bold">Artisan Workspace</h3>
+<p class="text-xs text-secondary italic">Master Crafter</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1 px-3">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-amber-700 dark:text-amber-400 bg-amber-100/50 dark:bg-amber-900/20 border-l-4 border-amber-600" href="..../seller/artisan-dashboard.html">
+<span class="material-symbols-outlined text-xl">inventory_2</span>
+                    Products
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all" href="..../seller/artisan-dashboard.html">
+<span class="material-symbols-outlined text-xl">shopping_bag</span>
+                    Orders
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all" href="..../auctions/live-auctions.html">
+<span class="material-symbols-outlined text-xl">gavel</span>
+                    Auctions
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all" href="..../seller/artisan-dashboard.html">
+<span class="material-symbols-outlined text-xl">leaderboard</span>
+                    Analytics
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all" href="..../user/messaging-chat.html">
+<span class="material-symbols-outlined text-xl">chat</span>
+                    Messages
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all" href="..../seller/artisan-dashboard.html">
+<span class="material-symbols-outlined text-xl">settings</span>
+                    Settings
+                </a>
+</nav>
+</aside>
+<!-- Main Content -->
+<main class="ml-64 w-full min-h-screen px-8 py-10 bg-surface">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
+<div>
+<h1 class="text-4xl font-serif font-bold text-on-surface mb-2">Artisan Dashboard</h1>
+<p class="text-secondary font-body">Manage your products and view your sales performance.</p>
+</div>
+<button class="flex items-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-semibold shadow-sm hover:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined">add</span>
+                    + Add New Product
+                </button>
+</div>
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-l-4 border-emerald-500">
+<div class="flex items-center justify-between mb-4">
+<span class="text-secondary text-sm font-medium uppercase tracking-wider">Total Revenue</span>
+<div class="p-2 bg-emerald-50 rounded-lg text-emerald-600">
+<span class="material-symbols-outlined inl-font-var-02e95d">payments</span>
+</div>
+</div>
+<div class="flex items-baseline gap-2">
+<h2 class="text-3xl font-serif font-bold">$12,450</h2>
+<span class="text-emerald-600 text-xs font-bold">+12% from last month</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-l-4 border-amber-500">
+<div class="flex items-center justify-between mb-4">
+<span class="text-secondary text-sm font-medium uppercase tracking-wider">Total Products</span>
+<div class="p-2 bg-amber-50 rounded-lg text-amber-600">
+<span class="material-symbols-outlined inl-font-var-02e95d">inventory</span>
+</div>
+</div>
+<div class="flex items-baseline gap-2">
+<h2 class="text-3xl font-serif font-bold">24</h2>
+<span class="text-secondary text-xs">Active listings</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-l-4 border-emerald-500">
+<div class="flex items-center justify-between mb-4">
+<span class="text-secondary text-sm font-medium uppercase tracking-wider">Sales this Month</span>
+<div class="p-2 bg-emerald-50 rounded-lg text-emerald-600">
+<span class="material-symbols-outlined inl-font-var-02e95d">trending_up</span>
+</div>
+</div>
+<div class="flex items-baseline gap-2">
+<h2 class="text-3xl font-serif font-bold">+18%</h2>
+<span class="text-emerald-600 text-xs font-bold">Higher than average</span>
+</div>
+</div>
+</div>
+<!-- Tables Section -->
+<div class="grid grid-cols-1 gap-12">
+<!-- Products Table -->
+<section class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm">
+<div class="px-8 py-6 flex justify-between items-center bg-surface-container-low/50">
+<h3 class="text-xl font-serif font-bold">Your Products</h3>
+<button class="text-primary text-sm font-semibold hover:underline">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="border-b border-surface-container-high text-secondary text-xs uppercase tracking-widest font-bold">
+<th class="px-8 py-4">Product</th>
+<th class="px-4 py-4">Category</th>
+<th class="px-4 py-4">Price</th>
+<th class="px-4 py-4">Stock</th>
+<th class="px-4 py-4">Status</th>
+<th class="px-8 py-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low">
+<tr class="hover:bg-surface/50 transition-colors group">
+<td class="px-8 py-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+<img alt="Vase" class="w-full h-full object-cover" data-alt="A textured ceramic hand-thrown vase" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDu3omRA8ZHgnyastnLv6QXdZvhbxFwmr_p7YgASOKsqBLP6KB6x7IsIG__XhPiG9vpBWknJw2pfBMa_h0Y3jA6cAHzHAB5JIwaDSCxutbxMKOY_SHONekrazXuRglZnlDGtgimwnYW4qBxa7BUXetBU0_CgdSv3I7RdKdL0CpNDGBmAF-OkhUP2T1dMNtIcz4Dod_fKA_DrYYNGFtpJvm5oK83JaECSyHriMzmvpEB23Ioh5A3gPZr_nB4Gjpu8Bn7vj28oIc32m4"/>
+</div>
+<span class="font-medium text-on-surface">Hand-Thrown Vase</span>
+</td>
+<td class="px-4 py-4 text-secondary text-sm">Pottery</td>
+<td class="px-4 py-4 font-serif font-bold">$85</td>
+<td class="px-4 py-4 text-secondary">12</td>
+<td class="px-4 py-4">
+<span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full font-bold">Active</span>
+</td>
+<td class="px-8 py-4 text-right text-slate-400">
+<div class="flex justify-end gap-3">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">edit</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-error transition-colors">delete</span>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface/50 transition-colors group">
+<td class="px-8 py-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden shrink-0 shadow-sm">
+<img alt="Woven" class="w-full h-full object-cover" data-alt="Large woven wall hanging artwork" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBC9yBNy042v4kjtR1tNunlWwJ6gLeidOitDezJxaI_dHwrmnvls3qUWtaTxf2IvlgNc-XedACzG3a7qMV0gniltwCshOgFKz39e9WksdXszE9sAyrR3KTq8-WYyIuNdgLI05tOiNtqQmPQXw8rdSIH3O3wQ3wuPJqfi3-tKQLLmMJ_q1nkostvLaLHgzaCr42lyPlp76DW_hpNh0cEdkD0FowPi05HeeNd9JsVclMa3vKwgj9-RUF3LgkgVRZZCrSybAmMyJews7c"/>
+</div>
+<span class="font-medium text-on-surface">Woven Wall Hanging</span>
+</td>
+<td class="px-4 py-4 text-secondary text-sm">Textiles</td>
+<td class="px-4 py-4 font-serif font-bold">$120</td>
+<td class="px-4 py-4 text-secondary">5</td>
+<td class="px-4 py-4">
+<span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full font-bold">Active</span>
+</td>
+<td class="px-8 py-4 text-right text-slate-400">
+<div class="flex justify-end gap-3">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">edit</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-error transition-colors">delete</span>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface/50 transition-colors group">
+<td class="px-8 py-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden shrink-0 shadow-sm grayscale opacity-60">
+<img alt="Board" class="w-full h-full object-cover" data-alt="Polished oak wooden serving board" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBW8XWdaH8Knv8dYKU7TEAFIQb_XyxtKFwyA-aj7aBAIJU4l0JbZyWbwTVAoo31EFLP-qgVhLTUl7LK4RuS_y4quuNd4Y7_NhMtN2ysifczoNcS-dzPhhCn5gQyxaAVQ8lmDMz9Y8tjOLaHLXCryGxLHerRZVf7vF1drKz2boBVTyDyvxTp7D8epqkWks_GgpLE1DKcqm3NstJZ5_VL4_lLlTNgwgZTdEA7cqrWtbNsRoQsGU4awECTbfPCLKPsXCgAF4vuwJ7cRc0"/>
+</div>
+<span class="font-medium text-on-surface text-slate-400">Oak Serving Board</span>
+</td>
+<td class="px-4 py-4 text-secondary text-sm">Woodwork</td>
+<td class="px-4 py-4 font-serif font-bold">$65</td>
+<td class="px-4 py-4 text-secondary">0</td>
+<td class="px-4 py-4">
+<span class="px-3 py-1 bg-slate-100 text-slate-500 text-xs rounded-full font-bold">Out of Stock</span>
+</td>
+<td class="px-8 py-4 text-right text-slate-400">
+<div class="flex justify-end gap-3">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">edit</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-error transition-colors">delete</span>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface/50 transition-colors group">
+<td class="px-8 py-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden shrink-0 shadow-sm">
+<img alt="Earrings" class="w-full h-full object-cover" data-alt="Elegant silver leaf shaped earrings" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrqov4bIulGU1Rm-jvvoPuShowxegzDq1aAaSKL7BqRpkQL7KkGI_MC9pYId7R6OA3DEEgfjnz5YL0FYTOxIma7-7adGmtRM4I2ELmsKjKKRLCDF8pdTjWvdAFeXBFHEjoCwYw8fR9J2QUfaEljfDdLzrf0Hu56YuAIpPsRxbWmdcVD1kkgOw5s6cK1FKoanElWOSzq0ssVSIqZ0aL7UdwON7aaNFslh9scJWiuxrGY2Or7fVXESymN5e_5yLNmgTxXhMFikPEHGc"/>
+</div>
+<span class="font-medium text-on-surface">Silver Leaf Earrings</span>
+</td>
+<td class="px-4 py-4 text-secondary text-sm">Jewelry</td>
+<td class="px-4 py-4 font-serif font-bold">$45</td>
+<td class="px-4 py-4 text-secondary">20</td>
+<td class="px-4 py-4">
+<span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full font-bold">Active</span>
+</td>
+<td class="px-8 py-4 text-right text-slate-400">
+<div class="flex justify-end gap-3">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">edit</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-error transition-colors">delete</span>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface/50 transition-colors group">
+<td class="px-8 py-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden shrink-0 shadow-sm">
+<img alt="Sketchbook" class="w-full h-full object-cover" data-alt="Handmade leather bound sketchbook" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLEdiePIQyyXcUZhavp78I0Pfh6b72A4FO5aMuXL67hofGzsFHkELuEKqRupfTRj3_fIjGcBtu3gqsk-Wxz1_gnFnIzauywbNndD62DzL4hp7KNdYzvcwW4oooVydtttk7S2dyJQwJK476kY71yfs7aEKF-GOLYQdkDgEXL_RDbxM8CSSilKXs6BwfA-aqt7Li9lxvs8PRaoWOlmV4HrmV1jmCWnwafmatqZMI7wZ-EeGp0SXeRUNWnRNZk7QinsT2GQ-GSjvPvHA"/>
+</div>
+<span class="font-medium text-on-surface">Leather Sketchbook</span>
+</td>
+<td class="px-4 py-4 text-secondary text-sm">Leather</td>
+<td class="px-4 py-4 font-serif font-bold">$55</td>
+<td class="px-4 py-4 text-secondary">8</td>
+<td class="px-4 py-4">
+<span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs rounded-full font-bold">Pending</span>
+</td>
+<td class="px-8 py-4 text-right text-slate-400">
+<div class="flex justify-end gap-3">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">edit</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-error transition-colors">delete</span>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface/50 transition-colors group">
+<td class="px-8 py-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden shrink-0 shadow-sm">
+<img alt="Glass Vase" class="w-full h-full object-cover" data-alt="Small delicate glass bud vase" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBU4mmZOXGtAG_beFb1KGZWvRrRDVKWy9CT3jA2nD5XStzpKqdS0AX60cmFRBFHxs_-yicLzYVFdKAhadw8eexhZOa-8oht7UksWGFSB9h9cWCN1SAX78tc8yWbDj1VkCCgunwihl6yBtcR5IyZuGZjD4aF9JLrr6qrNpmVT1Bi-3RLSQWGnki4hBvu7brFV93casCimqkpllPNFaoAUh-qF4dpCx6MZM9nF9eD0L_Ike2SkljBIIf7L68aCkiDe0Xh-WwZux1H_gM"/>
+</div>
+<span class="font-medium text-on-surface">Glass Bud Vase</span>
+</td>
+<td class="px-4 py-4 text-secondary text-sm">Glassware</td>
+<td class="px-4 py-4 font-serif font-bold">$30</td>
+<td class="px-4 py-4 text-secondary">15</td>
+<td class="px-4 py-4">
+<span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full font-bold">Active</span>
+</td>
+<td class="px-8 py-4 text-right text-slate-400">
+<div class="flex justify-end gap-3">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">edit</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-error transition-colors">delete</span>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface/50 transition-colors group">
+<td class="px-8 py-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden shrink-0 shadow-sm">
+<img alt="Table Runner" class="w-full h-full object-cover" data-alt="Textured linen table runner" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJF5ysCEOkQNXJh8JUEb5n9flPkby4CYKaCHY1x9133JaY7Hrf0Sbdp8p_EMahuFfgPWWGbF2GcBnzldyTWaMoSnOOQnRetzbWrl3gAYKcpdwyD1xLhsMNsIBHUcT1rIB-RBYhnGoHb0p8Zw6JhgonJiIv8q8L9b0-3EwNQfqCpPrJXhYgLiKkt-rWGGmrQIzOptRSVtkpNUsbZVbk6gZ8NOrY7G6_FPMaPaFdcf7j9Hb2j7UCKOmPIDwpzmj9o0Q7oG7Ci0yCdsM"/>
+</div>
+<span class="font-medium text-on-surface">Linen Table Runner</span>
+</td>
+<td class="px-4 py-4 text-secondary text-sm">Textiles</td>
+<td class="px-4 py-4 font-serif font-bold">$40</td>
+<td class="px-4 py-4 text-secondary">10</td>
+<td class="px-4 py-4">
+<span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full font-bold">Active</span>
+</td>
+<td class="px-8 py-4 text-right text-slate-400">
+<div class="flex justify-end gap-3">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">edit</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-error transition-colors">delete</span>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Recent Orders Table -->
+<section class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm">
+<div class="px-8 py-6 flex justify-between items-center bg-surface-container-low/50">
+<h3 class="text-xl font-serif font-bold">Recent Orders</h3>
+<button class="text-primary text-sm font-semibold hover:underline">Manage All Orders</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="border-b border-surface-container-high text-secondary text-xs uppercase tracking-widest font-bold">
+<th class="px-8 py-4">Order ID</th>
+<th class="px-4 py-4">Customer</th>
+<th class="px-4 py-4">Product</th>
+<th class="px-4 py-4">Date</th>
+<th class="px-4 py-4">Status</th>
+<th class="px-4 py-4">Total</th>
+<th class="px-8 py-4 text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low">
+<tr class="hover:bg-surface/50 transition-colors">
+<td class="px-8 py-4 font-mono text-sm text-secondary">#ORD-9421</td>
+<td class="px-4 py-4 font-medium">Elena Gilbert</td>
+<td class="px-4 py-4 text-secondary text-sm">Hand-Thrown Vase</td>
+<td class="px-4 py-4 text-secondary text-sm">May 24, 2024</td>
+<td class="px-4 py-4">
+<span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs rounded-full font-bold">Pending</span>
+</td>
+<td class="px-4 py-4 font-serif font-bold">$85.00</td>
+<td class="px-8 py-4 text-right">
+<button class="text-xs font-bold bg-surface-container text-on-surface px-4 py-1.5 rounded-lg hover:bg-primary hover:text-white transition-all">View</button>
+</td>
+</tr>
+<tr class="hover:bg-surface/50 transition-colors">
+<td class="px-8 py-4 font-mono text-sm text-secondary">#ORD-9420</td>
+<td class="px-4 py-4 font-medium">Marcus Aurelius</td>
+<td class="px-4 py-4 text-secondary text-sm">Silver Leaf Earrings</td>
+<td class="px-4 py-4 text-secondary text-sm">May 23, 2024</td>
+<td class="px-4 py-4">
+<span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-bold">Shipped</span>
+</td>
+<td class="px-4 py-4 font-serif font-bold">$45.00</td>
+<td class="px-8 py-4 text-right">
+<button class="text-xs font-bold bg-surface-container text-on-surface px-4 py-1.5 rounded-lg hover:bg-primary hover:text-white transition-all">View</button>
+</td>
+</tr>
+<tr class="hover:bg-surface/50 transition-colors">
+<td class="px-8 py-4 font-mono text-sm text-secondary">#ORD-9419</td>
+<td class="px-4 py-4 font-medium">Sienna West</td>
+<td class="px-4 py-4 text-secondary text-sm">Woven Wall Hanging</td>
+<td class="px-4 py-4 text-secondary text-sm">May 21, 2024</td>
+<td class="px-4 py-4">
+<span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full font-bold">Delivered</span>
+</td>
+<td class="px-4 py-4 font-serif font-bold">$120.00</td>
+<td class="px-8 py-4 text-right">
+<button class="text-xs font-bold bg-surface-container text-on-surface px-4 py-1.5 rounded-lg hover:bg-primary hover:text-white transition-all">View</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="w-full border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 font-sans text-xs Inter flex flex-col md:flex-row justify-between items-center px-12 py-8 w-full z-10 relative">
+<div class="font-serif text-lg text-slate-800 dark:text-slate-200 mb-4 md:mb-0">Craftify</div>
+<div class="flex gap-8 mb-4 md:mb-0">
+<a class="text-slate-400 dark:text-slate-500 hover:text-amber-500 underline transition-opacity opacity-80 hover:opacity-100" href="..../seller/artisan-dashboard.html">About Us</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-amber-500 underline transition-opacity opacity-80 hover:opacity-100" href="..../seller/artisan-dashboard.html">Merchant Terms</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-amber-500 underline transition-opacity opacity-80 hover:opacity-100" href="..../seller/artisan-dashboard.html">Privacy Policy</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-amber-500 underline transition-opacity opacity-80 hover:opacity-100" href="..../seller/artisan-dashboard.html">Contact Support</a>
+</div>
+<p class="text-slate-400">© 2024 Craftify. Handcrafted with precision.</p>
+</footer>
+</body></html>
+<!-- Auction Detail - Updated Navbar -->
