@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auction Payment | Craftify</title>
+  <link rel="stylesheet" href="../../assets/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif:wght@700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen font-['Inter']">
+  <main class="max-w-5xl mx-auto px-6 py-10 space-y-8">
+    <header class="space-y-2">
+      <p class="text-xs font-semibold tracking-[0.2em] uppercase text-amber-700">Auction Checkout</p>
+      <h1 class="text-3xl md:text-4xl font-['Noto_Serif'] font-bold">Complete Your Winning Bid Payment</h1>
+      <p class="text-sm text-slate-600">You can only pay if the auction has ended and you are the winner.</p>
+    </header>
+
+    <section class="grid lg:grid-cols-2 gap-6">
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+        <h2 class="text-lg font-semibold">Winning Item</h2>
+        <p class="text-sm text-slate-500" id="auction-payment-status">Loading auction details...</p>
+        <div class="space-y-2">
+          <p class="text-base font-medium" id="auction-payment-title">-</p>
+          <p class="text-sm text-slate-600" id="auction-payment-artisan">by -</p>
+        </div>
+        <div class="pt-2 border-t border-slate-200 flex items-center justify-between">
+          <span class="text-sm text-slate-600">Winning Bid</span>
+          <span class="text-2xl font-bold text-green-700" id="auction-payment-amount">$0.00</span>
+        </div>
+      </div>
+
+      <form class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4" id="auction-payment-form">
+        <h2 class="text-lg font-semibold">Shipping Details</h2>
+        <div class="grid sm:grid-cols-2 gap-3">
+          <input class="px-4 py-3 rounded-xl border border-slate-300" id="auction-shipping-first-name" placeholder="First name" type="text" />
+          <input class="px-4 py-3 rounded-xl border border-slate-300" id="auction-shipping-last-name" placeholder="Last name" type="text" />
+        </div>
+        <input class="w-full px-4 py-3 rounded-xl border border-slate-300" id="auction-shipping-email" placeholder="Email" type="email" />
+        <input class="w-full px-4 py-3 rounded-xl border border-slate-300" id="auction-shipping-street" placeholder="Street address" type="text" />
+        <div class="grid sm:grid-cols-3 gap-3">
+          <input class="px-4 py-3 rounded-xl border border-slate-300" id="auction-shipping-city" placeholder="City" type="text" />
+          <input class="px-4 py-3 rounded-xl border border-slate-300" id="auction-shipping-state" placeholder="State" type="text" />
+          <input class="px-4 py-3 rounded-xl border border-slate-300" id="auction-shipping-zip" placeholder="ZIP" type="text" />
+        </div>
+        <button class="w-full py-3 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-700 disabled:opacity-60" id="auction-payment-submit" type="submit">Pay Winning Bid</button>
+      </form>
+    </section>
+  </main>
+
+  <script src="../../assets/shop.js"></script>
+</body>
+</html>

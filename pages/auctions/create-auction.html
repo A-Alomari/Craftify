@@ -1,0 +1,329 @@
+<!-- Create New Auction -->
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create New Auction | ArtisanMarket</title>
+<link href="../../assets/styles.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Serif:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d8c3ad; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased min-h-screen flex flex-col">
+<!-- Top Navigation -->
+<header class="bg-[#F7F9FB]/80 backdrop-blur-md fixed top-0 w-full z-50 no-border tonal-shift bg-[#F2F4F6]">
+<nav class="flex justify-between items-center px-8 py-4 max-w-full mx-auto">
+<div class="font-['Noto_Serif'] text-2xl font-bold text-[#191C1E]">ArtisanMarket</div>
+<div class="hidden md:flex items-center space-x-8">
+<a class="text-[#545F73] font-medium hover:text-[#F59E0B] transition-colors duration-300" href="#">Home</a>
+<a class="text-[#545F73] font-medium hover:text-[#F59E0B] transition-colors duration-300" href="#">Auctions</a>
+<a class="text-[#F59E0B] font-bold border-b-2 border-[#F59E0B] pb-1" href="#">Dashboard</a>
+<a class="text-[#545F73] font-medium hover:text-[#F59E0B] transition-colors duration-300" href="#">Admin</a>
+</div>
+<div class="flex items-center space-x-6">
+<span class="material-symbols-outlined cursor-pointer text-[#545F73] hover:text-[#F59E0B]">search</span>
+<span class="material-symbols-outlined cursor-pointer text-[#545F73] hover:text-[#F59E0B]">shopping_cart</span>
+<span class="material-symbols-outlined cursor-pointer text-[#545F73] hover:text-[#F59E0B]">notifications</span>
+<div class="w-8 h-8 rounded-full bg-primary-fixed-dim flex items-center justify-center text-on-primary-fixed">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">person</span>
+</div>
+</div>
+</nav>
+</header>
+<main class="flex-grow pt-24 pb-20 px-6 md:px-12 max-w-7xl mx-auto w-full">
+<!-- Breadcrumb -->
+<nav class="mb-8 flex items-center space-x-2 text-sm text-secondary">
+<span class="hover:text-primary cursor-pointer transition-colors">Dashboard</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-on-surface font-medium">Create Auction</span>
+</nav>
+<!-- Header Section -->
+<div class="mb-12">
+<h1 class="font-headline text-4xl font-bold text-on-surface mb-2">Create New Auction</h1>
+<p class="text-secondary body-md">List your unique item for bidding by customers.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+<!-- Left Column: Form -->
+<div class="lg:col-span-8 space-y-8">
+<form class="space-y-8" id="create-auction-form">
+<!-- Product Details Card -->
+<section class="bg-surface-container-lowest rounded-xl p-8 shadow-sm">
+<div class="flex items-center space-x-3 mb-8">
+<span class="material-symbols-outlined text-primary">inventory_2</span>
+<h2 class="font-headline text-xl font-bold">Product Details</h2>
+</div>
+<div class="space-y-6">
+<div>
+<label class="block text-sm font-semibold text-secondary mb-2 uppercase tracking-wider">Product Name</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-colors" id="create-auction-product-name-input" placeholder="e.g., Vintage Kiln-Fired Vase" type="text"/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
+<label class="block text-sm font-semibold text-secondary mb-2 uppercase tracking-wider">Your Product</label>
+<select class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-colors appearance-none mb-4" id="create-auction-product-select">
+<option value="">Select product</option>
+</select>
+<label class="block text-sm font-semibold text-secondary mb-2 uppercase tracking-wider">Category</label>
+<select class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-colors appearance-none">
+<option>Pottery</option>
+<option>Textiles</option>
+<option>Woodwork</option>
+<option>Jewelry</option>
+<option>Glassware</option>
+<option>Leather</option>
+</select>
+</div>
+</div>
+<div>
+<div class="flex justify-between mb-2">
+<label class="block text-sm font-semibold text-secondary uppercase tracking-wider">Description</label>
+<span class="text-xs text-secondary/60">0/1000 characters</span>
+</div>
+<textarea class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-colors custom-scrollbar" placeholder="Tell the story of your creation..." rows="5"></textarea>
+</div>
+<div>
+<label class="block text-sm font-semibold text-secondary mb-4 uppercase tracking-wider">Upload Images</label>
+<div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+<!-- Upload Slot 1 (Cover) -->
+<div class="relative aspect-square rounded-xl bg-surface-container-low overflow-hidden group">
+<img alt="Vase Detail" class="w-full h-full object-cover" data-alt="close-up of a rustic handcrafted ceramic vase with turquoise glaze and earthy textures on a neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgS7fzJgj5zn4riZg1x_oMAWUhuZi9fmFZLLkxm6QIv-XRe4X2c3TinM11N4HRD5FB4mtUGFRGzz-7lW6qvvXlgJeqAhGGm4bYzfHkDLzzehSqSgIPTLnljBOG9-KM3VUZaVJdVcXOLSZ2OJhwdAAALhtc3DsnXcgfTxKrcUIPDico_HJaILBOCMg4ccUkAA3WqGhInMb3ESLyQ9KqNny9UcmuwJAEI9mPK_OajO8Jp_55bHCIruPS8kdkWi3iaprgslC3eFYKsr4"/>
+<div class="absolute top-2 left-2 bg-primary-container text-on-primary-container text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">COVER</div>
+<button class="absolute top-2 right-2 bg-white/80 hover:bg-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-xs text-error">close</span>
+</button>
+</div>
+<!-- Upload Slot 2 -->
+<div class="relative aspect-square rounded-xl bg-surface-container-low overflow-hidden group">
+<img alt="Vase Texture" class="w-full h-full object-cover" data-alt="macro photograph of detailed clay textures and fine cracks in a kiln-fired ceramic object with warm ambient lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBM4gx1bIvXkrU4r8-6fNJ_1gYQdJDgT9sfxqJsrWbCRV5KI4MxYUlp60eVlN9wWxutZpIKRgHtUYP_CUlPwQf4GtTRt8xhTNaRP9SEjIxPx-1Fn7Tw6Q_0MlULkMSALLUPe7Ieh3SjJdOPFsRKkr2BgtWR30aIiF4qf6VNBiCGuxldOGn3n_n-dkOhUEcWosyg1WK0XMe_MgbhRa_0f9AipF8FEnCO-5PL6x2wF54ieyCMWqRomdKDzU0vb8vr2dmA7Y6xZPX2OzE"/>
+<button class="absolute top-2 right-2 bg-white/80 hover:bg-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-xs text-error">close</span>
+</button>
+</div>
+<!-- Empty Upload Slots -->
+<div class="aspect-square rounded-xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center hover:bg-surface-container-low cursor-pointer transition-colors group">
+<span class="material-symbols-outlined text-secondary group-hover:scale-110 transition-transform">add_a_photo</span>
+<span class="text-[10px] text-secondary mt-2 font-medium">Add Photo</span>
+</div>
+<div class="aspect-square rounded-xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center bg-surface/50 opacity-40">
+<span class="material-symbols-outlined text-secondary">image</span>
+</div>
+<div class="aspect-square rounded-xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center bg-surface/50 opacity-40">
+<span class="material-symbols-outlined text-secondary">image</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Auction Settings Card -->
+<section class="bg-surface-container-lowest rounded-xl p-8 shadow-sm">
+<div class="flex items-center space-x-3 mb-8">
+<span class="material-symbols-outlined text-primary">gavel</span>
+<h2 class="font-headline text-xl font-bold">Auction Settings</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div>
+<label class="block text-sm font-semibold text-secondary mb-2 uppercase tracking-wider">Starting Bid ($)</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-colors" id="create-auction-starting-bid-input" placeholder="0.00" type="number"/>
+</div>
+<div>
+<label class="block text-sm font-semibold text-secondary mb-2 uppercase tracking-wider">Bid Increment ($)</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-colors" id="create-auction-bid-increment-input" placeholder="5.00" type="number"/>
+</div>
+<div>
+<label class="block text-sm font-semibold text-secondary mb-2 uppercase tracking-wider">Reserve Price ($)</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-colors" id="create-auction-reserve-price-input" placeholder="Optional" type="number"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+<div>
+<label class="block text-sm font-semibold text-secondary mb-2 uppercase tracking-wider">Start Date &amp; Time</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-colors" id="create-auction-start-at-input" type="datetime-local"/>
+</div>
+</div>
+<div>
+<label class="block text-sm font-semibold text-secondary mb-2 uppercase tracking-wider">End Date &amp; Time</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-colors" id="create-auction-end-at-input" type="datetime-local"/>
+</div>
+</div>
+</div>
+<div class="mt-6 p-4 bg-primary-fixed/30 rounded-lg flex items-center justify-between">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-primary text-sm">schedule</span>
+<span class="text-sm font-medium text-on-primary-fixed">Calculated Duration:</span>
+</div>
+<span class="text-sm font-bold text-primary">3 days, 6 hours</span>
+</div>
+</section>
+<!-- Shipping Details Card -->
+<section class="bg-surface-container-lowest rounded-xl p-8 shadow-sm">
+<div class="flex items-center space-x-3 mb-8">
+<span class="material-symbols-outlined text-primary">local_shipping</span>
+<h2 class="font-headline text-xl font-bold">Shipping Details</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="space-y-6">
+<div>
+<label class="block text-sm font-semibold text-secondary mb-2 uppercase tracking-wider">Shipping Method</label>
+<select class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-colors appearance-none">
+<option>Standard Courier</option>
+<option>Express Shipping</option>
+<option>Local Pickup Only</option>
+<option>International Tracked</option>
+</select>
+</div>
+<div class="flex items-center space-x-3 mt-4">
+<input class="rounded border-secondary text-primary focus:ring-primary w-5 h-5" id="free-shipping" type="checkbox"/>
+<label class="text-sm font-medium text-on-surface" for="free-shipping">Offer Free Shipping</label>
+</div>
+</div>
+<div class="space-y-6">
+<div>
+<label class="block text-sm font-semibold text-secondary mb-2 uppercase tracking-wider">Estimated Delivery</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-colors" placeholder="e.g. 3-5 business days" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-semibold text-secondary mb-2 uppercase tracking-wider">Shipping Cost ($)</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-colors" type="number" value="15.00"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Terms section -->
+<section class="space-y-4 pt-4 px-2">
+<div class="flex items-start space-x-3">
+<input class="mt-1 rounded border-secondary text-primary focus:ring-primary" id="term1" type="checkbox"/>
+<label class="text-sm text-secondary leading-tight" for="term1">I confirm this item is authentic and handmade by me or my registered atelier, following all artisan guidelines.</label>
+</div>
+<div class="flex items-start space-x-3">
+<input class="mt-1 rounded border-secondary text-primary focus:ring-primary" id="term2" type="checkbox"/>
+<label class="text-sm text-secondary leading-tight" for="term2">I agree to the <a class="text-primary hover:underline" href="#">ArtisanMarket Auction Seller Terms</a> and understand the commission structure.</label>
+</div>
+</section>
+<!-- Final Action Buttons -->
+<div class="flex flex-col md:flex-row items-center gap-4 pt-6">
+<button class="w-full md:w-auto px-10 py-4 rounded-xl border-2 border-outline-variant text-secondary font-bold hover:bg-surface-container-low transition-all active:scale-95" id="create-auction-save-draft-btn" type="button">
+                            Save as Draft
+                        </button>
+<button class="w-full md:flex-1 py-4 rounded-xl bg-primary-container text-on-primary-container font-bold text-lg shadow-lg shadow-primary-container/20 hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-95" id="create-auction-submit-btn" type="submit">
+                            Publish Auction
+                        </button>
+</div>
+</form>
+</div>
+<!-- Right Column: Preview Stick Side -->
+<aside class="lg:col-span-4 sticky top-28">
+<div class="bg-surface-container-high/50 rounded-2xl p-6 border border-white/50">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline text-lg font-bold">Live Preview</h3>
+<span class="text-[10px] tracking-widest bg-secondary text-white px-2 py-0.5 rounded font-bold">DRAFT</span>
+</div>
+<!-- Preview Card -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-xl border border-outline-variant/10 group relative">
+<!-- Watermark Overlay -->
+<div class="absolute inset-0 z-10 pointer-events-none flex items-center justify-center opacity-[0.03] rotate-[-25deg]">
+<span class="text-8xl font-black">PREVIEW</span>
+</div>
+<div class="absolute inset-0 z-10 pointer-events-none flex items-center justify-center opacity-[0.03] rotate-[25deg] mt-40">
+<span class="text-8xl font-black">PREVIEW</span>
+</div>
+<div class="aspect-[4/5] relative">
+<img alt="Card Preview" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="professional editorial studio shot of a handcrafted ceramic vase with soft lighting and elegant shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUpvE9cfLqn5FIswqlIZxCcFyP5szdFgvkX9N5NiFN3DF04wgZaB6SpHCfjso3zbSKuY484GPLrKkQb_covL85dFipafcLdKol6soutRKoAIaTYJl_c-guNW9MGDae8QWSpzxNPtIV3i8R_e1AQsW7-iSY7xUqxa15lchE3yWu4_oQNOokv5ibtxodD9izz0YljUocrYFAn1CxvD9jS02fhxpNwQGspqqV23bgx8QxGvESWYjQBgGw1tqUq2_t_vbSHmrpLbzsutc"/>
+<div class="absolute bottom-4 left-4">
+<span class="bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold tracking-wider text-secondary uppercase">Pottery</span>
+</div>
+</div>
+<div class="p-5 space-y-4">
+<div>
+<h4 class="font-headline text-xl font-bold leading-tight">Vintage Kiln-Fired Vase</h4>
+<div class="flex items-center space-x-2 mt-1">
+<div class="w-4 h-4 rounded-full bg-primary-fixed-dim"></div>
+<span class="text-xs text-secondary italic">by Elena Rossi</span>
+</div>
+</div>
+<div class="flex justify-between items-end">
+<div>
+<p class="text-[10px] text-secondary font-bold uppercase tracking-tighter">Current Bid</p>
+<p class="font-headline text-2xl font-bold text-primary">$145.00</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-secondary font-bold uppercase tracking-tighter">Ends In</p>
+<p class="text-sm font-bold text-on-surface">3d 06h</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 p-4 rounded-xl bg-white/40 space-y-3">
+<div class="flex items-center justify-between text-xs text-secondary">
+<span>Listing Fee</span>
+<span class="font-medium text-on-surface">$2.50</span>
+</div>
+<div class="flex items-center justify-between text-xs text-secondary">
+<span>Marketplace Comm. (12%)</span>
+<span class="font-medium text-on-surface">On Sale</span>
+</div>
+<div class="pt-2 border-t border-outline-variant/30 flex items-center justify-between">
+<span class="text-sm font-bold">Total Estimated Profit</span>
+<span class="text-sm font-bold text-tertiary">~$125.10</span>
+</div>
+</div>
+</div>
+<div class="mt-6 px-4 py-4 rounded-xl bg-primary-container/10 border border-primary-container/20 flex space-x-4">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">info</span>
+<p class="text-xs leading-relaxed text-on-primary-fixed-variant">
+<strong>Pro Tip:</strong> Items with clear, high-resolution descriptions and detailed stories tend to receive 40% higher bids on ArtisanMarket.
+                    </p>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-[#F2F4F6] mt-auto">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 px-12 py-16 w-full max-w-7xl mx-auto">
+<div class="col-span-1 md:col-span-1">
+<div class="font-['Noto_Serif'] text-xl font-semibold text-[#191C1E] mb-6">ArtisanMarket</div>
+<p class="font-['Inter'] body-md text-[#545F73]">Curating the world's finest digital atelier for handmade excellence.</p>
+</div>
+<div>
+<h4 class="font-bold text-on-surface mb-6">Shop</h4>
+<ul class="space-y-4 font-['Inter'] body-md text-[#545F73]">
+<li><a class="hover:underline decoration-[#F59E0B]" href="#">Featured Collections</a></li>
+<li><a class="hover:underline decoration-[#F59E0B]" href="#">Maker Directory</a></li>
+<li><a class="hover:underline decoration-[#F59E0B]" href="#">Current Auctions</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-on-surface mb-6">Support</h4>
+<ul class="space-y-4 font-['Inter'] body-md text-[#545F73]">
+<li><a class="hover:underline decoration-[#F59E0B]" href="#">Seller Handbook</a></li>
+<li><a class="hover:underline decoration-[#F59E0B]" href="#">Shipping Policy</a></li>
+<li><a class="hover:underline decoration-[#F59E0B]" href="#">Resolution Center</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-on-surface mb-6">Newsletter</h4>
+<p class="font-['Inter'] body-md text-[#545F73] mb-4">The latest stories from the studio.</p>
+<div class="flex">
+<input class="w-full bg-surface-container-lowest border-none rounded-l-xl px-4 py-2 focus:ring-0" placeholder="Email address" type="email"/>
+<button class="bg-primary-container text-on-primary-container px-4 py-2 rounded-r-xl">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</div>
+</div>
+<div class="px-12 py-8 border-t border-outline-variant/20 text-center font-['Inter'] body-md text-[#545F73]">
+            © 2024 ArtisanMarket. Built for the Digital Atelier.
+        </div>
+</footer>
+<script src="../../assets/shop.js"></script>
+</body></html>

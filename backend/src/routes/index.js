@@ -1,0 +1,42 @@
+const express = require("express");
+const authRoutes = require("./auth.routes");
+const productsRoutes = require("./products.routes");
+const auctionsRoutes = require("./auctions.routes");
+const cartRoutes = require("./cart.routes");
+const ordersRoutes = require("./orders.routes");
+const wishlistRoutes = require("./wishlist.routes");
+const reviewsRoutes = require("./reviews.routes");
+const messagesRoutes = require("./messages.routes");
+const notificationsRoutes = require("./notifications.routes");
+const searchRoutes = require("./search.routes");
+const usersRoutes = require("./users.routes");
+const artisanRoutes = require("./artisan.routes");
+const adminRoutes = require("./admin.routes");
+const staticRoutes = require("./static.routes");
+const faqRoutes = require("./faq.routes");
+const contactRoutes = require("./contact.routes");
+const paymentsRoutes = require("./payments.routes");
+
+const apiRouter = express.Router();
+
+apiRouter.use("/auth", authRoutes);
+apiRouter.use("/products", productsRoutes);
+apiRouter.use("/auctions", auctionsRoutes);
+apiRouter.use("/cart", cartRoutes);
+apiRouter.use("/checkout", ordersRoutes);
+apiRouter.use("/orders", ordersRoutes);
+apiRouter.use("/wishlist", wishlistRoutes);
+apiRouter.use("/reviews", reviewsRoutes);
+apiRouter.use("/messages", messagesRoutes);
+apiRouter.use("/conversations", messagesRoutes);
+apiRouter.use("/notifications", notificationsRoutes);
+apiRouter.use("/search", searchRoutes);
+apiRouter.use("/users", usersRoutes);
+apiRouter.use("/artisan", artisanRoutes);
+apiRouter.use("/admin", adminRoutes);
+apiRouter.use("/faqs", faqRoutes);
+apiRouter.use("/contact", contactRoutes);
+apiRouter.use("/static", staticRoutes);
+apiRouter.use("/payments", paymentsRoutes);
+
+module.exports = { apiRouter };

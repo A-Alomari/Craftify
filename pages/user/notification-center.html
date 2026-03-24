@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notification Center | Craftify</title>
+  <link rel="stylesheet" href="../../assets/styles.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" />
+</head>
+<body class="bg-surface text-on-surface font-body min-h-screen flex flex-col">
+  <header class="sticky top-0 z-50 bg-surface-container-lowest/95 backdrop-blur border-b border-outline-variant/10">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+      <a href="../home/index.html" class="text-2xl font-headline font-bold tracking-tight text-on-surface">Craftify</a>
+      <div class="flex items-center gap-2">
+        <button class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all">
+          <span class="material-symbols-outlined">search</span>
+        </button>
+        <button class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all">
+          <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+        </button>
+        <button class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all">
+          <span class="material-symbols-outlined">account_circle</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="flex-grow max-w-5xl w-full mx-auto px-6 py-10 md:py-14">
+    <header class="mb-8 md:mb-10 flex flex-col md:flex-row md:items-end justify-between gap-5">
+      <div>
+        <h1 class="font-headline text-4xl md:text-5xl font-bold tracking-tight">Notifications</h1>
+        <p class="mt-2 text-on-surface-variant">
+          <span id="notification-unread-count">0</span> unread updates
+        </p>
+      </div>
+      <button id="notification-mark-all-btn" class="px-5 py-2.5 rounded-lg bg-primary-container text-on-primary-container text-sm font-bold uppercase tracking-wider hover:brightness-105 transition-all">
+        Mark All as Read
+      </button>
+    </header>
+
+    <div class="flex flex-wrap gap-2 mb-8">
+      <button data-notification-filter="all" class="px-5 py-2 rounded-xl text-sm font-medium bg-primary-container text-on-primary-container">All</button>
+      <button data-notification-filter="orders" class="px-5 py-2 rounded-xl text-sm font-medium bg-surface-container-low text-on-secondary-container hover:bg-surface-container-high">Orders</button>
+      <button data-notification-filter="auctions" class="px-5 py-2 rounded-xl text-sm font-medium bg-surface-container-low text-on-secondary-container hover:bg-surface-container-high">Auctions</button>
+      <button data-notification-filter="messages" class="px-5 py-2 rounded-xl text-sm font-medium bg-surface-container-low text-on-secondary-container hover:bg-surface-container-high">Messages</button>
+      <button data-notification-filter="other" class="px-5 py-2 rounded-xl text-sm font-medium bg-surface-container-low text-on-secondary-container hover:bg-surface-container-high">Other</button>
+    </div>
+
+    <section id="notification-list" class="space-y-6">
+      <div class="bg-surface-container-lowest rounded-2xl p-8 border border-outline-variant/15">
+        <p class="text-on-surface-variant">Loading notifications...</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+  <script src="../../assets/shop.js"></script>
+</body>
+</html>

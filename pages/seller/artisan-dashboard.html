@@ -81,7 +81,7 @@
 <h1 class="text-4xl font-serif font-bold text-on-surface mb-2">Artisan Dashboard</h1>
 <p class="text-secondary font-body">Manage your products and view your sales performance.</p>
 </div>
-<button class="flex items-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-semibold shadow-sm hover:scale-95 transition-transform duration-200">
+<button class="flex items-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-semibold shadow-sm hover:scale-95 transition-transform duration-200" id="artisan-dashboard-add-product-btn">
 <span class="material-symbols-outlined">add</span>
                     + Add New Product
                 </button>
@@ -96,7 +96,7 @@
 </div>
 </div>
 <div class="flex items-baseline gap-2">
-<h2 class="text-3xl font-serif font-bold">$12,450</h2>
+<h2 class="text-3xl font-serif font-bold" id="artisan-dashboard-revenue">$0.00</h2>
 <span class="text-emerald-600 text-xs font-bold">+12% from last month</span>
 </div>
 </div>
@@ -108,7 +108,7 @@
 </div>
 </div>
 <div class="flex items-baseline gap-2">
-<h2 class="text-3xl font-serif font-bold">24</h2>
+<h2 class="text-3xl font-serif font-bold" id="artisan-dashboard-product-count">0</h2>
 <span class="text-secondary text-xs">Active listings</span>
 </div>
 </div>
@@ -120,7 +120,7 @@
 </div>
 </div>
 <div class="flex items-baseline gap-2">
-<h2 class="text-3xl font-serif font-bold">+18%</h2>
+<h2 class="text-3xl font-serif font-bold" id="artisan-dashboard-orders-count">0</h2>
 <span class="text-emerald-600 text-xs font-bold">Higher than average</span>
 </div>
 </div>
@@ -145,7 +145,7 @@
 <th class="px-8 py-4 text-right">Actions</th>
 </tr>
 </thead>
-<tbody class="divide-y divide-surface-container-low">
+<tbody class="divide-y divide-surface-container-low" id="artisan-dashboard-products-body">
 <tr class="hover:bg-surface/50 transition-colors group">
 <td class="px-8 py-4 flex items-center gap-4">
 <div class="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden shrink-0 shadow-sm group-hover:scale-105 transition-transform">
@@ -309,7 +309,7 @@
 <th class="px-8 py-4 text-right">Action</th>
 </tr>
 </thead>
-<tbody class="divide-y divide-surface-container-low">
+<tbody class="divide-y divide-surface-container-low" id="artisan-dashboard-orders-body">
 <tr class="hover:bg-surface/50 transition-colors">
 <td class="px-8 py-4 font-mono text-sm text-secondary">#ORD-9421</td>
 <td class="px-4 py-4 font-medium">Elena Gilbert</td>
@@ -356,6 +356,7 @@
 </div>
 </main>
 </div>
+<script src="../../assets/shop.js"></script>
 </body></html>
 <!-- Auction Detail - Updated Navbar -->
 <footer class="w-full bg-[#1B2A4A] dark:bg-[#0D1525] border-t border-white/10 mt-20" style="background-color:#1B2A4A !important;background:#1B2A4A !important;color:#E2E8F0 !important;">

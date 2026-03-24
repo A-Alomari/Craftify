@@ -61,8 +61,8 @@
 <!-- Title and Actions -->
 <div class="flex-1 flex flex-col md:flex-row md:justify-between md:items-center w-full gap-4">
 <div>
-<h1 class="text-4xl font-headline font-bold text-on-surface">Elena's Pottery Studio</h1>
-<p class="text-secondary font-medium mt-1">Elena Rodriguez · Manama, Bahrain</p>
+<h1 class="text-4xl font-headline font-bold text-on-surface" id="artisan-profile-name">Elena's Pottery Studio</h1>
+<p class="text-secondary font-medium mt-1" id="artisan-profile-subtitle">Elena Rodriguez · Manama, Bahrain</p>
 </div>
 <div class="flex gap-3">
 <button class="bg-primary-container text-on-primary-container font-bold px-8 py-3 rounded-xl hover:shadow-lg transition-all active:scale-95">Follow</button>
@@ -73,23 +73,23 @@
 <!-- Bio and Stats -->
 <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-12">
 <div class="lg:col-span-2">
-<p class="text-lg text-secondary leading-relaxed font-body">
+<p class="text-lg text-secondary leading-relaxed font-body" id="artisan-profile-bio">
                             A master potter with over 15 years of experience, Elena creates unique, hand-thrown pieces inspired by the desert landscape and ancient Bahraini techniques. Her work balances raw texture with elegant silhouettes.
                         </p>
 </div>
 <div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm grid grid-cols-2 gap-y-4">
 <div>
 <span class="block text-xs font-label uppercase tracking-widest text-outline">Total Products</span>
-<span class="text-xl font-headline font-bold">24</span>
+<span class="text-xl font-headline font-bold" id="artisan-profile-product-count">0</span>
 </div>
 <div>
 <span class="block text-xs font-label uppercase tracking-widest text-outline">Total Sales</span>
-<span class="text-xl font-headline font-bold">156</span>
+<span class="text-xl font-headline font-bold" id="artisan-profile-sales-count">0</span>
 </div>
 <div>
 <span class="block text-xs font-label uppercase tracking-widest text-outline">Average Rating</span>
 <span class="flex items-center gap-1 text-xl font-headline font-bold text-primary">
-                                4.8 <span class="material-symbols-outlined text-sm filled-icon">star</span>
+                                <span id="artisan-profile-rating">0.0</span> <span class="material-symbols-outlined text-sm filled-icon">star</span>
 </span>
 </div>
 <div>
@@ -107,7 +107,7 @@
 </div>
 <!-- Products Grid Content -->
 <section class="mt-12">
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10" id="artisan-profile-products-grid">
 <!-- Card 1 -->
 <div class="group bg-surface-container-lowest p-5 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300">
 <div class="aspect-square rounded-2xl overflow-hidden mb-6 relative">
@@ -441,6 +441,7 @@
 <span class="font-['Inter'] text-[10px] uppercase tracking-widest font-bold mt-1">Profile</span>
 </a>
 </nav>
+<script src="../../assets/shop.js"></script>
 
 </body>
 </html>

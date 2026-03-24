@@ -46,7 +46,7 @@
 <!-- Page Header -->
 <div class="mb-12">
 <h1 class="text-4xl md:text-5xl font-bold text-on-surface mb-2">Track Your Order</h1>
-<p class="text-secondary font-medium tracking-tight">Order ID: <span class="text-on-surface">#ORD-20260323-0047</span></p>
+<p class="text-secondary font-medium tracking-tight">Order ID: <span class="text-on-surface" id="tracking-order-id">#ORD-20260323-0047</span></p>
 </div>
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
 <!-- Left Column: Main Content -->
@@ -54,22 +54,22 @@
 <!-- Order Summary Card -->
 <section class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/20 relative overflow-hidden">
 <div class="absolute top-0 right-0 p-4">
-<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700" id="tracking-payment-status">
                             Paid
                         </span>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
 <div>
 <p class="text-xs uppercase tracking-widest text-on-surface-variant font-semibold mb-1">Order Date</p>
-<p class="text-lg font-headline font-semibold text-on-surface">March 20, 2026</p>
+<p class="text-lg font-headline font-semibold text-on-surface" id="tracking-order-date">March 20, 2026</p>
 </div>
 <div>
 <p class="text-xs uppercase tracking-widest text-on-surface-variant font-semibold mb-1">Delivery Estimate</p>
-<p class="text-lg font-headline font-semibold text-primary">March 27, 2026</p>
+<p class="text-lg font-headline font-semibold text-primary" id="tracking-delivery-estimate">March 27, 2026</p>
 </div>
 <div>
 <p class="text-xs uppercase tracking-widest text-on-surface-variant font-semibold mb-1">Total Amount</p>
-<p class="text-lg font-headline font-semibold text-on-surface">$230.00</p>
+<p class="text-lg font-headline font-semibold text-on-surface" id="tracking-total-amount">$230.00</p>
 </div>
 </div>
 </section>
@@ -112,7 +112,7 @@
 <!-- Vertical Timeline -->
 <section class="space-y-6">
 <h3 class="text-2xl font-bold mb-8">Tracking Details</h3>
-<div class="relative pl-8 space-y-10">
+<div class="relative pl-8 space-y-10" id="tracking-events">
 <!-- Vertical Line -->
 <div class="absolute left-[11px] top-2 bottom-0 w-0.5 bg-surface-container-high"></div>
 <!-- Event 1 (Latest) -->
@@ -169,10 +169,10 @@
 </section>
 <!-- Action Buttons -->
 <div class="flex flex-wrap gap-4 pt-6">
-<button class="px-8 py-3 rounded-md border-2 border-outline-variant font-semibold text-on-surface-variant hover:bg-surface-container-low transition-colors">
+<button class="px-8 py-3 rounded-md border-2 border-outline-variant font-semibold text-on-surface-variant hover:bg-surface-container-low transition-colors" id="tracking-back-history-btn">
                         Back to Order History
                     </button>
-<button class="px-8 py-3 rounded-md border-2 border-outline-variant font-semibold text-on-surface-variant hover:bg-surface-container-low transition-colors">
+<button class="px-8 py-3 rounded-md border-2 border-outline-variant font-semibold text-on-surface-variant hover:bg-surface-container-low transition-colors" id="tracking-contact-support-btn">
                         Contact Support
                     </button>
 </div>
@@ -182,7 +182,7 @@
 <!-- Order Items Card -->
 <div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/20">
 <h4 class="text-xs uppercase tracking-widest text-on-surface-variant font-bold mb-6">Order Items</h4>
-<div class="space-y-6">
+<div class="space-y-6" id="tracking-items">
 <!-- Item 1 -->
 <div class="flex gap-4">
 <div class="w-20 h-20 bg-surface-container rounded-lg overflow-hidden flex-shrink-0">
@@ -219,15 +219,15 @@
 <div class="space-y-5">
 <div>
 <p class="text-xs text-secondary font-medium uppercase tracking-tighter mb-1">Carrier</p>
-<p class="font-semibold text-on-surface">DHL Express</p>
+<p class="font-semibold text-on-surface" id="tracking-carrier">DHL Express</p>
 </div>
 <div>
 <p class="text-xs text-secondary font-medium uppercase tracking-tighter mb-1">Tracking Number</p>
-<p class="font-bold text-primary select-all">DHL-BH-928374</p>
+<p class="font-bold text-primary select-all" id="tracking-number">DHL-BH-928374</p>
 </div>
 <div class="pt-4 border-t border-outline-variant/10">
 <p class="text-xs text-secondary font-medium uppercase tracking-tighter mb-2">Delivery Address</p>
-<address class="not-italic text-on-surface leading-relaxed">
+<address class="not-italic text-on-surface leading-relaxed" id="tracking-address">
 <span class="block font-semibold">John Doe</span>
                                 123 Artisan Way<br/>
                                 Manama, Bahrain<br/>
@@ -252,6 +252,7 @@
 </aside>
 </div>
 </main>
+<script src="../../assets/shop.js"></script>
 </body></html>
 <!-- Verify Code - Step 2 (Updated Navbar) -->
 <footer class="w-full bg-[#1B2A4A] dark:bg-[#0D1525] border-t border-white/10 mt-20" style="background-color:#1B2A4A !important;background:#1B2A4A !important;color:#E2E8F0 !important;">

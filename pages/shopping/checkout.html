@@ -62,33 +62,33 @@
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 <div class="space-y-2">
 <label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container">First Name</label>
-<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="Julian" type="text"/>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" id="shipping-first-name" placeholder="Julian" type="text"/>
 </div>
 <div class="space-y-2">
 <label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container">Last Name</label>
-<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="Vandervalt" type="text"/>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" id="shipping-last-name" placeholder="Vandervalt" type="text"/>
 </div>
 </div>
 <div class="space-y-2">
 <label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container">Email Address</label>
-<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="julian@example.com" type="email"/>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" id="shipping-email" placeholder="julian@example.com" type="email"/>
 </div>
 <div class="space-y-2">
 <label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container">Street Address</label>
-<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="123 Artisan Lane" type="text"/>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" id="shipping-street" placeholder="123 Artisan Lane" type="text"/>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 <div class="space-y-2">
 <label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container">City</label>
-<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="Portland" type="text"/>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" id="shipping-city" placeholder="Portland" type="text"/>
 </div>
 <div class="space-y-2">
 <label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container">State</label>
-<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="OR" type="text"/>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" id="shipping-state" placeholder="OR" type="text"/>
 </div>
 <div class="space-y-2">
 <label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container">Zip Code</label>
-<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="97201" type="text"/>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" id="shipping-zip" placeholder="97201" type="text"/>
 </div>
 </div>
 </form>
@@ -131,7 +131,7 @@
 <div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm sticky top-32">
 <h2 class="text-xl font-headline font-bold mb-8">Order Summary</h2>
 <!-- Line Items -->
-<div class="space-y-6 mb-8">
+<div class="space-y-6 mb-8" id="checkout-order-items">
 <div class="flex gap-4">
 <div class="w-20 h-20 bg-surface-container rounded-lg overflow-hidden flex-shrink-0">
 <img alt="Handcrafted Ceramic Vase" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoHiFHhg8gb28Yaj-COK_sPsE1JjRWI85KYIDImfe9jtyGyqxSxzHjUUHRaR7pj5e6HVk85trlN5UrmS1_vPgX-92LtHT00KVI94x6DQ-T4NnkrPJvlL3tJxeeADKireYIzqbgjDjfNytA_lhfVQLaIsWIllcTJosxLvyePZFoT6QjTZeEtsFhp4hchqb2qx3FYfPgYF_mK9ykOIuzCbtFogspFazkEDwZGhssq8va0lxoM6ldtwVr7BXnCjw5mGdqIHQ2DliS7Hc"/>
@@ -161,19 +161,19 @@
 <div class="border-t border-surface-container-highest pt-6 space-y-3 mb-8">
 <div class="flex justify-between font-label text-sm text-on-secondary-container">
 <span>Subtotal</span>
-<span>$127.00</span>
+<span id="checkout-subtotal">$127.00</span>
 </div>
 <div class="flex justify-between font-label text-sm text-on-secondary-container">
 <span>Shipping</span>
-<span>$12.00</span>
+<span id="checkout-shipping">$12.00</span>
 </div>
 <div class="flex justify-between font-headline font-bold text-xl pt-3 text-on-surface">
 <span>Total</span>
-<span class="text-amber-700">$139.00</span>
+<span class="text-amber-700" id="checkout-total">$139.00</span>
 </div>
 </div>
 <!-- CTA -->
-<button class="w-full bg-primary-container text-on-primary-container font-label font-bold py-4 rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2 mb-4 group">
+<button class="w-full bg-primary-container text-on-primary-container font-label font-bold py-4 rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2 mb-4 group" id="place-order-btn">
 <span>Place Order</span>
 <span class="material-symbols-outlined text-xl transition-transform group-hover:translate-x-1" data-icon="arrow_forward">arrow_forward</span>
 </button>
@@ -184,6 +184,7 @@
 </aside>
 </div>
 </main>
+<script src="../../assets/shop.js"></script>
 </body></html>
 <!-- Product Browsing - Updated Navbar -->
 <footer class="w-full bg-[#1B2A4A] dark:bg-[#0D1525] border-t border-white/10 mt-20" style="background-color:#1B2A4A !important;background:#1B2A4A !important;color:#E2E8F0 !important;">

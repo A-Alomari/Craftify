@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html class="light" lang="en"><head><link href="../../assets/styles.css" rel="stylesheet"/>
 <meta charset="utf-8"/>
@@ -65,7 +65,7 @@
                 </button>
 </div>
 <div class="flex items-center justify-between md:justify-end gap-8 border-t md:border-t-0 pt-4 md:pt-0">
-<span class="text-sm font-sans text-secondary italic">Showing 6 active auctions</span>
+<span class="text-sm font-sans text-secondary italic" id="auction-count-text">Showing 6 active auctions</span>
 <div class="flex items-center gap-4">
 <button class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-on-surface">
 <span class="material-symbols-outlined text-[20px]" data-icon="tune">tune</span>
@@ -79,7 +79,7 @@
 </div>
 </div>
 <!-- Auction Grid -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12" id="auction-grid">
 <!-- Card 1 -->
 <div class="group bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col transition-all duration-300">
 <div class="relative aspect-[4/5] overflow-hidden">
@@ -283,6 +283,9 @@
 </div>
 </div>
 </main>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="../../assets/shop.js"></script>
+</body></html>
 <!-- Admin Panel - Updated Navbar -->
 <footer class="w-full bg-[#1B2A4A] dark:bg-[#0D1525] border-t border-white/10 mt-20" style="background-color:#1B2A4A !important;background:#1B2A4A !important;color:#E2E8F0 !important;">
 <div class="max-w-7xl mx-auto px-10 py-16 grid grid-cols-1 md:grid-cols-4 gap-10 font-['Inter'] text-sm leading-relaxed text-[#E2E8F0]">
