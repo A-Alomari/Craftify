@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
@@ -36,6 +37,18 @@ if (env.nodeEnv !== "test") {
 /* ---------- health check ---------- */
 app.get("/health", (req, res) => {
   res.json({ success: true, message: "Craftify API is running" });
+});
+
+/* ---------- serve frontend ---------- */
+const rootPath = path.join(__dirname, "../../");
+// Serve specific frontend folders securely without exposing backend code
+app.use("/assets", express.static(path.join(rootPath, "assets")));
+app.use("/pages", express.static(path.join(rootPath, "pages")));
+app.use("/views", express.static(path.join(rootPath, "views")));
+
+// Serve the main index.html file cleanly at the root URL
+app.get("/", (req, res) => {
+  res.sendFile(path.join(rootPath, "index.html"));
 });
 
 /* ---------- API routes ---------- */
