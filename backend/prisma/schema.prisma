@@ -1,0 +1,278 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  BUYER
+  ARTISAN
+  ADMIN
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum AuctionStatus {
+  DRAFT
+  SCHEDULED
+  LIVE
+  ENDED
+  CANCELLED
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model User {
+  id                String      @id @default(cuid())
+  fullName          String
+  email             String      @unique
+  passwordHash      String
+  role              Role        @default(BUYER)
+  isEmailVerified   Boolean     @default(false)
+  avatarUrl         String?
+  bio               String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  artisanProfile    ArtisanProfile?
+  products          Product[]   @relation("ArtisanProducts")
+  bids              Bid[]
+  orders            Order[]
+  cart              Cart?
+  wishlist          Wishlist?
+  reviews           Review[]
+  notifications     Notification[]
+  sentMessages      Message[]   @relation("SentMessages")
+  receivedMessages  Message[]   @relation("ReceivedMessages")
+  participants      ConversationParticipant[]
+}
+
+model ArtisanProfile {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  shopName        String
+  location        String?
+  memberSince     DateTime  @default(now())
+  avgRating       Float     @default(0)
+  totalSales      Int       @default(0)
+  verified        Boolean   @default(false)
+
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  id              String    @id @default(cuid())
+  name            String    @unique
+  slug            String    @unique
+  products        Product[]
+}
+
+model Product {
+  id              String        @id @default(cuid())
+  name            String
+  description     String
+  price           Float
+  stock           Int           @default(0)
+  status          ProductStatus @default(ACTIVE)
+  imageUrls       String[]
+  categoryId      String
+  artisanId       String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  category        Category      @relation(fields: [categoryId], references: [id])
+  artisan         User          @relation("ArtisanProducts", fields: [artisanId], references: [id])
+  reviews         Review[]
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
+  wishlistItems   WishlistItem[]
+  auction         Auction?
+}
+
+model Auction {
+  id              String        @id @default(cuid())
+  productId       String        @unique
+  startingBid     Float
+  currentBid      Float
+  bidIncrement    Float
+  reservePrice    Float?
+  startAt         DateTime
+  endAt           DateTime
+  status          AuctionStatus @default(SCHEDULED)
+  winnerId        String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  product         Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  bids            Bid[]
+}
+
+model Bid {
+  id              String      @id @default(cuid())
+  auctionId       String
+  userId          String
+  amount          Float
+  createdAt       DateTime    @default(now())
+
+  auction         Auction     @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Cart {
+  id              String      @id @default(cuid())
+  userId          String      @unique
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items           CartItem[]
+}
+
+model CartItem {
+  id              String      @id @default(cuid())
+  cartId          String
+  productId       String
+  quantity        Int         @default(1)
+
+  cart            Cart        @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product         Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, productId])
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  userId          String
+  status          OrderStatus @default(PENDING)
+  totalAmount     Float
+  shippingName    String
+  shippingEmail   String
+  shippingStreet  String
+  shippingCity    String
+  shippingState   String
+  shippingZip     String
+  trackingNumber  String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items           OrderItem[]
+}
+
+model OrderItem {
+  id              String      @id @default(cuid())
+  orderId         String
+  productId       String
+  quantity        Int
+  unitPrice       Float
+
+  order           Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product         Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Wishlist {
+  id              String      @id @default(cuid())
+  userId          String      @unique
+  createdAt       DateTime    @default(now())
+
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items           WishlistItem[]
+}
+
+model WishlistItem {
+  id              String      @id @default(cuid())
+  wishlistId      String
+  productId       String
+
+  wishlist        Wishlist    @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  product         Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([wishlistId, productId])
+}
+
+model Review {
+  id              String      @id @default(cuid())
+  userId          String
+  productId       String
+  rating          Int
+  title           String?
+  body            String
+  createdAt       DateTime    @default(now())
+
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product         Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+}
+
+model Conversation {
+  id              String      @id @default(cuid())
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  participants    ConversationParticipant[]
+  messages        Message[]
+}
+
+model ConversationParticipant {
+  id              String       @id @default(cuid())
+  conversationId  String
+  userId          String
+
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+}
+
+model Message {
+  id              String      @id @default(cuid())
+  conversationId  String
+  senderId        String
+  receiverId      String
+  content         String
+  createdAt       DateTime    @default(now())
+
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender          User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver        User         @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id              String      @id @default(cuid())
+  userId          String
+  title           String
+  body            String
+  readAt          DateTime?
+  createdAt       DateTime    @default(now())
+
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Faq {
+  id              String      @id @default(cuid())
+  question        String
+  answer          String
+  createdAt       DateTime    @default(now())
+}
+
+model ContactMessage {
+  id              String      @id @default(cuid())
+  name            String
+  email           String
+  message         String
+  createdAt       DateTime    @default(now())
+}

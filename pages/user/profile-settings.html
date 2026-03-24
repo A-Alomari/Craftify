@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile Settings | Craftify</title>
+  <link rel="stylesheet" href="../../assets/styles.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" />
+</head>
+<body class="bg-surface text-on-surface font-body min-h-screen flex flex-col">
+  <header class="sticky top-0 z-50 bg-surface-container-lowest/95 backdrop-blur border-b border-outline-variant/10">
+    <nav class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+      <a href="../home/index.html" class="text-2xl font-headline font-bold tracking-tight text-on-surface">Craftify</a>
+      <div class="flex items-center gap-2">
+        <button class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all">
+          <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+        </button>
+        <button class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all">
+          <span class="material-symbols-outlined">account_circle</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="flex-grow max-w-5xl w-full mx-auto px-6 py-10 md:py-14">
+    <header class="mb-8 md:mb-10">
+      <h1 class="font-headline text-4xl md:text-5xl font-bold tracking-tight">Profile Settings</h1>
+      <p class="mt-2 text-on-surface-variant">Update your public account information.</p>
+    </header>
+
+    <form id="profile-settings-form" class="bg-surface-container-lowest border border-outline-variant/15 rounded-2xl p-6 md:p-8 space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <label class="block">
+          <span class="text-sm font-semibold text-on-surface-variant block mb-2">Full Name</span>
+          <input id="profile-full-name-input" type="text" class="w-full bg-surface-container-low rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary" placeholder="Your full name" required />
+        </label>
+        <label class="block">
+          <span class="text-sm font-semibold text-on-surface-variant block mb-2">Email</span>
+          <input id="profile-email-input" type="email" class="w-full bg-surface-container-low rounded-xl px-4 py-3 opacity-80" readonly />
+        </label>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <label class="block">
+          <span class="text-sm font-semibold text-on-surface-variant block mb-2">Role</span>
+          <input id="profile-role-input" type="text" class="w-full bg-surface-container-low rounded-xl px-4 py-3 opacity-80" readonly />
+        </label>
+        <label class="block">
+          <span class="text-sm font-semibold text-on-surface-variant block mb-2">Avatar URL</span>
+          <input id="profile-avatar-url-input" type="url" class="w-full bg-surface-container-low rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary" placeholder="https://example.com/avatar.jpg" />
+        </label>
+      </div>
+
+      <label class="block">
+        <span class="text-sm font-semibold text-on-surface-variant block mb-2">Bio</span>
+        <textarea id="profile-bio-input" rows="6" maxlength="400" class="w-full bg-surface-container-low rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary" placeholder="Tell others about your craft journey"></textarea>
+      </label>
+
+      <div class="pt-2 flex justify-end">
+        <button id="profile-save-btn" type="submit" class="px-6 py-3 rounded-xl bg-primary-container text-on-primary-container font-bold hover:brightness-105 transition-all">Save Changes</button>
+      </div>
+    </form>
+  </main>
+
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+  <script src="../../assets/shop.js"></script>
+</body>
+</html>

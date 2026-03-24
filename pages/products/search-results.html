@@ -22,7 +22,7 @@
 </div>
 <div class="flex items-center gap-4">
 <div class="relative group hidden sm:block">
-<input class="bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-amber-500 w-64 transition-all" placeholder="Search..." type="text" value="ceramic vase"/>
+<input class="bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-amber-500 w-64 transition-all" id="search-results-query-input" placeholder="Search..." type="text" value="ceramic vase"/>
 <span class="material-symbols-outlined absolute right-3 top-2 text-slate-500" data-icon="search">search</span>
 </div>
 <div class="flex items-center gap-1">
@@ -47,7 +47,7 @@
 <!-- Search Header & Suggestions -->
 <section class="mb-12">
 <div class="flex flex-col gap-4">
-<h1 class="font-headline text-4xl text-on-surface">Showing 18 results for <span class="italic text-primary">"ceramic vase"</span></h1>
+<h1 class="font-headline text-4xl text-on-surface" id="search-results-title">Showing 18 results for <span class="italic text-primary">"ceramic vase"</span></h1>
 <div class="flex flex-wrap gap-2 items-center">
 <span class="text-xs font-semibold uppercase tracking-widest text-secondary mr-2">Suggestions:</span>
 <button class="px-4 py-1.5 rounded-full bg-secondary-container text-on-secondary-container text-sm hover:bg-primary-container transition-colors">Hand-thrown</button>
@@ -142,7 +142,7 @@
 </button>
 </div>
 <!-- Clear Filters -->
-<button class="text-tertiary font-medium underline underline-offset-4 hover:opacity-80 transition-opacity">Clear All Filters</button>
+<button class="text-tertiary font-medium underline underline-offset-4 hover:opacity-80 transition-opacity" id="search-results-clear-filters-btn">Clear All Filters</button>
 </aside>
 <!-- Product Grid -->
 <div class="flex-grow">
@@ -151,7 +151,7 @@
 <div class="flex items-center gap-4">
 <span class="text-sm text-secondary font-medium">Sort by:</span>
 <div class="relative">
-<select class="appearance-none bg-transparent border-none font-bold text-on-surface focus:ring-0 cursor-pointer pr-8">
+<select class="appearance-none bg-transparent border-none font-bold text-on-surface focus:ring-0 cursor-pointer pr-8" id="search-results-sort-select">
 <option>Relevance</option>
 <option>Newest Arrivals</option>
 <option>Price: Low to High</option>
@@ -166,7 +166,7 @@
 </div>
 </div>
 <!-- Grid -->
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8" id="search-results-grid">
 <!-- Product Card 1 -->
 <div class="group flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 p-4">
 <div class="relative aspect-square mb-6 overflow-hidden rounded-lg">
@@ -365,6 +365,7 @@
 </div>
 </div>
 </main>
+<script src="../../assets/shop.js"></script>
 </body></html>
 <!-- Artisan Profile - Updated Navbar -->
 <footer class="w-full bg-[#1B2A4A] dark:bg-[#0D1525] border-t border-white/10 mt-20" style="background-color:#1B2A4A !important;background:#1B2A4A !important;color:#E2E8F0 !important;">

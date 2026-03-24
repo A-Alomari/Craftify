@@ -48,7 +48,7 @@
 <div class="flex items-center justify-between mb-6">
 <h1 class="text-2xl font-bold font-headline text-on-surface flex items-center gap-2">
                         Messages
-                        <span class="bg-tertiary text-on-tertiary text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">3</span>
+                        <span class="bg-tertiary text-on-tertiary text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" id="chat-conversation-count">0</span>
 </h1>
 <button class="p-2 text-secondary hover:bg-surface-container-low rounded-full transition-colors">
 <span class="material-symbols-outlined">edit_square</span>
@@ -56,11 +56,11 @@
 </div>
 <div class="relative group">
 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-lg group-focus-within:text-primary transition-colors">search</span>
-<input class="w-full bg-surface-container-low border-none rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-0 transition-all" placeholder="Search conversations..." type="text"/>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-0 transition-all" id="chat-thread-search" placeholder="Search conversations..." type="text"/>
 </div>
 </div>
 <!-- Thread List -->
-<div class="flex-grow overflow-y-auto px-2 space-y-1 pb-20 md:pb-4">
+<div class="flex-grow overflow-y-auto px-2 space-y-1 pb-20 md:pb-4" id="chat-thread-list">
 <!-- Active Thread: Elena Rodriguez -->
 <div class="flex items-start gap-3 p-4 bg-primary-container/10 rounded-2xl cursor-pointer group transition-all relative">
 <div class="relative flex-shrink-0">
@@ -123,7 +123,7 @@
 <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-surface rounded-full"></div>
 </div>
 <div>
-<h2 class="font-bold font-headline text-lg leading-tight">Elena Rodriguez</h2>
+<h2 class="font-bold font-headline text-lg leading-tight" id="chat-active-name">Elena Rodriguez</h2>
 <div class="flex items-center gap-2">
 <span class="text-[10px] text-green-600 font-bold uppercase tracking-widest">Online</span>
 <span class="text-xs text-secondary/40">•</span>
@@ -141,7 +141,7 @@
 </div>
 </header>
 <!-- Conversation -->
-<div class="flex-grow overflow-y-auto p-8 space-y-6">
+<div class="flex-grow overflow-y-auto p-8 space-y-6" id="chat-messages">
 <div class="flex justify-center">
 <span class="px-4 py-1.5 bg-surface-container text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em] rounded-full">March 22, 2026</span>
 </div>
@@ -189,6 +189,13 @@
 </div>
 </div>
 <!-- Input Area -->
+<div class="px-6 py-4 border-t border-outline-variant/10 bg-surface-container-lowest flex items-end gap-3" id="chat-composer">
+<textarea class="flex-grow resize-none bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-0" id="chat-message-input" placeholder="Type a message..." rows="2"></textarea>
+<button class="px-5 py-3 rounded-xl bg-primary-container text-on-primary-container font-bold" id="chat-send-btn">Send</button>
+</div>
+
+<script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
+<script src="../../assets/shop.js"></script>
 
 </body></html>
 <!-- Craftify Homepage - Updated Navbar -->

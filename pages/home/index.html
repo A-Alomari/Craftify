@@ -75,7 +75,7 @@
 </div>
 <a class="font-headline italic text-primary hover:underline transition-all" href="./index.html">View All</a>
 </div>
-<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6" id="home-categories-grid">
 <!-- Category Cards -->
 <a class="group bg-surface-container-lowest p-8 rounded-xl flex flex-col items-center justify-center text-center transition-all hover:-translate-y-1" href="./index.html">
 <div class="w-16 h-16 rounded-full bg-surface-container-low flex items-center justify-center mb-4 group-hover:bg-primary-fixed transition-colors">
@@ -115,6 +115,16 @@
 </a>
 </div>
 </section>
+<!-- Live Auctions Preview -->
+<section class="py-16 max-w-7xl mx-auto px-8">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="font-headline text-3xl text-on-surface mb-2">Live Auctions</h2>
+<p class="text-secondary font-label uppercase tracking-widest text-xs">Ending soon</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="home-live-auctions-grid"></div>
+</section>
 <!-- Featured Creations -->
 <section class="py-24 bg-surface-container-low">
 <div class="max-w-7xl mx-auto px-8">
@@ -122,7 +132,7 @@
 <h2 class="font-headline text-3xl text-on-surface mb-2">Featured Creations</h2>
 <p class="text-secondary font-label uppercase tracking-widest text-xs">Handpicked for you</p>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8" id="home-featured-products-grid">
 <!-- Product Card 1 -->
 <div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500">
 <div class="relative h-80 overflow-hidden">
@@ -322,5 +332,6 @@
 <span class="font-['Inter'] text-[10px] uppercase tracking-widest font-bold mt-1">Profile</span>
 </a>
 </nav>
+<script src="../../assets/shop.js"></script>
 </body>
 </html>

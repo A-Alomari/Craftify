@@ -47,20 +47,20 @@
 <span class="material-symbols-outlined text-tertiary text-3xl filled-icon" data-icon="favorite">favorite</span>
 <h1 class="text-4xl md:text-5xl font-headline font-bold tracking-tight">My Wishlist</h1>
 </div>
-<p class="text-on-surface-variant font-medium ml-12">6 items saved</p>
+<p class="text-on-surface-variant font-medium ml-12" id="wishlist-count-text">6 items saved</p>
 </div>
 <div class="flex items-center gap-6 ml-12 md:ml-0">
 <button class="px-6 py-2.5 rounded-lg border border-outline text-on-surface font-semibold hover:bg-surface-container-low transition-colors duration-200 flex items-center gap-2">
 <span class="material-symbols-outlined text-xl" data-icon="share">share</span>
                     Share Wishlist
                 </button>
-<button class="text-error font-semibold hover:underline decoration-2 underline-offset-4 transition-all">
+<button class="text-error font-semibold hover:underline decoration-2 underline-offset-4 transition-all" id="wishlist-clear-all-btn">
                     Clear All
                 </button>
 </div>
 </div>
 <!-- Wishlist Grid -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12" id="wishlist-grid">
 <!-- Item 1 -->
 <div class="group flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden hover:shadow-xl transition-shadow duration-300">
 <div class="relative aspect-[4/5] overflow-hidden">
@@ -319,6 +319,7 @@
 </div>
 </section>
 </main>
+<script src="../../assets/shop.js"></script>
 </body></html>
 <!-- Artisan Dashboard - Updated Navbar -->
 <footer class="w-full bg-[#1B2A4A] dark:bg-[#0D1525] border-t border-white/10 mt-20" style="background-color:#1B2A4A !important;background:#1B2A4A !important;color:#E2E8F0 !important;">

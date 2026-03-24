@@ -48,30 +48,30 @@
 <img alt="Product" class="w-full h-full object-cover" data-alt="Close-up of a rustic hand-thrown ceramic vase with subtle glaze textures on a clean neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8TlOPvlJny3SVr-0y18fXOApaINfcljvgJ0NFh3mr31F-ORnKbh8dcay8DpwzxUBlZrBlYh_taOLKeip9l5KAaf0ohPhHOsslxOJ7xfw8gEFJNG9S36UmBOtmG14i00gojUelSMd4tZyKH5gWIJb3YUgavyVP6lMlwHl1TXva_vzPPPxTjvqe16K5jPteDcP7aju6IkdTyv74_lnyY6Unm4YcOnw9bHWrDpAPfg_S21JPLw3Abp5D4FO0sYTggvOEJvHfZFWoAiI"/>
 </div>
 <div>
-<h2 class="font-headline text-xl font-bold text-on-surface">Hand-Thrown Ceramic Vase</h2>
-<p class="text-secondary text-sm">by Elena Rodriguez</p>
+<h2 class="font-headline text-xl font-bold text-on-surface" id="review-product-name">Hand-Thrown Ceramic Vase</h2>
+<p class="text-secondary text-sm" id="review-product-artisan">by Elena Rodriguez</p>
 <p class="text-on-surface-variant text-xs mt-2 italic">Purchased on March 15, 2026</p>
 </div>
 </div>
-<form class="space-y-8">
+<form class="space-y-8" id="review-form">
 <!-- Rating Section -->
 <div class="space-y-3">
 <label class="block text-on-surface-variant font-medium text-sm">Overall Rating</label>
 <div class="flex items-center gap-4">
 <div class="flex gap-1 text-primary-container">
-<span class="material-symbols-outlined text-4xl cursor-pointer inl-font-var-02e95d">star</span>
-<span class="material-symbols-outlined text-4xl cursor-pointer inl-font-var-02e95d">star</span>
-<span class="material-symbols-outlined text-4xl cursor-pointer inl-font-var-02e95d">star</span>
-<span class="material-symbols-outlined text-4xl cursor-pointer inl-font-var-02e95d">star</span>
-<span class="material-symbols-outlined text-4xl cursor-pointer">star</span>
+<span class="material-symbols-outlined text-4xl cursor-pointer inl-font-var-02e95d" data-review-star="1">star</span>
+<span class="material-symbols-outlined text-4xl cursor-pointer inl-font-var-02e95d" data-review-star="2">star</span>
+<span class="material-symbols-outlined text-4xl cursor-pointer inl-font-var-02e95d" data-review-star="3">star</span>
+<span class="material-symbols-outlined text-4xl cursor-pointer inl-font-var-02e95d" data-review-star="4">star</span>
+<span class="material-symbols-outlined text-4xl cursor-pointer" data-review-star="5">star</span>
 </div>
-<span class="text-secondary font-medium px-3 py-1 bg-surface-container rounded-full text-sm">Very Good</span>
+<span class="text-secondary font-medium px-3 py-1 bg-surface-container rounded-full text-sm" id="review-rating-label">Very Good</span>
 </div>
 </div>
 <!-- Title Input -->
 <div class="space-y-2">
 <label class="block text-on-surface-variant font-medium text-sm">Review Title</label>
-<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="Summarize your experience" type="text"/>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" id="review-title-input" placeholder="Summarize your experience" type="text"/>
 </div>
 <!-- Review Textarea -->
 <div class="space-y-2">
@@ -79,7 +79,7 @@
 <label class="block text-on-surface-variant font-medium text-sm">Your Review</label>
 <span class="text-[10px] text-secondary tracking-widest uppercase">0/500</span>
 </div>
-<textarea class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors resize-none" placeholder="Share your experience..." rows="5"></textarea>
+<textarea class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors resize-none" id="review-body-input" placeholder="Share your experience..." rows="5"></textarea>
 </div>
 <!-- Photo Upload -->
 <div class="space-y-3">
@@ -108,7 +108,7 @@
 <!-- Confirmation -->
 <label class="flex items-start gap-3 cursor-pointer group">
 <div class="relative flex items-center pt-0.5">
-<input class="peer h-5 w-5 rounded border-outline-variant bg-surface-container-low text-primary focus:ring-primary/20" type="checkbox"/>
+<input class="peer h-5 w-5 rounded border-outline-variant bg-surface-container-low text-primary focus:ring-primary/20" id="review-confirm-checkbox" type="checkbox"/>
 </div>
 <span class="text-sm text-secondary leading-relaxed select-none">I confirm this review is based on my genuine experience and I have not received incentives to influence the content.</span>
 </label>
@@ -131,6 +131,7 @@
 </div>
 </main>
 <!-- Footer Shell -->
+<script src="../../assets/shop.js"></script>
 </body></html>
 <!-- Artisan Registration - Step 2 (Updated Navbar) -->
 <footer class="w-full bg-[#1B2A4A] dark:bg-[#0D1525] border-t border-white/10 mt-20" style="background-color:#1B2A4A !important;background:#1B2A4A !important;color:#E2E8F0 !important;">

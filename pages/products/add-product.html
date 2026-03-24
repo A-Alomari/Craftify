@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Add New Product | ArtisanMarket</title>
+<link href="../../assets/styles.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+            color: #191c1e;
+        }
+        h1, h2, h3, .brand-font {
+            font-family: 'Noto Serif', serif;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopNavBar from JSON -->
+<nav class="bg-[#F7F9FB]/80 dark:bg-[#191C1E]/80 backdrop-blur-md fixed top-0 w-full z-50 flex justify-between items-center px-8 h-16 w-full">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-bold text-amber-700 dark:text-amber-500 italic font-['Noto_Serif']">ArtisanMarket</span>
+<div class="hidden md:flex gap-6 items-center">
+<a class="text-slate-600 dark:text-slate-400 hover:text-amber-600 transition-colors" href="#">Dashboard</a>
+<a class="text-amber-700 dark:text-amber-400 font-bold border-b-2 border-amber-600 pb-1" href="#">Inventory</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-amber-600 transition-colors" href="#">Orders</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-amber-600 transition-colors" href="#">Analytics</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-all p-2">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-all p-2">settings</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant">
+<img alt="Merchant Profile" class="w-full h-full object-cover" data-alt="close-up portrait of a professional artisan merchant with a warm smile in a sunlit studio environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD81c9l7Hc6HSyB7hKxjndPYeCVyThk46wJh7aVGw_pad8h1gek9156kNBjfEe1u5aaBSrraSMckLqFfF2J-9_VI2q4vrcIGcbgnGnknSf46oJ3eGFdz7wIHaACGcNh7ETY6-XL1hXiXVmpY3y2OxckEju-25GvhYcXBGAROi1Pgc9kzuLcKG7cLxm5mrKPhWa4V-9t7NTtAX4D2KbAabkCr_9fG5rd-U70qGiSBngS3ryv2sOCfJk6NI1XoYBRMZcupzQDDMbSxHE"/>
+</div>
+</div>
+</nav>
+<!-- SideNavBar from JSON -->
+<aside class="h-screen w-64 fixed left-0 top-0 border-r border-slate-100 dark:border-slate-800 bg-[#FFFFFF] dark:bg-[#1C1E21] hidden lg:flex flex-col pt-20 pb-8 px-4 gap-2 z-40">
+<div class="mb-6 px-4">
+<h2 class="font-['Noto_Serif'] text-lg font-bold text-slate-900 dark:text-slate-100">The Atelier</h2>
+<p class="text-xs text-secondary opacity-70">Master Crafter</p>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 text-slate-500 dark:text-slate-400 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-medium text-sm tracking-wide">Overview</span>
+</a>
+<a class="flex items-center gap-3 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 rounded-xl px-4 py-3 translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined">storefront</span>
+<span class="font-medium text-sm tracking-wide">Products</span>
+</a>
+<a class="flex items-center gap-3 text-slate-500 dark:text-slate-400 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">auto_awesome_motion</span>
+<span class="font-medium text-sm tracking-wide">Collections</span>
+</a>
+<a class="flex items-center gap-3 text-slate-500 dark:text-slate-400 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-medium text-sm tracking-wide">Makers</span>
+</a>
+<a class="flex items-center gap-3 text-slate-500 dark:text-slate-400 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-medium text-sm tracking-wide">Settings</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-surface-container pt-4">
+<a class="flex items-center gap-3 text-slate-500 dark:text-slate-400 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-medium text-sm tracking-wide">Help Center</span>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="lg:pl-64 pt-24 pb-16 px-4 md:px-8">
+<div class="max-w-6xl mx-auto">
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-2 text-sm text-secondary mb-4 font-body">
+<span>Dashboard</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span>Products</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-on-surface font-semibold">Add New Product</span>
+</nav>
+<!-- Heading & Actions -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+<h1 class="text-4xl font-bold text-on-surface">Add New Product</h1>
+<div class="flex gap-3">
+<button class="px-6 py-2.5 rounded-xl border border-outline-variant text-on-surface hover:bg-surface-container transition-all font-medium text-sm">Save as Draft</button>
+<button class="px-6 py-2.5 rounded-xl bg-primary-container text-on-primary-container hover:shadow-lg transition-all font-bold text-sm" id="add-product-publish-btn">Publish Product</button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Form Column -->
+<div class="lg:col-span-2 space-y-8">
+<!-- Product Images -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-sm">
+<h2 class="text-xl font-bold mb-6 border-l-4 border-primary pl-4">Product Images</h2>
+<div class="grid grid-cols-4 gap-4">
+<div class="col-span-4 md:col-span-2 aspect-square rounded-xl border-2 border-dashed border-outline-variant bg-surface-container-low flex flex-col items-center justify-center cursor-pointer hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined text-4xl text-outline mb-2">add_a_photo</span>
+<p class="text-sm font-medium text-secondary">Upload Main Image</p>
+<p class="text-xs text-outline mt-1">PNG, JPG up to 10MB</p>
+</div>
+<div class="col-span-2 md:col-span-1 aspect-square rounded-xl overflow-hidden relative group">
+<img alt="Thumbnail 1" class="w-full h-full object-cover" data-alt="close-up of a hand-crafted ceramic bowl with intricate blue glaze patterns on a rustic wooden table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsx5lQ5iO0NDn5yVeY3w8tf2e8YIBlwNGWUT8KzTAxUrpCl5pDWCzYTP4ZCAIe67mAZlb_AlD77VEEd1NV-1MdQrkn7XktH4UWsOk58VA2cIEJ5JNxEFLcVoLAKWNw1fviCd_TX_9mi2ZckdknSFlC1fGwywI39oPmn8rg7XN1zijq8-rpFQBaBdBloLKPmBlF7co8AnEXgXnXSSy9pURa1tKhy_9JUZzXGSqiRD57gpkVNtk4KDGUtl4oWQtZkA658qcANS-67qY"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+<span class="material-symbols-outlined text-white">delete</span>
+</div>
+</div>
+<div class="col-span-2 md:col-span-1 aspect-square rounded-xl overflow-hidden relative group">
+<img alt="Thumbnail 2" class="w-full h-full object-cover" data-alt="detail shot of artisan leather bag stitching with natural soft lighting and shallow depth of field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjcb8Vu_U8a_DSXvYiDrcPiix-P0Co9iPLXixAY4hV6JIVgxhUaNpIAVwmZL9HLBoMraXvNOCxcX7SqSduZMWJZCR0A8Pu-XGDCdCuDRqBVfu1kkXye32GDE5iDE5pqc7pMbLyBkjgRYf0HMJqFQkwHD-OAXGNqRam3FaJ-rJ1YQFdS4Q31yM5ElgIA8h5WSUZlW0sm0WJpkgzP_0JpeOUR52nDi2elCZUkAm6EHHo-dS8F2Nz_Syx3B2Ez4AI5FD_LNy5W_DeCR4"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+<span class="material-symbols-outlined text-white">delete</span>
+</div>
+</div>
+<div class="col-span-1 aspect-square rounded-xl border-2 border-dashed border-outline-variant bg-surface-container-low flex items-center justify-center cursor-pointer hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined text-outline">add</span>
+</div>
+<div class="col-span-1 aspect-square rounded-xl border-2 border-dashed border-outline-variant bg-surface-container-low flex items-center justify-center cursor-pointer hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined text-outline">add</span>
+</div>
+</div>
+<div class="mt-5">
+<label class="block text-xs font-bold uppercase tracking-wider text-secondary mb-2">Image URLs (one per line)</label>
+<textarea class="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 focus:ring-0" id="add-product-image-urls-input" placeholder="https://example.com/image-1.jpg&#10;https://example.com/image-2.jpg" rows="3"></textarea>
+</div>
+</section>
+<!-- Basic Info -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-sm">
+<h2 class="text-xl font-bold mb-6 border-l-4 border-primary pl-4">Basic Info</h2>
+<div class="space-y-6">
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-secondary mb-2">Product Name*</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 focus:ring-0 focus:bg-surface-container-highest transition-all" id="add-product-name-input" placeholder="e.g. Hand-Thrown Stoneware Vase" type="text"/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-secondary mb-2">Category*</label>
+<select class="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 focus:ring-0" id="add-product-category-select">
+<option>Ceramics</option>
+<option>Textiles</option>
+<option>Leather Goods</option>
+<option>Woodworking</option>
+</select>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-secondary mb-2">Subcategory</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 focus:ring-0" placeholder="Home Decor" type="text"/>
+</div>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-secondary mb-2">Rich Description*</label>
+<div class="w-full bg-surface-container-low rounded-xl border-none overflow-hidden">
+<div class="flex gap-2 p-2 border-b border-outline-variant/20 bg-surface-container-high">
+<button class="material-symbols-outlined p-1 text-sm">format_bold</button>
+<button class="material-symbols-outlined p-1 text-sm">format_italic</button>
+<button class="material-symbols-outlined p-1 text-sm">format_list_bulleted</button>
+<button class="material-symbols-outlined p-1 text-sm">link</button>
+</div>
+<textarea class="w-full bg-transparent border-none focus:ring-0 p-4" id="add-product-description-input" placeholder="Describe the story and craftsmanship behind this piece..." rows="5"></textarea>
+</div>
+</div>
+</div>
+</section>
+<!-- Pricing & Stock -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-sm">
+<h2 class="text-xl font-bold mb-6 border-l-4 border-primary pl-4">Pricing &amp; Stock</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-secondary mb-2">Price*</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-secondary font-bold">$</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-3 pl-8 pr-4 focus:ring-0" id="add-product-price-input" placeholder="0.00" type="number"/>
+</div>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-secondary mb-2">Compare at Price</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-outline">$</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-3 pl-8 pr-4 focus:ring-0" placeholder="0.00" type="number"/>
+</div>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-secondary mb-2">Stock Quantity*</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 focus:ring-0" id="add-product-stock-input" placeholder="10" type="number"/>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-secondary mb-2">SKU</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 focus:ring-0" placeholder="ART-CER-001" type="text"/>
+</div>
+</div>
+<div class="mt-6 flex items-center gap-3">
+<input class="rounded text-primary focus:ring-primary w-5 h-5" id="low-stock" type="checkbox"/>
+<label class="text-sm text-on-surface-variant font-medium" for="low-stock">Notify me when stock falls below 5 units</label>
+</div>
+</section>
+<!-- Product Details -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-sm">
+<h2 class="text-xl font-bold mb-6 border-l-4 border-primary pl-4">Product Details</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-secondary mb-2">Material</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 focus:ring-0" placeholder="White Stoneware" type="text"/>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-secondary mb-2">Weight</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 focus:ring-0" placeholder="1.2 kg" type="text"/>
+</div>
+<div class="md:col-span-2">
+<label class="block text-xs font-bold uppercase tracking-wider text-secondary mb-2">Dimensions (L x W x H)</label>
+<div class="grid grid-cols-3 gap-4">
+<input class="bg-surface-container-low border-none rounded-xl py-3 px-4 focus:ring-0" placeholder="Length" type="text"/>
+<input class="bg-surface-container-low border-none rounded-xl py-3 px-4 focus:ring-0" placeholder="Width" type="text"/>
+<input class="bg-surface-container-low border-none rounded-xl py-3 px-4 focus:ring-0" placeholder="Height" type="text"/>
+</div>
+</div>
+<div class="md:col-span-2">
+<label class="block text-xs font-bold uppercase tracking-wider text-secondary mb-2">Color Palette</label>
+<div class="flex flex-wrap gap-2">
+<span class="bg-surface-container-high px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2">Earth Brown <button class="material-symbols-outlined text-xs">close</button></span>
+<span class="bg-surface-container-high px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2">Sand <button class="material-symbols-outlined text-xs">close</button></span>
+<button class="bg-primary/10 text-primary px-4 py-2 rounded-xl text-sm font-bold border border-primary/20 hover:bg-primary/20 transition-all">+ Add Color</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Shipping -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-sm">
+<h2 class="text-xl font-bold mb-6 border-l-4 border-primary pl-4">Shipping</h2>
+<div class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-secondary mb-2">Shipping Method</label>
+<select class="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 focus:ring-0">
+<option>Standard Courier</option>
+<option>Eco-Friendly Ground</option>
+<option>Expedited Delivery</option>
+</select>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-secondary mb-2">Flat Rate Cost</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 focus:ring-0" placeholder="$12.00" type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<input class="rounded text-primary focus:ring-primary w-5 h-5" id="free-ship" type="checkbox"/>
+<label class="text-sm text-on-surface-variant font-medium" for="free-ship">Offer Free Shipping for this item</label>
+</div>
+</div>
+</section>
+</div>
+<!-- Sidebar Preview (Sticky) -->
+<div class="lg:col-span-1">
+<div class="sticky top-24 space-y-8">
+<!-- Preview Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden border border-outline-variant/10">
+<div class="p-4 bg-surface-container-high flex justify-between items-center">
+<span class="text-xs font-bold uppercase tracking-tighter text-secondary">Live Preview</span>
+<span class="material-symbols-outlined text-sm">visibility</span>
+</div>
+<div class="aspect-[4/5] bg-surface-container-low relative">
+<img alt="Preview Image" class="w-full h-full object-cover" data-alt="high-end studio shot of a sculptural white ceramic vase on a minimalist pedestal against a soft beige background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCkhE-0SEcY-7xd37aJZ4h_qzORICk7wGKjyRmj2gnKY5EJHTekpc9OY0pj8oS9CcGkmb5CmUG62XePF9TX0t4YE3HZPpvBGHdmt8LR1Qrw9nGHMP6Sqx2sbiQWEP0XGjqS5jd0CGCTxdwvgh5s-pcdC5o1c0ee-of460oBtYmQKsIuun9nCkHlk2Q06fulX5YwCrh4HZhYBpLAyFavUX7hkWVtX9qQb37tAzlWMFU3yRKZAbZbi3lWvHjxoaDlwQEapUSu-_103Jk"/>
+<div class="absolute top-4 right-4 bg-white/90 backdrop-blur-md p-2 rounded-full shadow-md">
+<span class="material-symbols-outlined text-primary" data-weight="fill">favorite</span>
+</div>
+</div>
+<div class="p-6 space-y-3">
+<div class="flex justify-between items-start">
+<h3 class="text-xl font-bold font-headline">Artisan Vase</h3>
+<span class="text-lg font-bold font-headline text-primary">$89.00</span>
+</div>
+<p class="text-sm text-secondary line-clamp-2">Hand-thrown stoneware with a unique iron-spotted glaze, perfect for minimalist homes...</p>
+<div class="flex gap-2">
+<span class="text-[10px] px-2 py-1 bg-secondary-container text-on-secondary-container rounded-full font-bold uppercase tracking-widest">Ceramics</span>
+<span class="text-[10px] px-2 py-1 bg-tertiary-container text-on-tertiary-container rounded-full font-bold uppercase tracking-widest">New Arrival</span>
+</div>
+<button class="w-full py-3 mt-4 border border-primary text-primary font-bold rounded-xl hover:bg-primary/5 transition-all">Add to Cart</button>
+</div>
+</div>
+<!-- Visibility & Tags -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm space-y-6">
+<div>
+<h4 class="text-sm font-bold uppercase tracking-widest text-secondary mb-4">Visibility</h4>
+<div class="space-y-3">
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="text-primary focus:ring-primary" name="visibility" type="radio"/>
+<span class="text-sm font-medium group-hover:text-primary transition-colors">Public (Visible to everyone)</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="text-primary focus:ring-primary" name="visibility" type="radio"/>
+<span class="text-sm font-medium group-hover:text-primary transition-colors">Hidden (Draft mode)</span>
+</label>
+</div>
+</div>
+<hr class="border-outline-variant/20"/>
+<div>
+<h4 class="text-sm font-bold uppercase tracking-widest text-secondary mb-4">Tags</h4>
+<input class="w-full text-sm bg-surface-container-low border-none rounded-xl py-2 px-4 focus:ring-0" placeholder="Add tag + Enter" type="text"/>
+<div class="flex flex-wrap gap-2 mt-3">
+<span class="text-xs font-medium px-2 py-1 bg-surface-container-high rounded-lg">#handmade</span>
+<span class="text-xs font-medium px-2 py-1 bg-surface-container-high rounded-lg">#stoneware</span>
+</div>
+</div>
+<hr class="border-outline-variant/20"/>
+<div class="flex items-center justify-between">
+<div>
+<h4 class="text-sm font-bold text-on-surface">Featured Product</h4>
+<p class="text-xs text-secondary">Display on homepage spotlight</p>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</div>
+</div>
+<!-- Quick Actions Desktop -->
+<div class="flex flex-col gap-3 pt-4">
+<button class="w-full py-4 bg-primary text-on-primary font-bold rounded-xl shadow-md hover:scale-[1.02] active:scale-95 transition-all" id="add-product-publish-btn-secondary">Publish Product</button>
+<button class="w-full py-3 text-primary font-bold flex items-center justify-center gap-2 hover:bg-primary/5 rounded-xl transition-all">
+<span class="material-symbols-outlined text-sm">visibility</span>
+                                Preview in Store
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB for quick help (Responsive Context) -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-on-surface text-surface rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined">auto_fix</span>
+</button>
+<script src="../../assets/shop.js"></script>
+</body></html>

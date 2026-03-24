@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html class="light" lang="en"><head><link href="../../assets/styles.css" rel="stylesheet"/>
 <meta charset="utf-8"/>
@@ -65,7 +65,7 @@
 <div class="relative z-10">
 <span class="material-symbols-outlined text-primary mb-4 text-3xl">group</span>
 <p class="font-label text-xs uppercase tracking-widest text-on-secondary-container font-medium">Total Users</p>
-<h2 class="text-4xl font-headline font-bold mt-1 text-on-surface">8</h2>
+<h2 class="text-4xl font-headline font-bold mt-1 text-on-surface" id="admin-panel-users-count">0</h2>
 </div>
 </div>
 <!-- Stat Card 2 -->
@@ -74,7 +74,7 @@
 <div class="relative z-10">
 <span class="material-symbols-outlined text-secondary mb-4 text-3xl">inventory_2</span>
 <p class="font-label text-xs uppercase tracking-widest text-on-secondary-container font-medium">Total Products</p>
-<h2 class="text-4xl font-headline font-bold mt-1 text-on-surface">8</h2>
+<h2 class="text-4xl font-headline font-bold mt-1 text-on-surface" id="admin-panel-products-count">0</h2>
 </div>
 </div>
 <!-- Stat Card 3 -->
@@ -83,7 +83,7 @@
 <div class="relative z-10">
 <span class="material-symbols-outlined text-tertiary mb-4 text-3xl">shopping_bag</span>
 <p class="font-label text-xs uppercase tracking-widest text-on-secondary-container font-medium">Total Orders</p>
-<h2 class="text-4xl font-headline font-bold mt-1 text-on-surface">5</h2>
+<h2 class="text-4xl font-headline font-bold mt-1 text-on-surface" id="admin-panel-orders-count">0</h2>
 </div>
 </div>
 <!-- Stat Card 4 -->
@@ -92,7 +92,7 @@
 <div class="relative z-10">
 <span class="material-symbols-outlined text-primary mb-4 text-3xl">payments</span>
 <p class="font-label text-xs uppercase tracking-widest text-on-secondary-container font-medium">Total Revenue</p>
-<h2 class="text-4xl font-headline font-bold mt-1 text-on-surface">$45,230</h2>
+<h2 class="text-4xl font-headline font-bold mt-1 text-on-surface" id="admin-panel-revenue">$0.00</h2>
 </div>
 </div>
 </section>
@@ -103,15 +103,15 @@
 <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
 <!-- Tabs -->
 <div class="flex gap-4 border-b border-surface-container-high w-full lg:w-auto">
-<button class="pb-4 px-2 flex items-center gap-2 text-primary font-semibold border-b-2 border-primary transition-all">
+<button class="pb-4 px-2 flex items-center gap-2 text-primary font-semibold border-b-2 border-primary transition-all" data-admin-tab="users">
 <span class="material-symbols-outlined text-lg">person</span>
                             Users
                         </button>
-<button class="pb-4 px-2 flex items-center gap-2 text-secondary hover:text-primary transition-all">
+<button class="pb-4 px-2 flex items-center gap-2 text-secondary hover:text-primary transition-all" data-admin-tab="products">
 <span class="material-symbols-outlined text-lg">category</span>
                             Products
                         </button>
-<button class="pb-4 px-2 flex items-center gap-2 text-secondary hover:text-primary transition-all">
+<button class="pb-4 px-2 flex items-center gap-2 text-secondary hover:text-primary transition-all" data-admin-tab="orders">
 <span class="material-symbols-outlined text-lg">receipt_long</span>
                             Orders
                         </button>
@@ -120,7 +120,7 @@
 <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
 <div class="relative flex-grow lg:flex-grow-0">
 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
-<input class="pl-12 pr-4 py-2.5 bg-surface-container-low border-none rounded-xl focus:ring-0 text-sm w-full lg:w-64 font-body transition-colors focus:bg-surface-container-high" placeholder="Search records..." type="text"/>
+<input class="pl-12 pr-4 py-2.5 bg-surface-container-low border-none rounded-xl focus:ring-0 text-sm w-full lg:w-64 font-body transition-colors focus:bg-surface-container-high" id="admin-panel-search" placeholder="Search records..." type="text"/>
 </div>
 <button class="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-outline-variant/30 text-secondary hover:bg-surface-container-low transition-colors text-sm font-semibold">
 <span class="material-symbols-outlined text-lg">filter_list</span>
@@ -145,7 +145,7 @@
 <th class="px-8 py-4 font-label text-xs uppercase tracking-widest text-on-secondary-container font-bold text-right">Actions</th>
 </tr>
 </thead>
-<tbody class="divide-y divide-surface-container">
+<tbody class="divide-y divide-surface-container" id="admin-panel-body">
 <!-- Row 1 -->
 <tr class="hover:bg-surface-container-low/30 transition-colors group">
 <td class="px-8 py-6">
@@ -250,6 +250,7 @@
 </div>
 </section>
 </main>
+<script src="../../assets/shop.js"></script>
 <!-- Shopping Cart - Updated Navbar -->
 <footer class="w-full bg-[#1B2A4A] dark:bg-[#0D1525] border-t border-white/10 mt-20" style="background-color:#1B2A4A !important;background:#1B2A4A !important;color:#E2E8F0 !important;">
 <div class="max-w-7xl mx-auto px-10 py-16 grid grid-cols-1 md:grid-cols-4 gap-10 font-['Inter'] text-sm leading-relaxed text-[#E2E8F0]">

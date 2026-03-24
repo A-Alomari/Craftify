@@ -26,7 +26,7 @@
 </button>
 <button class="relative p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform text-amber-600 dark:text-amber-500">
 <span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
-<span class="absolute top-1 right-1 bg-amber-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">3</span>
+<span class="absolute top-1 right-1 bg-amber-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full" id="cart-count-badge">3</span>
 </button>
 <button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform text-slate-700 dark:text-slate-300">
 <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
@@ -43,7 +43,7 @@
 <!-- Left Column: Cart Content -->
 <div class="lg:col-span-8 space-y-8">
 <h1 class="font-headline text-4xl font-bold text-on-surface mb-10">Shopping Cart</h1>
-<div class="space-y-6">
+<div class="space-y-6" id="cart-items">
 <!-- Cart Item 1 -->
 <div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-6 transition-all hover:shadow-md">
 <div class="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container-low">
@@ -139,7 +139,7 @@
 <div class="space-y-4 mb-8">
 <div class="flex justify-between items-center text-on-secondary-container">
 <span class="text-sm font-label uppercase tracking-wider">Subtotal</span>
-<span class="font-serif font-bold">$250.00</span>
+<span class="font-serif font-bold" id="summary-subtotal">$250.00</span>
 </div>
 <div class="flex justify-between items-center text-on-secondary-container">
 <span class="text-sm font-label uppercase tracking-wider">Shipping</span>
@@ -148,10 +148,10 @@
 <div class="h-[1px] bg-outline-variant/30 w-full my-4"></div>
 <div class="flex justify-between items-center pt-2">
 <span class="text-lg font-bold text-on-surface">Total</span>
-<span class="font-headline text-3xl font-bold text-primary">$250.00</span>
+<span class="font-headline text-3xl font-bold text-primary" id="summary-total">$250.00</span>
 </div>
 </div>
-<button class="w-full bg-primary-container text-on-primary-container py-5 rounded-xl font-bold text-lg hover:shadow-lg hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+<button class="w-full bg-primary-container text-on-primary-container py-5 rounded-xl font-bold text-lg hover:shadow-lg hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-3" id="go-to-checkout-btn">
               Proceed to Checkout
               <span class="material-symbols-outlined inl-font-var-02e95d" data-icon="lock" data-weight="fill">lock</span>
 </button>
@@ -180,6 +180,7 @@
 </div>
 </main>
 <!-- Footer from Shared Components JSON -->
+<script src="../../assets/shop.js"></script>
 </body></html>
 <!-- Order History - Updated Navbar -->
 <footer class="w-full bg-[#1B2A4A] dark:bg-[#0D1525] border-t border-white/10 mt-20" style="background-color:#1B2A4A !important;background:#1B2A4A !important;color:#E2E8F0 !important;">

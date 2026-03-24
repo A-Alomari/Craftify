@@ -1,3 +1,118 @@
+/* ==========================================
+   CRAFTIFY - PURE CSS STYLES
+   Converted from Tailwind CSS
+   ========================================== */
+
+:root {
+  /* Color Palette - Material Design 3 */
+  --primary: #855300;
+  --primary-fixed: #ffddb8;
+  --primary-fixed-dim: #ffb95f;
+  --primary-container: #f59e0b;
+  --on-primary: #ffffff;
+  --on-primary-fixed: #2a1700;
+  --on-primary-fixed-variant: #653e00;
+  --on-primary-container: #613b00;
+
+  --secondary: #545f73;
+  --secondary-fixed: #d8e3fb;
+  --secondary-fixed-dim: #bcc7de;
+  --secondary-container: #d5e0f8;
+  --on-secondary: #ffffff;
+  --on-secondary-fixed: #111c2d;
+  --on-secondary-fixed-variant: #3c475a;
+  --on-secondary-container: #586377;
+
+  --tertiary: #b02d29;
+  --tertiary-fixed: #ffdad6;
+  --tertiary-fixed-dim: #ffb4ac;
+  --tertiary-container: #ff9389;
+  --on-tertiary: #ffffff;
+  --on-tertiary-fixed: #410002;
+  --on-tertiary-fixed-variant: #8e1214;
+  --on-tertiary-container: #8a0d12;
+
+  --error: #ba1a1a;
+  --error-container: #ffdad6;
+  --on-error: #ffffff;
+  --on-error-container: #93000a;
+
+  --background: #f7f9fb;
+  --surface: #f7f9fb;
+  --surface-dim: #d8dadc;
+  --surface-bright: #f7f9fb;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f2f4f6;
+  --surface-container: #eceef0;
+  --surface-container-high: #e6e8ea;
+  --surface-container-highest: #e0e3e5;
+  --on-surface: #191c1e;
+  --on-surface-variant: #534434;
+
+  --inverse-surface: #2d3133;
+  --inverse-on-surface: #eff1f3;
+  --inverse-primary: #ffb95f;
+
+  --outline: #867461;
+  --outline-variant: #d8c3ad;
+
+  --surface-tint: #855300;
+
+  /* Standard Colors */
+  --white: #ffffff;
+  --black: #000000;
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+  --slate-950: #020617;
+  --amber-400: #fbbf24;
+  --amber-500: #f59e0b;
+  --amber-600: #d97706;
+  --amber-700: #b45309;
+  --green-100: #dcfce7;
+  --green-600: #16a34a;
+  --green-700: #15803d;
+
+  /* Fonts */
+  --font-headline: 'Noto Serif', serif;
+  --font-body: 'Inter', sans-serif;
+  --font-label: 'Inter', sans-serif;
+
+  /* Spacing */
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+
+  /* Border Radius */
+  --radius-none: 0;
+  --radius-sm: 0.125rem;
+  --radius-default: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+}
+
 *,
 :after,
 :before {
