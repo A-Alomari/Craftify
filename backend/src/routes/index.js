@@ -33,6 +33,7 @@ apiRouter.use("/notifications", notificationsRoutes);
 apiRouter.use("/search", searchRoutes);
 apiRouter.use("/users", usersRoutes);
 apiRouter.use("/artisan", artisanRoutes);
+apiRouter.use("/artisans", artisanRoutes);
 apiRouter.use("/admin", adminRoutes);
 apiRouter.use("/faqs", faqRoutes);
 apiRouter.use("/contact", contactRoutes);

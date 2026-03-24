@@ -7,11 +7,6 @@ const { artisanRegistrationSchema } = require("../validators/artisan.validator")
 
 const router = express.Router();
 
-router.get(
-  "/:id",
-  asyncHandler(artisanController.getById),
-);
-
 router.post(
   "/register",
   requireAuth,
@@ -38,6 +33,12 @@ router.get(
   requireAuth,
   requireRole(["ARTISAN", "ADMIN"]),
   asyncHandler(artisanController.analytics),
+);
+
+// Keep /:id LAST so it doesn't catch /dashboard, /orders, /analytics
+router.get(
+  "/:id",
+  asyncHandler(artisanController.getById),
 );
 
 module.exports = router;
