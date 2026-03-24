@@ -17,6 +17,5 @@ COPY backend/ ./
 
 EXPOSE 4000
 
-# At runtime, fall back DIRECT_URL to DATABASE_URL if not explicitly set.
-# This prevents the "Environment variable not found: DIRECT_URL" crash.
-CMD ["sh", "-c", "export DIRECT_URL=${DIRECT_URL:-$DATABASE_URL} && npm run start:prod"]
+# Just start the server. Migrations are already applied to the database.
+CMD ["node", "src/server.js"]
