@@ -14,10 +14,6 @@ services:
         fromDatabase:
           name: craftify-db
           property: connectionString
-      - key: DIRECT_URL
-        fromDatabase:
-          name: craftify-db
-          property: connectionString
       - key: JWT_ACCESS_SECRET
         generateValue: true
       - key: JWT_REFRESH_SECRET
