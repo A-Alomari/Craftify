@@ -4,13 +4,24 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --test test/**/*.test.js",
+    "test": "jest --config jest.config.js --testPathIgnorePatterns=e2e",
+    "test:unit": "jest --config jest.config.js tests/unit/",
+    "test:integration": "jest --config jest.config.js tests/integration/",
+    "test:security": "jest --config jest.config.js tests/security/",
+    "test:edge": "jest --config jest.config.js tests/edge-cases/",
+    "test:perf": "jest --config jest.config.js tests/performance/",
+    "test:models": "jest --config jest.config.js tests/unit/models/",
+    "test:websocket": "jest --config jest.config.js tests/unit/websocket/",
+    "test:coverage": "jest --config jest.config.js --coverage --testPathIgnorePatterns=e2e",
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "mvc:audit": "node scripts/mvc-audit.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:studio": "prisma studio",
+    "start:prod": "npm run prisma:deploy && node src/server.js",
+    "build": "npm run prisma:generate && npm run prisma:deploy"
   },
   "keywords": [],
   "author": "",
@@ -23,15 +34,24 @@
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.3.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
-    "stripe": "^16.12.0",
     "socket.io": "^4.8.3",
+    "stripe": "^16.12.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.4.0",
+    "jest": "^30.3.0",
+    "nock": "^14.0.11",
     "nodemon": "^3.1.14",
-    "prisma": "^6.19.2"
+    "prisma": "^6.19.2",
+    "socket.io-client": "^4.8.3",
+    "supertest": "^7.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

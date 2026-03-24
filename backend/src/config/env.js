@@ -17,4 +17,20 @@ const env = {
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET || "",
 };
 
+/* ---------- production startup validation ---------- */
+if (env.nodeEnv === "production") {
+  const missing = [];
+  if (!env.databaseUrl) missing.push("DATABASE_URL");
+  if (env.jwtAccessSecret === "dev_access_secret") missing.push("JWT_ACCESS_SECRET");
+  if (env.jwtRefreshSecret === "dev_refresh_secret") missing.push("JWT_REFRESH_SECRET");
+
+  if (missing.length > 0) {
+    // eslint-disable-next-line no-console
+    console.error(
+      `\n❌  FATAL — missing / default env vars in production:\n   ${missing.join(", ")}\n`,
+    );
+    process.exit(1);
+  }
+}
+
 module.exports = { env };

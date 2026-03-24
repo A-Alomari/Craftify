@@ -1,0 +1,101 @@
+# Phase 9: Artillery Load Test Configuration
+# Run: npx artillery run tests/performance/load-test.yml
+
+config:
+  target: "http://localhost:4000"
+  phases:
+    # Warm-up phase
+    - duration: 10
+      arrivalRate: 5
+      name: "Warm up"
+    # Ramp-up phase
+    - duration: 30
+      arrivalRate: 10
+      rampTo: 50
+      name: "Ramp up to 50 users/sec"
+    # Sustained load
+    - duration: 60
+      arrivalRate: 50
+      name: "Sustained load (50 users/sec)"
+    # Spike test
+    - duration: 10
+      arrivalRate: 100
+      name: "Spike (100 users/sec)"
+  defaults:
+    headers:
+      Content-Type: "application/json"
+  ensure:
+    thresholds:
+      - http.response_time.p95: 500    # 95th percentile < 500ms
+      - http.response_time.p99: 1000   # 99th percentile < 1s
+      - http.codes.200: { min: 90 }    # At least 90% success
+
+scenarios:
+  # ── Browse Products ──
+  - name: "Browse Products"
+    weight: 40
+    flow:
+      - get:
+          url: "/api/products"
+          expect:
+            - statusCode: 200
+      - get:
+          url: "/api/products?page=1&pageSize=10"
+          expect:
+            - statusCode: 200
+      - think: 2
+      - get:
+          url: "/api/products?q=handmade"
+          expect:
+            - statusCode: 200
+
+  # ── Search ──
+  - name: "Search"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/search?q=ceramic"
+          expect:
+            - statusCode: 200
+      - think: 1
+      - get:
+          url: "/api/search?q=wood"
+          expect:
+            - statusCode: 200
+      - get:
+          url: "/api/search?q=handmade+vase"
+          expect:
+            - statusCode: 200
+
+  # ── View Auctions ──
+  - name: "Browse Auctions"
+    weight: 15
+    flow:
+      - get:
+          url: "/api/auctions"
+          expect:
+            - statusCode: 200
+      - think: 2
+
+  # ── Static Pages ──
+  - name: "Static Pages"
+    weight: 15
+    flow:
+      - get:
+          url: "/health"
+          expect:
+            - statusCode: 200
+      - get:
+          url: "/api/faqs"
+          expect:
+            - statusCode: 200
+
+  # ── Auth Flow ──
+  - name: "Authentication"
+    weight: 10
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "load_test@test.com"
+            password: "password123"

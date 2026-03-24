@@ -1,19 +1,38 @@
 services:
   - type: web
     name: craftify-api
-    env: node
+    runtime: node
     region: oregon
     plan: free
     buildCommand: "cd backend && npm install && npm run build"
     startCommand: "cd backend && npm run start:prod"
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: craftify-db
+          property: connectionString
       - key: DIRECT_URL
-        sync: false
+        fromDatabase:
+          name: craftify-db
+          property: connectionString
       - key: JWT_ACCESS_SECRET
         generateValue: true
       - key: JWT_REFRESH_SECRET
         generateValue: true
+      - key: CLIENT_ORIGIN
+        value: "*"
+      - key: ACCESS_TOKEN_TTL
+        value: 15m
+      - key: REFRESH_TOKEN_TTL
+        value: 7d
+      - key: PAYMENT_PROVIDER
+        value: mock
+
+databases:
+  - name: craftify-db
+    plan: free
+    databaseName: craftify
+    region: oregon
