@@ -5,8 +5,8 @@ const auctionSchema = z.object({
   startingBid: z.number().positive(),
   bidIncrement: z.number().positive(),
   reservePrice: z.number().positive().optional(),
-  startAt: z.iso.datetime(),
-  endAt: z.iso.datetime(),
+  startAt: z.string().datetime(),
+  endAt: z.string().datetime(),
 });
 
 const bidSchema = z.object({
@@ -15,7 +15,7 @@ const bidSchema = z.object({
 
 const auctionPaymentSchema = z.object({
   shippingName: z.string().min(2),
-  shippingEmail: z.email(),
+  shippingEmail: z.string().email(),
   shippingStreet: z.string().min(5),
   shippingCity: z.string().min(2),
   shippingState: z.string().min(2),
