@@ -18,7 +18,10 @@
     "mvc:audit": "node scripts/mvc-audit.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:studio": "prisma studio",
+    "start:prod": "npm run prisma:deploy && node src/server.js",
+    "build": "npm run prisma:generate && npm run prisma:deploy"
   },
   "keywords": [],
   "author": "",
@@ -31,6 +34,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.3.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
@@ -46,5 +50,8 @@
     "prisma": "^6.19.2",
     "socket.io-client": "^4.8.3",
     "supertest": "^7.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

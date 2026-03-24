@@ -6,9 +6,16 @@ const cookieParser = require("cookie-parser");
 const { env } = require("./config/env");
 const { apiRouter } = require("./routes");
 const { errorHandler, notFoundHandler } = require("./middleware/errorHandler");
+const { apiLimiter } = require("./middleware/rateLimiter");
 
 const app = express();
 
+/* ---------- reverse-proxy trust (Render / Heroku / etc.) ---------- */
+if (env.nodeEnv === "production") {
+  app.set("trust proxy", 1);
+}
+
+/* ---------- global middleware ---------- */
 app.use(
   cors({
     origin: env.clientOrigin === "*" ? true : env.clientOrigin,
@@ -16,17 +23,23 @@ app.use(
   }),
 );
 app.use(helmet());
-app.use(morgan("dev"));
+app.use(morgan(env.nodeEnv === "production" ? "combined" : "dev"));
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+/* ---------- rate limiting ---------- */
+app.use("/api", apiLimiter);
+
+/* ---------- health check ---------- */
 app.get("/health", (req, res) => {
   res.json({ success: true, message: "Craftify API is running" });
 });
 
+/* ---------- API routes ---------- */
 app.use("/api", apiRouter);
 
+/* ---------- error handling ---------- */
 app.use(notFoundHandler);
 app.use(errorHandler);
 
