@@ -1,0 +1,69 @@
+# Phase 9: Artillery WebSocket Stress Test
+# Run: npx artillery run tests/performance/websocket-stress.yml
+
+config:
+  target: "ws://localhost:4000"
+  phases:
+    - duration: 10
+      arrivalRate: 10
+      name: "Initial connections"
+    - duration: 30
+      arrivalRate: 20
+      rampTo: 100
+      name: "Ramp up WebSocket connections"
+    - duration: 30
+      arrivalRate: 100
+      name: "Sustained 100 connections/sec"
+  engines:
+    socketio-v3:
+      transports: ["websocket"]
+  ensure:
+    thresholds:
+      - engine.socketio.emit_rate: { min: 50 }
+
+scenarios:
+  # ── Auction Room ──
+  - name: "Auction Room Stress"
+    weight: 50
+    engine: socketio-v3
+    flow:
+      - emit:
+          channel: "join:auction"
+          data: "auc_stress_test"
+      - think: 2
+      - loop:
+          - emit:
+              channel: "bid"
+              data:
+                auctionId: "auc_stress_test"
+                amount: "{{ $randomNumber(100, 10000) }}"
+          - think: 1
+        count: 5
+
+  # ── Chat Room ──
+  - name: "Chat Room Stress"
+    weight: 30
+    engine: socketio-v3
+    flow:
+      - emit:
+          channel: "join:conversation"
+          data: "conv_stress_test"
+      - think: 1
+      - loop:
+          - emit:
+              channel: "message"
+              data:
+                conversationId: "conv_stress_test"
+                content: "Stress test message {{ $randomNumber(1, 1000) }}"
+          - think: 0.5
+        count: 10
+
+  # ── Notifications ──
+  - name: "Notification Connections"
+    weight: 20
+    engine: socketio-v3
+    flow:
+      - emit:
+          channel: "join:user"
+          data: "user_stress_{{ $randomNumber(1, 100) }}"
+      - think: 5

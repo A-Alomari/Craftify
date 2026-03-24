@@ -2,6 +2,7 @@ const express = require("express");
 const { asyncHandler } = require("../utils/asyncHandler");
 const { validate } = require("../middleware/validate");
 const { requireAuth } = require("../middleware/auth");
+const { authLimiter } = require("../middleware/rateLimiter");
 const authController = require("../controllers/auth.controller");
 const {
   registerSchema,
@@ -15,12 +16,14 @@ const router = express.Router();
 
 router.post(
   "/register",
+  authLimiter,
   validate(registerSchema),
   asyncHandler(authController.register),
 );
 
 router.post(
   "/login",
+  authLimiter,
   validate(loginSchema),
   asyncHandler(authController.login),
 );
@@ -33,6 +36,7 @@ router.get(
 
 router.post(
   "/forgot-password",
+  authLimiter,
   validate(forgotPasswordSchema),
   asyncHandler(authController.forgotPassword),
 );
