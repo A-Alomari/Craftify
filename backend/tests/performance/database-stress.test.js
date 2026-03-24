@@ -60,7 +60,7 @@ describe("Phase 9: Database Stress Tests", () => {
 
       for (let i = 0; i < 30; i++) {
         const q = queries[i % queries.length];
-        promises.push(searchService.search({ q }));
+        promises.push(searchService.search(q));
       }
 
       const results = await Promise.all(promises);
