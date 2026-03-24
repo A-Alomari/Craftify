@@ -2,7 +2,7 @@ const { z } = require("zod");
 
 const checkoutSchema = z.object({
   shippingName: z.string().min(2),
-  shippingEmail: z.email(),
+  shippingEmail: z.string().email(),
   shippingStreet: z.string().min(5),
   shippingCity: z.string().min(2),
   shippingState: z.string().min(2),
