@@ -1,24 +1,22 @@
-# Use an official Node.js runtime as a parent image
 FROM node:18-alpine
 
-# Set the working directory in the container
 WORKDIR /app/backend
 
-# Copy package.json and package-lock.json first to leverage Docker cache
+# Copy dependency manifests first (Docker cache layer)
 COPY backend/package*.json ./
 
-# Install dependencies
+# Install ALL dependencies (including devDeps for prisma CLI)
 RUN npm install
 
-# Copy Prisma schema and generate client
+# Copy Prisma schema and generate the client
 COPY backend/prisma ./prisma
 RUN npx prisma generate
 
-# Copy the rest of the backend code
+# Copy the rest of the backend source
 COPY backend/ ./
 
-# Expose the API port
 EXPOSE 4000
 
-# Define the command to run the app
-CMD ["npm", "run", "start:prod"]
+# At runtime, fall back DIRECT_URL to DATABASE_URL if not explicitly set.
+# This prevents the "Environment variable not found: DIRECT_URL" crash.
+CMD ["sh", "-c", "export DIRECT_URL=${DIRECT_URL:-$DATABASE_URL} && npm run start:prod"]
