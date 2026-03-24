@@ -29,7 +29,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 /* ---------- rate limiting ---------- */
-app.use("/api", apiLimiter);
+if (env.nodeEnv !== "test") {
+  app.use("/api", apiLimiter);
+}
 
 /* ---------- health check ---------- */
 app.get("/health", (req, res) => {
