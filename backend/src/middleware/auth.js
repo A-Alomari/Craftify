@@ -4,9 +4,11 @@ const { AppError } = require("../utils/http");
 
 function requireAuth(req, res, next) {
   const header = req.headers.authorization || "";
-  const [scheme, token] = header.split(" ");
+  const [scheme, bearerToken] = header.split(" ");
+  const cookieToken = req.cookies ? req.cookies[env.authCookieName] : "";
+  const token = scheme === "Bearer" && bearerToken ? bearerToken : cookieToken;
 
-  if (scheme !== "Bearer" || !token) {
+  if (!token) {
     return next(new AppError(401, "Missing or invalid authorization header"));
   }
 

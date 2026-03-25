@@ -272,13 +272,13 @@ describe("Artisan API", () => {
     expect(res.status).toBe(404);
   });
 
-  // Note: /dashboard is caught by /:id in the route file (route order issue)
-  // So GET /api/artisan/dashboard returns 404 since 'dashboard' is treated as an :id param
-  it("GET /api/artisan/dashboard → caught by /:id (route-order issue, returns 404)", async () => {
-    mockDb.user.findFirst.mockResolvedValue(null);
+  it("GET /api/artisan/dashboard → 200", async () => {
+    mockDb.product.count.mockResolvedValue(3);
+    mockDb.auction.count.mockResolvedValue(1);
+    mockDb.orderItem.count.mockResolvedValue(7);
 
     const res = await request(app).get("/api/artisan/dashboard").set("Authorization", authHeader("artisan"));
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(200);
   });
 
   it("POST /api/artisan/register → 201", async () => {
@@ -437,28 +437,27 @@ describe("Static Routes (/api/static)", () => {
 
 // ═══════════════════════════════════════════════════════════
 // ARTISAN DASHBOARD / ORDERS / ANALYTICS
-// Note: Due to route ordering (/:id before /dashboard),
-// the dashboard/orders/analytics routes are shadowed.
-// These tests verify the shadowed behavior.
 // ═══════════════════════════════════════════════════════════
 describe("Artisan Dashboard/Orders/Analytics", () => {
   beforeEach(() => jest.clearAllMocks());
 
-  it("GET /api/artisan/dashboard → caught by /:id (404 for non-existent artisan)", async () => {
-    mockDb.user.findFirst.mockResolvedValue(null);
+  it("GET /api/artisan/dashboard → 200", async () => {
+    mockDb.product.count.mockResolvedValue(0);
+    mockDb.auction.count.mockResolvedValue(0);
+    mockDb.orderItem.count.mockResolvedValue(0);
     const res = await request(app).get("/api/artisan/dashboard").set("Authorization", authHeader("artisan"));
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(200);
   });
 
-  it("GET /api/artisan/orders → caught by /:id (404 for non-existent artisan)", async () => {
-    mockDb.user.findFirst.mockResolvedValue(null);
+  it("GET /api/artisan/orders → 200", async () => {
+    mockDb.orderItem.findMany.mockResolvedValue([]);
     const res = await request(app).get("/api/artisan/orders").set("Authorization", authHeader("artisan"));
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(200);
   });
 
-  it("GET /api/artisan/analytics → caught by /:id (404 for non-existent artisan)", async () => {
-    mockDb.user.findFirst.mockResolvedValue(null);
+  it("GET /api/artisan/analytics → 200", async () => {
+    mockDb.orderItem.findMany.mockResolvedValue([]);
     const res = await request(app).get("/api/artisan/analytics").set("Authorization", authHeader("artisan"));
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(200);
   });
 });

@@ -11,6 +11,14 @@ export const authApi = {
       method: "POST",
       body: JSON.stringify(payload),
     }),
+  refresh: () =>
+    apiRequest("/auth/refresh", {
+      method: "POST",
+    }),
+  logout: () =>
+    apiRequest("/auth/logout", {
+      method: "POST",
+    }),
   forgotPassword: (payload) =>
     apiRequest("/auth/forgot-password", {
       method: "POST",

@@ -4,7 +4,7 @@ import { showMessage } from "../utils/toast.js";
 const SOCKET_BASE = API_BASE.replace(/\/api\/?$/, "");
 
 function getToken() {
-  return localStorage.getItem("craftify_access_token") || "";
+  return localStorage.getItem("craftify_user") || "";
 }
 
 function escapeHtml(value) {
@@ -349,3 +349,4 @@ export function wireUserProfileSettingsPage() {
 
   loadProfile();
 }
+

@@ -24,8 +24,16 @@ services:
         value: 15m
       - key: REFRESH_TOKEN_TTL
         value: 7d
+      - key: AUTH_COOKIE_NAME
+        value: craftify_access
+      - key: REFRESH_COOKIE_NAME
+        value: craftify_refresh
       - key: PAYMENT_PROVIDER
         value: mock
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
 
 databases:
   - name: craftify-db

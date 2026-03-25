@@ -17,7 +17,12 @@ function notFoundHandler(req, res, next) {
 }
 
 function errorHandler(err, req, res, next) {
-  const statusCode = err.statusCode || 500;
+  let statusCode = err.statusCode || 500;
+
+  if (err && err.name === "MulterError") {
+    statusCode = 400;
+  }
+
   const payload = {
     success: false,
     message: err.message || "Internal server error",

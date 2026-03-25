@@ -2,6 +2,7 @@ const express = require("express");
 const { asyncHandler } = require("../utils/asyncHandler");
 const { validate } = require("../middleware/validate");
 const { requireAuth, requireRole } = require("../middleware/auth");
+const { upload } = require("../middleware/upload");
 const productsController = require("../controllers/products.controller");
 const { productSchema } = require("../validators/product.validator");
 
@@ -23,6 +24,14 @@ router.post(
   requireRole(["ARTISAN", "ADMIN"]),
   validate(productSchema),
   asyncHandler(productsController.create),
+);
+
+router.post(
+  "/upload",
+  requireAuth,
+  requireRole(["ARTISAN", "ADMIN"]),
+  upload.single("image"),
+  asyncHandler(productsController.uploadImage),
 );
 
 router.put(

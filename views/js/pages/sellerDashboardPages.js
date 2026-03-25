@@ -2,7 +2,7 @@ import { apiRequest as api } from "../utils/http.js";
 import { showMessage } from "../utils/toast.js";
 
 function getToken() {
-  return localStorage.getItem("craftify_access_token") || "";
+  return localStorage.getItem("craftify_user") || "";
 }
 
 function money(value) {
@@ -410,3 +410,4 @@ export function wireArtisanSalesAnalyticsPage() {
       showMessage(error.message, "error");
     });
 }
+

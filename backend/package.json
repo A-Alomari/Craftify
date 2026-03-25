@@ -19,6 +19,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
+    "prisma:seed": "node prisma/seed.js",
     "prisma:studio": "prisma studio",
     "start:prod": "npm run prisma:deploy && node src/server.js",
     "build": "npm run prisma:generate && npm run prisma:deploy"
@@ -37,6 +38,7 @@
     "express-rate-limit": "^8.3.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
+    "multer": "^2.0.2",
     "morgan": "^1.10.1",
     "socket.io": "^4.8.3",
     "stripe": "^16.12.0",

@@ -45,6 +45,7 @@ const rootPath = path.join(__dirname, "../../");
 app.use("/assets", express.static(path.join(rootPath, "assets")));
 app.use("/pages", express.static(path.join(rootPath, "pages")));
 app.use("/views", express.static(path.join(rootPath, "views")));
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Serve the main index.html file cleanly at the root URL
 app.get("/", (req, res) => {

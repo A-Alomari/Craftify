@@ -8,6 +8,8 @@ const env = {
   port: Number(process.env.PORT || 4000),
   clientOrigin: process.env.CLIENT_ORIGIN || "*",
   databaseUrl: process.env.DATABASE_URL,
+  authCookieName: process.env.AUTH_COOKIE_NAME || "craftify_access",
+  refreshCookieName: process.env.REFRESH_COOKIE_NAME || "craftify_refresh",
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET || "dev_access_secret",
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || "dev_refresh_secret",
   accessTokenTtl: process.env.ACCESS_TOKEN_TTL || "15m",

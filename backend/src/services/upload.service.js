@@ -1,12 +1,23 @@
+const { ValidationError } = require("../utils/http");
+
 /**
- * Handles the normalizeUpload operation.
- * @param {unknown} files
- * @returns {Promise<unknown>}
+ * Convert an uploaded file descriptor into a public image URL.
+ * @param {import("multer").File | undefined} file
+ * @returns {{ imageUrl: string, filename: string, size: number, mimeType: string }}
  */
-async function normalizeUpload(files) {
-  return Array.isArray(files) ? files : files ? [files] : [];
+function mapUploadedImage(file) {
+  if (!file || !file.filename) {
+    throw new ValidationError("Image file is required");
+  }
+
+  return {
+    imageUrl: `/uploads/products/${file.filename}`,
+    filename: file.filename,
+    size: Number(file.size || 0),
+    mimeType: file.mimetype || "application/octet-stream",
+  };
 }
 
 module.exports = {
-  normalizeUpload,
+  mapUploadedImage,
 };

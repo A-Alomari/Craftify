@@ -2,7 +2,7 @@ import { apiRequest as api } from "../utils/http.js";
 import { showMessage } from "../utils/toast.js";
 
 function getToken() {
-  return localStorage.getItem("craftify_access_token") || "";
+  return localStorage.getItem("craftify_user") || "";
 }
 
 export function wireArtisanRegistrationSteps() {
@@ -188,8 +188,6 @@ export function wireArtisanRegistrationSteps() {
               role: "BUYER",
             }),
           }).then(function (result) {
-            localStorage.setItem("craftify_access_token", result.tokens.accessToken);
-            localStorage.setItem("craftify_refresh_token", result.tokens.refreshToken);
             localStorage.setItem("craftify_user", JSON.stringify(result.user));
           });
         });
@@ -233,3 +231,4 @@ export function wireArtisanRegistrationSteps() {
   wireStep2();
   wireStep3();
 }
+

@@ -1,7 +1,13 @@
 export function persistAuthSession(payload) {
-  localStorage.setItem("craftify_access_token", payload.tokens.accessToken);
-  localStorage.setItem("craftify_refresh_token", payload.tokens.refreshToken);
   localStorage.setItem("craftify_user", JSON.stringify(payload.user));
+}
+
+export function clearAuthSession() {
+  localStorage.removeItem("craftify_user");
+}
+
+export function hasAuthSession() {
+  return !!localStorage.getItem("craftify_user");
 }
 
 export function getResetEmail() {

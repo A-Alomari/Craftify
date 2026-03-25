@@ -1,4 +1,31 @@
 const authService = require("../services/auth.service");
+const { env } = require("../config/env");
+
+function cookieConfig(maxAgeMs) {
+  return {
+    httpOnly: true,
+    sameSite: env.nodeEnv === "production" ? "none" : "lax",
+    secure: env.nodeEnv === "production",
+    path: "/",
+    maxAge: maxAgeMs,
+  };
+}
+
+function setAuthCookies(res, tokens) {
+  res.cookie(env.authCookieName, tokens.accessToken, cookieConfig(15 * 60 * 1000));
+  res.cookie(env.refreshCookieName, tokens.refreshToken, cookieConfig(7 * 24 * 60 * 60 * 1000));
+}
+
+function clearAuthCookies(res) {
+  const cfg = {
+    httpOnly: true,
+    sameSite: env.nodeEnv === "production" ? "none" : "lax",
+    secure: env.nodeEnv === "production",
+    path: "/",
+  };
+  res.clearCookie(env.authCookieName, cfg);
+  res.clearCookie(env.refreshCookieName, cfg);
+}
 
 /**
  * Create a new user account and return auth tokens.
@@ -8,6 +35,7 @@ const authService = require("../services/auth.service");
  */
 async function register(req, res) {
   const result = await authService.register(req.body);
+  setAuthCookies(res, result.tokens);
   res.status(201).json({ success: true, ...result });
 }
 
@@ -19,6 +47,21 @@ async function register(req, res) {
  */
 async function login(req, res) {
   const result = await authService.login(req.body);
+  setAuthCookies(res, result.tokens);
+  res.json({ success: true, ...result });
+}
+
+/**
+ * Refresh an auth session from a valid refresh token cookie.
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @returns {Promise<void>}
+ */
+async function refresh(req, res) {
+  const tokenFromCookie = req.cookies ? req.cookies[env.refreshCookieName] : "";
+  const tokenFromBody = req.body && req.body.refreshToken ? req.body.refreshToken : "";
+  const result = await authService.refreshSession(tokenFromCookie || tokenFromBody);
+  setAuthCookies(res, result.tokens);
   res.json({ success: true, ...result });
 }
 
@@ -66,11 +109,24 @@ async function resetPassword(req, res) {
   res.json({ success: true, ...result });
 }
 
+/**
+ * End user session by clearing auth cookies.
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @returns {Promise<void>}
+ */
+async function logout(req, res) {
+  clearAuthCookies(res);
+  res.json({ success: true, message: "Signed out successfully" });
+}
+
 module.exports = {
   register,
   login,
+  refresh,
   me,
   forgotPassword,
   verifyCode,
   resetPassword,
+  logout,
 };

@@ -1,4 +1,6 @@
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { env } = require("../config/env");
 const { db } = require("../models");
 const { signAccessToken, signRefreshToken } = require("../utils/token");
 const { ConflictError, UnauthorizedError, NotFoundError, ValidationError } = require("../utils/http");
@@ -66,6 +68,47 @@ async function login(data) {
       email: user.email,
       role: user.role,
     },
+    tokens: {
+      accessToken: signAccessToken(payload),
+      refreshToken: signRefreshToken(payload),
+    },
+  };
+}
+
+/**
+ * Validate refresh token and issue a fresh auth token pair.
+ * @param {string} refreshToken
+ * @returns {Promise<{user: {id: string, fullName: string, email: string, role: string}, tokens: {accessToken: string, refreshToken: string}}>} 
+ */
+async function refreshSession(refreshToken) {
+  if (!refreshToken) {
+    throw new UnauthorizedError("Missing refresh token");
+  }
+
+  let decoded;
+  try {
+    decoded = jwt.verify(refreshToken, env.jwtRefreshSecret);
+  } catch (_error) {
+    throw new UnauthorizedError("Invalid or expired refresh token");
+  }
+
+  const user = await db.user.findUnique({
+    where: { id: decoded.sub },
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      role: true,
+    },
+  });
+
+  if (!user) {
+    throw new UnauthorizedError("Invalid session");
+  }
+
+  const payload = { sub: user.id, role: user.role, email: user.email };
+  return {
+    user,
     tokens: {
       accessToken: signAccessToken(payload),
       refreshToken: signRefreshToken(payload),
@@ -206,6 +249,7 @@ async function resetPassword(data) {
 module.exports = {
   register,
   login,
+  refreshSession,
   getCurrentUser,
   forgotPassword,
   verifyCode,

@@ -78,7 +78,7 @@ async function getDashboardStats(artisanId) {
  * @returns {Promise<unknown>}
  */
 async function getArtisanOrders(artisanId) {
-  return db.orderItem.findMany({
+  const items = await db.orderItem.findMany({
     where: { product: { artisanId } },
     include: {
       order: true,
@@ -86,6 +86,8 @@ async function getArtisanOrders(artisanId) {
     },
     orderBy: { order: { createdAt: "desc" } },
   });
+
+  return Array.isArray(items) ? items : [];
 }
 
 /**
@@ -94,13 +96,14 @@ async function getArtisanOrders(artisanId) {
  * @returns {Promise<unknown>}
  */
 async function getAnalytics(artisanId) {
-  const items = await db.orderItem.findMany({
+  const rawItems = await db.orderItem.findMany({
     where: { product: { artisanId } },
     include: { order: true, product: true },
   });
+  const items = Array.isArray(rawItems) ? rawItems : [];
 
-  const grossSales = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
-  const unitsSold = items.reduce((sum, item) => sum + item.quantity, 0);
+  const grossSales = items.reduce((sum, item) => sum + Number(item.unitPrice || 0) * Number(item.quantity || 0), 0);
+  const unitsSold = items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
 
   return { grossSales, unitsSold };
 }

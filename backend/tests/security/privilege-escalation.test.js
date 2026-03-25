@@ -68,13 +68,11 @@ describe("Security — Privilege Escalation", () => {
       expect(res.status).toBe(403);
     });
 
-    // Note: /api/artisan/:id catches 'dashboard' before /dashboard due to route order
-    it("buyer accessing artisan dashboard gets 404 (route-order: /:id catches 'dashboard')", async () => {
-      mockDb.user.findFirst.mockResolvedValue(null);
+    it("buyer accessing artisan dashboard gets 403", async () => {
       const res = await request(app)
         .get("/api/artisan/dashboard")
         .set("Authorization", authHeader("buyer"));
-      expect(res.status).toBe(404);
+      expect(res.status).toBe(403);
     });
   });
 

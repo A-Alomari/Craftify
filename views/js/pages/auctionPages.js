@@ -4,7 +4,7 @@ import { showMessage } from "../utils/toast.js";
 const SOCKET_BASE = API_BASE.replace(/\/api\/?$/, "");
 
 function getToken() {
-  return localStorage.getItem("craftify_access_token") || "";
+  return localStorage.getItem("craftify_user") || "";
 }
 
 function money(value) {
@@ -608,7 +608,12 @@ export function wireAuctionWonPaymentPage() {
       shippingCity: val("auction-shipping-city"),
       shippingState: val("auction-shipping-state"),
       shippingZip: val("auction-shipping-zip"),
+      paymentMethodToken: val("auction-payment-method-token"),
     };
+
+    if (!payload.paymentMethodToken) {
+      delete payload.paymentMethodToken;
+    }
 
     if (!payload.shippingName || !payload.shippingEmail || !payload.shippingStreet || !payload.shippingCity || !payload.shippingState || !payload.shippingZip) {
       showMessage("Please complete all shipping fields", "error");
@@ -746,3 +751,4 @@ export function wireCreateAuctionPage() {
       });
   });
 }
+

@@ -2,7 +2,7 @@ import { apiRequest as api } from "../utils/http.js";
 import { showMessage } from "../utils/toast.js";
 
 function getToken() {
-  return localStorage.getItem("craftify_access_token") || "";
+  return localStorage.getItem("craftify_user") || "";
 }
 
 export function wireReviewSubmissionPage() {
@@ -147,3 +147,4 @@ export function wireReviewSubmissionPage() {
     });
   });
 }
+

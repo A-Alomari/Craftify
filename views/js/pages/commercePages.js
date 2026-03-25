@@ -2,7 +2,7 @@ import { apiRequest as api } from "../utils/http.js";
 import { showMessage } from "../utils/toast.js";
 
 function getToken() {
-  return localStorage.getItem("craftify_access_token") || "";
+  return localStorage.getItem("craftify_user") || "";
 }
 
 function money(value) {
@@ -413,7 +413,12 @@ export function wireCheckoutPage() {
       shippingCity: val("shipping-city"),
       shippingState: val("shipping-state"),
       shippingZip: val("shipping-zip"),
+      paymentMethodToken: val("checkout-payment-method-token"),
     };
+
+    if (!payload.paymentMethodToken) {
+      delete payload.paymentMethodToken;
+    }
 
     if (!payload.shippingName || !payload.shippingEmail || !payload.shippingStreet || !payload.shippingCity || !payload.shippingState || !payload.shippingZip) {
       showMessage("Please complete all shipping fields", "error");
@@ -953,3 +958,4 @@ export function wireArtisanProfilePage() {
       showMessage(error.message, "error");
     });
 }
+

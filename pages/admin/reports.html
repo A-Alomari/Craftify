@@ -81,15 +81,15 @@
 </header>
 <!-- Actions Bar -->
 <section class="flex flex-wrap gap-4 mb-10">
-<button class="flex items-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-bold transition-all hover:scale-95 active:scale-90">
+<button class="flex items-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-bold transition-all hover:scale-95 active:scale-90" id="admin-reports-generate-btn">
 <span class="material-symbols-outlined text-lg">analytics</span>
                 Generate Report
             </button>
-<button class="flex items-center gap-2 border-2 border-outline-variant text-on-surface px-6 py-3 rounded-xl font-bold transition-all hover:bg-surface-container-low">
+<button class="flex items-center gap-2 border-2 border-outline-variant text-on-surface px-6 py-3 rounded-xl font-bold transition-all hover:bg-surface-container-low" id="admin-reports-export-pdf-btn">
 <span class="material-symbols-outlined text-lg">picture_as_pdf</span>
                 Export PDF
             </button>
-<button class="flex items-center gap-2 border-2 border-outline-variant text-on-surface px-6 py-3 rounded-xl font-bold transition-all hover:bg-surface-container-low">
+<button class="flex items-center gap-2 border-2 border-outline-variant text-on-surface px-6 py-3 rounded-xl font-bold transition-all hover:bg-surface-container-low" id="admin-reports-export-csv-btn">
 <span class="material-symbols-outlined text-lg">csv</span>
                 Export CSV
             </button>
@@ -100,7 +100,7 @@
 <div class="bg-surface-container-lowest p-6 rounded-xl border-l-4 border-primary shadow-sm hover:shadow-md transition-shadow">
 <p class="text-xs font-label uppercase tracking-widest text-secondary mb-2">Total Platform Revenue</p>
 <div class="flex items-end justify-between">
-<h3 class="font-headline text-3xl font-bold">$45,230</h3>
+<h3 class="font-headline text-3xl font-bold" id="admin-reports-total-revenue">$45,230</h3>
 <span class="flex items-center text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">
 <span class="material-symbols-outlined text-sm">arrow_upward</span> 22%
                     </span>
@@ -110,7 +110,7 @@
 <div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
 <p class="text-xs font-label uppercase tracking-widest text-secondary mb-2">Platform Commission</p>
 <div class="flex items-end justify-between">
-<h3 class="font-headline text-3xl font-bold">$4,523</h3>
+<h3 class="font-headline text-3xl font-bold" id="admin-reports-platform-commission">$4,523</h3>
 <span class="text-xs font-bold text-primary bg-primary-fixed px-2 py-1 rounded-full">10% Fee</span>
 </div>
 </div>
@@ -118,7 +118,7 @@
 <div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
 <p class="text-xs font-label uppercase tracking-widest text-secondary mb-2">Total Orders</p>
 <div class="flex items-end justify-between">
-<h3 class="font-headline text-3xl font-bold">312</h3>
+<h3 class="font-headline text-3xl font-bold" id="admin-reports-total-orders">312</h3>
 <span class="flex items-center text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">
 <span class="material-symbols-outlined text-sm">arrow_upward</span> 15%
                     </span>
@@ -128,7 +128,7 @@
 <div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
 <p class="text-xs font-label uppercase tracking-widest text-secondary mb-2">Active Users</p>
 <div class="flex items-end justify-between">
-<h3 class="font-headline text-3xl font-bold">189</h3>
+<h3 class="font-headline text-3xl font-bold" id="admin-reports-active-users">189</h3>
 <span class="material-symbols-outlined text-secondary opacity-40">group</span>
 </div>
 </div>
@@ -136,7 +136,7 @@
 <div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
 <p class="text-xs font-label uppercase tracking-widest text-secondary mb-2">Active Artisans</p>
 <div class="flex items-end justify-between">
-<h3 class="font-headline text-3xl font-bold">24</h3>
+<h3 class="font-headline text-3xl font-bold" id="admin-reports-active-artisans">24</h3>
 <span class="material-symbols-outlined text-primary opacity-60">brush</span>
 </div>
 </div>
@@ -162,11 +162,11 @@
 <div class="h-80 w-full bg-surface-container-low rounded-lg relative overflow-hidden flex items-end">
 <svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 800 320">
 <!-- Total Sales Path (Secondary) -->
-<path d="M0,280 L100,240 L200,260 L300,180 L400,220 L500,140 L600,160 L700,80 L800,100" fill="none" stroke="#545F73" stroke-width="3"></path>
+<path d="M0,280 L100,240 L200,260 L300,180 L400,220 L500,140 L600,160 L700,80 L800,100" fill="none" id="admin-reports-revenue-path" stroke="#545F73" stroke-width="3"></path>
 <!-- Commission Path (Primary) -->
-<path d="M0,310 L100,305 L200,308 L300,290 L400,295 L500,280 L600,285 L700,270 L800,275" fill="none" stroke="#F59E0B" stroke-width="3"></path>
+<path d="M0,310 L100,305 L200,308 L300,290 L400,295 L500,280 L600,285 L700,270 L800,275" fill="none" id="admin-reports-commission-path" stroke="#F59E0B" stroke-width="3"></path>
 <!-- Area Fills -->
-<path d="M0,280 L100,240 L200,260 L300,180 L400,220 L500,140 L600,160 L700,80 L800,100 V320 H0 Z" fill="#545F73" fill-opacity="0.05"></path>
+<path d="M0,280 L100,240 L200,260 L300,180 L400,220 L500,140 L600,160 L700,80 L800,100 V320 H0 Z" fill="#545F73" fill-opacity="0.05" id="admin-reports-revenue-area"></path>
 </svg>
 <!-- Simple Y Axis labels -->
 <div class="absolute left-4 top-4 bottom-4 flex flex-col justify-between text-[10px] text-secondary/40 font-mono">
@@ -175,7 +175,7 @@
 <span>$0</span>
 </div>
 </div>
-<div class="flex justify-between mt-6 px-4 text-[10px] text-secondary font-bold tracking-widest uppercase">
+<div class="flex justify-between mt-6 px-4 text-[10px] text-secondary font-bold tracking-widest uppercase" id="admin-reports-x-axis-labels">
 <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
 </div>
 </section>
@@ -189,7 +189,7 @@
 <!-- Donut segments visual -->
 <div class="absolute inset-0 border-[16px] border-primary-container rounded-full" style="clip-path: polygon(50% 50%, 50% 0, 100% 0, 100% 100%, 0 100%, 0 70%);"></div>
 <div class="absolute inset-0 flex items-center justify-center flex-col">
-<span class="text-2xl font-bold font-headline">72%</span>
+<span class="text-2xl font-bold font-headline" id="admin-reports-payment-digital">72%</span>
 <span class="text-[10px] text-secondary uppercase tracking-tighter">Digital</span>
 </div>
 </div>
@@ -197,19 +197,19 @@
 <div class="space-y-3">
 <div class="flex justify-between items-center">
 <span class="text-xs text-secondary">Visa / Mastercard</span>
-<span class="text-xs font-bold">45%</span>
+<span class="text-xs font-bold" id="admin-reports-payment-card">45%</span>
 </div>
 <div class="flex justify-between items-center">
 <span class="text-xs text-secondary">PayPal</span>
-<span class="text-xs font-bold">28%</span>
+<span class="text-xs font-bold" id="admin-reports-payment-paypal">28%</span>
 </div>
 <div class="flex justify-between items-center">
 <span class="text-xs text-secondary">BenefitPay</span>
-<span class="text-xs font-bold">19%</span>
+<span class="text-xs font-bold" id="admin-reports-payment-benefitpay">19%</span>
 </div>
 <div class="flex justify-between items-center">
 <span class="text-xs text-secondary">Direct Bank Transfer</span>
-<span class="text-xs font-bold">8%</span>
+<span class="text-xs font-bold" id="admin-reports-payment-bank">8%</span>
 </div>
 </div>
 </div>
@@ -229,11 +229,11 @@
 <div class="mt-4 flex gap-6">
 <div>
 <span class="text-[10px] text-secondary uppercase block mb-1">New Customers</span>
-<span class="text-lg font-bold text-blue-700">+142</span>
+<span class="text-lg font-bold text-blue-700" id="admin-reports-new-customers">+142</span>
 </div>
 <div>
 <span class="text-[10px] text-secondary uppercase block mb-1">New Artisans</span>
-<span class="text-lg font-bold text-primary">+8</span>
+<span class="text-lg font-bold text-primary" id="admin-reports-new-artisans">+8</span>
 </div>
 </div>
 </section>
@@ -243,26 +243,26 @@
 <div class="grid grid-cols-2 gap-4">
 <div class="p-4 bg-surface-container-low rounded-xl">
 <span class="text-[10px] text-secondary uppercase block">Active Now</span>
-<span class="text-xl font-bold">14 Items</span>
+<span class="text-xl font-bold" id="admin-reports-auction-active">14 Items</span>
 </div>
 <div class="p-4 bg-surface-container-low rounded-xl">
 <span class="text-[10px] text-secondary uppercase block">Total Revenue</span>
-<span class="text-xl font-bold">$12,400</span>
+<span class="text-xl font-bold" id="admin-reports-auction-revenue">$12,400</span>
 </div>
 <div class="p-4 bg-surface-container-low rounded-xl">
 <span class="text-[10px] text-secondary uppercase block">Avg. Bids</span>
-<span class="text-xl font-bold">8.4 / Item</span>
+<span class="text-xl font-bold" id="admin-reports-auction-avg-bids">8.4 / Item</span>
 </div>
 <div class="p-4 bg-surface-container-low rounded-xl">
 <span class="text-[10px] text-secondary uppercase block">Completion</span>
-<span class="text-xl font-bold">92%</span>
+<span class="text-xl font-bold" id="admin-reports-auction-completion">92%</span>
 </div>
 </div>
 </section>
 <!-- Sales by Category (Horizontal Bar) -->
 <section class="bg-surface-container-lowest p-8 rounded-xl shadow-sm">
 <h2 class="font-headline text-xl font-bold mb-6">Sales by Category</h2>
-<div class="space-y-4">
+<div class="space-y-4" id="admin-reports-sales-by-category">
 <div>
 <div class="flex justify-between text-xs mb-1">
 <span>Ceramics</span>
@@ -321,7 +321,7 @@
 <th class="px-8 py-4 text-[10px] font-label uppercase tracking-widest text-secondary text-right">Rating</th>
 </tr>
 </thead>
-<tbody class="divide-y divide-surface-container-low">
+<tbody class="divide-y divide-surface-container-low" id="admin-reports-top-artisans-body">
 <tr class="hover:bg-surface-container-low/30 transition-colors">
 <td class="px-8 py-5 text-sm font-bold">#1</td>
 <td class="px-8 py-5">
@@ -390,7 +390,7 @@
 </table>
 </div>
 <div class="px-8 py-6 bg-surface-container-low flex justify-center">
-<button class="text-xs font-bold uppercase tracking-widest text-secondary hover:text-on-surface transition-colors flex items-center gap-2">
+<button class="text-xs font-bold uppercase tracking-widest text-secondary hover:text-on-surface transition-colors flex items-center gap-2" id="admin-reports-show-more-artisans-btn">
                     Show More Top Artisans
                     <span class="material-symbols-outlined text-sm">expand_more</span>
 </button>
@@ -431,7 +431,7 @@
 </div>
 </div>
 <div class="flex items-end">
-<button class="w-full bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-bold transition-all hover:scale-[0.98]" type="button">
+<button class="w-full bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-bold transition-all hover:scale-[0.98]" id="admin-reports-generate-file-btn" type="button">
                             Generate Report File
                         </button>
 </div>
@@ -446,28 +446,28 @@
 <span class="w-2 h-2 rounded-full bg-blue-500"></span>
 <span class="text-sm">Processing</span>
 </div>
-<span class="font-bold">42</span>
+<span class="font-bold" id="admin-reports-order-flow-processing">42</span>
 </div>
 <div class="flex items-center justify-between p-3 bg-amber-50/50 rounded-lg">
 <div class="flex items-center gap-3">
 <span class="w-2 h-2 rounded-full bg-amber-500"></span>
 <span class="text-sm">Shipped</span>
 </div>
-<span class="font-bold">28</span>
+<span class="font-bold" id="admin-reports-order-flow-shipped">28</span>
 </div>
 <div class="flex items-center justify-between p-3 bg-green-50/50 rounded-lg">
 <div class="flex items-center gap-3">
 <span class="w-2 h-2 rounded-full bg-green-500"></span>
 <span class="text-sm">Delivered</span>
 </div>
-<span class="font-bold">186</span>
+<span class="font-bold" id="admin-reports-order-flow-delivered">186</span>
 </div>
 <div class="flex items-center justify-between p-3 bg-red-50/50 rounded-lg">
 <div class="flex items-center gap-3">
 <span class="w-2 h-2 rounded-full bg-red-500"></span>
 <span class="text-sm">Cancelled</span>
 </div>
-<span class="font-bold">12</span>
+<span class="font-bold" id="admin-reports-order-flow-cancelled">12</span>
 </div>
 </div>
 </div>
@@ -487,7 +487,7 @@
 <th class="px-8 py-4 text-[10px] font-label uppercase tracking-widest text-secondary">Details</th>
 </tr>
 </thead>
-<tbody class="divide-y divide-surface-container-low">
+<tbody class="divide-y divide-surface-container-low" id="admin-reports-activity-body">
 <tr class="text-sm">
 <td class="px-8 py-4 font-mono text-secondary">2024-05-20 14:32</td>
 <td class="px-8 py-4 font-bold">Julianne S.</td>

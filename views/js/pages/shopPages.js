@@ -4,6 +4,7 @@ import { wireNotificationCenterPage, wireUserProfileSettingsPage } from "./userP
 import { wireArtisanRegistrationSteps } from "./sellerRegistrationPages.js";
 import { wireArtisanDashboardPage, wireArtisanManageOrdersPage, wireArtisanSalesAnalyticsPage } from "./sellerDashboardPages.js";
 import { wireAdminPanelPage } from "./adminPages.js";
+import { wireAdminReportsPage } from "./adminReportsPages.js";
 import { wireAddProductPage, wireEditProductPage } from "./sellerProductPages.js";
 import { wireLiveAuctions, wireAuctionDetail, wireAuctionWonPaymentPage, wireCreateAuctionPage } from "./auctionPages.js";
 import { wireMessagingChatPage } from "./messagingPages.js";
@@ -71,6 +72,8 @@ export function initShopPages() {
     wireArtisanSalesAnalyticsPage();
   } else if (path.includes("/admin/admin-panel.html")) {
     wireAdminPanelPage();
+  } else if (path.includes("/admin/reports.html")) {
+    wireAdminReportsPage();
   } else if (path.includes("/help/faq.html")) {
     wireFaqPage();
   } else if (path.includes("/help/contact-us.html")) {

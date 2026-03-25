@@ -28,6 +28,11 @@ router.post(
   asyncHandler(authController.login),
 );
 
+router.post(
+  "/refresh",
+  asyncHandler(authController.refresh),
+);
+
 router.get(
   "/me",
   requireAuth,
@@ -51,6 +56,11 @@ router.post(
   "/reset-password",
   validate(resetPasswordSchema),
   asyncHandler(authController.resetPassword),
+);
+
+router.post(
+  "/logout",
+  asyncHandler(authController.logout),
 );
 
 module.exports = router;

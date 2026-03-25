@@ -44,9 +44,21 @@ async function updateUser(req, res) {
   res.json({ success: true, user });
 }
 
+/**
+ * Handles the reports operation.
+ * @param {unknown} req
+ * @param {unknown} res
+ * @returns {Promise<void>}
+ */
+async function reports(req, res) {
+  const reportsData = await adminService.getReports();
+  res.json({ success: true, ...reportsData });
+}
+
 module.exports = {
   dashboard,
   users,
   orders,
   updateUser,
+  reports,
 };

@@ -126,6 +126,11 @@ const db = {
   contactMessage: {
     create: (args) => prisma.contactMessage.create(args),
   },
+
+  newsletterSubscription: {
+    findUnique: (args) => prisma.newsletterSubscription.findUnique(args),
+    create: (args) => prisma.newsletterSubscription.create(args),
+  },
 };
 
 const UserModel = require("./User");

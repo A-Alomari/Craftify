@@ -2,7 +2,7 @@ import { apiRequest as api } from "../utils/http.js";
 import { showMessage } from "../utils/toast.js";
 
 function getToken() {
-  return localStorage.getItem("craftify_access_token") || "";
+  return localStorage.getItem("craftify_user") || "";
 }
 
 export function wireNotificationNav() {
@@ -182,8 +182,26 @@ export function wireGlobalNavigationAndFooter() {
     form.setAttribute("data-newsletter-bound", "1");
     form.addEventListener("submit", function (event) {
       event.preventDefault();
-      showMessage("Thanks for subscribing", "success");
-      form.reset();
+      var emailInput = form.querySelector("input[type='email']");
+      var email = emailInput ? emailInput.value.trim() : "";
+
+      if (!email || email.indexOf("@") < 1) {
+        showMessage("Enter a valid email address", "error");
+        return;
+      }
+
+      api("/newsletter/subscribe", {
+        method: "POST",
+        body: JSON.stringify({ email: email }),
+      })
+        .then(function () {
+          showMessage("Thanks for subscribing", "success");
+          form.reset();
+        })
+        .catch(function (error) {
+          showMessage(error.message, "error");
+        });
     });
   });
 }
+

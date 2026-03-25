@@ -24,6 +24,11 @@ router.get(
   asyncHandler(adminController.orders),
 );
 
+router.get(
+  "/reports",
+  asyncHandler(adminController.reports),
+);
+
 router.put(
   "/users/:id",
   validate(updateUserSchema),

@@ -1,4 +1,5 @@
 const productsService = require("../services/products.service");
+const { mapUploadedImage } = require("../services/upload.service");
 
 /**
  * Handles the list operation.
@@ -55,10 +56,22 @@ async function remove(req, res) {
   res.json({ success: true, message: result.message });
 }
 
+/**
+ * Handles secure product image upload.
+ * @param {unknown} req
+ * @param {unknown} res
+ * @returns {Promise<void>}
+ */
+async function uploadImage(req, res) {
+  const fileInfo = mapUploadedImage(req.file);
+  res.status(201).json({ success: true, file: fileInfo });
+}
+
 module.exports = {
   list,
   getById,
   create,
   update,
   remove,
+  uploadImage,
 };

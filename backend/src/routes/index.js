@@ -16,6 +16,7 @@ const staticRoutes = require("./static.routes");
 const faqRoutes = require("./faq.routes");
 const contactRoutes = require("./contact.routes");
 const paymentsRoutes = require("./payments.routes");
+const newsletterRoutes = require("./newsletter.routes");
 
 const apiRouter = express.Router();
 
@@ -39,5 +40,6 @@ apiRouter.use("/faqs", faqRoutes);
 apiRouter.use("/contact", contactRoutes);
 apiRouter.use("/static", staticRoutes);
 apiRouter.use("/payments", paymentsRoutes);
+apiRouter.use("/newsletter", newsletterRoutes);
 
 module.exports = { apiRouter };
