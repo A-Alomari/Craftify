@@ -1,4 +1,4 @@
-export const API_BASE = window.CRAFTIFY_API_BASE || "http://localhost:4000/api";
+export const API_BASE = window.CRAFTIFY_API_BASE || "/api";
 
 export async function apiRequest(path, options = {}) {
   const token = localStorage.getItem("craftify_access_token") || "";
