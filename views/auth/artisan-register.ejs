@@ -1,0 +1,64 @@
+<%- include('../partials/header', { title: title }) %>
+
+<div class="container py-5" style="max-width: 700px;">
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+      <div class="text-center mb-4">
+        <h3 class="fw-bold"><i class="bi bi-palette"></i> Become an Artisan</h3>
+        <p class="text-muted">Share your handcrafted creations with the world</p>
+      </div>
+      
+      <form action="/auth/artisan-register" method="POST" enctype="multipart/form-data">
+        <h5 class="mb-3">Personal Information</h5>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="name" class="form-label">Full Name *</label>
+            <input type="text" name="name" id="name" class="form-control" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="email" class="form-label">Email Address *</label>
+            <input type="email" name="email" id="email" class="form-control" required>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="password" class="form-label">Password *</label>
+            <input type="password" name="password" id="password" class="form-control" minlength="6" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="confirm_password" class="form-label">Confirm Password *</label>
+            <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="phone" class="form-label">Phone Number</label>
+          <input type="text" name="phone" id="phone" class="form-control">
+        </div>
+        
+        <hr>
+        <h5 class="mb-3">Shop Information</h5>
+        <div class="mb-3">
+          <label for="shop_name" class="form-label">Shop Name *</label>
+          <input type="text" name="shop_name" id="shop_name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label for="bio" class="form-label">About Your Shop</label>
+          <textarea name="bio" id="bio" class="form-control" rows="3" placeholder="Tell customers about your craft..."></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="return_policy" class="form-label">Return Policy</label>
+          <textarea name="return_policy" id="return_policy" class="form-control" rows="2"></textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-primary w-100 py-2">Submit Application</button>
+      </form>
+      
+      <hr>
+      <div class="text-center">
+        <p class="mb-0">Already have an account? <a href="/auth/login" class="text-decoration-none">Sign In</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

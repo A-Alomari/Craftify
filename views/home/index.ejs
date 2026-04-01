@@ -1,0 +1,229 @@
+<%- include('../partials/header', { title: 'Craftify - Handcrafted Treasures' }) %>
+
+<!-- Hero Section -->
+<section class="hero-section bg-primary text-white py-5">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <h1 class="display-4 fw-bold mb-3">Discover Unique Handcrafted Treasures</h1>
+        <p class="lead mb-4">Support local artisans and find one-of-a-kind products made with passion and tradition.</p>
+        <div class="d-flex gap-3">
+          <a href="/products" class="btn btn-light btn-lg">Shop Now</a>
+          <a href="/auth/artisan-register" class="btn btn-outline-light btn-lg">Become a Seller</a>
+        </div>
+      </div>
+      <div class="col-lg-6 d-none d-lg-block text-center">
+        <i class="bi bi-palette2 display-1"></i>
+        <i class="bi bi-brush display-1 ms-3"></i>
+        <i class="bi bi-gem display-1 ms-3"></i>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Categories Section -->
+<section class="py-5">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">Shop by Category</h2>
+      <a href="/products" class="btn btn-outline-primary">View All</a>
+    </div>
+    <div class="row g-4">
+      <% if (categories && categories.length > 0) { %>
+        <% categories.slice(0, 6).forEach(function(cat) { %>
+          <div class="col-6 col-md-4 col-lg-2">
+            <a href="/products?category=<%= cat.id %>" class="text-decoration-none">
+              <div class="card category-card text-center h-100 border-0 shadow-sm">
+                <div class="card-body">
+                  <div class="category-icon mb-2">
+                    <i class="bi bi-palette fs-1 text-primary"></i>
+                  </div>
+                  <h6 class="card-title mb-0"><%= cat.name %></h6>
+                  <small class="text-muted"><%= cat.product_count || 0 %> items</small>
+                </div>
+              </div>
+            </a>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <div class="col-12"><p class="text-muted text-center">Categories coming soon...</p></div>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Products -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">Featured Products</h2>
+      <a href="/products?featured=1" class="btn btn-outline-primary">View All</a>
+    </div>
+    <div class="row g-4">
+      <% if (featuredProducts && featuredProducts.length > 0) { %>
+        <% featuredProducts.forEach(function(product) { %>
+          <% var images = []; try { images = JSON.parse(product.images || '[]'); } catch(e) {} %>
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="card product-card h-100 border-0 shadow-sm">
+              <a href="/products/<%= product.id %>">
+                <img src="<%= images[0] || '/images/placeholder-product.jpg' %>" 
+                     class="card-img-top product-image" alt="<%= product.name %>" style="height: 200px; object-fit: cover;">
+              </a>
+              <span class="badge bg-warning position-absolute top-0 start-0 m-2">Featured</span>
+              <div class="card-body d-flex flex-column">
+                <h6 class="card-title mb-1">
+                  <a href="/products/<%= product.id %>" class="text-decoration-none text-dark"><%= product.name %></a>
+                </h6>
+                <small class="text-muted mb-2"><%= product.shop_name || '' %></small>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                  <span class="fw-bold text-primary">$<%= product.price.toFixed(2) %></span>
+                  <button class="btn btn-primary btn-sm add-to-cart-btn" data-product-id="<%= product.id %>">
+                    <i class="bi bi-cart-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <div class="col-12"><p class="text-muted text-center">No featured products yet.</p></div>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<!-- Live Auctions -->
+<section class="py-5">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0"><i class="bi bi-lightning-fill text-warning"></i> Live Auctions</h2>
+      <a href="/auctions" class="btn btn-outline-primary">View All</a>
+    </div>
+    <div class="row g-4">
+      <% if (activeAuctions && activeAuctions.length > 0) { %>
+        <% activeAuctions.forEach(function(auction) { %>
+          <% var auctionImages = []; try { auctionImages = JSON.parse(auction.product_images || '[]'); } catch(e) {} %>
+          <div class="col-md-6 col-lg-3">
+            <div class="card auction-card h-100 border-0 shadow-sm">
+              <a href="/auctions/<%= auction.id %>">
+                <img src="<%= auctionImages[0] || '/images/placeholder-product.jpg' %>" 
+                     class="card-img-top" alt="<%= auction.title %>" style="height: 180px; object-fit: cover;">
+              </a>
+              <div class="card-body">
+                <h6 class="card-title"><%= auction.title %></h6>
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-muted small">Current Bid:</span>
+                  <span class="fw-bold text-success">$<%= (auction.current_highest_bid || auction.starting_bid).toFixed(2) %></span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                  <span class="text-muted small">Bids:</span>
+                  <span><%= auction.bid_count || 0 %></span>
+                </div>
+                <a href="/auctions/<%= auction.id %>" class="btn btn-warning w-100 btn-sm">Place Bid</a>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <div class="col-12"><p class="text-muted text-center">No active auctions right now.</p></div>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<!-- New Arrivals -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">New Arrivals</h2>
+      <a href="/products?sort=newest" class="btn btn-outline-primary">View All</a>
+    </div>
+    <div class="row g-4">
+      <% if (newArrivals && newArrivals.length > 0) { %>
+        <% newArrivals.forEach(function(product) { %>
+          <% var productImages = []; try { productImages = JSON.parse(product.images || '[]'); } catch(e) {} %>
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="card product-card h-100 border-0 shadow-sm">
+              <a href="/products/<%= product.id %>">
+                <img src="<%= productImages[0] || '/images/placeholder-product.jpg' %>" 
+                     class="card-img-top product-image" alt="<%= product.name %>" style="height: 200px; object-fit: cover;">
+              </a>
+              <span class="badge bg-success position-absolute top-0 start-0 m-2">New</span>
+              <div class="card-body d-flex flex-column">
+                <h6 class="card-title mb-1">
+                  <a href="/products/<%= product.id %>" class="text-decoration-none text-dark"><%= product.name %></a>
+                </h6>
+                <small class="text-muted mb-2"><%= product.shop_name || '' %></small>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                  <span class="fw-bold text-primary">$<%= product.price.toFixed(2) %></span>
+                  <button class="btn btn-primary btn-sm add-to-cart-btn" data-product-id="<%= product.id %>">
+                    <i class="bi bi-cart-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <div class="col-12"><p class="text-muted text-center">New products coming soon...</p></div>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Artisans -->
+<section class="py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">Meet Our Artisans</h2>
+    <div class="row g-4 justify-content-center">
+      <% if (featuredArtisans && featuredArtisans.length > 0) { %>
+        <% featuredArtisans.forEach(function(artisan) { %>
+          <div class="col-md-6 col-lg-3">
+            <div class="card artisan-card text-center h-100 border-0 shadow-sm">
+              <div class="card-body">
+                <img src="<%= artisan.avatar || '/images/default-avatar.png' %>" 
+                     alt="<%= artisan.shop_name %>" 
+                     class="rounded-circle mb-3" 
+                     width="100" height="100" 
+                     style="object-fit: cover;">
+                <h5 class="card-title mb-1"><%= artisan.shop_name %></h5>
+                <p class="text-muted small mb-2"><%= artisan.name %></p>
+                <p class="small mb-2"><%= artisan.product_count || 0 %> Products</p>
+                <a href="/artisan/<%= artisan.user_id %>" class="btn btn-outline-primary btn-sm">View Shop</a>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <div class="col-12"><p class="text-muted text-center">Artisans coming soon...</p></div>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white">
+  <div class="container text-center">
+    <h2 class="mb-3">Are You an Artisan?</h2>
+    <p class="lead mb-4">Join our marketplace and share your handcrafted creations with the world.</p>
+    <a href="/auth/artisan-register" class="btn btn-light btn-lg">Start Selling Today</a>
+  </div>
+</section>
+
+<!-- Newsletter -->
+<section class="py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 text-center">
+        <h3 class="mb-3">Subscribe to Our Newsletter</h3>
+        <p class="text-muted mb-4">Get updates on new products, artisans, and exclusive offers.</p>
+        <form action="/subscribe" method="POST" class="d-flex gap-2">
+          <input type="email" name="email" class="form-control" placeholder="Enter your email" required>
+          <button type="submit" class="btn btn-primary">Subscribe</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

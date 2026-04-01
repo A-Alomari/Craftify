@@ -1,0 +1,24 @@
+<%- include('../partials/header', { title: title }) %>
+<div class="container-fluid py-4"><div class="row"><div class="col-lg-2 mb-4"><%- include('./partials/sidebar') %></div>
+<div class="col-lg-10">
+  <h3 class="mb-4"><i class="bi bi-speedometer2"></i> Artisan Dashboard</h3>
+  <div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="card bg-primary text-white shadow-sm"><div class="card-body"><h6>Products</h6><h3><%= stats.total_products %></h3></div></div></div>
+    <div class="col-md-3"><div class="card bg-success text-white shadow-sm"><div class="card-body"><h6>Total Orders</h6><h3><%= stats.total_orders %></h3></div></div></div>
+    <div class="col-md-3"><div class="card bg-info text-white shadow-sm"><div class="card-body"><h6>Revenue</h6><h3>$<%= (stats.total_revenue || 0).toFixed(2) %></h3></div></div></div>
+    <div class="col-md-3"><div class="card bg-warning text-white shadow-sm"><div class="card-body"><h6>Avg Rating</h6><h3><%= stats.avg_rating ? stats.avg_rating.toFixed(1) : 'N/A' %></h3></div></div></div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 mb-4"><div class="card shadow-sm border-0"><div class="card-header bg-white"><h5>Recent Orders</h5></div><div class="card-body">
+      <% if (recentOrders.length > 0) { recentOrders.forEach(function(o) { %>
+        <div class="d-flex justify-content-between mb-2"><span><a href="/artisan/orders/<%= o.id %>">#<%= o.id %></a> - <%= o.customer_name %></span><span class="badge bg-primary"><%= o.status %></span></div>
+      <% }); } else { %><p class="text-muted">No orders yet.</p><% } %>
+    </div></div></div>
+    <div class="col-md-6 mb-4"><div class="card shadow-sm border-0"><div class="card-header bg-white"><h5>Quick Links</h5></div><div class="card-body">
+      <a href="/artisan/products/new" class="btn btn-primary w-100 mb-2"><i class="bi bi-plus"></i> Add Product</a>
+      <a href="/artisan/auctions/new" class="btn btn-outline-primary w-100 mb-2"><i class="bi bi-hammer"></i> Create Auction</a>
+      <a href="/artisan/orders" class="btn btn-outline-secondary w-100"><i class="bi bi-bag"></i> View Orders</a>
+    </div></div></div>
+  </div>
+</div></div></div>
+<%- include('../partials/footer') %>

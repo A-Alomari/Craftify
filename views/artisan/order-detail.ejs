@@ -1,0 +1,27 @@
+<%- include('../partials/header', { title: title }) %>
+<div class="container-fluid py-4"><div class="row"><div class="col-lg-2 mb-4"><%- include('./partials/sidebar') %></div>
+<div class="col-lg-10">
+  <h3 class="mb-4">Order #<%= order.id %></h3>
+  <div class="card shadow-sm border-0 mb-4"><div class="card-body">
+    <div class="d-flex justify-content-between mb-3">
+      <span class="badge bg-primary fs-6"><%= order.status %></span>
+      <span class="text-muted"><%= new Date(order.created_at).toLocaleDateString() %></span>
+    </div>
+    <h6>Items</h6>
+    <% items.forEach(function(item) { %>
+      <div class="d-flex justify-content-between mb-2">
+        <span><%= item.product_name %> &times; <%= item.quantity %></span>
+        <span>$<%= item.total_price.toFixed(2) %></span>
+      </div>
+    <% }); %>
+    <hr>
+    <div class="d-flex justify-content-between fw-bold"><span>Total</span><span>$<%= order.total_amount.toFixed(2) %></span></div>
+  </div></div>
+  <% if (['confirmed', 'processing'].indexOf(order.status) >= 0) { %>
+    <form action="/artisan/orders/<%= order.id %>/status" method="POST" class="d-inline">
+      <input type="hidden" name="status" value="shipped">
+      <button class="btn btn-success"><i class="bi bi-truck"></i> Mark as Shipped</button>
+    </form>
+  <% } %>
+</div></div></div>
+<%- include('../partials/footer') %>

@@ -1,0 +1,46 @@
+<%- include('../partials/header', { title: title }) %>
+
+<div class="container py-5" style="max-width: 500px;">
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+      <div class="text-center mb-4">
+        <h3 class="fw-bold"><i class="bi bi-box-arrow-in-right"></i> Sign In</h3>
+        <p class="text-muted">Welcome back to Craftify</p>
+      </div>
+      
+      <form action="/auth/login" method="POST">
+        <div class="mb-3">
+          <label for="email" class="form-label">Email Address</label>
+          <input type="email" name="email" id="email" class="form-control" placeholder="your@email.com" required>
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" name="password" id="password" class="form-control" placeholder="••••••" required>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="remember">
+            <label class="form-check-label" for="remember">Remember me</label>
+          </div>
+          <a href="/auth/forgot-password" class="text-decoration-none small">Forgot password?</a>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 py-2">Sign In</button>
+      </form>
+      
+      <hr>
+      <div class="text-center">
+        <p class="mb-1">Don't have an account? <a href="/auth/register" class="text-decoration-none">Sign Up</a></p>
+        <p class="mb-0 small text-muted">Want to sell? <a href="/auth/artisan-register" class="text-decoration-none">Become an Artisan</a></p>
+      </div>
+
+      <div class="mt-4 p-3 bg-light rounded text-center small">
+        <strong>Demo Accounts:</strong><br>
+        Admin: admin@craftify.com / admin123<br>
+        Customer: customer@test.com / customer123<br>
+        Artisan: artisan1@test.com / artisan123
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

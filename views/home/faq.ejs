@@ -1,0 +1,12 @@
+<%- include('../partials/header', { title: title }) %>
+<div class="container py-5"><div class="row justify-content-center"><div class="col-lg-8">
+  <h1>FAQ</h1>
+  <div class="accordion" id="faqAccordion">
+    <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">How do I place an order?</button></h2><div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion"><div class="accordion-body">Browse products, add items to your cart, and proceed to checkout. You'll need an account to complete your purchase.</div></div></div>
+    <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">How do auctions work?</button></h2><div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Our live auctions allow you to bid on exclusive artisan pieces in real-time. The highest bidder when the auction ends wins the item.</div></div></div>
+    <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">How do I become a seller?</button></h2><div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Register as an artisan, submit your shop details, and wait for admin approval. Once approved, you can start listing products.</div></div></div>
+    <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">What payment methods do you accept?</button></h2><div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">We accept credit/debit cards and cash on delivery. All online payments are processed securely (simulated in this demo).</div></div></div>
+    <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">How do I track my order?</button></h2><div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Go to "My Orders" in your account dashboard and click "Track" to see real-time shipment updates.</div></div></div>
+  </div>
+</div></div></div>
+<%- include('../partials/footer') %>

@@ -1,0 +1,29 @@
+<%- include('../partials/header', { title: title }) %>
+<div class="container-fluid py-4"><div class="row"><div class="col-lg-2 mb-4"><%- include('./partials/sidebar') %></div>
+<div class="col-lg-10">
+  <div class="d-flex justify-content-between align-items-center mb-4"><h3><i class="bi bi-tag"></i> Coupons</h3>
+  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCouponModal"><i class="bi bi-plus"></i> Add Coupon</button></div>
+  <div class="table-responsive"><table class="table table-hover"><thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Used</th><th>Status</th><th></th></tr></thead>
+  <tbody><% coupons.forEach(function(c) { %><tr>
+    <td><code><%= c.code %></code></td>
+    <td><%= c.type || c.discount_type %></td>
+    <td><%= (c.type || c.discount_type) === 'percent' ? c.value + '%' : '$' + (c.value || 0).toFixed(2) %></td>
+    <td><%= c.times_used || c.used_count || 0 %></td>
+    <td><span class="badge bg-<%= c.is_active ? 'success' : 'secondary' %>"><%= c.is_active ? 'Active' : 'Inactive' %></span></td>
+    <td>
+      <form action="/admin/coupons/<%= c.id %>/toggle" method="POST" class="d-inline"><button class="btn btn-sm btn-outline-secondary"><%= c.is_active ? 'Deactivate' : 'Activate' %></button></form>
+      <form action="/admin/coupons/<%= c.id %>/delete" method="POST" class="d-inline"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form>
+    </td>
+  </tr><% }); %></tbody></table></div>
+</div></div></div>
+<div class="modal fade" id="addCouponModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form action="/admin/coupons" method="POST">
+<div class="modal-header"><h5 class="modal-title">Create Coupon</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+<div class="modal-body">
+  <div class="mb-3"><label class="form-label">Code</label><input type="text" name="code" class="form-control" required></div>
+  <div class="row"><div class="col-md-6 mb-3"><label class="form-label">Type</label><select name="discount_type" class="form-select"><option value="percent">Percentage</option><option value="fixed">Fixed Amount</option></select></div>
+  <div class="col-md-6 mb-3"><label class="form-label">Value</label><input type="number" name="discount_value" class="form-control" step="0.01" required></div></div>
+  <div class="row"><div class="col-md-6 mb-3"><label class="form-label">Min Purchase</label><input type="number" name="min_purchase" class="form-control" step="0.01" value="0"></div>
+  <div class="col-md-6 mb-3"><label class="form-label">Usage Limit</label><input type="number" name="usage_limit" class="form-control"></div></div>
+</div>
+<div class="modal-footer"><button class="btn btn-primary">Create</button></div></form></div></div></div>
+<%- include('../partials/footer') %>

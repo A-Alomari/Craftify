@@ -1,0 +1,175 @@
+<%- include('../partials/header', { title: title }) %>
+
+<div class="container py-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item"><a href="/products">Products</a></li>
+      <li class="breadcrumb-item active"><%= product.name %></li>
+    </ol>
+  </nav>
+
+  <div class="row">
+    <!-- Product Images -->
+    <div class="col-lg-6 mb-4">
+      <div class="product-gallery">
+        <img id="mainImage" src="<%= product.imageArray[0] %>" class="img-fluid rounded shadow-sm w-100" alt="<%= product.name %>" style="max-height: 450px; object-fit: cover;">
+        <% if (product.imageArray.length > 1) { %>
+          <div class="d-flex gap-2 mt-3">
+            <% product.imageArray.forEach(function(img, i) { %>
+              <img src="<%= img %>" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;" onclick="document.getElementById('mainImage').src='<%= img %>'">
+            <% }); %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Product Details -->
+    <div class="col-lg-6">
+      <h2 class="mb-2"><%= product.name %></h2>
+      <% if (artisan) { %>
+        <p class="text-muted mb-3">
+          By <a href="/products/artisan/<%= product.artisan_id %>" class="text-decoration-none"><%= artisan.shop_name %></a>
+        </p>
+      <% } %>
+      
+      <% if (ratingStats && ratingStats.avg_rating) { %>
+        <div class="mb-3">
+          <% for (var s = 0; s < Math.round(ratingStats.avg_rating); s++) { %>
+            <i class="bi bi-star-fill text-warning"></i>
+          <% } %>
+          <% for (var s = Math.round(ratingStats.avg_rating); s < 5; s++) { %>
+            <i class="bi bi-star text-warning"></i>
+          <% } %>
+          <span class="ms-2 text-muted">(<%= ratingStats.count %> reviews)</span>
+        </div>
+      <% } %>
+
+      <h3 class="text-primary mb-3">$<%= product.price.toFixed(2) %></h3>
+      
+      <p class="mb-4"><%= product.description %></p>
+
+      <div class="mb-3">
+        <% if (product.stock > 0) { %>
+          <span class="badge bg-success"><i class="bi bi-check-circle"></i> In Stock (<%= product.stock %> available)</span>
+        <% } else { %>
+          <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Out of Stock</span>
+        <% } %>
+      </div>
+
+      <% if (product.stock > 0) { %>
+        <form action="/cart/add" method="POST" class="mb-4">
+          <input type="hidden" name="productId" value="<%= product.id %>">
+          <div class="d-flex align-items-center gap-3">
+            <div class="input-group" style="width: 130px;">
+              <button type="button" class="btn btn-outline-secondary" onclick="var q=document.getElementById('qty');q.value=Math.max(1,parseInt(q.value)-1)">-</button>
+              <input type="number" name="quantity" id="qty" class="form-control text-center" value="1" min="1" max="<%= product.stock %>">
+              <button type="button" class="btn btn-outline-secondary" onclick="var q=document.getElementById('qty');q.value=Math.min(<%= product.stock %>,parseInt(q.value)+1)">+</button>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg flex-grow-1">
+              <i class="bi bi-cart-plus"></i> Add to Cart
+            </button>
+          </div>
+        </form>
+      <% } %>
+
+      <% if (typeof user !== 'undefined' && user) { %>
+        <form action="/user/wishlist/toggle" method="POST" class="mb-3">
+          <input type="hidden" name="productId" value="<%= product.id %>">
+          <button type="submit" class="btn btn-outline-danger">
+            <i class="bi bi-heart<%= inWishlist ? '-fill' : '' %>"></i> 
+            <%= inWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' %>
+          </button>
+        </form>
+      <% } %>
+
+      <% if (product.category_name) { %>
+        <p class="text-muted small"><strong>Category:</strong> <a href="/products?category=<%= product.category_id %>"><%= product.category_name %></a></p>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Reviews -->
+  <div class="mt-5">
+    <h4 class="mb-4">Customer Reviews</h4>
+    
+    <% if (canReview && canReview.canReview) { %>
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h5>Write a Review</h5>
+          <form action="/user/reviews" method="POST">
+            <input type="hidden" name="product_id" value="<%= product.id %>">
+            <div class="mb-3">
+              <label class="form-label">Rating</label>
+              <select name="rating" class="form-select" required>
+                <option value="5">★★★★★ Excellent</option>
+                <option value="4">★★★★☆ Good</option>
+                <option value="3">★★★☆☆ Average</option>
+                <option value="2">★★☆☆☆ Poor</option>
+                <option value="1">★☆☆☆☆ Terrible</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Title</label>
+              <input type="text" name="title" class="form-control" placeholder="Summary of your review">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Comment</label>
+              <textarea name="comment" class="form-control" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Review</button>
+          </form>
+        </div>
+      </div>
+    <% } %>
+
+    <% if (reviews.length > 0) { %>
+      <% reviews.forEach(function(review) { %>
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <strong><%= review.reviewer_name %></strong>
+                <div>
+                  <% for (var s = 0; s < review.rating; s++) { %>
+                    <i class="bi bi-star-fill text-warning small"></i>
+                  <% } %>
+                </div>
+              </div>
+              <small class="text-muted"><%= new Date(review.created_at).toLocaleDateString() %></small>
+            </div>
+            <% if (review.title) { %><h6 class="mt-2"><%= review.title %></h6><% } %>
+            <p class="mb-0 mt-1"><%= review.comment %></p>
+          </div>
+        </div>
+      <% }); %>
+    <% } else { %>
+      <p class="text-muted">No reviews yet. Be the first to review this product!</p>
+    <% } %>
+  </div>
+
+  <!-- Related Products -->
+  <% if (typeof relatedProducts !== 'undefined' && relatedProducts.length > 0) { %>
+    <div class="mt-5">
+      <h4 class="mb-4">Related Products</h4>
+      <div class="row g-4">
+        <% relatedProducts.forEach(function(rp) { %>
+          <% var rpImages = JSON.parse(rp.images || '[]'); var rpImg = rpImages[0] || '/images/placeholder-product.jpg'; %>
+          <div class="col-6 col-md-3">
+            <div class="card product-card h-100 border-0 shadow-sm">
+              <a href="/products/<%= rp.id %>">
+                <img src="<%= rpImg %>" class="card-img-top" alt="<%= rp.name %>" style="height: 160px; object-fit: cover;">
+              </a>
+              <div class="card-body">
+                <h6><a href="/products/<%= rp.id %>" class="text-decoration-none text-dark"><%= rp.name %></a></h6>
+                <span class="fw-bold text-primary">$<%= rp.price.toFixed(2) %></span>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

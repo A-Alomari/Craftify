@@ -1,0 +1,139 @@
+<%- include('../partials/header', { title: title }) %>
+
+<div class="container py-4">
+  <div class="row">
+    <!-- Filters Sidebar -->
+    <div class="col-lg-3 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-white">
+          <h5 class="mb-0"><i class="bi bi-funnel"></i> Filters</h5>
+        </div>
+        <div class="card-body">
+          <form action="/products" method="GET">
+            <div class="mb-3">
+              <label class="form-label fw-bold">Category</label>
+              <select name="category" class="form-select">
+                <option value="">All Categories</option>
+                <% if (typeof categories !== 'undefined') { categories.forEach(function(cat) { %>
+                  <option value="<%= cat.id %>" <%= filters && filters.category == cat.id ? 'selected' : '' %>><%= cat.name %></option>
+                <% }); } %>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Price Range</label>
+              <div class="row g-2">
+                <div class="col-6">
+                  <input type="number" name="min_price" class="form-control" placeholder="Min" value="<%= filters && filters.min_price ? filters.min_price : '' %>">
+                </div>
+                <div class="col-6">
+                  <input type="number" name="max_price" class="form-control" placeholder="Max" value="<%= filters && filters.max_price ? filters.max_price : '' %>">
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Sort By</label>
+              <select name="sort" class="form-select">
+                <option value="newest" <%= filters && filters.sort === 'newest' ? 'selected' : '' %>>Newest</option>
+                <option value="price_low" <%= filters && filters.sort === 'price_low' ? 'selected' : '' %>>Price: Low to High</option>
+                <option value="price_high" <%= filters && filters.sort === 'price_high' ? 'selected' : '' %>>Price: High to Low</option>
+                <option value="popular" <%= filters && filters.sort === 'popular' ? 'selected' : '' %>>Most Popular</option>
+                <option value="rating" <%= filters && filters.sort === 'rating' ? 'selected' : '' %>>Highest Rated</option>
+              </select>
+            </div>
+            <% if (filters && filters.search) { %>
+              <input type="hidden" name="search" value="<%= filters.search %>">
+            <% } %>
+            <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+            <a href="/products" class="btn btn-outline-secondary w-100 mt-2">Clear Filters</a>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Products Grid -->
+    <div class="col-lg-9">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">
+          <% if (filters && filters.search) { %>
+            Search results for "<%= filters.search %>"
+          <% } else if (typeof selectedCategory !== 'undefined' && selectedCategory) { %>
+            <%= selectedCategory.name %>
+          <% } else { %>
+            All Products
+          <% } %>
+        </h4>
+        <span class="text-muted"><%= products.length %> products</span>
+      </div>
+      
+      <div class="row g-4">
+        <% if (products.length > 0) { %>
+          <% products.forEach(function(product) { %>
+            <% var images = JSON.parse(product.images || '[]'); var img = images[0] || '/images/placeholder-product.jpg'; %>
+            <div class="col-6 col-md-4">
+              <div class="card product-card h-100 border-0 shadow-sm">
+                <a href="/products/<%= product.id %>">
+                  <img src="<%= img %>" class="card-img-top product-image" alt="<%= product.name %>" style="height: 200px; object-fit: cover;">
+                </a>
+                <% if (product.featured) { %>
+                  <span class="badge bg-warning position-absolute top-0 start-0 m-2">Featured</span>
+                <% } %>
+                <div class="card-body d-flex flex-column">
+                  <h6 class="card-title mb-1">
+                    <a href="/products/<%= product.id %>" class="text-decoration-none text-dark"><%= product.name %></a>
+                  </h6>
+                  <small class="text-muted mb-2">
+                    <a href="/products/artisan/<%= product.artisan_id %>" class="text-decoration-none"><%= product.shop_name || '' %></a>
+                  </small>
+                  <% if (product.avg_rating) { %>
+                    <div class="mb-2">
+                      <% for (var s = 0; s < Math.round(product.avg_rating); s++) { %>
+                        <i class="bi bi-star-fill text-warning small"></i>
+                      <% } %>
+                      <small class="text-muted">(<%= product.review_count || 0 %>)</small>
+                    </div>
+                  <% } %>
+                  <div class="mt-auto d-flex justify-content-between align-items-center">
+                    <span class="fw-bold text-primary">$<%= product.price.toFixed(2) %></span>
+                    <% if (product.stock > 0) { %>
+                      <form action="/cart/add" method="POST" style="display:inline;">
+                        <input type="hidden" name="productId" value="<%= product.id %>">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-cart-plus"></i></button>
+                      </form>
+                    <% } else { %>
+                      <span class="badge bg-secondary">Out of Stock</span>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        <% } else { %>
+          <div class="col-12">
+            <p class="text-muted text-center py-5">No products found.</p>
+          </div>
+        <% } %>
+      </div>
+      
+      <% if (typeof pagination !== 'undefined' && pagination && pagination.total > 1) { %>
+        <nav class="mt-4">
+          <ul class="pagination justify-content-center">
+            <% if (pagination.hasPrev) { %>
+              <li class="page-item"><a class="page-link" href="?page=<%= pagination.current - 1 %>">Previous</a></li>
+            <% } %>
+            <% for (var p = 1; p <= pagination.total; p++) { %>
+              <li class="page-item <%= p === pagination.current ? 'active' : '' %>">
+                <a class="page-link" href="?page=<%= p %>"><%= p %></a>
+              </li>
+            <% } %>
+            <% if (pagination.hasNext) { %>
+              <li class="page-item"><a class="page-link" href="?page=<%= pagination.current + 1 %>">Next</a></li>
+            <% } %>
+          </ul>
+        </nav>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,18 @@
+<%- include('../partials/header', { title: title }) %>
+<div class="container-fluid py-4"><div class="row"><div class="col-lg-2 mb-4"><%- include('./partials/sidebar') %></div>
+<div class="col-lg-10">
+  <h3 class="mb-4"><i class="bi bi-palette"></i> Artisan Management</h3>
+  <div class="table-responsive"><table class="table table-hover"><thead><tr><th>Shop Name</th><th>Owner</th><th>Status</th><th>Products</th><th>Joined</th><th></th></tr></thead>
+  <tbody><% artisans.forEach(function(a) { %><tr>
+    <td><%= a.shop_name %></td><td><%= a.user_name || a.name %></td>
+    <td><span class="badge bg-<%= a.is_approved ? 'success' : 'warning' %>"><%= a.is_approved ? 'Approved' : 'Pending' %></span></td>
+    <td><%= a.product_count || 0 %></td><td><%= new Date(a.created_at).toLocaleDateString() %></td>
+    <td>
+      <% if (!a.is_approved) { %>
+        <form action="/admin/artisans/<%= a.user_id %>/approve" method="POST" class="d-inline"><button class="btn btn-sm btn-success">Approve</button></form>
+      <% } %>
+      <form action="/admin/artisans/<%= a.user_id %>/reject" method="POST" class="d-inline"><button class="btn btn-sm btn-danger">Reject</button></form>
+    </td>
+  </tr><% }); %></tbody></table></div>
+</div></div></div>
+<%- include('../partials/footer') %>

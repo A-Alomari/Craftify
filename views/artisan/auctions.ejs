@@ -1,0 +1,16 @@
+<%- include('../partials/header', { title: title }) %>
+<div class="container-fluid py-4"><div class="row"><div class="col-lg-2 mb-4"><%- include('./partials/sidebar') %></div>
+<div class="col-lg-10">
+  <div class="d-flex justify-content-between align-items-center mb-4"><h3><i class="bi bi-hammer"></i> My Auctions</h3><a href="/artisan/auctions/new" class="btn btn-primary"><i class="bi bi-plus"></i> New Auction</a></div>
+  <% if (auctions.length > 0) { %>
+    <div class="table-responsive"><table class="table table-hover"><thead><tr><th>Product</th><th>Start Price</th><th>Current Bid</th><th>Bids</th><th>Status</th><th>Ends</th><th></th></tr></thead>
+    <tbody><% auctions.forEach(function(a) { %><tr>
+      <td><%= a.product_name %></td><td>$<%= a.starting_price.toFixed(2) %></td>
+      <td>$<%= (a.current_highest_bid || 0).toFixed(2) %></td><td><%= a.bid_count || 0 %></td>
+      <td><span class="badge bg-<%= a.status === 'active' ? 'success' : a.status === 'sold' ? 'primary' : 'secondary' %>"><%= a.status %></span></td>
+      <td><%= new Date(a.end_time).toLocaleDateString() %></td>
+      <td><% if (a.status === 'active' || a.status === 'pending') { %><form action="/artisan/auctions/<%= a.id %>/cancel" method="POST"><button class="btn btn-sm btn-outline-danger">Cancel</button></form><% } %></td>
+    </tr><% }); %></tbody></table></div>
+  <% } else { %><div class="text-center py-5"><p class="text-muted">No auctions yet.</p></div><% } %>
+</div></div></div>
+<%- include('../partials/footer') %>

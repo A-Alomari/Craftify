@@ -1,0 +1,57 @@
+  </main>
+  
+  <footer class="footer bg-dark text-white pt-5 pb-3 mt-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 mb-4">
+          <h5 class="fw-bold mb-3"><i class="bi bi-palette"></i> Craftify</h5>
+          <p class="text-white-50">A marketplace connecting local artisans with customers who appreciate handmade, unique, and culturally rich products.</p>
+        </div>
+        <div class="col-lg-2 col-6 mb-4">
+          <h6 class="fw-bold mb-3">Shop</h6>
+          <ul class="list-unstyled">
+            <li class="mb-2"><a href="/products" class="text-white-50 text-decoration-none">All Products</a></li>
+            <li class="mb-2"><a href="/auctions" class="text-white-50 text-decoration-none">Auctions</a></li>
+            <li class="mb-2"><a href="/products?featured=1" class="text-white-50 text-decoration-none">Featured</a></li>
+            <li class="mb-2"><a href="/products?sort=newest" class="text-white-50 text-decoration-none">New Arrivals</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-6 mb-4">
+          <h6 class="fw-bold mb-3">Support</h6>
+          <ul class="list-unstyled">
+            <li class="mb-2"><a href="/faq" class="text-white-50 text-decoration-none">FAQ</a></li>
+            <li class="mb-2"><a href="/contact" class="text-white-50 text-decoration-none">Contact Us</a></li>
+            <li class="mb-2"><a href="/orders" class="text-white-50 text-decoration-none">Track Order</a></li>
+            <li class="mb-2"><a href="/about" class="text-white-50 text-decoration-none">About Us</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-6 mb-4">
+          <h6 class="fw-bold mb-3">For Artisans</h6>
+          <ul class="list-unstyled">
+            <li class="mb-2"><a href="/auth/artisan-register" class="text-white-50 text-decoration-none">Sell on Craftify</a></li>
+            <li class="mb-2"><a href="/artisan/dashboard" class="text-white-50 text-decoration-none">Seller Dashboard</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-6 mb-4">
+          <h6 class="fw-bold mb-3">Legal</h6>
+          <ul class="list-unstyled">
+            <li class="mb-2"><a href="/terms" class="text-white-50 text-decoration-none">Terms of Service</a></li>
+            <li class="mb-2"><a href="/privacy" class="text-white-50 text-decoration-none">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <hr class="border-secondary">
+      <div class="text-center text-white-50 small">
+        &copy; 2024 Craftify. University of Bahrain - ITCS489 Project<br>
+        Made with <i class="bi bi-heart-fill text-danger"></i> for local artisans
+      </div>
+    </div>
+  </footer>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/main.js"></script>
+  <% if (typeof extraScripts !== 'undefined') { %>
+    <%- extraScripts %>
+  <% } %>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<%- include('../partials/header', { title: title }) %>
+<div class="container py-5"><div class="row justify-content-center"><div class="col-lg-8">
+  <h1>Contact Us</h1>
+  <p class="lead">Have questions? We'd love to hear from you.</p>
+  <div class="row mt-4">
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm border-0"><div class="card-body">
+        <h5><i class="bi bi-envelope"></i> Email</h5><p>support@craftify.bh</p>
+        <h5><i class="bi bi-telephone"></i> Phone</h5><p>+973 1700 0000</p>
+        <h5><i class="bi bi-geo-alt"></i> Address</h5><p>University of Bahrain<br>Sakhir, Kingdom of Bahrain</p>
+      </div></div>
+    </div>
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm border-0"><div class="card-body">
+        <h5>Send us a message</h5>
+        <form>
+          <div class="mb-3"><input type="text" class="form-control" placeholder="Your Name"></div>
+          <div class="mb-3"><input type="email" class="form-control" placeholder="Your Email"></div>
+          <div class="mb-3"><textarea class="form-control" rows="4" placeholder="Your Message"></textarea></div>
+          <button type="button" class="btn btn-primary" onclick="alert('Thank you! This is a demo feature.')">Send Message</button>
+        </form>
+      </div></div>
+    </div>
+  </div>
+</div></div></div>
+<%- include('../partials/footer') %>

@@ -1,0 +1,90 @@
+<%- include('../partials/header', { title: title }) %>
+
+<div class="container py-4">
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <% auction.imageArray = auction.imageArray || ['/images/placeholder-product.jpg']; %>
+              <img src="<%= auction.imageArray[0] %>" class="img-fluid rounded w-100" alt="<%= auction.product_name %>" style="max-height: 350px; object-fit: cover;">
+            </div>
+            <div class="col-md-6">
+              <h3><%= auction.title || auction.product_name %></h3>
+              <p class="text-muted">By <a href="/products/artisan/<%= auction.artisan_id %>"><%= auction.shop_name %></a></p>
+              <p><%= auction.product_description %></p>
+              
+              <div class="bg-light rounded p-3 mb-3">
+                <div class="row text-center">
+                  <div class="col-4">
+                    <small class="text-muted d-block">Current Bid</small>
+                    <h4 class="text-primary mb-0" id="currentBid">$<%= (auction.current_highest_bid || auction.starting_price).toFixed(2) %></h4>
+                  </div>
+                  <div class="col-4">
+                    <small class="text-muted d-block">Bids</small>
+                    <h4 class="mb-0" id="bidCount"><%= auction.bid_count || 0 %></h4>
+                  </div>
+                  <div class="col-4">
+                    <small class="text-muted d-block">Min Increment</small>
+                    <h4 class="mb-0">$<%= auction.bid_increment.toFixed(2) %></h4>
+                  </div>
+                </div>
+              </div>
+
+              <% if (isActive) { %>
+                <div class="mb-3 text-center">
+                  <% var endTime = new Date(auction.end_time); var remaining = Math.max(0, endTime - new Date()); %>
+                  <% var hours = Math.floor(remaining / 3600000); var mins = Math.floor((remaining % 3600000) / 60000); %>
+                  <span class="text-danger"><i class="bi bi-clock"></i> 
+                    <% if (hours > 24) { %><%= Math.floor(hours/24) %> days<% } else if (hours > 0) { %><%= hours %>h <%= mins %>m<% } else { %><%= mins %>m<% } %> remaining
+                  </span>
+                </div>
+              <% } %>
+
+              <% if (isActive && typeof user !== 'undefined' && user) { %>
+                <form action="/auctions/<%= auction.id %>/bid" method="POST" class="d-flex gap-2">
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" name="amount" class="form-control" step="0.01" 
+                      min="<%= ((auction.current_highest_bid || auction.starting_price) + auction.bid_increment).toFixed(2) %>"
+                      value="<%= ((auction.current_highest_bid || auction.starting_price) + auction.bid_increment).toFixed(2) %>" required>
+                  </div>
+                  <button type="submit" class="btn btn-primary"><i class="bi bi-gavel"></i> Bid</button>
+                </form>
+              <% } else if (isActive) { %>
+                <a href="/auth/login" class="btn btn-primary w-100"><i class="bi bi-box-arrow-in-right"></i> Log in to bid</a>
+              <% } else { %>
+                <div class="alert alert-secondary text-center">This auction has ended.</div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white"><h5 class="mb-0">Bid History</h5></div>
+        <div class="card-body">
+          <% if (bids.length > 0) { %>
+            <% bids.forEach(function(bid) { %>
+              <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
+                <div>
+                  <strong><%= bid.bidder_name %></strong>
+                  <% if (bid.is_winning) { %><span class="badge bg-success ms-1">Winning</span><% } %>
+                  <br><small class="text-muted"><%= new Date(bid.created_at).toLocaleString() %></small>
+                </div>
+                <strong class="text-primary">$<%= bid.amount.toFixed(2) %></strong>
+              </div>
+            <% }); %>
+          <% } else { %>
+            <p class="text-muted text-center">No bids yet. Be the first!</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

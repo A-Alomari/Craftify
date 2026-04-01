@@ -1,0 +1,35 @@
+<%- include('../partials/header', { title: title }) %>
+<div class="container-fluid py-4"><div class="row"><div class="col-lg-2 mb-4"><%- include('./partials/sidebar') %></div>
+<div class="col-lg-10">
+  <h3 class="mb-4">Order #<%= order.id %></h3>
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card shadow-sm border-0 mb-4"><div class="card-body">
+        <div class="d-flex justify-content-between mb-3">
+          <span>Status: <span class="badge bg-primary fs-6"><%= order.status %></span></span>
+          <span>Payment: <span class="badge bg-<%= order.payment_status === 'paid' ? 'success' : 'warning' %>"><%= order.payment_status %></span></span>
+        </div>
+        <h6>Items</h6>
+        <% if (items && items.length > 0) { items.forEach(function(item) { %>
+          <div class="d-flex justify-content-between mb-2"><span><%= item.product_name %> &times; <%= item.quantity %></span><span>$<%= item.total_price.toFixed(2) %></span></div>
+        <% }); } %>
+        <hr>
+        <div class="d-flex justify-content-between fw-bold"><span>Total</span><span>$<%= order.total_amount.toFixed(2) %></span></div>
+      </div></div>
+      <form action="/admin/orders/<%= order.id %>/status" method="POST" class="d-flex gap-2">
+        <select name="status" class="form-select" style="width: auto;">
+          <option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="processing">Processing</option>
+          <option value="shipped">Shipped</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option>
+        </select>
+        <button class="btn btn-primary">Update Status</button>
+      </form>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0"><div class="card-body">
+        <h6>Customer</h6><p><%= order.customer_name %><br><%= order.customer_email %></p>
+        <h6>Shipping</h6><p><%= order.shipping_address %><br><%= order.shipping_city || '' %> <%= order.shipping_country || '' %></p>
+      </div></div>
+    </div>
+  </div>
+</div></div></div>
+<%- include('../partials/footer') %>

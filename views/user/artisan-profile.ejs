@@ -1,0 +1,35 @@
+<%- include('../partials/header', { title: title }) %>
+<div class="container py-4">
+  <% if (artisan) { %>
+    <div class="text-center mb-5">
+      <img src="<%= artisan.profile_image || '/images/default-avatar.png' %>" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+      <h2><%= artisan.shop_name %></h2>
+      <p class="text-muted"><%= artisan.user_name %></p>
+      <% if (artisan.bio) { %><p><%= artisan.bio %></p><% } %>
+      <% if (stats) { %>
+        <div class="d-flex justify-content-center gap-4 mb-3">
+          <div><strong><%= stats.total_products %></strong><br><small class="text-muted">Products</small></div>
+          <div><strong><%= stats.total_orders %></strong><br><small class="text-muted">Orders</small></div>
+          <div><strong><%= stats.avg_rating ? stats.avg_rating.toFixed(1) : 'N/A' %></strong><br><small class="text-muted">Rating</small></div>
+        </div>
+      <% } %>
+      <% if (typeof user !== 'undefined' && user) { %>
+        <a href="/user/messages/<%= artisan.user_id %>" class="btn btn-outline-primary"><i class="bi bi-chat"></i> Contact Artisan</a>
+      <% } %>
+    </div>
+  <% } %>
+  
+  <h4 class="mb-4">Products</h4>
+  <div class="row g-4">
+    <% products.forEach(function(p) { %>
+      <% var images = JSON.parse(p.images || '[]'); var img = images[0] || '/images/placeholder-product.jpg'; %>
+      <div class="col-6 col-md-3">
+        <div class="card h-100 border-0 shadow-sm">
+          <a href="/products/<%= p.id %>"><img src="<%= img %>" class="card-img-top" style="height: 160px; object-fit: cover;"></a>
+          <div class="card-body"><h6><a href="/products/<%= p.id %>" class="text-decoration-none text-dark"><%= p.name %></a></h6><span class="fw-bold text-primary">$<%= p.price.toFixed(2) %></span></div>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+</div>
+<%- include('../partials/footer') %>

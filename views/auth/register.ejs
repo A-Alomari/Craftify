@@ -1,0 +1,50 @@
+<%- include('../partials/header', { title: title }) %>
+
+<div class="container py-5" style="max-width: 600px;">
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+      <div class="text-center mb-4">
+        <h3 class="fw-bold"><i class="bi bi-person-plus"></i> Create Account</h3>
+        <p class="text-muted">Join the Craftify community</p>
+      </div>
+      
+      <form action="/auth/register" method="POST">
+        <div class="mb-3">
+          <label for="name" class="form-label">Full Name *</label>
+          <input type="text" name="name" id="name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">Email Address *</label>
+          <input type="email" name="email" id="email" class="form-control" required>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="password" class="form-label">Password *</label>
+            <input type="password" name="password" id="password" class="form-control" minlength="6" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="confirm_password" class="form-label">Confirm Password *</label>
+            <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="phone" class="form-label">Phone Number</label>
+          <input type="text" name="phone" id="phone" class="form-control">
+        </div>
+        <div class="mb-3">
+          <label for="shipping_address" class="form-label">Shipping Address</label>
+          <textarea name="shipping_address" id="shipping_address" class="form-control" rows="2"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 py-2">Create Account</button>
+      </form>
+      
+      <hr>
+      <div class="text-center">
+        <p class="mb-1">Already have an account? <a href="/auth/login" class="text-decoration-none">Sign In</a></p>
+        <p class="mb-0 small text-muted">Want to sell? <a href="/auth/artisan-register" class="text-decoration-none">Become an Artisan</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

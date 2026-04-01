@@ -1,0 +1,30 @@
+<%- include('../partials/header', { title: title }) %>
+<div class="container py-4">
+  <h3 class="mb-4"><i class="bi bi-bag"></i> My Orders</h3>
+  <% if (orders.length > 0) { %>
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead><tr><th>#</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th><th>Payment</th><th></th></tr></thead>
+        <tbody>
+          <% orders.forEach(function(order) { %>
+            <tr>
+              <td><strong>#<%= order.id %></strong></td>
+              <td><%= new Date(order.created_at).toLocaleDateString() %></td>
+              <td><%= order.item_count %> items</td>
+              <td>$<%= order.total_amount.toFixed(2) %></td>
+              <td><span class="badge bg-<%= order.status === 'delivered' ? 'success' : order.status === 'cancelled' ? 'danger' : 'primary' %>"><%= order.status %></span></td>
+              <td><span class="badge bg-<%= order.payment_status === 'paid' ? 'success' : 'warning' %>"><%= order.payment_status %></span></td>
+              <td><a href="/orders/<%= order.id %>" class="btn btn-sm btn-outline-primary">View</a></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <div class="text-center py-5">
+      <i class="bi bi-bag-x display-4 text-muted"></i>
+      <p class="text-muted mt-3">No orders yet. <a href="/products">Start shopping!</a></p>
+    </div>
+  <% } %>
+</div>
+<%- include('../partials/footer') %>

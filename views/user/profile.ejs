@@ -1,0 +1,31 @@
+<%- include('../partials/header', { title: title }) %>
+<div class="container py-4" style="max-width: 700px;">
+  <h3 class="mb-4"><i class="bi bi-person"></i> My Profile</h3>
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <form action="/user/profile" method="POST" enctype="multipart/form-data">
+        <div class="text-center mb-4">
+          <img src="<%= userProfile.avatar || '/images/default-avatar.png' %>" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;" alt="Avatar">
+          <div><input type="file" name="avatar" class="form-control form-control-sm" style="max-width: 250px; margin: auto;"></div>
+        </div>
+        <div class="mb-3"><label class="form-label">Full Name</label><input type="text" name="name" class="form-control" value="<%= userProfile.name %>"></div>
+        <div class="mb-3"><label class="form-label">Email</label><input type="email" class="form-control" value="<%= userProfile.email %>" disabled></div>
+        <div class="mb-3"><label class="form-label">Phone</label><input type="text" name="phone" class="form-control" value="<%= userProfile.phone || '' %>"></div>
+        <div class="mb-3"><label class="form-label">Shipping Address</label><textarea name="shipping_address" class="form-control" rows="2"><%= userProfile.shipping_address || '' %></textarea></div>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+      </form>
+    </div>
+  </div>
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <h5>Change Password</h5>
+      <form action="/user/change-password" method="POST">
+        <div class="mb-3"><label class="form-label">Current Password</label><input type="password" name="current_password" class="form-control" required></div>
+        <div class="row"><div class="col-md-6 mb-3"><label class="form-label">New Password</label><input type="password" name="new_password" class="form-control" minlength="6" required></div>
+        <div class="col-md-6 mb-3"><label class="form-label">Confirm Password</label><input type="password" name="confirm_password" class="form-control" required></div></div>
+        <button type="submit" class="btn btn-outline-primary">Change Password</button>
+      </form>
+    </div>
+  </div>
+</div>
+<%- include('../partials/footer') %>
