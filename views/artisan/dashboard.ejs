@@ -1,24 +1,139 @@
-<%- include('../partials/header', { title: title }) %>
-<div class="container-fluid py-4"><div class="row"><div class="col-lg-2 mb-4"><%- include('./partials/sidebar') %></div>
-<div class="col-lg-10">
-  <h3 class="mb-4"><i class="bi bi-speedometer2"></i> Artisan Dashboard</h3>
-  <div class="row g-3 mb-4">
-    <div class="col-md-3"><div class="card bg-primary text-white shadow-sm"><div class="card-body"><h6>Products</h6><h3><%= stats.total_products %></h3></div></div></div>
-    <div class="col-md-3"><div class="card bg-success text-white shadow-sm"><div class="card-body"><h6>Total Orders</h6><h3><%= stats.total_orders %></h3></div></div></div>
-    <div class="col-md-3"><div class="card bg-info text-white shadow-sm"><div class="card-body"><h6>Revenue</h6><h3>$<%= (stats.total_revenue || 0).toFixed(2) %></h3></div></div></div>
-    <div class="col-md-3"><div class="card bg-warning text-white shadow-sm"><div class="card-body"><h6>Avg Rating</h6><h3><%= stats.avg_rating ? stats.avg_rating.toFixed(1) : 'N/A' %></h3></div></div></div>
-  </div>
-  <div class="row">
-    <div class="col-md-6 mb-4"><div class="card shadow-sm border-0"><div class="card-header bg-white"><h5>Recent Orders</h5></div><div class="card-body">
-      <% if (recentOrders.length > 0) { recentOrders.forEach(function(o) { %>
-        <div class="d-flex justify-content-between mb-2"><span><a href="/artisan/orders/<%= o.id %>">#<%= o.id %></a> - <%= o.customer_name %></span><span class="badge bg-primary"><%= o.status %></span></div>
-      <% }); } else { %><p class="text-muted">No orders yet.</p><% } %>
-    </div></div></div>
-    <div class="col-md-6 mb-4"><div class="card shadow-sm border-0"><div class="card-header bg-white"><h5>Quick Links</h5></div><div class="card-body">
-      <a href="/artisan/products/new" class="btn btn-primary w-100 mb-2"><i class="bi bi-plus"></i> Add Product</a>
-      <a href="/artisan/auctions/new" class="btn btn-outline-primary w-100 mb-2"><i class="bi bi-hammer"></i> Create Auction</a>
-      <a href="/artisan/orders" class="btn btn-outline-secondary w-100"><i class="bi bi-bag"></i> View Orders</a>
-    </div></div></div>
-  </div>
-</div></div></div>
+<%- include('../partials/header', { title: 'Artisan Dashboard | Craftify' }) %>
+
+<div class="flex bg-surface min-h-screen">
+    <%- include('./partials/sidebar') %>
+    
+    <main class="flex-grow w-full min-h-screen px-8 py-10 bg-surface">
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
+        <div>
+        <h1 class="text-4xl font-serif font-bold text-on-surface mb-2">Artisan Dashboard</h1>
+        <p class="text-secondary font-body">Manage your products and view your sales performance.</p>
+        </div>
+        <a href="/artisan/products/new" class="flex items-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-semibold shadow-sm hover:scale-[0.98] transition-transform duration-200">
+        <span class="material-symbols-outlined">add</span>
+            + Add New Product
+        </a>
+        </div>
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+        <div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-l-4 border-emerald-500">
+        <div class="flex items-center justify-between mb-4">
+        <span class="text-secondary text-xs font-medium uppercase tracking-wider">Revenue</span>
+        <div class="p-2 bg-emerald-50 rounded-lg text-emerald-600">
+        <span class="material-symbols-outlined text-sm">payments</span>
+        </div>
+        </div>
+        <div class="flex items-baseline gap-2">
+        <h2 class="text-2xl font-serif font-bold">$<%= stats ? (stats.total_revenue || 0).toFixed(2) : '0.00' %></h2>
+        </div>
+        </div>
+
+        <div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
+        <div class="flex items-center justify-between mb-4">
+        <span class="text-secondary text-xs font-medium uppercase tracking-wider">Total Orders</span>
+        <div class="p-2 bg-blue-50 rounded-lg text-blue-600">
+        <span class="material-symbols-outlined text-sm">shopping_bag</span>
+        </div>
+        </div>
+        <div class="flex items-baseline gap-2">
+        <h2 class="text-2xl font-serif font-bold"><%= stats ? stats.total_orders : 0 %></h2>
+        </div>
+        </div>
+
+        <div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-l-4 border-amber-500">
+        <div class="flex items-center justify-between mb-4">
+        <span class="text-secondary text-xs font-medium uppercase tracking-wider">Products</span>
+        <div class="p-2 bg-amber-50 rounded-lg text-amber-600">
+        <span class="material-symbols-outlined text-sm">inventory_2</span>
+        </div>
+        </div>
+        <div class="flex items-baseline gap-2">
+        <h2 class="text-2xl font-serif font-bold"><%= stats ? stats.total_products : 0 %></h2>
+        </div>
+        </div>
+        
+        <div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-l-4 border-purple-500">
+        <div class="flex items-center justify-between mb-4">
+        <span class="text-secondary text-xs font-medium uppercase tracking-wider">Avg Rating</span>
+        <div class="p-2 bg-purple-50 rounded-lg text-purple-600">
+        <span class="material-symbols-outlined text-sm">star</span>
+        </div>
+        </div>
+        <div class="flex items-baseline gap-2">
+        <h2 class="text-2xl font-serif font-bold"><%= stats && stats.avg_rating ? stats.avg_rating.toFixed(1) : 'N/A' %></h2>
+        </div>
+        </div>
+        </div>
+
+        <!-- Tables Section -->
+        <div class="grid grid-cols-1 gap-12">
+        <!-- Recent Orders Table -->
+        <section class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-outline-variant/10">
+        <div class="px-8 py-6 flex justify-between items-center bg-surface-container-low/50">
+        <h3 class="text-xl font-serif font-bold">Recent Orders</h3>
+        <a href="/artisan/orders" class="text-primary text-sm font-semibold hover:underline">Manage All Orders</a>
+        </div>
+        <div class="overflow-x-auto">
+        <table class="w-full text-left">
+        <thead>
+        <tr class="border-b border-surface-container-high text-secondary text-xs uppercase tracking-widest font-bold">
+        <th class="px-8 py-4">Order ID</th>
+        <th class="px-4 py-4">Customer</th>
+        <th class="px-4 py-4">Status</th>
+        <th class="px-4 py-4">Total</th>
+        <th class="px-8 py-4 text-right">Action</th>
+        </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-container-low">
+            <% if (recentOrders && recentOrders.length > 0) { %>
+                <% recentOrders.forEach(function(o) { %>
+                    <tr class="hover:bg-surface/50 transition-colors">
+                    <td class="px-8 py-4 font-mono text-sm text-secondary">#ORD-<%= o.id.toString().padStart(4, '0') %></td>
+                    <td class="px-4 py-4 font-medium"><%= o.customer_name || 'Customer' %></td>
+                    <td class="px-4 py-4">
+                        <span class="px-3 py-1 text-xs rounded-full font-bold <%= o.status === 'delivered' ? 'bg-emerald-100 text-emerald-700' : (o.status === 'shipped' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700') %>">
+                            <%= o.status %>
+                        </span>
+                    </td>
+                    <td class="px-4 py-4 font-serif font-bold">$<%= o.total_amount ? o.total_amount.toFixed(2) : '0.00' %></td>
+                    <td class="px-8 py-4 text-right">
+                    <a href="/artisan/orders/<%= o.id %>" class="text-xs font-bold bg-surface-container text-on-surface px-4 py-1.5 rounded-lg hover:bg-primary hover:text-white transition-all">View</a>
+                    </td>
+                    </tr>
+                <% }); %>
+            <% } else { %>
+                <tr>
+                    <td colspan="5" class="px-8 py-8 text-center text-secondary">No recent orders found.</td>
+                </tr>
+            <% } %>
+        </tbody>
+        </table>
+        </div>
+        </section>
+        
+        <!-- Quick Actions -->
+        <section class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-outline-variant/10">
+            <div class="px-8 py-6 bg-surface-container-low/50">
+                <h3 class="text-xl font-serif font-bold">Quick Links</h3>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="/artisan/products/new" class="flex items-center gap-3 p-4 rounded-xl border border-outline-variant/20 hover:border-primary hover:bg-primary/5 transition-all text-on-surface">
+                    <span class="material-symbols-outlined text-primary">add_circle</span>
+                    <span class="font-bold">Add New Product</span>
+                </a>
+                <a href="/artisan/auctions/new" class="flex items-center gap-3 p-4 rounded-xl border border-outline-variant/20 hover:border-primary hover:bg-primary/5 transition-all text-on-surface">
+                    <span class="material-symbols-outlined text-primary">gavel</span>
+                    <span class="font-bold">Create Auction</span>
+                </a>
+                <a href="/artisan/orders" class="flex items-center gap-3 p-4 rounded-xl border border-outline-variant/20 hover:border-primary hover:bg-primary/5 transition-all text-on-surface">
+                    <span class="material-symbols-outlined text-primary">local_shipping</span>
+                    <span class="font-bold">Manage Orders</span>
+                </a>
+            </div>
+        </section>
+        </div>
+    </main>
+</div>
+
 <%- include('../partials/footer') %>

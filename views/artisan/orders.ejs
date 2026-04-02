@@ -11,7 +11,7 @@
       <td>
         <a href="/artisan/orders/<%= o.id %>" class="btn btn-sm btn-outline-primary">View</a>
         <% if (['confirmed', 'processing'].indexOf(o.status) >= 0) { %>
-          <form action="/artisan/orders/<%= o.id %>/status" method="POST" class="d-inline"><input type="hidden" name="status" value="shipped"><button class="btn btn-sm btn-success">Ship</button></form>
+          <form action="/artisan/orders/<%= o.id %>/status" method="POST" class="d-inline"><input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"><input type="hidden" name="status" value="shipped"><button class="btn btn-sm btn-success">Ship</button></form>
         <% } %>
       </td>
     </tr><% }); %></tbody></table></div>

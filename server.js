@@ -1,9 +1,17 @@
 const express = require('express');
 const session = require('express-session');
 const flash = require('connect-flash');
+const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
+const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
+const csrf = require('csurf');
+const methodOverride = require('method-override');
+
+// Load environment variables
+require('dotenv').config();
 
 // Initialize database
 const { initDatabase, getDb } = require('./config/database');
@@ -11,6 +19,29 @@ const { initDatabase, getDb } = require('./config/database');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
+const isProduction = process.env.NODE_ENV === 'production';
+const isTest = process.env.NODE_ENV === 'test' || process.argv.some(arg => arg.includes('jest'));
+const PORT = process.env.PORT || 3000;
+const uploadDir = process.env.UPLOAD_DIR
+  ? path.resolve(process.env.UPLOAD_DIR)
+  : path.join(__dirname, 'public', 'uploads');
+const sessionStorePath = process.env.SESSION_STORE_PATH
+  ? path.resolve(process.env.SESSION_STORE_PATH)
+  : path.join(__dirname, '.sessions');
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+if (!isTest && !fs.existsSync(sessionStorePath)) {
+  fs.mkdirSync(sessionStorePath, { recursive: true });
+}
+
+// Enforce session secret in production
+if (isProduction && !process.env.SESSION_SECRET) {
+  console.error('FATAL: SESSION_SECRET environment variable is required in production');
+  process.exit(1);
+}
 
 // Make io available to routes
 app.set('io', io);
@@ -19,22 +50,82 @@ app.set('io', io);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: isProduction ? undefined : false,
+  crossOriginEmbedderPolicy: false
+}));
+
+// Trust proxy only when explicitly configured.
+if (process.env.TRUST_PROXY) {
+  app.set('trust proxy', process.env.TRUST_PROXY === 'true' ? 1 : process.env.TRUST_PROXY);
+}
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
+app.use('/uploads', express.static(uploadDir));
+app.use(cookieParser());
 
 // Session configuration
-app.use(session({
-  secret: 'craftify-secret-key-2024',
+let sessionStore;
+if (!isTest) {
+  try {
+    const FileStore = require('session-file-store')(session);
+    sessionStore = new FileStore({
+      path: sessionStorePath,
+      ttl: 24 * 60 * 60,
+      retries: 1,
+      logFn: () => {}
+    });
+  } catch (err) {
+    console.warn('Session file store unavailable, using in-memory session store.');
+  }
+}
+
+const sessionMiddleware = session({
+  secret: process.env.SESSION_SECRET || 'craftify-secret-key-2024',
+  name: 'craftify.sid',
+  store: sessionStore,
   resave: false,
-  saveUninitialized: true,
-  cookie: { 
-    secure: false,
+  saveUninitialized: false,
+  proxy: Boolean(process.env.TRUST_PROXY),
+  cookie: {
+    secure: isProduction,
+    httpOnly: true,
+    sameSite: 'lax',
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
-}));
+});
+app.use(sessionMiddleware);
+
+// CSRF protection (skip during tests)
+if (!isTest) {
+  const csrfProtection = csrf({
+    cookie: {
+      key: '_csrf',
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: isProduction
+    }
+  });
+
+  app.use((req, res, next) => {
+    // Allow read-only API endpoints without CSRF checks.
+    if (req.path.startsWith('/api/') && ['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+      return next();
+    }
+    csrfProtection(req, res, next);
+  });
+
+  // Make CSRF token available to all views
+  app.use((req, res, next) => {
+    res.locals.csrfToken = req.csrfToken ? req.csrfToken() : '';
+    next();
+  });
+}
 
 // Flash messages
 app.use(flash());
@@ -47,6 +138,7 @@ app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
   res.locals.cartCount = 0;
   res.locals.notificationCount = 0;
+  res.locals.currentPath = req.path;
   next();
 });
 
@@ -82,6 +174,7 @@ const artisanRoutes = require('./routes/artisan');
 const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/user');
 const apiRoutes = require('./routes/api');
+const Auction = require('./models/Auction');
 
 app.use('/', homeRoutes);
 app.use('/auth', authRoutes);
@@ -95,62 +188,69 @@ app.use('/user', userRoutes);
 app.use('/api', apiRoutes);
 
 // Socket.io for real-time auctions
+// Reuse express-session for sockets so authenticated users can bid in real time.
+io.use((socket, next) => {
+  sessionMiddleware(socket.request, {}, next);
+});
+
+io.use((socket, next) => {
+  const sessionUser = socket.request?.session?.user;
+  if (sessionUser) {
+    socket.data.user = sessionUser;
+    socket.data.authenticated = true;
+  } else {
+    socket.data.authenticated = false;
+  }
+  next();
+});
+
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
-  
   socket.on('joinAuction', (auctionId) => {
     socket.join(`auction-${auctionId}`);
-    console.log(`User ${socket.id} joined auction ${auctionId}`);
   });
   
   socket.on('placeBid', async (data) => {
     try {
-      const db = getDb();
       const { auctionId, amount } = data;
-      const userId = socket.handshake.session?.user?.id;
       
-      if (!userId) {
+      // Socket.IO authentication: reject unauthenticated bid attempts
+      if (!socket.data.authenticated || !socket.data.user) {
         socket.emit('bidError', { message: 'Please log in to place a bid' });
         return;
       }
-      
-      const auction = db.prepare('SELECT * FROM auctions WHERE id = ?').get(auctionId);
-      if (!auction || auction.status !== 'active') {
-        socket.emit('bidError', { message: 'Auction is not active' });
+
+      const parsedAmount = Number.parseFloat(amount);
+      if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+        socket.emit('bidError', { message: 'Invalid bid amount' });
         return;
       }
-      
-      const minBid = (auction.current_highest_bid || auction.starting_price) + auction.bid_increment;
-      if (amount < minBid) {
-        socket.emit('bidError', { message: `Minimum bid is $${minBid.toFixed(2)}` });
-        return;
-      }
-      
-      // Update previous winning bid
-      db.prepare('UPDATE bids SET is_winning = 0 WHERE auction_id = ? AND is_winning = 1').run(auctionId);
-      
-      // Insert new bid
-      db.prepare('INSERT INTO bids (auction_id, user_id, amount, is_winning) VALUES (?, ?, ?, 1)').run(auctionId, userId, amount);
-      
-      // Update auction
-      db.prepare('UPDATE auctions SET current_highest_bid = ?, winner_id = ? WHERE id = ?').run(amount, userId, auctionId);
-      
-      // Get bidder info
-      const user = db.prepare('SELECT name FROM users WHERE id = ?').get(userId);
-      
-      // Emit to all in auction room
+
+      const userId = socket.data.user.id;
+
+      const result = Auction.placeBid(auctionId, userId, parsedAmount);
+
       io.to(`auction-${auctionId}`).emit('bidUpdate', {
         auctionId,
-        amount,
-        currentBid: amount,
-        bidCount: db.prepare('SELECT COUNT(*) as count FROM bids WHERE auction_id = ?').get(auctionId).count,
-        bidderName: user?.name || 'Anonymous',
-        bidIncrement: auction.bid_increment
+        amount: result.bid.amount,
+        currentBid: result.auction.current_highest_bid,
+        bidCount: result.auction.bid_count,
+        bidderName: socket.data.user.name || 'Anonymous',
+        bidIncrement: result.auction.bid_increment
       });
       
     } catch (err) {
       console.error('Bid error:', err);
-      socket.emit('bidError', { message: 'Failed to place bid' });
+      const message = typeof err?.message === 'string' ? err.message : '';
+      const isUserFacingValidationError = [
+        'Invalid bid amount',
+        'Auction not found',
+        'Auction is not active',
+        'Auction has ended'
+      ].includes(message) || /^Minimum bid is \$\d+\.\d{2}$/.test(message);
+
+      socket.emit('bidError', {
+        message: isUserFacingValidationError ? message : 'Failed to place bid'
+      });
     }
   });
   
@@ -159,7 +259,6 @@ io.on('connection', (socket) => {
   });
   
   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
   });
 });
 
@@ -302,24 +401,44 @@ app.use((req, res) => {
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).render('errors/500', { title: 'Server Error', error: err.message });
-});
-
-// Start server after database initialization
-const PORT = process.env.PORT || 3000;
-
-initDatabase().then(() => {
-  startBackgroundTasks();
-  
-  server.listen(PORT, () => {
-    console.log(`🚀 Craftify server running on http://localhost:${PORT}`);
-    console.log(`📦 Database initialized`);
-    console.log(`🔄 Real-time auctions enabled`);
-    console.log(`📬 Shipment tracking simulation active`);
+  // Handle CSRF errors specifically
+  if (err.code === 'EBADCSRFTOKEN') {
+    return res.status(403).render('errors/500', {
+      title: 'Invalid Form Submission',
+      error: isProduction ? 'Form submission expired. Please refresh and try again.' : err.message,
+      user: req.session?.user || null,
+      currentPath: req.path
+    });
+  }
+  res.status(500).render('errors/500', {
+    title: 'Server Error',
+    error: isProduction ? 'An unexpected error occurred' : err.message,
+    user: req.session?.user || null,
+    currentPath: req.path
   });
-}).catch(err => {
-  console.error('Failed to initialize database:', err);
-  process.exit(1);
 });
 
-module.exports = { app, io };
+async function startServer(port = PORT) {
+  await initDatabase();
+  // Skip background tasks in test mode to prevent hanging timers
+  if (process.env.NODE_ENV !== 'test') {
+    startBackgroundTasks();
+  }
+  return new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(port, () => {
+      server.removeListener('error', reject);
+      resolve(server);
+    });
+  });
+}
+
+/* istanbul ignore next */
+if (require.main === module) {
+  startServer().catch(err => {
+    console.error('Failed to initialize database:', err);
+    process.exit(1);
+  });
+}
+
+module.exports = { app, io, server, startServer };

@@ -7,6 +7,7 @@ const Auction = require('../models/Auction');
 const Review = require('../models/Review');
 const Notification = require('../models/Notification');
 const path = require('path');
+const { validateProductInput, sanitizeString } = require('../utils/sanitizer');
 
 // Dashboard
 exports.dashboard = (req, res) => {
@@ -73,13 +74,25 @@ exports.updateProfile = (req, res) => {
 
 exports.products = (req, res) => {
   try {
-    const products = Product.getByArtisan(req.session.user.id);
+    const { page = 1 } = req.query;
+    const limit = 10;
+    const offset = (page - 1) * limit;
+    
+    const products = Product.getByArtisan(req.session.user.id, { limit, offset });
+    const totalProducts = Product.count({ artisan_id: req.session.user.id });
+    const totalPages = Math.ceil(totalProducts / limit);
     const categories = Category.findAll();
 
     res.render('artisan/products', {
       title: 'My Products - Craftify',
       products,
-      categories
+      categories,
+      pagination: {
+        current: parseInt(page),
+        total: totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
+      }
     });
   } catch (err) {
     console.error('Artisan products error:', err);
@@ -100,6 +113,13 @@ exports.createProduct = (req, res) => {
   try {
     const { name, description, price, stock, category_id } = req.body;
     
+    // Sanitize and validate input
+    const { errors, sanitized } = validateProductInput(req.body);
+    if (errors.length > 0) {
+      req.flash('error_msg', errors.join('. '));
+      return res.redirect('/artisan/products/new');
+    }
+    
     let images = [];
     if (req.files && req.files.length > 0) {
       images = req.files.map(f => `/uploads/${f.filename}`);
@@ -107,8 +127,8 @@ exports.createProduct = (req, res) => {
 
     Product.create({
       artisan_id: req.session.user.id,
-      name,
-      description,
+      name: sanitized.name,
+      description: sanitized.description,
       price: parseFloat(price),
       stock: parseInt(stock) || 0,
       category_id: category_id || null,
@@ -161,6 +181,13 @@ exports.updateProduct = (req, res) => {
 
     const { name, description, price, stock, category_id } = req.body;
     
+    // Sanitize and validate input
+    const { errors, sanitized } = validateProductInput(req.body);
+    if (errors.length > 0) {
+      req.flash('error_msg', errors.join('. '));
+      return res.redirect(`/artisan/products/${id}/edit`);
+    }
+    
     let images = JSON.parse(product.images || '[]');
     if (req.files && req.files.length > 0) {
       const newImages = req.files.map(f => `/uploads/${f.filename}`);
@@ -168,8 +195,8 @@ exports.updateProduct = (req, res) => {
     }
 
     Product.update(id, {
-      name,
-      description,
+      name: sanitized.name,
+      description: sanitized.description,
       price: parseFloat(price),
       stock: parseInt(stock) || 0,
       category_id: category_id || null,
@@ -191,7 +218,7 @@ exports.deleteProduct = (req, res) => {
     const product = Product.findById(id);
 
     if (!product || product.artisan_id !== req.session.user.id) {
-      if (req.xhr) return res.json({ success: false, message: 'Product not found' });
+      if (req.xhr) return res.status(404).json({ success: false, message: 'Product not found' });
       req.flash('error_msg', 'Product not found');
       return res.redirect('/artisan/products');
     }
@@ -204,7 +231,7 @@ exports.deleteProduct = (req, res) => {
     res.redirect('/artisan/products');
   } catch (err) {
     console.error('Delete product error:', err);
-    if (req.xhr) return res.json({ success: false, message: 'Error deleting product' });
+    if (req.xhr) return res.status(500).json({ success: false, message: 'Error deleting product' });
     res.redirect('/artisan/products');
   }
 };
@@ -271,7 +298,7 @@ exports.updateOrderStatus = (req, res) => {
     res.redirect(`/artisan/orders/${id}`);
   } catch (err) {
     console.error('Update order status error:', err);
-    if (req.xhr) return res.json({ success: false, message: 'Error updating status' });
+    if (req.xhr) return res.status(500).json({ success: false, message: 'Error updating status' });
     res.redirect('/artisan/orders');
   }
 };

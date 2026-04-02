@@ -19,6 +19,7 @@
   </div></div>
   <% if (['confirmed', 'processing'].indexOf(order.status) >= 0) { %>
     <form action="/artisan/orders/<%= order.id %>/status" method="POST" class="d-inline">
+    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
       <input type="hidden" name="status" value="shipped">
       <button class="btn btn-success"><i class="bi bi-truck"></i> Mark as Shipped</button>
     </form>

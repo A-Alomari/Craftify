@@ -7,7 +7,7 @@ const ArtisanProfile = require('../models/ArtisanProfile');
 // List all products
 exports.index = (req, res) => {
   try {
-    const { category, search, sort, min_price, max_price, page = 1 } = req.query;
+    const { category, search, sort, min_price, max_price, featured, page = 1 } = req.query;
     const limit = 12;
     const offset = (page - 1) * limit;
 
@@ -22,9 +22,10 @@ exports.index = (req, res) => {
     if (search) filters.search = search;
     if (min_price) filters.minPrice = parseFloat(min_price);
     if (max_price) filters.maxPrice = parseFloat(max_price);
+    if (featured) filters.featured = true;
 
     const products = Product.findAll(filters);
-    const totalProducts = Product.count({ status: 'approved', category_id: filters.category_id });
+    const totalProducts = Product.count({ status: 'approved', category_id: filters.category_id, featured: filters.featured });
     const totalPages = Math.ceil(totalProducts / limit);
     const categories = Category.findAll();
 
@@ -39,7 +40,7 @@ exports.index = (req, res) => {
       title: 'Browse Products - Craftify',
       products,
       categories,
-      filters: { category, search, sort, min_price, max_price },
+      filters: { category, search, sort, min_price, max_price, featured },
       pagination: {
         current: parseInt(page),
         total: totalPages,

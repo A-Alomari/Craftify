@@ -57,8 +57,10 @@ class Category {
     const fields = [];
     const params = [];
 
+    const allowedColumns = ['name', 'slug', 'description', 'image', 'parent_id', 'is_active'];
+
     Object.entries(categoryData).forEach(([key, value]) => {
-      if (value !== undefined && key !== 'id') {
+      if (value !== undefined && key !== 'id' && allowedColumns.includes(key)) {
         fields.push(`${key} = ?`);
         params.push(value);
       }

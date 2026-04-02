@@ -8,8 +8,9 @@
       <td><%= p.name %></td><td>$<%= p.price.toFixed(2) %></td><td><%= p.stock %></td>
       <td><span class="badge bg-<%= p.status === 'approved' ? 'success' : p.status === 'pending' ? 'warning' : 'danger' %>"><%= p.status %></span></td>
       <td><a href="/artisan/products/<%= p.id %>/edit" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
-      <form action="/artisan/products/<%= p.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Delete this product?')"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form></td>
+      <form action="/artisan/products/<%= p.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Delete this product?')"><input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form></td>
     </tr><% }); %></tbody></table></div>
   <% } else { %><div class="text-center py-5"><p class="text-muted">No products yet. <a href="/artisan/products/new">Add your first product!</a></p></div><% } %>
+  <%- include('../partials/pagination', { pagination: pagination, baseUrl: '/artisan/products', queryString: '' }) %>
 </div></div></div>
 <%- include('../partials/footer') %>

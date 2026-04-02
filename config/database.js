@@ -2,7 +2,7 @@ const initSqlJs = require('sql.js');
 const fs = require('fs');
 const path = require('path');
 
-const dbPath = path.join(__dirname, '..', 'craftify.db');
+const dbPath = process.env.CRAFTIFY_DB_PATH || path.join(__dirname, '..', 'craftify.db');
 
 let db = null;
 let SQL = null;
@@ -275,19 +275,81 @@ const schema = `
   CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
   CREATE INDEX IF NOT EXISTS idx_products_status ON products(status);
   CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id);
+  CREATE INDEX IF NOT EXISTS idx_orders_payment_created ON orders(payment_status, created_at);
+  CREATE INDEX IF NOT EXISTS idx_orders_status_created ON orders(status, created_at);
+  CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
+  CREATE INDEX IF NOT EXISTS idx_order_items_product ON order_items(product_id);
+  CREATE INDEX IF NOT EXISTS idx_cart_user ON cart_items(user_id);
+  CREATE INDEX IF NOT EXISTS idx_cart_session ON cart_items(session_id);
+  CREATE INDEX IF NOT EXISTS idx_cart_user_product ON cart_items(user_id, product_id);
+  CREATE INDEX IF NOT EXISTS idx_cart_session_product ON cart_items(session_id, product_id);
   CREATE INDEX IF NOT EXISTS idx_auctions_status ON auctions(status);
+  CREATE INDEX IF NOT EXISTS idx_auctions_end_time ON auctions(end_time);
+  CREATE INDEX IF NOT EXISTS idx_auctions_artisan_status ON auctions(artisan_id, status);
+  CREATE INDEX IF NOT EXISTS idx_bids_auction ON bids(auction_id);
+  CREATE INDEX IF NOT EXISTS idx_bids_auction_winning ON bids(auction_id, is_winning);
+  CREATE INDEX IF NOT EXISTS idx_bids_user ON bids(user_id);
   CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
+  CREATE INDEX IF NOT EXISTS idx_notifications_user_read ON notifications(user_id, is_read);
+  CREATE INDEX IF NOT EXISTS idx_password_resets_token_used_expires ON password_resets(token, used, expires_at);
 `;
 
 class DatabaseWrapper {
   constructor(sqlDb) {
     this.sqlDb = sqlDb;
+    this.persistTimer = null;
+    this.pendingPersist = false;
+    this.persistIntervalMs = parseInt(process.env.DB_PERSIST_INTERVAL_MS || '100', 10);
+    this.inTransaction = false;
   }
 
-  save() {
+  flushToDisk(sync = false) {
     const data = this.sqlDb.export();
     const buffer = Buffer.from(data);
-    fs.writeFileSync(dbPath, buffer);
+
+    if (sync) {
+      fs.writeFileSync(dbPath, buffer);
+      return;
+    }
+
+    fs.writeFile(dbPath, buffer, (err) => {
+      if (err) {
+        console.error('Database persist error:', err.message);
+      }
+    });
+  }
+
+  save(immediate = false) {
+    if (dbPath === ':memory:') {
+      return;
+    }
+
+    if (process.env.NODE_ENV === 'test') {
+      immediate = true;
+    }
+
+    if (immediate) {
+      this.pendingPersist = false;
+      if (this.persistTimer) {
+        clearTimeout(this.persistTimer);
+        this.persistTimer = null;
+      }
+      this.flushToDisk(true);
+      return;
+    }
+
+    this.pendingPersist = true;
+    if (this.persistTimer) {
+      return;
+    }
+
+    this.persistTimer = setTimeout(() => {
+      this.persistTimer = null;
+      if (this.pendingPersist) {
+        this.pendingPersist = false;
+        this.flushToDisk();
+      }
+    }, this.persistIntervalMs);
   }
 
   prepare(sql) {
@@ -295,20 +357,24 @@ class DatabaseWrapper {
     return {
       run: function(...params) {
         try {
-          self.sqlDb.run(sql, params);
-          self.save();
+          const safeParams = params.map(p => p === undefined ? null : p);
+          self.sqlDb.run(sql, safeParams);
           const lastId = self.sqlDb.exec("SELECT last_insert_rowid()")[0]?.values[0][0];
           const changes = self.sqlDb.getRowsModified();
+          if (!self.inTransaction) {
+            self.save();
+          }
           return { lastInsertRowid: lastId, changes };
         } catch (e) {
-          console.error('SQL Error:', e.message, 'Query:', sql.substring(0, 100));
+          console.error('SQL Error:', e, 'Query:', sql.substring(0, 100));
           throw e;
         }
       },
       get: function(...params) {
         try {
+          const safeParams = params.map(p => p === undefined ? null : p);
           const stmt = self.sqlDb.prepare(sql);
-          stmt.bind(params);
+          stmt.bind(safeParams);
           if (stmt.step()) {
             const cols = stmt.getColumnNames();
             const values = stmt.get();
@@ -320,14 +386,15 @@ class DatabaseWrapper {
           stmt.free();
           return undefined;
         } catch (e) {
-          console.error('SQL Error:', e.message, 'Query:', sql.substring(0, 100));
-          return undefined;
+          console.error('SQL Error:', e, 'Query:', sql.substring(0, 100));
+          throw e;
         }
       },
       all: function(...params) {
         try {
+          const safeParams = params.map(p => p === undefined ? null : p);
           const stmt = self.sqlDb.prepare(sql);
-          stmt.bind(params);
+          stmt.bind(safeParams);
           const results = [];
           while (stmt.step()) {
             const cols = stmt.getColumnNames();
@@ -339,8 +406,8 @@ class DatabaseWrapper {
           stmt.free();
           return results;
         } catch (e) {
-          console.error('SQL Error:', e.message, 'Query:', sql.substring(0, 100));
-          return [];
+          console.error('SQL Error:', e, 'Query:', sql.substring(0, 100));
+          throw e;
         }
       }
     };
@@ -348,7 +415,22 @@ class DatabaseWrapper {
 
   exec(sql) {
     this.sqlDb.run(sql);
-    this.save();
+
+    const upperSql = String(sql).trim().toUpperCase();
+    if (upperSql.startsWith('BEGIN')) {
+      this.inTransaction = true;
+      return;
+    }
+
+    if (upperSql.startsWith('COMMIT') || upperSql.startsWith('ROLLBACK')) {
+      this.inTransaction = false;
+      this.save();
+      return;
+    }
+
+    if (!this.inTransaction) {
+      this.save();
+    }
   }
 
   transaction(fn) {
@@ -356,6 +438,19 @@ class DatabaseWrapper {
       this.exec('BEGIN TRANSACTION');
       try {
         const result = fn(...args);
+
+        if (result && typeof result.then === 'function') {
+          return result
+            .then((value) => {
+              this.exec('COMMIT');
+              return value;
+            })
+            .catch((err) => {
+              this.exec('ROLLBACK');
+              throw err;
+            });
+        }
+
         this.exec('COMMIT');
         return result;
       } catch (e) {
@@ -370,12 +465,14 @@ async function initDatabase() {
   SQL = await initSqlJs();
   
   let sqlDb;
-  if (fs.existsSync(dbPath)) {
+  if (dbPath !== ':memory:' && fs.existsSync(dbPath)) {
     const buffer = fs.readFileSync(dbPath);
     sqlDb = new SQL.Database(buffer);
   } else {
     sqlDb = new SQL.Database();
   }
+
+  sqlDb.run('PRAGMA foreign_keys = ON;');
   
   db = new DatabaseWrapper(sqlDb);
   
@@ -383,16 +480,13 @@ async function initDatabase() {
     // Execute schema statements one by one
     const statements = schema.split(';').filter(s => s.trim());
     for (const stmt of statements) {
-      try {
-        db.sqlDb.run(stmt);
-      } catch (e) {
-        // Ignore errors for IF NOT EXISTS statements
-      }
+      db.sqlDb.run(stmt);
     }
-    db.save();
+    db.save(true);
     console.log('Database initialized successfully');
   } catch (e) {
     console.error('Schema initialization error:', e.message);
+    throw e;
   }
   
   return db;

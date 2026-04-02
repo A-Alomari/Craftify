@@ -4,7 +4,7 @@
     const mainImage = images[0] || '/images/placeholder-product.jpg';
   %>
   <a href="/products/<%= product.id %>">
-    <img src="<%= mainImage %>" class="card-img-top product-image" alt="<%= product.name %>">
+    <img src="<%= mainImage %>" class="card-img-top product-image" alt="<%= product.name %>" onerror="this.src='/images/placeholder-product.jpg'">
   </a>
   
   <% if (product.featured) { %>
@@ -13,7 +13,8 @@
   
   <% if (typeof user !== 'undefined' && user) { %>
     <button class="btn btn-light btn-sm position-absolute top-0 end-0 m-2 wishlist-btn <%= product.inWishlist ? 'active' : '' %>" 
-            data-product-id="<%= product.id %>">
+            data-product-id="<%= product.id %>"
+            aria-label="<%= product.inWishlist ? 'Remove from wishlist' : 'Add to wishlist' %>">
       <i class="bi <%= product.inWishlist ? 'bi-heart-fill text-danger' : 'bi-heart' %>"></i>
     </button>
   <% } %>

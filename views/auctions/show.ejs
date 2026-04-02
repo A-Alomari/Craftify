@@ -1,90 +1,234 @@
-<%- include('../partials/header', { title: title }) %>
+<%- include('../partials/header', { title: auction ? (auction.title || auction.product_name) + ' | Craftify' : 'Auction Details' }) %>
 
-<div class="container py-4">
-  <div class="row">
-    <div class="col-lg-8">
-      <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body">
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <% auction.imageArray = auction.imageArray || ['/images/placeholder-product.jpg']; %>
-              <img src="<%= auction.imageArray[0] %>" class="img-fluid rounded w-100" alt="<%= auction.product_name %>" style="max-height: 350px; object-fit: cover;">
-            </div>
-            <div class="col-md-6">
-              <h3><%= auction.title || auction.product_name %></h3>
-              <p class="text-muted">By <a href="/products/artisan/<%= auction.artisan_id %>"><%= auction.shop_name %></a></p>
-              <p><%= auction.product_description %></p>
-              
-              <div class="bg-light rounded p-3 mb-3">
-                <div class="row text-center">
-                  <div class="col-4">
-                    <small class="text-muted d-block">Current Bid</small>
-                    <h4 class="text-primary mb-0" id="currentBid">$<%= (auction.current_highest_bid || auction.starting_price).toFixed(2) %></h4>
-                  </div>
-                  <div class="col-4">
-                    <small class="text-muted d-block">Bids</small>
-                    <h4 class="mb-0" id="bidCount"><%= auction.bid_count || 0 %></h4>
-                  </div>
-                  <div class="col-4">
-                    <small class="text-muted d-block">Min Increment</small>
-                    <h4 class="mb-0">$<%= auction.bid_increment.toFixed(2) %></h4>
-                  </div>
-                </div>
-              </div>
+<main class="pt-12 pb-20 px-6 lg:px-12 max-w-7xl mx-auto">
+<!-- Breadcrumb -->
+<nav class="mb-10 flex items-center text-xs font-label uppercase tracking-widest text-secondary/70">
+<a class="hover:text-primary transition-colors" href="/">Home</a>
+<span class="mx-3 text-[10px]">/</span>
+<a class="hover:text-primary transition-colors" href="/auctions">Auctions</a>
+<span class="mx-3 text-[10px]">/</span>
+<span class="text-on-surface font-semibold"><%= auction ? (auction.title || auction.product_name) : 'Unknown' %></span>
+</nav>
 
-              <% if (isActive) { %>
-                <div class="mb-3 text-center">
-                  <% var endTime = new Date(auction.end_time); var remaining = Math.max(0, endTime - new Date()); %>
-                  <% var hours = Math.floor(remaining / 3600000); var mins = Math.floor((remaining % 3600000) / 60000); %>
-                  <span class="text-danger"><i class="bi bi-clock"></i> 
-                    <% if (hours > 24) { %><%= Math.floor(hours/24) %> days<% } else if (hours > 0) { %><%= hours %>h <%= mins %>m<% } else { %><%= mins %>m<% } %> remaining
-                  </span>
-                </div>
-              <% } %>
-
-              <% if (isActive && typeof user !== 'undefined' && user) { %>
-                <form action="/auctions/<%= auction.id %>/bid" method="POST" class="d-flex gap-2">
-                  <div class="input-group">
-                    <span class="input-group-text">$</span>
-                    <input type="number" name="amount" class="form-control" step="0.01" 
-                      min="<%= ((auction.current_highest_bid || auction.starting_price) + auction.bid_increment).toFixed(2) %>"
-                      value="<%= ((auction.current_highest_bid || auction.starting_price) + auction.bid_increment).toFixed(2) %>" required>
-                  </div>
-                  <button type="submit" class="btn btn-primary"><i class="bi bi-gavel"></i> Bid</button>
-                </form>
-              <% } else if (isActive) { %>
-                <a href="/auth/login" class="btn btn-primary w-100"><i class="bi bi-box-arrow-in-right"></i> Log in to bid</a>
-              <% } else { %>
-                <div class="alert alert-secondary text-center">This auction has ended.</div>
-              <% } %>
-            </div>
-          </div>
-        </div>
-      </div>
+<% if (!auction) { %>
+    <div class="text-center py-20">
+        <h1 class="text-3xl font-bold text-on-surface">Auction Not Found</h1>
+        <a href="/auctions" class="inline-block mt-6 text-primary hover:underline group"><span class="material-symbols-outlined align-middle mr-1 group-hover:-translate-x-1 transition-transform">arrow_back</span>Back to Auctions</a>
     </div>
+<% } else { %>
+    <% var images = []; try { images = JSON.parse(auction.product_images || '[]'); } catch(e) {} %>
+    <% if (images.length === 0) images.push('/images/placeholder-product.jpg'); %>
 
-    <div class="col-lg-4">
-      <div class="card shadow-sm border-0">
-        <div class="card-header bg-white"><h5 class="mb-0">Bid History</h5></div>
-        <div class="card-body">
-          <% if (bids.length > 0) { %>
-            <% bids.forEach(function(bid) { %>
-              <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
-                <div>
-                  <strong><%= bid.bidder_name %></strong>
-                  <% if (bid.is_winning) { %><span class="badge bg-success ms-1">Winning</span><% } %>
-                  <br><small class="text-muted"><%= new Date(bid.created_at).toLocaleString() %></small>
-                </div>
-                <strong class="text-primary">$<%= bid.amount.toFixed(2) %></strong>
-              </div>
-            <% }); %>
-          <% } else { %>
-            <p class="text-muted text-center">No bids yet. Be the first!</p>
-          <% } %>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
+<!-- Left Column: Product Imagery -->
+<div class="lg:col-span-7 space-y-6">
+<div class="relative group overflow-hidden rounded-2xl aspect-[4/5] bg-surface-container-low shadow-sm">
+<!-- Main Image -->
+<img alt="<%= auction.title || auction.product_name %>" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="<%= images[0] %>" onerror="this.src='/images/placeholder-product.jpg'"/>
+<!-- Live Badge -->
+<% if (auction.status === 'active') { %>
+<div class="absolute top-6 left-6 px-4 py-1.5 bg-tertiary text-on-tertiary text-[10px] font-bold tracking-[0.2em] rounded-full flex items-center gap-2 shadow-md">
+<span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
+    LIVE BID
 </div>
+<% } else if (auction.status === 'ended') { %>
+<div class="absolute top-6 left-6 px-4 py-1.5 bg-surface-container-high text-on-surface-variant text-[10px] font-bold tracking-[0.2em] rounded-full flex items-center gap-2 shadow-md">
+    ENDED
+</div>
+<% } %>
+
+</div>
+<!-- Thumbnails -->
+<% if (images.length > 1) { %>
+<div class="grid grid-cols-4 gap-4">
+    <% images.forEach(function(img, index) { %>
+        <div class="aspect-square rounded-xl overflow-hidden <%= index === 0 ? 'ring-2 ring-primary' : '' %> bg-surface-container-lowest cursor-pointer">
+        <img class="w-full h-full object-cover" src="<%= img %>" onerror="this.src='/images/placeholder-product.jpg'"/>
+        </div>
+    <% }); %>
+</div>
+<% } %>
+</div>
+<!-- Right Column: Bidding & Info -->
+<div class="lg:col-span-5 space-y-10">
+<section>
+<span class="inline-block px-3 py-1 bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold tracking-widest rounded-md uppercase mb-4"><%= auction.category_name || 'AUCTION' %></span>
+<h1 class="text-4xl lg:text-5xl font-headline font-black text-on-surface leading-tight mb-4"><%= auction.title || auction.product_name %></h1>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full flex items-center justify-center bg-amber-100 text-amber-700 font-bold ring-2 ring-primary-container/20">
+    <%= (auction.shop_name || 'A')[0].toUpperCase() %>
+</div>
+<span class="text-secondary font-medium italic">by <%= auction.shop_name || 'Artisan' %></span>
+</div>
+</section>
+<!-- Status Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Highest Bid -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-outline-variant/10">
+<p class="text-[10px] font-label uppercase tracking-widest text-secondary mb-2"><%= auction.status === 'ended' ? 'Winning Bid' : 'Highest Bid' %></p>
+<div class="flex items-baseline gap-2 mb-4">
+<span class="text-3xl font-headline font-bold text-primary">$<%= (auction.current_highest_bid || auction.starting_price).toFixed(2) %></span>
+<span class="text-xs text-secondary/60"><%= bids ? bids.length : 0 %> bids</span>
+</div>
+</div>
+<!-- Timer -->
+<div class="bg-tertiary-container/10 p-6 rounded-2xl border border-tertiary-container/20">
+<p class="text-[10px] font-label uppercase tracking-widest text-tertiary mb-2"><%= auction.status === 'ended' ? 'Auction Ended' : 'Time Remaining' %></p>
+<div class="text-2xl font-headline font-bold text-tertiary mb-1">
+    <% 
+        const now = new Date();
+        const end = new Date(auction.end_time);
+        let diff = end - now;
+        if (diff <= 0) {
+            %><%= end.toLocaleDateString() %><%
+        } else {
+            let hours = Math.floor(diff / (1000 * 60 * 60));
+            let days = Math.floor(hours / 24);
+            let hrs = hours % 24;
+            let mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            if (days > 0) {
+                %><%= days %>d <%= hrs %>h <%= mins %>m<%
+            } else {
+                %><%= hrs %>h <%= mins %>m left<%
+            }
+        }
+    %>
+</div>
+<% if (auction.status === 'active' && diff > 0 && diff < 3600000) { %>
+    <div class="flex items-center gap-1.5 text-tertiary font-bold text-[10px] uppercase tracking-tighter mt-2">
+    <span class="material-symbols-outlined text-sm">priority_high</span>
+        Ending Soon!
+    </div>
+<% } %>
+</div>
+</div>
+<!-- Bidding Action -->
+<% if (auction.status === 'active') { %>
+<section class="bg-surface-container-low p-8 rounded-3xl relative overflow-hidden shadow-sm border border-outline-variant/10">
+<div class="absolute left-0 top-0 w-1.5 h-full bg-primary"></div>
+<label class="block text-[11px] font-label font-bold uppercase tracking-wider text-secondary mb-4">Place Your Bid</label>
+
+<% if (locals.error) { %>
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert"><%= error %></div>
+<% } %>
+<% if (locals.success) { %>
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert"><%= success %></div>
+<% } %>
+
+<% if (locals.user && locals.user.role === 'customer') { %>
+    <form action="/auctions/<%= auction.id %>/bid" method="POST">
+    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+        <div class="relative mb-3">
+        <span class="absolute left-5 top-1/2 -translate-y-1/2 font-bold text-primary">$</span>
+        <% const minBid = auction.current_highest_bid ? auction.current_highest_bid + auction.bid_increment : auction.starting_price; %>
+        <input name="amount" class="w-full bg-surface-container-lowest border-none py-5 pl-10 pr-6 rounded-2xl text-lg font-bold focus:ring-2 focus:ring-primary shadow-sm" placeholder="Enter $<%= minBid.toFixed(2) %> or more" type="number" step="1" min="<%= minBid %>" required/>
+        </div>
+        <p class="text-[11px] text-secondary mb-6 pl-2">Minimum bid: <span class="font-bold">$<%= minBid.toFixed(2) %></span></p>
+        <button type="submit" class="w-full bg-primary-container text-on-primary-container font-bold py-5 rounded-2xl hover:bg-primary hover:text-white transition-all transform active:scale-[0.98] shadow-md">
+            Place Bid
+        </button>
+    </form>
+<% } else if (locals.user) { %>
+    <div class="text-red-500 text-sm">Only customers can place bids on auctions.</div>
+<% } else { %>
+    <div class="text-center py-4">
+        <a href="/auth/login" class="bg-primary-container text-on-primary-container font-bold py-3 px-6 rounded-xl hover:bg-primary hover:text-white transition-all">Sign in to bid</a>
+    </div>
+<% } %>
+</section>
+<% } %>
+
+<!-- Detailed Specs -->
+<div class="grid grid-cols-2 gap-y-6 pt-6 border-t border-outline-variant/20">
+<div>
+<p class="text-[10px] font-label uppercase tracking-widest text-secondary/60 mb-1">Starting Bid</p>
+<p class="font-headline font-bold">$<%= auction.starting_price.toFixed(2) %></p>
+</div>
+<div>
+<p class="text-[10px] font-label uppercase tracking-widest text-secondary/60 mb-1">Status</p>
+<p class="font-headline font-bold capitalize"><%= auction.status %></p>
+</div>
+<div>
+<p class="text-[10px] font-label uppercase tracking-widest text-secondary/60 mb-1">Started</p>
+<p class="text-xs font-medium"><%= new Date(auction.start_time).toLocaleString() %></p>
+</div>
+<div>
+<p class="text-[10px] font-label uppercase tracking-widest text-secondary/60 mb-1">Ends</p>
+<p class="text-xs font-medium"><%= new Date(auction.end_time).toLocaleString() %></p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Secondary Content Tabs / Sections -->
+<div class="mt-32 grid grid-cols-1 lg:grid-cols-12 gap-16">
+<!-- Details Column -->
+<div class="lg:col-span-8 space-y-24">
+<!-- About Item -->
+<section>
+<h2 class="text-3xl font-headline font-bold mb-8 flex items-center gap-4">
+    About This Item
+    <span class="flex-grow h-px bg-outline-variant/30"></span>
+</h2>
+<div class="prose prose-slate max-w-none text-secondary leading-relaxed space-y-6">
+<p><%= auction.description || auction.product_description || 'No description provided for this auction item.' %></p>
+</div>
+</section>
+<!-- Bid History -->
+<section>
+<h2 class="text-3xl font-headline font-bold mb-8">Bid History</h2>
+<div class="overflow-hidden rounded-3xl border border-outline-variant/20 shadow-sm">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-high">
+<tr>
+<th class="px-6 py-4 text-[10px] font-label uppercase tracking-[0.2em] text-secondary">Bidder</th>
+<th class="px-6 py-4 text-[10px] font-label uppercase tracking-[0.2em] text-secondary">Amount</th>
+<th class="px-6 py-4 text-[10px] font-label uppercase tracking-[0.2em] text-secondary">Time</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+    <% if (bids && bids.length > 0) { %>
+        <% bids.forEach(function(bid, i) { %>
+            <tr class="<%= i === 0 ? 'bg-white' : 'bg-surface-container-low/30' %>">
+            <td class="px-6 py-4 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-secondary-fixed flex items-center justify-center text-[10px] font-bold">
+                <%= (bid.bidder_name || 'U')[0].toUpperCase() %>
+            </div>
+            <span class="text-sm font-medium"><%= bid.bidder_name %></span>
+            </td>
+            <td class="px-6 py-4 font-headline font-bold <%= i === 0 ? 'text-primary' : 'text-on-surface' %>">$<%= bid.amount.toFixed(2) %></td>
+            <td class="px-6 py-4 text-xs text-secondary/60"><%= new Date(bid.bid_time || bid.created_at).toLocaleString() %></td>
+            </tr>
+        <% }); %>
+    <% } else { %>
+        <tr>
+            <td colspan="3" class="px-6 py-8 text-center text-secondary font-medium">No bids have been placed yet. Be the first!</td>
+        </tr>
+    <% } %>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+
+<!-- Artisan Spotlight Column -->
+<div class="lg:col-span-4">
+<div class="sticky top-28 bg-surface-container-lowest p-8 rounded-3xl border border-outline-variant/10 shadow-sm">
+<h3 class="text-[10px] font-label uppercase tracking-[0.2em] text-secondary mb-8">Artisan Spotlight</h3>
+<div class="flex flex-col items-center text-center">
+<div class="w-32 h-32 rounded-full mb-6 ring-4 ring-primary-container/10 bg-surface-container flex justify-center items-center text-5xl font-bold text-primary">
+    <%= ((auction.shop_name || 'A').charAt(0) || 'A').toUpperCase() %>
+</div>
+<h4 class="text-2xl font-headline font-bold mb-2"><%= auction.shop_name || 'Artisan' %></h4>
+<p class="text-xs font-label uppercase tracking-widest text-primary mb-6">Verified Seller</p>
+<a class="inline-block text-primary font-headline font-bold underline decoration-2 underline-offset-8 hover:text-on-primary-fixed-variant transition-all mt-6" href="/artisan/<%= auction.artisan_id %>">
+    View Shop
+</a>
+</div>
+</div>
+</div>
+</div>
+<% } %>
+</main>
 
 <%- include('../partials/footer') %>

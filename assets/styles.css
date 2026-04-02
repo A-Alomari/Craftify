@@ -3907,6 +3907,66 @@ h3 {
     color: hsla(0, 0%, 100%, .6)
 }
 
+/* Footer arbitrary value classes */
+.bg-\[\#1B2A4A\] {
+    --tw-bg-opacity: 1;
+    background-color: rgb(27 42 74/var(--tw-bg-opacity, 1))
+}
+.dark .dark\:bg-\[\#0D1525\] {
+    --tw-bg-opacity: 1;
+    background-color: rgb(13 21 37/var(--tw-bg-opacity, 1))
+}
+.text-\[\#E2E8F0\] {
+    --tw-text-opacity: 1;
+    color: rgb(226 232 240/var(--tw-text-opacity, 1))
+}
+.border-white\/10 {
+    border-color: hsla(0, 0%, 100%, .1)
+}
+.hover\:text-\[\#F59E0B\]:hover {
+    --tw-text-opacity: 1;
+    color: rgb(245 158 11/var(--tw-text-opacity, 1))
+}
+.hover\:bg-\[\#F59E0B\]:hover {
+    --tw-bg-opacity: 1;
+    background-color: rgb(245 158 11/var(--tw-bg-opacity, 1))
+}
+.bg-white\/10 {
+    background-color: hsla(0, 0%, 100%, .1)
+}
+.bg-white\/80 {
+    background-color: hsla(0, 0%, 100%, .8)
+}
+.dark .dark\:bg-slate-900\/80 {
+    background-color: rgba(15, 23, 42, .8)
+}
+.shadow-\[0px_-10px_40px_rgba\(25\,28\,30\,0\.04\)\] {
+    --tw-shadow: 0px -10px 40px rgba(25, 28, 30, 0.04);
+    --tw-shadow-colored: 0px -10px 40px var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)
+}
+.font-\[\'Inter\'\] {
+    font-family: Inter
+}
+.font-\[\'Noto_Serif\'\] {
+    font-family: Noto Serif
+}
+.text-\[10px\] {
+    font-size: 10px
+}
+.underline-offset-8 {
+    text-underline-offset: 8px
+}
+.hover\:underline:hover {
+    text-decoration-line: underline
+}
+.opacity-80 {
+    opacity: .8
+}
+.opacity-60 {
+    opacity: .6
+}
+
 .placeholder\:text-white\/60::placeholder {
     color: hsla(0, 0%, 100%, .6)
 }

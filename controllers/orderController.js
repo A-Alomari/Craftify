@@ -6,6 +6,60 @@ const Coupon = require('../models/Coupon');
 const Notification = require('../models/Notification');
 const { v4: uuidv4 } = require('uuid');
 
+function validateCheckoutInput(body) {
+  const errors = [];
+  if (!body.shipping_address || !body.shipping_city) {
+    errors.push('Shipping address and city are required');
+  }
+  if (!body.payment_method) {
+    errors.push('Payment method is required');
+  }
+  return errors;
+}
+
+function simulateMockPayment({ payment_method, card_number, card_expiry, card_cvc, total_amount }) {
+  if (payment_method !== 'card') {
+    return { success: true };
+  }
+
+  if (!card_number || !card_expiry || !card_cvc) {
+    return { success: false, error: 'Card details are required for card payments' };
+  }
+
+  const normalizedNumber = String(card_number).replace(/\s+/g, '');
+  if (!/^\d{13,19}$/.test(normalizedNumber)) {
+    return { success: false, error: 'Card number must contain 13 to 19 digits' };
+  }
+  if (!/^\d{2}\/\d{2}$/.test(String(card_expiry))) {
+    return { success: false, error: 'Card expiry must use MM/YY format' };
+  }
+  if (!/^\d{3,4}$/.test(String(card_cvc))) {
+    return { success: false, error: 'Card CVC is invalid' };
+  }
+  if (normalizedNumber.endsWith('0002')) {
+    return { success: false, error: 'Mock payment was declined. Please try a different test card.' };
+  }
+  if (total_amount <= 0) {
+    return { success: false, error: 'Order total is invalid' };
+  }
+
+  return { success: true };
+}
+
+function runTransactionCommand(db, command) {
+  if (typeof db.exec === 'function') {
+    db.exec(command);
+    return;
+  }
+
+  if (typeof db.transaction === 'function') {
+    db.transaction(command);
+    return;
+  }
+
+  throw new Error('Database transaction command is not supported');
+}
+
 // Show checkout page
 exports.checkout = (req, res) => {
   try {
@@ -60,7 +114,7 @@ exports.placeOrder = (req, res) => {
   try {
     const { 
       shipping_address, shipping_city, shipping_postal, shipping_country,
-      payment_method, notes 
+      payment_method, notes, card_number, card_expiry, card_cvc
     } = req.body;
 
     const userId = req.session.user.id;
@@ -87,55 +141,109 @@ exports.placeOrder = (req, res) => {
       if (validation.valid) {
         discount = validation.discount;
         couponCode = appliedCoupon.code;
-        Coupon.use(couponCode);
       }
     }
 
     const shipping = totals.total > 50 ? 0 : 5;
     const totalAmount = totals.total + shipping - discount;
+    const validationErrors = validateCheckoutInput(req.body);
 
-    const order = Order.create({
-      user_id: userId,
-      shipping_address,
-      shipping_city,
-      shipping_postal,
-      shipping_country: shipping_country || 'Bahrain',
-      total_amount: totalAmount,
-      subtotal: totals.total,
-      shipping_cost: shipping,
-      discount_amount: discount,
-      coupon_code: couponCode,
+    if (validationErrors.length > 0) {
+      req.flash('error_msg', validationErrors.join('. '));
+      return res.redirect('/orders/checkout');
+    }
+
+    const paymentResult = simulateMockPayment({
       payment_method,
-      notes
+      card_number,
+      card_expiry,
+      card_cvc,
+      total_amount: totalAmount
     });
 
-    const artisanIds = new Set();
-    items.forEach(item => {
-      Order.addItem(order.id, {
-        product_id: item.product_id,
-        artisan_id: item.artisan_id,
-        quantity: item.quantity,
-        unit_price: item.price
+    if (!paymentResult.success) {
+      req.flash('error_msg', paymentResult.error);
+      return res.redirect('/orders/checkout');
+    }
+
+    // Wrap order creation and stock decrement in a transaction to prevent overselling
+    const { getDb } = require('../config/database');
+    const db = getDb();
+    let inTransaction = false;
+    
+    try {
+      runTransactionCommand(db, 'BEGIN TRANSACTION');
+      inTransaction = true;
+      
+      // Re-validate stock inside transaction
+      const freshStockIssues = Cart.validateItems(userId);
+      if (freshStockIssues.length > 0) {
+        try { runTransactionCommand(db, 'ROLLBACK'); } catch (e) { /* ignore */ }
+        inTransaction = false;
+        req.flash('error_msg', 'Some items are no longer in stock');
+        return res.redirect('/cart');
+      }
+
+      const order = Order.create({
+        user_id: userId,
+        shipping_address,
+        shipping_city,
+        shipping_postal,
+        shipping_country: shipping_country || 'Bahrain',
+        total_amount: totalAmount,
+        subtotal: totals.total,
+        shipping_cost: shipping,
+        discount_amount: discount,
+        coupon_code: couponCode,
+        payment_method,
+        notes
       });
-      Product.decreaseStock(item.product_id, item.quantity);
-      artisanIds.add(item.artisan_id);
-    });
 
-    // Simulate payment
-    const transactionRef = 'TXN' + uuidv4().replace(/-/g, '').substring(0, 16).toUpperCase();
-    Order.updatePaymentStatus(order.id, 'paid', transactionRef);
-    Order.updateStatus(order.id, 'confirmed');
+      const artisanIds = new Set();
+      items.forEach(item => {
+        Order.addItem(order.id, {
+          product_id: item.product_id,
+          artisan_id: item.artisan_id,
+          quantity: item.quantity,
+          unit_price: item.price
+        });
 
-    Shipment.create(order.id);
-    Cart.clear(userId);
-    delete req.session.appliedCoupon;
+        const stockUpdate = Product.decreaseStock(item.product_id, item.quantity);
+        if (!stockUpdate || stockUpdate.changes === 0) {
+          throw new Error(`Insufficient stock for product ${item.product_id}`);
+        }
 
-    Notification.orderPlaced(userId, order.id);
-    artisanIds.forEach(artisanId => {
-      Notification.newOrderForArtisan(artisanId, order.id);
-    });
+        artisanIds.add(item.artisan_id);
+      });
 
-    res.redirect(`/orders/${order.id}/confirmation`);
+      runTransactionCommand(db, 'COMMIT');
+      inTransaction = false;
+
+      if (couponCode) {
+        Coupon.use(couponCode);
+      }
+
+      const transactionRef = 'TXN' + uuidv4().replace(/-/g, '').substring(0, 16).toUpperCase();
+      Order.updatePaymentStatus(order.id, 'paid', transactionRef);
+      Order.updateStatus(order.id, 'confirmed');
+
+      Shipment.create(order.id);
+      Cart.clear(userId);
+      delete req.session.appliedCoupon;
+
+      Notification.orderPlaced(userId, order.id);
+      artisanIds.forEach(artisanId => {
+        Notification.newOrderForArtisan(artisanId, order.id);
+      });
+
+      res.redirect(`/orders/${order.id}/confirmation`);
+    } catch (txErr) {
+      // Only rollback if transaction is still active
+      if (inTransaction) {
+        try { runTransactionCommand(db, 'ROLLBACK'); } catch (rbErr) { /* already rolled back */ }
+      }
+      throw txErr;
+    }
   } catch (err) {
     console.error('Place order error:', err);
     req.flash('error_msg', 'Error processing order');
@@ -156,6 +264,8 @@ exports.confirmation = (req, res) => {
 
     const items = Order.getItems(id);
     const shipment = Shipment.findByOrderId(id);
+    const User = require('../models/User');
+    const user = User.findById(req.session.user.id);
 
     items.forEach(item => {
       const images = JSON.parse(item.images || '[]');
@@ -166,7 +276,8 @@ exports.confirmation = (req, res) => {
       title: 'Order Confirmed - Craftify',
       order,
       items,
-      shipment
+      shipment,
+      user
     });
   } catch (err) {
     console.error('Order confirmation error:', err);

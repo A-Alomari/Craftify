@@ -101,8 +101,14 @@ class Product {
     const fields = [];
     const params = [];
 
+    // Whitelist allowed columns to prevent unintended updates
+    const allowedColumns = [
+      'name', 'description', 'price', 'images', 'stock',
+      'category_id', 'status', 'featured', 'artisan_id'
+    ];
+
     Object.entries(productData).forEach(([key, value]) => {
-      if (value !== undefined && key !== 'id') {
+      if (value !== undefined && key !== 'id' && allowedColumns.includes(key)) {
         fields.push(`${key} = ?`);
         params.push(value);
       }
@@ -129,12 +135,12 @@ class Product {
 
   static updateStock(id, quantity) {
     const db = getDb();
-    db.prepare('UPDATE products SET stock = stock + ? WHERE id = ?').run(quantity, id);
+    return db.prepare('UPDATE products SET stock = stock + ? WHERE id = ?').run(quantity, id);
   }
 
   static decreaseStock(id, quantity) {
     const db = getDb();
-    db.prepare('UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?').run(quantity, id, quantity);
+    return db.prepare('UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?').run(quantity, id, quantity);
   }
 
   static getFeatured(limit = 8) {

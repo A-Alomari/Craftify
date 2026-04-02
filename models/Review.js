@@ -105,7 +105,7 @@ class Review {
 
     const result = db.prepare(`
       INSERT INTO reviews (product_id, user_id, order_id, rating, title, comment, is_approved)
-      VALUES (?, ?, ?, ?, ?, ?, 1)
+      VALUES (?, ?, ?, ?, ?, ?, 0)
     `).run(product_id, user_id, order_id, rating, title, comment);
 
     return this.findById(result.lastInsertRowid);

@@ -1,139 +1,107 @@
-<%- include('../partials/header', { title: title }) %>
+<%- include('../partials/header', { title: 'Browse Products | Craftify' }) %>
 
-<div class="container py-4">
-  <div class="row">
-    <!-- Filters Sidebar -->
-    <div class="col-lg-3 mb-4">
-      <div class="card shadow-sm">
-        <div class="card-header bg-white">
-          <h5 class="mb-0"><i class="bi bi-funnel"></i> Filters</h5>
-        </div>
-        <div class="card-body">
-          <form action="/products" method="GET">
-            <div class="mb-3">
-              <label class="form-label fw-bold">Category</label>
-              <select name="category" class="form-select">
-                <option value="">All Categories</option>
-                <% if (typeof categories !== 'undefined') { categories.forEach(function(cat) { %>
-                  <option value="<%= cat.id %>" <%= filters && filters.category == cat.id ? 'selected' : '' %>><%= cat.name %></option>
-                <% }); } %>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label fw-bold">Price Range</label>
-              <div class="row g-2">
-                <div class="col-6">
-                  <input type="number" name="min_price" class="form-control" placeholder="Min" value="<%= filters && filters.min_price ? filters.min_price : '' %>">
-                </div>
-                <div class="col-6">
-                  <input type="number" name="max_price" class="form-control" placeholder="Max" value="<%= filters && filters.max_price ? filters.max_price : '' %>">
-                </div>
-              </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label fw-bold">Sort By</label>
-              <select name="sort" class="form-select">
-                <option value="newest" <%= filters && filters.sort === 'newest' ? 'selected' : '' %>>Newest</option>
-                <option value="price_low" <%= filters && filters.sort === 'price_low' ? 'selected' : '' %>>Price: Low to High</option>
-                <option value="price_high" <%= filters && filters.sort === 'price_high' ? 'selected' : '' %>>Price: High to Low</option>
-                <option value="popular" <%= filters && filters.sort === 'popular' ? 'selected' : '' %>>Most Popular</option>
-                <option value="rating" <%= filters && filters.sort === 'rating' ? 'selected' : '' %>>Highest Rated</option>
-              </select>
-            </div>
-            <% if (filters && filters.search) { %>
-              <input type="hidden" name="search" value="<%= filters.search %>">
-            <% } %>
-            <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
-            <a href="/products" class="btn btn-outline-secondary w-100 mt-2">Clear Filters</a>
-          </form>
-        </div>
-      </div>
+<main class="pt-8 pb-20 max-w-screen-2xl mx-auto px-6 flex flex-col lg:flex-row gap-10">
+<!-- SideNavBar / Filters -->
+<aside class="hidden lg:block w-72 flex-shrink-0">
+<div class="sticky top-24 space-y-10">
+<div>
+<h3 class="font-['Inter'] text-sm uppercase tracking-widest font-medium text-slate-500 mb-6">Filter by Craft</h3>
+<form action="/products" method="GET" class="space-y-3">
+    <!-- Basic category links since we only know category names -->
+    <div class="space-y-2">
+        <a href="/products" class="block text-secondary hover:text-on-surface transition-colors">All Categories</a>
+        <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
+            <% categories.forEach(function(cat) { %>
+                <a href="/products?category=<%= cat.id %>" class="block text-secondary hover:text-on-surface transition-colors"><%= cat.name %></a>
+            <% }); %>
+        <% } %>
     </div>
-    
-    <!-- Products Grid -->
-    <div class="col-lg-9">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="mb-0">
-          <% if (filters && filters.search) { %>
-            Search results for "<%= filters.search %>"
-          <% } else if (typeof selectedCategory !== 'undefined' && selectedCategory) { %>
-            <%= selectedCategory.name %>
-          <% } else { %>
-            All Products
-          <% } %>
-        </h4>
-        <span class="text-muted"><%= products.length %> products</span>
-      </div>
-      
-      <div class="row g-4">
-        <% if (products.length > 0) { %>
-          <% products.forEach(function(product) { %>
-            <% var images = JSON.parse(product.images || '[]'); var img = images[0] || '/images/placeholder-product.jpg'; %>
-            <div class="col-6 col-md-4">
-              <div class="card product-card h-100 border-0 shadow-sm">
-                <a href="/products/<%= product.id %>">
-                  <img src="<%= img %>" class="card-img-top product-image" alt="<%= product.name %>" style="height: 200px; object-fit: cover;">
-                </a>
-                <% if (product.featured) { %>
-                  <span class="badge bg-warning position-absolute top-0 start-0 m-2">Featured</span>
-                <% } %>
-                <div class="card-body d-flex flex-column">
-                  <h6 class="card-title mb-1">
-                    <a href="/products/<%= product.id %>" class="text-decoration-none text-dark"><%= product.name %></a>
-                  </h6>
-                  <small class="text-muted mb-2">
-                    <a href="/products/artisan/<%= product.artisan_id %>" class="text-decoration-none"><%= product.shop_name || '' %></a>
-                  </small>
-                  <% if (product.avg_rating) { %>
-                    <div class="mb-2">
-                      <% for (var s = 0; s < Math.round(product.avg_rating); s++) { %>
-                        <i class="bi bi-star-fill text-warning small"></i>
-                      <% } %>
-                      <small class="text-muted">(<%= product.review_count || 0 %>)</small>
+</form>
+</div>
+</div>
+</aside>
+<!-- Product Grid Content -->
+<section class="flex-1">
+<header class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+<div>
+<h1 class="text-5xl font-bold mb-2 tracking-tight">All Products</h1>
+<p class="text-secondary font-body">Curated collection: <span class="font-bold text-on-surface"><%= products ? products.length : 0 %> pieces</span> currently in the atelier.</p>
+</div>
+<div class="flex items-center gap-4">
+<form action="/products" method="GET">
+    <select name="sort" onchange="this.form.submit()" class="bg-surface-container-low border-none rounded-lg text-sm px-4 py-2 focus:ring-primary cursor-pointer text-secondary font-medium">
+        <option value="">Sort By</option>
+        <option value="newest">Newest Arrivals</option>
+        <option value="price_asc">Price: Low to High</option>
+        <option value="price_desc">Price: High to Low</option>
+    </select>
+</form>
+</div>
+</header>
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-x-6 gap-y-12">
+    <% if (products && products.length > 0) { %>
+        <% products.forEach(function(product) { %>
+            <% var images = []; try { images = JSON.parse(product.images || '[]'); } catch(e) {} %>
+            <article class="group relative bg-surface-container-lowest p-4 rounded-xl shadow-sm transition-all hover:shadow-xl hover:-translate-y-1 flex flex-col">
+                <div class="aspect-[4/5] w-full overflow-hidden rounded-lg mb-4 relative">
+                    <a href="/products/<%= product.id %>">
+                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="<%= images[0] || '/images/placeholder-product.jpg' %>" alt="<%= product.name %>" loading="lazy" onerror="this.src='/images/placeholder-product.jpg'"/>
+                    </a>
+                    <button class="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-md rounded-full text-secondary hover:text-tertiary transition-colors shadow-sm">
+                        <span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+                    </button>
+                    <!-- Stock status -->
+                    <% if (product.stock <= 0) { %>
+                        <div class="absolute bottom-3 left-3 bg-red-100/90 backdrop-blur-md px-3 py-1 rounded-full shadow-sm">
+                            <span class="text-[10px] font-bold tracking-widest text-red-600 uppercase">Out of Stock</span>
+                        </div>
+                    <% } %>
+                </div>
+                <div class="space-y-1 flex-1 flex flex-col">
+                    <h3 class="text-lg font-bold text-on-surface group-hover:text-primary transition-colors whitespace-nowrap overflow-hidden text-ellipsis"><%= product.name %></h3>
+                    <p class="text-sm text-secondary font-medium mb-3">by <a href="/products/artisan/<%= product.artisan_id %>" class="underline decoration-outline-variant/50 underline-offset-4"><%= product.shop_name || 'Artisan' %></a></p>
+                    
+                    <div class="flex items-center justify-between mt-auto pt-4">
+                        <div class="flex items-center gap-1">
+                            <span class="material-symbols-outlined text-primary text-sm">star</span>
+                            <span class="text-xs font-bold text-on-surface"><%= product.avg_rating ? product.avg_rating.toFixed(1) : 'New' %></span>
+                            <% if (product.review_count > 0) { %>
+                            <span class="text-xs text-secondary">(<%= product.review_count %>)</span>
+                            <% } %>
+                        </div>
+                        <span class="text-xl font-headline font-bold text-on-surface">$<%= product.price.toFixed(2) %></span>
                     </div>
-                  <% } %>
-                  <div class="mt-auto d-flex justify-content-between align-items-center">
-                    <span class="fw-bold text-primary">$<%= product.price.toFixed(2) %></span>
-                    <% if (product.stock > 0) { %>
-                      <form action="/cart/add" method="POST" style="display:inline;">
+                    
+                    <form action="/cart/add" method="POST" class="mt-4">
+                    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                         <input type="hidden" name="productId" value="<%= product.id %>">
                         <input type="hidden" name="quantity" value="1">
-                        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-cart-plus"></i></button>
-                      </form>
-                    <% } else { %>
-                      <span class="badge bg-secondary">Out of Stock</span>
-                    <% } %>
-                  </div>
+                        <button type="submit" class="w-full flex items-center justify-center gap-2 bg-primary-container text-on-primary-container py-3 rounded-lg font-bold text-sm transition-all active:scale-95">
+                            <span class="material-symbols-outlined text-sm" data-icon="add_shopping_cart">add_shopping_cart</span>
+                            Add to Cart
+                        </button>
+                    </form>
                 </div>
-              </div>
-            </div>
-          <% }); %>
-        <% } else { %>
-          <div class="col-12">
-            <p class="text-muted text-center py-5">No products found.</p>
-          </div>
-        <% } %>
-      </div>
-      
-      <% if (typeof pagination !== 'undefined' && pagination && pagination.total > 1) { %>
-        <nav class="mt-4">
-          <ul class="pagination justify-content-center">
-            <% if (pagination.hasPrev) { %>
-              <li class="page-item"><a class="page-link" href="?page=<%= pagination.current - 1 %>">Previous</a></li>
+            </article>
+        <% }); %>
+    <% } else { %>
+        <div class="col-span-full text-center py-16">
+            <span class="material-symbols-outlined text-6xl text-slate-300 mb-4">search_off</span>
+            <h3 class="text-xl font-bold text-on-surface mb-2">No products found</h3>
+            <% if (typeof filters !== 'undefined' && filters.search) { %>
+                <p class="text-secondary mb-6">No products found for '<%= filters.search %>'.</p>
+            <% } else { %>
+                <p class="text-secondary mb-6">No products available at the moment.</p>
             <% } %>
-            <% for (var p = 1; p <= pagination.total; p++) { %>
-              <li class="page-item <%= p === pagination.current ? 'active' : '' %>">
-                <a class="page-link" href="?page=<%= p %>"><%= p %></a>
-              </li>
-            <% } %>
-            <% if (pagination.hasNext) { %>
-              <li class="page-item"><a class="page-link" href="?page=<%= pagination.current + 1 %>">Next</a></li>
-            <% } %>
-          </ul>
-        </nav>
-      <% } %>
-    </div>
-  </div>
+            <a href="/products" class="inline-flex items-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-lg font-bold text-sm transition-all">
+                <span class="material-symbols-outlined text-sm">storefront</span>
+                Browse all products
+            </a>
+        </div>
+    <% } %>
 </div>
+
+</section>
+</main>
 
 <%- include('../partials/footer') %>

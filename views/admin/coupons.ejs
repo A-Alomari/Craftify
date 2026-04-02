@@ -3,6 +3,7 @@
 <div class="col-lg-10">
   <div class="d-flex justify-content-between align-items-center mb-4"><h3><i class="bi bi-tag"></i> Coupons</h3>
   <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCouponModal"><i class="bi bi-plus"></i> Add Coupon</button></div>
+  <% if (coupons && coupons.length > 0) { %>
   <div class="table-responsive"><table class="table table-hover"><thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Used</th><th>Status</th><th></th></tr></thead>
   <tbody><% coupons.forEach(function(c) { %><tr>
     <td><code><%= c.code %></code></td>
@@ -11,12 +12,18 @@
     <td><%= c.times_used || c.used_count || 0 %></td>
     <td><span class="badge bg-<%= c.is_active ? 'success' : 'secondary' %>"><%= c.is_active ? 'Active' : 'Inactive' %></span></td>
     <td>
-      <form action="/admin/coupons/<%= c.id %>/toggle" method="POST" class="d-inline"><button class="btn btn-sm btn-outline-secondary"><%= c.is_active ? 'Deactivate' : 'Activate' %></button></form>
-      <form action="/admin/coupons/<%= c.id %>/delete" method="POST" class="d-inline"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form>
+      <form action="/admin/coupons/<%= c.id %>/toggle" method="POST" class="d-inline"><input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"><button class="btn btn-sm btn-outline-secondary"><%= c.is_active ? 'Deactivate' : 'Activate' %></button></form>
+      <form action="/admin/coupons/<%= c.id %>/delete" method="POST" class="d-inline"><input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form>
     </td>
   </tr><% }); %></tbody></table></div>
+  <% } else { %>
+    <div class="text-center py-5">
+      <i class="bi bi-tag display-4 text-muted"></i>
+      <p class="text-muted mt-3">No coupons found. Create your first coupon!</p>
+    </div>
+  <% } %>
 </div></div></div>
-<div class="modal fade" id="addCouponModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form action="/admin/coupons" method="POST">
+<div class="modal fade" id="addCouponModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form action="/admin/coupons" method="POST"><input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
 <div class="modal-header"><h5 class="modal-title">Create Coupon</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
 <div class="modal-body">
   <div class="mb-3"><label class="form-label">Code</label><input type="text" name="code" class="form-control" required></div>

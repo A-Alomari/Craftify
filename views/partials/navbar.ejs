@@ -58,14 +58,14 @@
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown">
               <% if (user.avatar) { %>
-                <img src="<%= user.avatar %>" alt="Avatar" class="rounded-circle me-1" width="28" height="28">
+                <img src="<%= user.avatar %>" alt="Avatar" class="rounded-circle me-1" width="28" height="28" onerror="this.src='/images/placeholder-avatar.jpg'">
               <% } else { %>
                 <i class="bi bi-person-circle me-1 fs-5"></i>
               <% } %>
-              <span class="d-none d-lg-inline"><%= user.full_name.split(' ')[0] %></span>
+              <span class="d-none d-lg-inline"><%= user.name.split(' ')[0] %></span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
-              <li><h6 class="dropdown-header"><%= user.full_name %></h6></li>
+              <li><h6 class="dropdown-header"><%= user.name %></h6></li>
               <li><hr class="dropdown-divider"></li>
               
               <% if (user.role === 'admin') { %>
@@ -83,6 +83,7 @@
               <li><hr class="dropdown-divider"></li>
               <li>
                 <form action="/auth/logout" method="POST" class="d-inline">
+                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                   <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right me-2"></i>Logout</button>
                 </form>
               </li>

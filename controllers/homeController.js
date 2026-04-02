@@ -2,6 +2,7 @@ const Product = require('../models/Product');
 const Category = require('../models/Category');
 const ArtisanProfile = require('../models/ArtisanProfile');
 const Auction = require('../models/Auction');
+const { getSafeRedirect } = require('../utils/redirect');
 
 // Home page
 exports.index = (req, res) => {
@@ -79,13 +80,19 @@ exports.subscribe = (req, res) => {
   const { email } = req.body;
   
   try {
+    // Validate email format
+    if (!email || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      req.flash('error_msg', 'Please enter a valid email address');
+      return res.redirect(getSafeRedirect(req, '/'));
+    }
+    
     const { getDb } = require('../config/database');
     const db = getDb();
-    db.prepare('INSERT OR IGNORE INTO newsletter_subscriptions (email) VALUES (?)').run(email);
+    db.prepare('INSERT OR IGNORE INTO newsletter_subscriptions (email) VALUES (?)').run(email.trim().toLowerCase());
     req.flash('success_msg', 'Thank you for subscribing to our newsletter!');
   } catch (err) {
     req.flash('error_msg', 'Could not subscribe. Please try again.');
   }
 
-  res.redirect('back');
+  res.redirect(getSafeRedirect(req, '/'));
 };

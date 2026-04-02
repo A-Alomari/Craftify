@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
   <title><%= typeof title !== 'undefined' ? title : 'Craftify' %></title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
@@ -12,28 +13,23 @@
   <%- include('../partials/navbar') %>
   
   <main class="main-content">
-    <% if (typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
+    <% 
+      // Standardized flash messages: supports both messages.error/messages.success and legacy error_msg/success_msg/error
+      const flashError = (typeof messages !== 'undefined' && messages.error) || (typeof error_msg !== 'undefined' && error_msg) || (typeof error !== 'undefined' && error) || '';
+      const flashSuccess = (typeof messages !== 'undefined' && messages.success) || (typeof success_msg !== 'undefined' && success_msg) || '';
+    %>
+    <% if (flashSuccess && flashSuccess.length > 0) { %>
       <div class="container mt-3">
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-          <%= success_msg %>
+          <%= flashSuccess %>
           <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
       </div>
     <% } %>
-    
-    <% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
+    <% if (flashError && flashError.length > 0) { %>
       <div class="container mt-3">
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-          <%= error_msg %>
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-      </div>
-    <% } %>
-    
-    <% if (typeof error !== 'undefined' && error.length > 0) { %>
-      <div class="container mt-3">
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-          <%= error %>
+          <%= flashError %>
           <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
       </div>

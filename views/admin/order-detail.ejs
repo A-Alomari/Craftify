@@ -17,7 +17,8 @@
         <div class="d-flex justify-content-between fw-bold"><span>Total</span><span>$<%= order.total_amount.toFixed(2) %></span></div>
       </div></div>
       <form action="/admin/orders/<%= order.id %>/status" method="POST" class="d-flex gap-2">
-        <select name="status" class="form-select" style="width: auto;">
+      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+        <select name="status" class="form-select">
           <option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="processing">Processing</option>
           <option value="shipped">Shipped</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option>
         </select>

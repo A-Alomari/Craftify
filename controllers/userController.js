@@ -5,6 +5,8 @@ const Notification = require('../models/Notification');
 const Message = require('../models/Message');
 const Order = require('../models/Order');
 const ArtisanProfile = require('../models/ArtisanProfile');
+const { validateReviewInput, sanitizeString } = require('../utils/sanitizer');
+const { getSafeRedirect } = require('../utils/redirect');
 
 // Profile
 exports.profile = (req, res) => {
@@ -98,11 +100,11 @@ exports.addToWishlist = (req, res) => {
     if (req.xhr) return res.json({ success: true, added });
 
     req.flash('success_msg', 'Added to wishlist');
-    res.redirect('back');
+    res.redirect(getSafeRedirect(req, '/products'));
   } catch (err) {
     console.error('Add to wishlist error:', err);
-    if (req.xhr) return res.json({ success: false, message: 'Error adding to wishlist' });
-    res.redirect('back');
+    if (req.xhr) return res.status(500).json({ success: false, message: 'Error adding to wishlist' });
+    res.redirect(getSafeRedirect(req, '/products'));
   }
 };
 
@@ -117,7 +119,7 @@ exports.removeFromWishlist = (req, res) => {
     res.redirect('/user/wishlist');
   } catch (err) {
     console.error('Remove from wishlist error:', err);
-    if (req.xhr) return res.json({ success: false });
+    if (req.xhr) return res.status(500).json({ success: false });
     res.redirect('/user/wishlist');
   }
 };
@@ -128,11 +130,11 @@ exports.toggleWishlist = (req, res) => {
     const inWishlist = Wishlist.toggle(req.session.user.id, productId);
 
     if (req.xhr) return res.json({ success: true, inWishlist });
-    res.redirect('back');
+    res.redirect(getSafeRedirect(req, '/products'));
   } catch (err) {
     console.error('Toggle wishlist error:', err);
-    if (req.xhr) return res.json({ success: false });
-    res.redirect('back');
+    if (req.xhr) return res.status(500).json({ success: false });
+    res.redirect(getSafeRedirect(req, '/products'));
   }
 };
 
@@ -147,7 +149,7 @@ exports.moveToCart = (req, res) => {
     res.redirect('/user/wishlist');
   } catch (err) {
     console.error('Move to cart error:', err);
-    if (req.xhr) return res.json({ success: false });
+    if (req.xhr) return res.status(500).json({ success: false });
     res.redirect('/user/wishlist');
   }
 };
@@ -178,9 +180,17 @@ exports.createReview = (req, res) => {
 
     const canReviewResult = Review.canReview(req.session.user.id, product_id);
     if (!canReviewResult.canReview) {
-      if (req.xhr) return res.json({ success: false, message: 'You cannot review this product' });
+      if (req.xhr) return res.status(403).json({ success: false, message: 'You cannot review this product' });
       req.flash('error_msg', 'You cannot review this product');
-      return res.redirect('back');
+      return res.redirect(getSafeRedirect(req, '/products'));
+    }
+
+    // Sanitize and validate review input
+    const { errors, sanitized } = validateReviewInput(req.body);
+    if (errors.length > 0) {
+      if (req.xhr) return res.status(400).json({ success: false, message: errors.join('. ') });
+      req.flash('error_msg', errors.join('. '));
+      return res.redirect(getSafeRedirect(req, '/products'));
     }
 
     const review = Review.create({
@@ -188,8 +198,8 @@ exports.createReview = (req, res) => {
       user_id: req.session.user.id,
       order_id: order_id || null,
       rating: parseInt(rating),
-      title,
-      comment
+      title: sanitized.title,
+      comment: sanitized.comment
     });
 
     const Product = require('../models/Product');
@@ -204,9 +214,9 @@ exports.createReview = (req, res) => {
     res.redirect(`/products/${product_id}`);
   } catch (err) {
     console.error('Create review error:', err);
-    if (req.xhr) return res.json({ success: false, message: err.message });
+    if (req.xhr) return res.status(500).json({ success: false, message: err.message });
     req.flash('error_msg', err.message || 'Error submitting review');
-    res.redirect('back');
+    res.redirect(getSafeRedirect(req, '/products'));
   }
 };
 
@@ -216,7 +226,7 @@ exports.deleteReview = (req, res) => {
     const review = Review.findById(id);
 
     if (!review || review.user_id !== req.session.user.id) {
-      if (req.xhr) return res.json({ success: false, message: 'Review not found' });
+      if (req.xhr) return res.status(404).json({ success: false, message: 'Review not found' });
       req.flash('error_msg', 'Review not found');
       return res.redirect('/user/reviews');
     }
@@ -229,7 +239,7 @@ exports.deleteReview = (req, res) => {
     res.redirect('/user/reviews');
   } catch (err) {
     console.error('Delete review error:', err);
-    if (req.xhr) return res.json({ success: false });
+    if (req.xhr) return res.status(500).json({ success: false });
     res.redirect('/user/reviews');
   }
 };
@@ -257,7 +267,7 @@ exports.markNotificationRead = (req, res) => {
     res.redirect('/user/notifications');
   } catch (err) {
     console.error('Mark notification read error:', err);
-    if (req.xhr) return res.json({ success: false });
+    if (req.xhr) return res.status(500).json({ success: false });
     res.redirect('/user/notifications');
   }
 };
@@ -270,7 +280,7 @@ exports.markAllNotificationsRead = (req, res) => {
     res.redirect('/user/notifications');
   } catch (err) {
     console.error('Mark all notifications read error:', err);
-    if (req.xhr) return res.json({ success: false });
+    if (req.xhr) return res.status(500).json({ success: false });
     res.redirect('/user/notifications');
   }
 };
@@ -283,7 +293,7 @@ exports.deleteNotification = (req, res) => {
     res.redirect('/user/notifications');
   } catch (err) {
     console.error('Delete notification error:', err);
-    if (req.xhr) return res.json({ success: false });
+    if (req.xhr) return res.status(500).json({ success: false });
     res.redirect('/user/notifications');
   }
 };
@@ -333,10 +343,24 @@ exports.conversation = (req, res) => {
 exports.sendMessage = (req, res) => {
   try {
     const { receiver_id, content } = req.body;
+    const parsedReceiverId = parseInt(receiver_id);
+    
+    if (isNaN(parsedReceiverId) || parsedReceiverId <= 0) {
+      if (req.xhr) return res.status(400).json({ success: false, message: 'Invalid recipient' });
+      req.flash('error_msg', 'Invalid recipient');
+      return res.redirect('/user/messages');
+    }
+    
+    // Prevent sending messages to self
+    if (parsedReceiverId === req.session.user.id) {
+      if (req.xhr) return res.status(400).json({ success: false, message: 'Cannot send message to yourself' });
+      req.flash('error_msg', 'Cannot send message to yourself');
+      return res.redirect('/user/messages');
+    }
 
     const message = Message.create({
       sender_id: req.session.user.id,
-      receiver_id: parseInt(receiver_id),
+      receiver_id: parsedReceiverId,
       content
     });
 
@@ -347,7 +371,7 @@ exports.sendMessage = (req, res) => {
     res.redirect(`/user/messages/${receiver_id}`);
   } catch (err) {
     console.error('Send message error:', err);
-    if (req.xhr) return res.json({ success: false, message: 'Error sending message' });
+    if (req.xhr) return res.status(500).json({ success: false, message: 'Error sending message' });
     res.redirect('/user/messages');
   }
 };

@@ -1,47 +1,51 @@
 <%- include('../partials/header', { title: title }) %>
-<div class="container py-4" style="max-width: 700px;">
-  <h3 class="mb-4"><i class="bi bi-truck"></i> Track Order #<%= order.id %></h3>
-  
-  <% if (shipment) { %>
-    <div class="card shadow-sm border-0 mb-4">
-      <div class="card-body">
-        <div class="d-flex justify-content-between mb-3">
-          <div><strong>Tracking Number:</strong> <%= shipment.tracking_number %></div>
-          <div><strong>Carrier:</strong> <%= shipment.carrier %></div>
-        </div>
-        <% if (shipment.estimated_delivery) { %>
-          <p class="text-muted">Estimated delivery: <%= new Date(shipment.estimated_delivery).toLocaleDateString() %></p>
-        <% } %>
-        
-        <div class="progress mb-4" style="height: 8px;">
-          <% var statusPercent = {'pending': 10, 'processing': 30, 'shipped': 50, 'in_transit': 70, 'delivered': 100}; %>
-          <div class="progress-bar" style="width: <%= statusPercent[shipment.status] || 10 %>%"></div>
-        </div>
-        
-        <h6>Tracking History</h6>
-        <% if (shipmentHistory.length > 0) { %>
-          <% shipmentHistory.reverse().forEach(function(h) { %>
-            <div class="d-flex mb-2">
-              <div class="me-3 text-primary"><i class="bi bi-circle-fill small"></i></div>
-              <div>
-                <strong><%= h.status.replace(/_/g, ' ') %></strong>
-                <% if (h.location) { %> - <span class="text-muted"><%= h.location %></span><% } %>
-                <br><small class="text-muted"><%= new Date(h.timestamp).toLocaleString() %></small>
-              </div>
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <h3 class="mb-4"><i class="bi bi-truck"></i> Track Order #<%= order.id %></h3>
+      
+      <% if (shipment) { %>
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-body">
+            <div class="d-flex justify-content-between mb-3">
+              <div><strong>Tracking Number:</strong> <%= shipment.tracking_number %></div>
+              <div><strong>Carrier:</strong> <%= shipment.carrier %></div>
             </div>
-          <% }); %>
-        <% } else { %>
-          <p class="text-muted">No tracking updates yet.</p>
-        <% } %>
-      </div>
+            <% if (shipment.estimated_delivery) { %>
+              <p class="text-muted">Estimated delivery: <%= new Date(shipment.estimated_delivery).toLocaleDateString() %></p>
+            <% } %>
+            
+            <div class="progress mb-4" style="height: 8px;">
+              <% var statusPercent = {'pending': 10, 'processing': 30, 'shipped': 50, 'in_transit': 70, 'delivered': 100}; %>
+              <div class="progress-bar" style="width: <%= statusPercent[shipment.status] || 10 %>%"></div>
+            </div>
+            
+            <h6>Tracking History</h6>
+            <% if (shipmentHistory.length > 0) { %>
+              <% shipmentHistory.reverse().forEach(function(h) { %>
+                <div class="d-flex mb-2">
+                  <div class="me-3 text-primary"><i class="bi bi-circle-fill small"></i></div>
+                  <div>
+                    <strong><%= h.status.replace(/_/g, ' ') %></strong>
+                    <% if (h.location) { %> - <span class="text-muted"><%= h.location %></span><% } %>
+                    <br><small class="text-muted"><%= new Date(h.timestamp).toLocaleString() %></small>
+                  </div>
+                </div>
+              <% }); %>
+            <% } else { %>
+              <p class="text-muted">No tracking updates yet.</p>
+            <% } %>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="text-center py-5">
+          <i class="bi bi-box-seam display-4 text-muted"></i>
+          <p class="text-muted">Tracking information not available yet.</p>
+        </div>
+      <% } %>
+      
+      <a href="/orders/<%= order.id %>" class="btn btn-outline-secondary">Back to Order</a>
     </div>
-  <% } else { %>
-    <div class="text-center py-5">
-      <i class="bi bi-box-seam display-4 text-muted"></i>
-      <p class="text-muted">Tracking information not available yet.</p>
-    </div>
-  <% } %>
-  
-  <a href="/orders/<%= order.id %>" class="btn btn-outline-secondary">Back to Order</a>
+  </div>
 </div>
 <%- include('../partials/footer') %>

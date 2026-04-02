@@ -2,20 +2,9 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
 const { isAuthenticated } = require('../middleware/auth');
-const multer = require('multer');
-const path = require('path');
+const { createImageUpload } = require('../utils/upload');
 
-// Configure multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '..', 'public', 'uploads'));
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
-});
-const upload = multer({ storage });
+const upload = createImageUpload({ maxFileSize: 5 * 1024 * 1024 });
 
 // Profile
 router.get('/profile', isAuthenticated, userController.profile);

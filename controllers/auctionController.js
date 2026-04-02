@@ -120,7 +120,7 @@ exports.placeBid = (req, res) => {
   } catch (err) {
     console.error('Place bid error:', err);
     if (req.xhr) {
-      return res.json({ success: false, message: err.message });
+      return res.status(400).json({ success: false, message: err.message });
     }
     req.flash('error_msg', err.message);
     res.redirect(`/auctions/${req.params.id}`);

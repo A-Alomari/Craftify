@@ -50,8 +50,8 @@ class User {
       throw new Error('Email already registered');
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Hash password (cost factor 12 per OWASP recommendation)
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     const result = db.prepare(`
       INSERT INTO users (email, password, name, role, shipping_address, phone)
@@ -76,8 +76,13 @@ class User {
     const fields = [];
     const params = [];
 
+    const allowedColumns = [
+      'name', 'email', 'role', 'status', 'phone', 'avatar',
+      'shipping_address', 'city', 'postal_code', 'country', 'dob'
+    ];
+
     Object.entries(userData).forEach(([key, value]) => {
-      if (value !== undefined && key !== 'id' && key !== 'password') {
+      if (value !== undefined && key !== 'id' && key !== 'password' && allowedColumns.includes(key)) {
         fields.push(`${key} = ?`);
         params.push(value);
       }
@@ -94,7 +99,7 @@ class User {
 
   static async updatePassword(id, newPassword) {
     const db = getDb();
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
     db.prepare('UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
       .run(hashedPassword, id);
     return true;

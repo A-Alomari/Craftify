@@ -73,8 +73,19 @@ class ArtisanProfile {
     const fields = [];
     const params = [];
 
+    const allowedColumns = [
+      'shop_name', 'bio', 'logo', 'banner', 'profile_image', 'banner_image',
+      'location', 'phone', 'instagram', 'facebook', 'twitter', 'website',
+      'bank_name', 'bank_account', 'shipping_methods', 'return_policy', 'is_approved'
+    ];
+
     Object.entries(profileData).forEach(([key, value]) => {
-      if (value !== undefined && key !== 'user_id' && key !== 'id') {
+      if (
+        value !== undefined &&
+        key !== 'user_id' &&
+        key !== 'id' &&
+        allowedColumns.includes(key)
+      ) {
         fields.push(`${key} = ?`);
         params.push(value);
       }

@@ -1,86 +1,126 @@
-<%- include('../partials/header', { title: title }) %>
+<%- include('../partials/header', { title: 'Checkout | Craftify' }) %>
 
-<div class="container py-4">
-  <h3 class="mb-4"><i class="bi bi-bag-check"></i> Checkout</h3>
-
-  <div class="row">
-    <div class="col-lg-8">
-      <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body">
-          <h5>Shipping Information</h5>
-          <form action="/orders/checkout" method="POST">
-            <div class="mb-3">
-              <label class="form-label">Shipping Address *</label>
-              <input type="text" name="shipping_address" class="form-control" value="<%= user.shipping_address || '' %>" required>
-            </div>
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">City *</label>
-                <input type="text" name="shipping_city" class="form-control" value="Manama" required>
-              </div>
-              <div class="col-md-3 mb-3">
-                <label class="form-label">Postal Code</label>
-                <input type="text" name="shipping_postal" class="form-control">
-              </div>
-              <div class="col-md-3 mb-3">
-                <label class="form-label">Country</label>
-                <input type="text" name="shipping_country" class="form-control" value="Bahrain">
-              </div>
-            </div>
-            
-            <h5 class="mt-4">Payment Method</h5>
-            <div class="mb-3">
-              <div class="form-check mb-2">
-                <input class="form-check-input" type="radio" name="payment_method" id="card" value="card" checked>
-                <label class="form-check-label" for="card"><i class="bi bi-credit-card"></i> Credit/Debit Card (Simulated)</label>
-              </div>
-              <div class="form-check mb-2">
-                <input class="form-check-input" type="radio" name="payment_method" id="cod" value="cod">
-                <label class="form-check-label" for="cod"><i class="bi bi-cash"></i> Cash on Delivery</label>
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Order Notes</label>
-              <textarea name="notes" class="form-control" rows="2" placeholder="Special delivery instructions..."></textarea>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-lg w-100"><i class="bi bi-lock"></i> Place Order - $<%= total.toFixed(2) %></button>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-lg-4">
-      <div class="card shadow-sm border-0">
-        <div class="card-body">
-          <h5>Order Summary</h5>
-          <% items.forEach(function(item) { %>
-            <div class="d-flex justify-content-between mb-2">
-              <span><%= item.name %> &times; <%= item.quantity %></span>
-              <span>$<%= (item.price * item.quantity).toFixed(2) %></span>
-            </div>
-          <% }); %>
-          <hr>
-          <div class="d-flex justify-content-between mb-1">
-            <span>Subtotal</span><span>$<%= subtotal.toFixed(2) %></span>
-          </div>
-          <div class="d-flex justify-content-between mb-1">
-            <span>Shipping</span><span><%= shipping === 0 ? 'FREE' : '$' + shipping.toFixed(2) %></span>
-          </div>
-          <% if (discount > 0) { %>
-            <div class="d-flex justify-content-between mb-1 text-success">
-              <span>Discount</span><span>-$<%= discount.toFixed(2) %></span>
-            </div>
-          <% } %>
-          <hr>
-          <div class="d-flex justify-content-between fw-bold fs-5">
-            <span>Total</span><span class="text-primary">$<%= total.toFixed(2) %></span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+<main class="pt-16 pb-24 px-6 max-w-7xl mx-auto">
+<header class="mb-12 mt-12">
+<h1 class="text-4xl font-headline font-bold text-on-surface">Secure Checkout</h1>
+<p class="text-on-secondary-container font-label mt-2">Finish your order to support independent artisans.</p>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+<!-- Left Column: Forms -->
+<div class="lg:col-span-8 space-y-8">
+<!-- Shipping Address Card -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-sm">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-amber-600" data-icon="local_shipping">local_shipping</span>
+<h2 class="text-xl font-headline font-bold">Shipping Address</h2>
 </div>
+<form action="/orders/checkout" method="POST" id="checkout-form" class="space-y-6">
+<input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+<div class="space-y-2">
+<label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container">Full Name</label>
+<input name="shipping_name" required class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="Your full name" type="text" value="<%= user ? user.name : '' %>"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container">Street Address</label>
+<input name="shipping_address" required class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="123 Main Street" type="text" value="<%= user && user.shipping_address ? user.shipping_address : '' %>"/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container">City</label>
+<input name="shipping_city" required class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="Manama" type="text" value="<%= user && user.city ? user.city : '' %>"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container">Country</label>
+<input name="shipping_country" required class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="Bahrain" type="text" value="<%= user && user.country ? user.country : 'Bahrain' %>"/>
+</div>
+</div>
+<input type="hidden" name="payment_method" value="card">
+</form>
+</section>
+<!-- Payment Details Card (Mock) -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-sm">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-amber-600" data-icon="credit_card">credit_card</span>
+<h2 class="text-xl font-headline font-bold">Payment Details</h2>
+</div>
+<div class="bg-blue-50 border border-blue-200 text-blue-800 rounded-lg p-4 mb-6">
+    <p class="text-sm flex items-center"><span class="material-symbols-outlined mr-2">info</span> This is a simulated checkout. Your payment will not be actually processed.</p>
+</div>
+<div class="space-y-6">
+<div class="space-y-2">
+<label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container" for="card_number">Card Number</label>
+<div class="relative">
+<input id="card_number" name="card_number" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 pr-12" placeholder="0000 0000 0000 0000" type="text" value="4242 4242 4242 4242"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container" for="card_expiry">Expiration Date (MM/YY)</label>
+<input id="card_expiry" name="card_expiry" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3" placeholder="MM/YY" type="text" value="12/25"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container" for="card_cvc">CVV</label>
+<input id="card_cvc" name="card_cvc" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3" placeholder="123" type="password" value="123"/>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Summary -->
+<aside class="lg:col-span-4">
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm sticky top-32">
+<h2 class="text-xl font-headline font-bold mb-8">Order Summary</h2>
+<!-- Line Items -->
+<div class="space-y-6 mb-8">
+<% if (items && items.length > 0) { %>
+    <% items.forEach(function(item) { %>
+        <div class="flex gap-4">
+            <div class="w-20 h-20 bg-surface-container rounded-lg overflow-hidden flex-shrink-0">
+                <img alt="<%= item.product_name || item.name %>" class="w-full h-full object-cover" src="<%= item.image || '/images/placeholder-product.jpg' %>" onerror="this.src='/images/placeholder-product.jpg'"/>
+            </div>
+            <div class="flex-1 flex flex-col justify-between py-1">
+                <div class="flex justify-between items-start">
+                    <span class="font-headline font-bold text-on-surface whitespace-nowrap overflow-hidden text-ellipsis mr-2"><%= item.product_name || item.name %></span>
+                    <span class="font-serif text-amber-700 whitespace-nowrap">$<%= (item.price * item.quantity).toFixed(2) %></span>
+                </div>
+                <span class="text-xs text-on-secondary-container font-label uppercase tracking-tighter">Qty: <%= item.quantity %></span>
+            </div>
+        </div>
+    <% }) %>
+<% } %>
+</div>
+<!-- Totals -->
+<div class="border-t border-surface-container-highest pt-6 space-y-3 mb-8">
+<div class="flex justify-between font-label text-sm text-on-secondary-container">
+<span>Subtotal</span>
+<span>$<%= (subtotal || 0).toFixed(2) %></span>
+</div>
+<div class="flex justify-between font-label text-sm text-on-secondary-container">
+<span>Shipping</span>
+<span><%= shipping === 0 ? 'Free' : '$' + shipping.toFixed(2) %></span>
+</div>
+<% if (discount > 0) { %>
+<div class="flex justify-between font-label text-sm text-emerald-600">
+<span>Discount</span>
+<span>-$<%= discount.toFixed(2) %></span>
+</div>
+<% } %>
+<div class="flex justify-between font-headline font-bold text-xl pt-3 text-on-surface">
+<span>Total</span>
+<span class="text-amber-700">$<%= (total || 0).toFixed(2) %></span>
+</div>
+</div>
+<!-- CTA -->
+<button type="submit" form="checkout-form" class="w-full bg-primary-container text-on-primary-container font-label font-bold py-4 rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2 mb-4 group shadow-sm">
+<span>Place Simulated Order</span>
+<span class="material-symbols-outlined text-xl transition-transform group-hover:translate-x-1" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<p class="text-[10px] text-center text-slate-400 font-label leading-relaxed">
+    By placing this order, you agree to our Terms of Service and Privacy Policy. This is a university project—no actual payments are collected or items shipped.
+</p>
+</div>
+</aside>
+</div>
+</main>
 
 <%- include('../partials/footer') %>

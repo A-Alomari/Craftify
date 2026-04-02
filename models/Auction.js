@@ -5,14 +5,15 @@ class Auction {
     const db = getDb();
     return db.prepare(`
       SELECT a.*, p.name as product_name, p.images as product_images, p.description as product_description,
-        u.name as artisan_name, ap.shop_name,
-        wu.name as highest_bidder_name,
+        c.name as category_name, u.name as artisan_name, ap.shop_name,
+        hu.name as highest_bidder_name,
         (SELECT COUNT(*) FROM bids WHERE auction_id = a.id) as bid_count
       FROM auctions a
       JOIN products p ON a.product_id = p.id
+      LEFT JOIN categories c ON p.category_id = c.id
       JOIN users u ON a.artisan_id = u.id
       LEFT JOIN artisan_profiles ap ON u.id = ap.user_id
-      LEFT JOIN users wu ON a.winner_id = wu.id
+      LEFT JOIN users hu ON COALESCE(a.highest_bidder_id, a.winner_id) = hu.id
       WHERE a.id = ?
     `).get(id);
   }
@@ -21,10 +22,11 @@ class Auction {
     const db = getDb();
     let query = `
       SELECT a.*, p.name as product_name, p.images as product_images,
-        u.name as artisan_name, ap.shop_name,
+        c.name as category_name, u.name as artisan_name, ap.shop_name,
         (SELECT COUNT(*) FROM bids WHERE auction_id = a.id) as bid_count
       FROM auctions a
       JOIN products p ON a.product_id = p.id
+      LEFT JOIN categories c ON p.category_id = c.id
       JOIN users u ON a.artisan_id = u.id
       LEFT JOIN artisan_profiles ap ON u.id = ap.user_id
       WHERE 1=1
@@ -102,43 +104,117 @@ class Auction {
 
   static placeBid(auctionId, userId, amount) {
     const db = getDb();
-    const auction = this.findById(auctionId);
-    if (!auction) throw new Error('Auction not found');
-    if (auction.status !== 'active') throw new Error('Auction is not active');
-    if (new Date(auction.end_time) <= new Date()) throw new Error('Auction has ended');
+    const parsedAmount = Number.parseFloat(amount);
 
-    const currentBid = auction.current_highest_bid || auction.starting_price;
-    const minBid = currentBid ? currentBid + auction.bid_increment : auction.starting_price;
-
-    if (amount < minBid) {
-      throw new Error(`Bid must be at least $${minBid.toFixed(2)}`);
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+      throw new Error('Invalid bid amount');
     }
 
-    // Record bid
-    const result = db.prepare(`
-      INSERT INTO bids (auction_id, user_id, amount, bid_time) VALUES (?, ?, ?, datetime('now'))
-    `).run(auctionId, userId, amount);
-
-    // Update previous winning bid
-    db.prepare(`UPDATE bids SET is_winning = 0 WHERE auction_id = ? AND id != ?`)
-      .run(auctionId, result.lastInsertRowid);
-
-    // Mark new bid as winning
-    db.prepare(`UPDATE bids SET is_winning = 1 WHERE id = ?`)
-      .run(result.lastInsertRowid);
-
-    // Update auction
-    db.prepare(`
-      UPDATE auctions SET current_highest_bid = ?, winner_id = ?, highest_bidder_id = ? WHERE id = ?
-    `).run(amount, userId, userId, auctionId);
-
-    const previousBidder = auction.winner_id;
-
-    return {
-      bid: db.prepare('SELECT * FROM bids WHERE id = ?').get(result.lastInsertRowid),
-      auction: this.findById(auctionId),
-      previousBidderId: previousBidder
+    const getMinimumBid = (auctionRecord) => {
+      const increment = Number(auctionRecord.bid_increment) || 0;
+      const hasCurrentBid = auctionRecord.current_highest_bid !== null
+        && auctionRecord.current_highest_bid !== undefined;
+      const baseBid = hasCurrentBid
+        ? Number(auctionRecord.current_highest_bid)
+        : Number(auctionRecord.starting_price || 0);
+      return baseBid + increment;
     };
+
+    // Load auction state from the same DB handle used for the transaction.
+    const auction = db.prepare('SELECT * FROM auctions WHERE id = ?').get(auctionId);
+    if (!auction) {
+      throw new Error('Auction not found');
+    }
+    if (auction.status !== 'active') {
+      throw new Error('Auction is not active');
+    }
+    if (new Date(auction.end_time) <= new Date()) {
+      throw new Error('Auction has ended');
+    }
+
+    const minBid = getMinimumBid(auction);
+
+    if (parsedAmount < minBid) {
+      throw new Error(`Minimum bid is $${minBid.toFixed(2)}`);
+    }
+
+    let inTransaction = false;
+
+    try {
+      db.exec('BEGIN TRANSACTION');
+      inTransaction = true;
+
+      // Revalidate in transaction to avoid race-condition bid acceptance.
+      const freshAuction = db.prepare('SELECT * FROM auctions WHERE id = ?').get(auctionId);
+      if (!freshAuction) {
+        throw new Error('Auction not found');
+      }
+      if (freshAuction.status !== 'active') {
+        throw new Error('Auction is not active');
+      }
+      if (new Date(freshAuction.end_time) <= new Date()) {
+        throw new Error('Auction has ended');
+      }
+
+      const freshMinBid = getMinimumBid(freshAuction);
+      if (parsedAmount < freshMinBid) {
+        throw new Error(`Minimum bid is $${freshMinBid.toFixed(2)}`);
+      }
+
+      // Record bid.
+      db.prepare(`
+        INSERT INTO bids (auction_id, user_id, amount, bid_time) VALUES (?, ?, ?, datetime('now'))
+      `).run(auctionId, userId, parsedAmount);
+
+      // Update previous winning bid.
+      db.prepare(`UPDATE bids SET is_winning = 0 WHERE auction_id = ? AND is_winning = 1`)
+        .run(auctionId);
+
+      // Mark new bid as winning.
+      db.prepare(`
+        UPDATE bids
+        SET is_winning = 1
+        WHERE id = (
+          SELECT id FROM bids WHERE auction_id = ? ORDER BY id DESC LIMIT 1
+        )
+      `).run(auctionId);
+
+      // Update auction.
+      db.prepare(`
+        UPDATE auctions SET current_highest_bid = ?, winner_id = ?, highest_bidder_id = ? WHERE id = ?
+      `).run(parsedAmount, userId, userId, auctionId);
+
+      const bidCount = db.prepare('SELECT COUNT(*) as count FROM bids WHERE auction_id = ?').get(auctionId)?.count || 0;
+      const latestBid = db.prepare('SELECT * FROM bids WHERE auction_id = ? ORDER BY id DESC LIMIT 1').get(auctionId)
+        || {
+          auction_id: Number(auctionId),
+          user_id: userId,
+          amount: parsedAmount,
+          created_at: new Date().toISOString()
+        };
+      const updatedAuction = db.prepare('SELECT * FROM auctions WHERE id = ?').get(auctionId)
+        || {
+          id: Number(auctionId),
+          title: auction.title,
+          current_highest_bid: parsedAmount,
+          bid_increment: auction.bid_increment
+        };
+      updatedAuction.bid_count = bidCount;
+
+      db.exec('COMMIT');
+      inTransaction = false;
+
+      return {
+        bid: latestBid,
+        auction: updatedAuction,
+        previousBidderId: auction.winner_id
+      };
+    } catch (err) {
+      if (inTransaction) {
+        try { db.exec('ROLLBACK'); } catch (rollbackErr) { /* noop */ }
+      }
+      throw err;
+    }
   }
 
   static getBids(auctionId, limit = null) {

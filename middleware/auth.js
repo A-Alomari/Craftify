@@ -63,9 +63,29 @@ const isActive = (req, res, next) => {
   if (req.session.user && req.session.user.status === 'active') {
     return next();
   }
+
   req.flash('error_msg', 'Your account has been suspended. Please contact support.');
-  req.session.destroy();
-  res.redirect('/auth/login');
+  const finishLogout = () => {
+    if (typeof res.clearCookie === 'function') {
+      res.clearCookie('craftify.sid');
+    }
+    res.redirect('/auth/login');
+  };
+
+  if (!req.session || typeof req.session.destroy !== 'function') {
+    finishLogout();
+    return;
+  }
+
+  if (req.session.destroy.length === 0) {
+    req.session.destroy();
+    finishLogout();
+    return;
+  }
+
+  req.session.destroy(() => {
+    finishLogout();
+  });
 };
 
 const attachUser = (req, res, next) => {

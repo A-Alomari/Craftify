@@ -60,8 +60,14 @@ class Coupon {
     const fields = [];
     const params = [];
 
+    const allowedColumns = [
+      'code', 'description', 'type', 'discount_type', 'value', 'discount_value',
+      'min_order', 'min_purchase', 'max_discount', 'max_uses', 'usage_limit',
+      'used_count', 'times_used', 'is_active', 'active', 'valid_from', 'valid_until', 'expires_at'
+    ];
+
     Object.entries(couponData).forEach(([key, value]) => {
-      if (value !== undefined && key !== 'id') {
+      if (value !== undefined && key !== 'id' && allowedColumns.includes(key)) {
         fields.push(`${key} = ?`);
         params.push(key === 'code' ? value.toUpperCase() : value);
       }

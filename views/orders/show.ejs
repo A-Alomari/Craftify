@@ -12,7 +12,7 @@
         <div class="card-body">
           <% items.forEach(function(item) { %>
             <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
-              <img src="<%= item.image %>" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
+              <img src="<%= item.image || '/images/placeholder-product.jpg' %>" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;" onerror="this.src='/images/placeholder-product.jpg'">
               <div class="flex-grow-1">
                 <h6 class="mb-0"><%= item.product_name %></h6>
                 <small class="text-muted"><%= item.shop_name %></small>
@@ -28,6 +28,7 @@
       
       <% if (['pending', 'confirmed'].indexOf(order.status) >= 0) { %>
         <form action="/orders/<%= order.id %>/cancel" method="POST">
+        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
           <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Cancel this order?')">Cancel Order</button>
         </form>
       <% } %>

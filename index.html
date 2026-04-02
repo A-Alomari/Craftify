@@ -2,12 +2,163 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=pages/home/index.html">
+    <!-- Keep the refresh but increase slightly to show off the fancy UI -->
+    <meta http-equiv="refresh" content="3; url=pages/home/index.html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Craftify - Redirecting...</title>
+    <title>Craftify - The Digital Atelier</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+        
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            background-color: #F7F9FB; /* surface */
+            color: #191C1E; /* on-surface */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .background-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 70% 30%, rgba(245, 158, 11, 0.08) 0%, rgba(247, 249, 251, 1) 60%);
+            z-index: 1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            background: #FFFFFF; /* surface-container-lowest */
+            padding: 5rem 4rem;
+            border-radius: 20px;
+            box-shadow: 0px 20px 40px rgba(25, 28, 30, 0.06); /* Ambient Tonal Shadow */
+            animation: fade-in-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+            max-width: 500px;
+            /* Intentional Asymmetry - broken from grid slightly */
+            margin-left: -2rem; 
+        }
+
+        .logo {
+            font-family: 'Noto Serif', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+            color: #191C1E;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem; /* label-md */
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #545F73; /* secondary Navy */
+            margin-bottom: 3.5rem;
+            font-weight: 500;
+        }
+
+        .decorative-element {
+            /* Tonal Terracotta accent / maker spotlight color for warmth */
+            position: absolute;
+            top: -15px;
+            right: -25px;
+            width: 80px;
+            height: 80px;
+            background-color: rgba(153, 27, 27, 0.05); /* #991B1B Terracotta */
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .loader-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 3rem;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            background: #F59E0B; /* primary Amber */
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        .redirect-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: #586377; /* on-secondary-container */
+        }
+
+        .btn-primary {
+            display: inline-block;
+            margin-top: 1.5rem;
+            background-color: #F59E0B; /* primary-container */
+            color: #613B00; /* on-primary-container */
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            /* 2px inner glow / 'pressed' feel as requested */
+            box-shadow: inset 0px 2px 0px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.05);
+            /* Soft ambient hover lift */
+            box-shadow: inset 0px 2px 0px rgba(255, 255, 255, 0.3), 0px 10px 20px rgba(245, 158, 11, 0.2);
+            transform: translateY(-2px);
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        @keyframes fade-in-up {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 <body>
-    <p>Redirecting to Craftify home page...</p>
-    <p>If you are not automatically redirected, <a href="pages/home/index.html">click here</a>.</p>
+    <div class="background-gradient"></div>
+    <div class="container">
+        <div class="decorative-element"></div>
+        <div class="logo">Craftify</div>
+        <div class="subtitle">The Digital Atelier</div>
+        
+        <div class="loader-container">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        
+        <p class="redirect-text">
+            Curating your experience...
+        </p>
+        <a href="pages/home/index.html" class="btn-primary">Enter the Atelier</a>
+    </div>
 </body>
 </html>

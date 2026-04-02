@@ -1,10 +1,38 @@
-<div class="list-group list-group-flush">
-  <a href="/artisan/dashboard" class="list-group-item list-group-item-action"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
-  <a href="/artisan/products" class="list-group-item list-group-item-action"><i class="bi bi-box me-2"></i>Products</a>
-  <a href="/artisan/products/new" class="list-group-item list-group-item-action"><i class="bi bi-plus-circle me-2"></i>Add Product</a>
-  <a href="/artisan/orders" class="list-group-item list-group-item-action"><i class="bi bi-bag me-2"></i>Orders</a>
-  <a href="/artisan/auctions" class="list-group-item list-group-item-action"><i class="bi bi-hammer me-2"></i>Auctions</a>
-  <a href="/artisan/reviews" class="list-group-item list-group-item-action"><i class="bi bi-star me-2"></i>Reviews</a>
-  <a href="/artisan/analytics" class="list-group-item list-group-item-action"><i class="bi bi-graph-up me-2"></i>Analytics</a>
-  <a href="/artisan/profile" class="list-group-item list-group-item-action"><i class="bi bi-person me-2"></i>Profile</a>
+<!-- SideNavBar -->
+<aside class="w-64 flex-shrink-0 bg-slate-50 dark:bg-slate-950 font-sans text-sm font-medium border-r border-outline-variant/20 min-h-screen">
+<div class="px-6 py-8 flex items-center gap-3">
+    <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden font-bold text-primary">
+        <%= locals.user ? locals.user.name[0].toUpperCase() : 'A' %>
+    </div>
+    <div>
+        <h3 class="text-on-surface font-bold truncate w-32"><%= locals.user && locals.user.name ? locals.user.name : 'Artisan Workspace' %></h3>
+        <p class="text-xs text-secondary italic">Master Crafter</p>
+    </div>
 </div>
+<nav class="flex flex-col gap-1 px-3">
+    <a href="/artisan/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-slate-300">
+        <span class="material-symbols-outlined text-xl">speedometer</span> Dashboard
+    </a>
+    <a href="/artisan/products" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-slate-300">
+        <span class="material-symbols-outlined text-xl">inventory_2</span> Products
+    </a>
+    <a href="/artisan/products/new" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-slate-300">
+        <span class="material-symbols-outlined text-xl">add_circle</span> Add Product
+    </a>
+    <a href="/artisan/orders" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-slate-300">
+        <span class="material-symbols-outlined text-xl">shopping_bag</span> Orders
+    </a>
+    <a href="/artisan/auctions" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-slate-300">
+        <span class="material-symbols-outlined text-xl">gavel</span> Auctions
+    </a>
+    <a href="/artisan/reviews" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-slate-300">
+        <span class="material-symbols-outlined text-xl">star</span> Reviews
+    </a>
+    <a href="/artisan/analytics" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-slate-300">
+        <span class="material-symbols-outlined text-xl">leaderboard</span> Analytics
+    </a>
+    <a href="/artisan/profile" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-slate-300">
+        <span class="material-symbols-outlined text-xl">person</span> Profile
+    </a>
+</nav>
+</aside>

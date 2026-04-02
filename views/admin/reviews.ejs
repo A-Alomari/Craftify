@@ -2,6 +2,7 @@
 <div class="container-fluid py-4"><div class="row"><div class="col-lg-2 mb-4"><%- include('./partials/sidebar') %></div>
 <div class="col-lg-10">
   <h3 class="mb-4"><i class="bi bi-star"></i> Reviews</h3>
+  <% if (reviews && reviews.length > 0) { %>
   <div class="table-responsive"><table class="table table-hover"><thead><tr><th>Product</th><th>Customer</th><th>Rating</th><th>Comment</th><th>Status</th><th></th></tr></thead>
   <tbody><% reviews.forEach(function(r) { %><tr>
     <td><%= r.product_name %></td><td><%= r.reviewer_name %></td>
@@ -9,9 +10,15 @@
     <td class="text-truncate" style="max-width: 200px;"><%= r.comment %></td>
     <td><span class="badge bg-<%= r.is_approved ? 'success' : 'warning' %>"><%= r.is_approved ? 'Approved' : 'Pending' %></span></td>
     <td>
-      <% if (!r.is_approved) { %><form action="/admin/reviews/<%= r.id %>/approve" method="POST" class="d-inline"><button class="btn btn-sm btn-success">Approve</button></form><% } %>
-      <form action="/admin/reviews/<%= r.id %>/delete" method="POST" class="d-inline"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form>
+      <% if (!r.is_approved) { %><form action="/admin/reviews/<%= r.id %>/approve" method="POST" class="d-inline"><input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"><button class="btn btn-sm btn-success">Approve</button></form><% } %>
+      <form action="/admin/reviews/<%= r.id %>/delete" method="POST" class="d-inline"><input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form>
     </td>
   </tr><% }); %></tbody></table></div>
+  <% } else { %>
+    <div class="text-center py-5">
+      <i class="bi bi-star display-4 text-muted"></i>
+      <p class="text-muted mt-3">No reviews found.</p>
+    </div>
+  <% } %>
 </div></div></div>
 <%- include('../partials/footer') %>

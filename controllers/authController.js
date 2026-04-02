@@ -4,6 +4,25 @@ const Cart = require('../models/Cart');
 const Notification = require('../models/Notification');
 const { v4: uuidv4 } = require('uuid');
 const { getDb } = require('../config/database');
+const { sanitizeString } = require('../utils/sanitizer');
+const { sendPasswordResetEmail } = require('../utils/email');
+const crypto = require('crypto');
+
+function regenerateSession(req) {
+  if (!req.session || typeof req.session.regenerate !== 'function') {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve, reject) => {
+    req.session.regenerate((err) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve();
+    });
+  });
+}
 
 // Show login page
 exports.showLogin = (req, res) => {
@@ -14,6 +33,7 @@ exports.showLogin = (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    const previousSessionId = req.sessionID;
 
     if (!email || !password) {
       req.flash('error_msg', 'Please fill in all fields');
@@ -31,6 +51,9 @@ exports.login = async (req, res) => {
       return res.redirect('/auth/login');
     }
 
+    // Regenerate session before attaching authenticated user data.
+    await regenerateSession(req);
+
     // Set session
     req.session.user = {
       id: user.id,
@@ -42,8 +65,8 @@ exports.login = async (req, res) => {
     };
 
     // Merge guest cart if exists
-    if (req.sessionID) {
-      Cart.mergeGuestCart(user.id, req.sessionID);
+    if (previousSessionId) {
+      Cart.mergeGuestCart(user.id, previousSessionId);
     }
 
     // If artisan, get profile
@@ -77,20 +100,23 @@ exports.showRegister = (req, res) => {
 // Process registration
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, confirm_password, shipping_address, phone } = req.body;
+    const { name, email, password, confirm_password, confirmPassword, shipping_address, phone } = req.body;
+    const confirmedPassword = confirm_password || confirmPassword;
+    const sanitizedName = sanitizeString(name);
+    const sanitizedEmail = sanitizeString(email);
 
     // Validation
     const errors = [];
-    if (!name || !email || !password) {
+    if (!sanitizedName || !sanitizedEmail || !password) {
       errors.push('Please fill in all required fields');
     }
-    if (password !== confirm_password) {
+    if (password !== confirmedPassword) {
       errors.push('Passwords do not match');
     }
     if (password && password.length < 6) {
       errors.push('Password must be at least 6 characters');
     }
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (sanitizedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail)) {
       errors.push('Please enter a valid email address');
     }
 
@@ -101,22 +127,22 @@ exports.register = async (req, res) => {
 
     // Create user
     const user = await User.create({
-      name,
-      email,
+      name: sanitizedName,
+      email: sanitizedEmail,
       password,
       role: 'customer',
-      shipping_address: shipping_address || '',
-      phone: phone || ''
+      shipping_address: sanitizeString(shipping_address) || '',
+      phone: sanitizeString(phone) || ''
     });
 
     req.flash('success_msg', 'Registration successful! Please log in.');
     res.redirect('/auth/login');
 
   } catch (err) {
-    console.error('Registration error:', err);
     if (err.message === 'Email already registered') {
       req.flash('error_msg', 'This email is already registered');
     } else {
+      console.error('Registration error:', err);
       req.flash('error_msg', 'An error occurred during registration');
     }
     res.redirect('/auth/register');
@@ -132,19 +158,31 @@ exports.showArtisanRegister = (req, res) => {
 exports.registerArtisan = async (req, res) => {
   try {
     const { 
-      name, email, password, confirm_password, phone,
+      name, email, password, confirm_password, confirmPassword, phone,
       shop_name, bio, return_policy
     } = req.body;
+    const confirmedPassword = confirm_password || confirmPassword;
+
+    // Sanitize all text inputs
+    const sanitizedName = sanitizeString(name);
+    const sanitizedEmail = sanitizeString(email);
+    const sanitizedShopName = sanitizeString(shop_name);
+    const sanitizedBio = sanitizeString(bio);
+    const sanitizedReturnPolicy = sanitizeString(return_policy);
+    const sanitizedPhone = sanitizeString(phone);
 
     const errors = [];
-    if (!name || !email || !password || !shop_name) {
+    if (!sanitizedName || !sanitizedEmail || !password || !sanitizedShopName) {
       errors.push('Please fill in all required fields');
     }
-    if (password !== confirm_password) {
+    if (password !== confirmedPassword) {
       errors.push('Passwords do not match');
     }
     if (password && password.length < 6) {
       errors.push('Password must be at least 6 characters');
+    }
+    if (sanitizedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail)) {
+      errors.push('Please enter a valid email address');
     }
 
     if (errors.length > 0) {
@@ -153,21 +191,21 @@ exports.registerArtisan = async (req, res) => {
     }
 
     const user = await User.create({
-      name,
-      email,
+      name: sanitizedName,
+      email: sanitizedEmail,
       password,
       role: 'artisan',
-      phone: phone || '',
+      phone: sanitizedPhone || '',
       status: 'active'
     });
 
     const profileImage = req.file ? `/uploads/${req.file.filename}` : '';
     ArtisanProfile.create({
       user_id: user.id,
-      shop_name,
-      bio: bio || '',
+      shop_name: sanitizedShopName,
+      bio: sanitizedBio || '',
       profile_image: profileImage,
-      return_policy: return_policy || ''
+      return_policy: sanitizedReturnPolicy || ''
     });
 
     Notification.create({
@@ -195,6 +233,9 @@ exports.registerArtisan = async (req, res) => {
 exports.logout = (req, res) => {
   req.session.destroy((err) => {
     if (err) console.error('Logout error:', err);
+    if (typeof res.clearCookie === 'function') {
+      res.clearCookie('craftify.sid');
+    }
     res.redirect('/');
   });
 };
@@ -210,8 +251,11 @@ exports.forgotPassword = async (req, res) => {
     const user = User.findByEmail(email);
     const db = getDb();
 
+    // Always show the same message to prevent user enumeration
+    const genericMsg = 'If an account exists with this email, you will receive a password reset link.';
+
     if (!user) {
-      req.flash('success_msg', 'If an account exists with this email, you will receive a password reset link.');
+      req.flash('success_msg', genericMsg);
       return res.redirect('/auth/forgot-password');
     }
 
@@ -224,7 +268,19 @@ exports.forgotPassword = async (req, res) => {
       VALUES (?, ?, ?)
     `).run(user.id, token, expires.toISOString());
 
-    req.flash('success_msg', `Password reset link (demo): /auth/reset-password/${token}`);
+    // Send password reset email
+    try {
+      await sendPasswordResetEmail(user.email, token, user.name);
+    } catch (emailErr) {
+      console.error('Failed to send password reset email:', emailErr);
+      // In development, still show the link so testing is possible
+      if (process.env.NODE_ENV !== 'production') {
+        req.flash('success_msg', `${genericMsg} (Dev link: /auth/reset-password/${token})`);
+        return res.redirect('/auth/forgot-password');
+      }
+    }
+
+    req.flash('success_msg', genericMsg);
     res.redirect('/auth/forgot-password');
 
   } catch (err) {
@@ -237,11 +293,12 @@ exports.forgotPassword = async (req, res) => {
 exports.showResetPassword = (req, res) => {
   const { token } = req.params;
   const db = getDb();
+  const nowIso = new Date().toISOString();
   
   const reset = db.prepare(`
     SELECT * FROM password_resets 
-    WHERE token = ? AND used = 0 AND expires_at > datetime('now')
-  `).get(token);
+    WHERE token = ? AND used = 0 AND expires_at > ?
+  `).get(token, nowIso);
 
   if (!reset) {
     req.flash('error_msg', 'Invalid or expired reset link');
@@ -256,6 +313,7 @@ exports.resetPassword = async (req, res) => {
     const { token } = req.params;
     const { password, confirm_password } = req.body;
     const db = getDb();
+    const nowIso = new Date().toISOString();
 
     if (password !== confirm_password) {
       req.flash('error_msg', 'Passwords do not match');
@@ -269,8 +327,8 @@ exports.resetPassword = async (req, res) => {
 
     const reset = db.prepare(`
       SELECT * FROM password_resets 
-      WHERE token = ? AND used = 0 AND expires_at > datetime('now')
-    `).get(token);
+      WHERE token = ? AND used = 0 AND expires_at > ?
+    `).get(token, nowIso);
 
     if (!reset) {
       req.flash('error_msg', 'Invalid or expired reset link');

@@ -9,7 +9,7 @@
       <td>$<%= (a.current_highest_bid || 0).toFixed(2) %></td><td><%= a.bid_count || 0 %></td>
       <td><span class="badge bg-<%= a.status === 'active' ? 'success' : a.status === 'sold' ? 'primary' : 'secondary' %>"><%= a.status %></span></td>
       <td><%= new Date(a.end_time).toLocaleDateString() %></td>
-      <td><% if (a.status === 'active' || a.status === 'pending') { %><form action="/artisan/auctions/<%= a.id %>/cancel" method="POST"><button class="btn btn-sm btn-outline-danger">Cancel</button></form><% } %></td>
+      <td><% if (a.status === 'active' || a.status === 'pending') { %><form action="/artisan/auctions/<%= a.id %>/cancel" method="POST"><input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"><button class="btn btn-sm btn-outline-danger">Cancel</button></form><% } %></td>
     </tr><% }); %></tbody></table></div>
   <% } else { %><div class="text-center py-5"><p class="text-muted">No auctions yet.</p></div><% } %>
 </div></div></div>

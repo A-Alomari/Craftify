@@ -1,18 +1,56 @@
 <%- include('../partials/header', { title: title }) %>
-<div class="container py-5"><div class="row justify-content-center"><div class="col-lg-8">
-  <h1>About Craftify</h1>
-  <p class="lead">Craftify is a marketplace connecting local artisans with customers who appreciate handmade, unique, and culturally rich products.</p>
-  <hr>
-  <h3>Our Mission</h3>
-  <p>We empower local artisans in Bahrain and the Gulf region by providing them a platform to showcase and sell their handcrafted creations to a wider audience.</p>
-  <h3>Why Choose Craftify?</h3>
-  <ul>
-    <li><strong>Authentic Craftsmanship</strong> - Every product is handmade by skilled local artisans</li>
-    <li><strong>Supporting Local Communities</strong> - Your purchases directly support artisan livelihoods</li>
-    <li><strong>Unique Products</strong> - Find one-of-a-kind items you won't find anywhere else</li>
-    <li><strong>Live Auctions</strong> - Bid on exclusive handcrafted pieces in real-time</li>
-  </ul>
-  <h3>University Project</h3>
-  <p>Craftify is developed as part of the ITCS489 Senior Project at the University of Bahrain, demonstrating a full-stack e-commerce solution with modern web technologies.</p>
-</div></div></div>
+<main class="pt-12 pb-20 px-6 max-w-4xl mx-auto">
+  <!-- Header -->
+  <div class="mb-16">
+    <span class="font-label text-xs uppercase tracking-[0.2em] text-secondary font-bold mb-2 block">Our Story</span>
+    <h1 class="text-5xl font-headline font-bold text-on-surface leading-tight">About Craftify</h1>
+    <p class="text-secondary mt-4 text-lg font-body leading-relaxed max-w-2xl">A marketplace connecting local artisans with customers who appreciate handmade, unique, and culturally rich products.</p>
+  </div>
+
+  <!-- Mission Section -->
+  <div class="bg-surface-container-lowest rounded-xl p-8 md:p-12 mb-12">
+    <div class="flex items-start gap-4 mb-6">
+      <div class="w-12 h-12 rounded-full bg-primary-container/10 flex items-center justify-center flex-shrink-0">
+        <span class="material-symbols-outlined text-primary">auto_stories</span>
+      </div>
+      <div>
+        <h2 class="font-headline text-2xl font-bold text-on-surface mb-3">Our Mission</h2>
+        <p class="text-secondary font-body leading-relaxed">We empower local artisans in Bahrain and the Gulf region by providing them a platform to showcase and sell their handcrafted creations to a wider audience.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Why Choose Craftify -->
+  <div class="mb-12">
+    <h2 class="font-headline text-3xl font-bold text-on-surface mb-8">Why Choose Craftify?</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-surface-container-lowest rounded-xl p-6">
+        <span class="material-symbols-outlined text-primary mb-3 text-2xl">handyman</span>
+        <h3 class="font-headline text-lg font-bold text-on-surface mb-2">Authentic Craftsmanship</h3>
+        <p class="text-secondary font-body text-sm leading-relaxed">Every product is handmade by skilled local artisans.</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-xl p-6">
+        <span class="material-symbols-outlined text-primary mb-3 text-2xl">groups</span>
+        <h3 class="font-headline text-lg font-bold text-on-surface mb-2">Supporting Local Communities</h3>
+        <p class="text-secondary font-body text-sm leading-relaxed">Your purchases directly support artisan livelihoods.</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-xl p-6">
+        <span class="material-symbols-outlined text-primary mb-3 text-2xl">diamond</span>
+        <h3 class="font-headline text-lg font-bold text-on-surface mb-2">Unique Products</h3>
+        <p class="text-secondary font-body text-sm leading-relaxed">Find one-of-a-kind items you won't find anywhere else.</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-xl p-6">
+        <span class="material-symbols-outlined text-primary mb-3 text-2xl">gavel</span>
+        <h3 class="font-headline text-lg font-bold text-on-surface mb-2">Live Auctions</h3>
+        <p class="text-secondary font-body text-sm leading-relaxed">Bid on exclusive handcrafted pieces in real-time.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- University Project -->
+  <div class="bg-surface-container-low rounded-xl p-8">
+    <h3 class="font-headline text-xl font-bold text-on-surface mb-3">University Project</h3>
+    <p class="text-secondary font-body leading-relaxed">Craftify is developed as part of the ITCS489 Senior Project at the University of Bahrain, demonstrating a full-stack e-commerce solution with modern web technologies.</p>
+  </div>
+</main>
 <%- include('../partials/footer') %>

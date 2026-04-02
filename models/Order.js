@@ -207,7 +207,7 @@ class Order {
 
   static getRevenue(filters = {}) {
     const db = getDb();
-    let query = "SELECT COALESCE(SUM(total_amount), 0) as revenue FROM orders WHERE payment_status = 'paid'";
+    let query = "SELECT COALESCE(SUM(o.total_amount), 0) as revenue FROM orders o WHERE o.payment_status = 'paid'";
     const params = [];
 
     if (filters.artisan_id) {

@@ -1,6 +1,11 @@
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
 const Coupon = require('../models/Coupon');
+const { getSafeRedirect } = require('../utils/redirect');
+
+function getBackUrl(req, fallback = '/products') {
+  return getSafeRedirect(req, fallback);
+}
 
 // View cart
 exports.index = (req, res) => {
@@ -53,15 +58,15 @@ exports.addItem = (req, res) => {
 
     const product = Product.findById(productId);
     if (!product || product.status !== 'approved') {
-      if (req.xhr) return res.json({ success: false, message: 'Product not found' });
+      if (req.xhr) return res.status(404).json({ success: false, message: 'Product not found' });
       req.flash('error_msg', 'Product not found');
-      return res.redirect('back');
+      return res.redirect(getBackUrl(req));
     }
 
     if (product.stock < quantity) {
-      if (req.xhr) return res.json({ success: false, message: 'Insufficient stock' });
+      if (req.xhr) return res.status(409).json({ success: false, message: 'Insufficient stock' });
       req.flash('error_msg', 'Not enough stock available');
-      return res.redirect('back');
+      return res.redirect(getBackUrl(req));
     }
 
     const userId = req.session.user ? req.session.user.id : null;
@@ -75,12 +80,12 @@ exports.addItem = (req, res) => {
     }
 
     req.flash('success_msg', 'Item added to cart!');
-    res.redirect('back');
+    res.redirect(getBackUrl(req));
   } catch (err) {
     console.error('Add to cart error:', err);
-    if (req.xhr) return res.json({ success: false, message: 'Error adding to cart' });
+    if (req.xhr) return res.status(500).json({ success: false, message: 'Error adding to cart' });
     req.flash('error_msg', 'Error adding item to cart');
-    res.redirect('back');
+    res.redirect(getBackUrl(req));
   }
 };
 
@@ -93,8 +98,14 @@ exports.updateItem = (req, res) => {
     const sessionId = !userId ? req.sessionID : null;
 
     const product = Product.findById(productId);
+    if (!product) {
+      if (req.xhr) return res.status(404).json({ success: false, message: 'Product not found' });
+      req.flash('error_msg', 'Product not found');
+      return res.redirect('/cart');
+    }
+
     if (quantity > product.stock) {
-      if (req.xhr) return res.json({ success: false, message: `Only ${product.stock} items available` });
+      if (req.xhr) return res.status(409).json({ success: false, message: `Only ${product.stock} items available` });
       req.flash('error_msg', `Only ${product.stock} items available`);
       return res.redirect('/cart');
     }
@@ -109,7 +120,7 @@ exports.updateItem = (req, res) => {
     res.redirect('/cart');
   } catch (err) {
     console.error('Update cart error:', err);
-    if (req.xhr) return res.json({ success: false, message: 'Error updating cart' });
+    if (req.xhr) return res.status(500).json({ success: false, message: 'Error updating cart' });
     req.flash('error_msg', 'Error updating cart');
     res.redirect('/cart');
   }
@@ -134,7 +145,7 @@ exports.removeItem = (req, res) => {
     res.redirect('/cart');
   } catch (err) {
     console.error('Remove from cart error:', err);
-    if (req.xhr) return res.json({ success: false, message: 'Error removing item' });
+    if (req.xhr) return res.status(500).json({ success: false, message: 'Error removing item' });
     req.flash('error_msg', 'Error removing item');
     res.redirect('/cart');
   }
@@ -152,7 +163,7 @@ exports.applyCoupon = (req, res) => {
     const validation = Coupon.validate(code, totals.total);
 
     if (!validation.valid) {
-      if (req.xhr) return res.json({ success: false, message: validation.error });
+      if (req.xhr) return res.status(400).json({ success: false, message: validation.error });
       req.flash('error_msg', validation.error);
       return res.redirect('/cart');
     }
@@ -171,7 +182,7 @@ exports.applyCoupon = (req, res) => {
     res.redirect('/cart');
   } catch (err) {
     console.error('Apply coupon error:', err);
-    if (req.xhr) return res.json({ success: false, message: 'Error applying coupon' });
+    if (req.xhr) return res.status(500).json({ success: false, message: 'Error applying coupon' });
     req.flash('error_msg', 'Error applying coupon');
     res.redirect('/cart');
   }
@@ -199,6 +210,7 @@ exports.clear = (req, res) => {
     res.redirect('/cart');
   } catch (err) {
     console.error('Clear cart error:', err);
+    if (req.xhr) return res.status(500).json({ success: false, message: 'Error clearing cart' });
     res.redirect('/cart');
   }
 };

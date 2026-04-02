@@ -2,6 +2,7 @@
 <div class="container-fluid py-4"><div class="row"><div class="col-lg-2 mb-4"><%- include('./partials/sidebar') %></div>
 <div class="col-lg-10">
   <h3 class="mb-4"><i class="bi bi-hammer"></i> Auctions</h3>
+  <% if (auctions && auctions.length > 0) { %>
   <div class="table-responsive"><table class="table table-hover"><thead><tr><th>Product</th><th>Artisan</th><th>Current Bid</th><th>Bids</th><th>Status</th><th>Ends</th></tr></thead>
   <tbody><% auctions.forEach(function(a) { %><tr>
     <td><%= a.product_name %></td><td><%= a.shop_name %></td>
@@ -9,5 +10,11 @@
     <td><span class="badge bg-<%= a.status === 'active' ? 'success' : 'secondary' %>"><%= a.status %></span></td>
     <td><%= new Date(a.end_time).toLocaleDateString() %></td>
   </tr><% }); %></tbody></table></div>
+  <% } else { %>
+    <div class="text-center py-5">
+      <i class="bi bi-hammer display-4 text-muted"></i>
+      <p class="text-muted mt-3">No auctions found.</p>
+    </div>
+  <% } %>
 </div></div></div>
 <%- include('../partials/footer') %>

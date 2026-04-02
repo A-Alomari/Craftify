@@ -1,6 +1,21 @@
 // Craftify - Main JavaScript
 
 document.addEventListener('DOMContentLoaded', function() {
+  // CSRF Protection: inject hidden token into all POST forms
+  const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+  if (csrfMeta && csrfMeta.content) {
+    const csrfToken = csrfMeta.content;
+    document.querySelectorAll('form[method="POST"]').forEach(function(form) {
+      // Skip if form already has a _csrf hidden input
+      if (form.querySelector('input[name="_csrf"]')) return;
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = '_csrf';
+      input.value = csrfToken;
+      form.appendChild(input);
+    });
+  }
+
   // Initialize tooltips
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
   tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
@@ -17,6 +32,25 @@ document.addEventListener('DOMContentLoaded', function() {
   // Search functionality
   initSearch();
 });
+
+function getCsrfToken() {
+  const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+  return csrfMeta && csrfMeta.content ? csrfMeta.content : '';
+}
+
+function getRequestHeaders(method, baseHeaders = {}) {
+  const headers = { ...baseHeaders };
+  const normalizedMethod = (method || 'GET').toUpperCase();
+
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(normalizedMethod)) {
+    const token = getCsrfToken();
+    if (token) {
+      headers['CSRF-Token'] = token;
+    }
+  }
+
+  return headers;
+}
 
 // Cart Functions
 function initCart() {
@@ -46,7 +80,7 @@ function addToCart(productId, quantity, btn) {
 
   fetch('/api/cart/add', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getRequestHeaders('POST', { 'Content-Type': 'application/json' }),
     body: JSON.stringify({ product_id: productId, quantity: parseInt(quantity) })
   })
   .then(r => r.json())
@@ -80,7 +114,7 @@ function addToCart(productId, quantity, btn) {
 function removeFromCart(productId) {
   fetch('/api/cart/remove', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getRequestHeaders('POST', { 'Content-Type': 'application/json' }),
     body: JSON.stringify({ product_id: productId })
   })
   .then(r => r.json())
@@ -133,7 +167,10 @@ function toggleWishlist(productId, btn) {
   const isActive = btn.classList.contains('active');
   const method = isActive ? 'DELETE' : 'POST';
   
-  fetch('/api/wishlist/' + productId, { method })
+  fetch('/api/wishlist/' + productId, {
+    method,
+    headers: getRequestHeaders(method)
+  })
   .then(r => r.json())
   .then(data => {
     if (data.success) {
@@ -187,7 +224,7 @@ function initQuantityButtons() {
 function updateCartQuantity(productId, quantity) {
   fetch('/api/cart/update', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getRequestHeaders('POST', { 'Content-Type': 'application/json' }),
     body: JSON.stringify({ product_id: productId, quantity: parseInt(quantity) })
   })
   .then(r => r.json())

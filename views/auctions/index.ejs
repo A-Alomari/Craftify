@@ -1,75 +1,98 @@
-<%- include('../partials/header', { title: title }) %>
+<%- include('../partials/header', { title: 'Live Auctions | Craftify' }) %>
 
-<div class="container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3><i class="bi bi-hammer"></i> Live Auctions</h3>
-    <div class="btn-group">
-      <a href="/auctions?status=active" class="btn btn-<%= filters.status === 'active' ? 'primary' : 'outline-primary' %> btn-sm">Active</a>
-      <a href="/auctions?status=all" class="btn btn-<%= filters.status === 'all' ? 'primary' : 'outline-primary' %> btn-sm">All</a>
-    </div>
-  </div>
-
-  <% if (auctions.length > 0) { %>
-    <div class="row g-4">
-      <% auctions.forEach(function(auction) { %>
-        <div class="col-md-6 col-lg-4">
-          <div class="card h-100 border-0 shadow-sm">
-            <img src="<%= auction.image %>" class="card-img-top" alt="<%= auction.product_name %>" style="height: 200px; object-fit: cover;">
-            <% if (auction.status === 'active') { %>
-              <span class="badge bg-success position-absolute top-0 end-0 m-2">LIVE</span>
-            <% } %>
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title"><%= auction.title || auction.product_name %></h5>
-              <p class="text-muted small mb-2">By <%= auction.shop_name %></p>
-              
-              <div class="mb-3">
-                <div class="d-flex justify-content-between">
-                  <div>
-                    <small class="text-muted">Current Bid</small>
-                    <h5 class="text-primary mb-0">$<%= (auction.current_highest_bid || auction.starting_price).toFixed(2) %></h5>
-                  </div>
-                  <div class="text-end">
-                    <small class="text-muted">Bids</small>
-                    <h5 class="mb-0"><%= auction.bid_count || 0 %></h5>
-                  </div>
-                </div>
-              </div>
-
-              <% if (auction.status === 'active') { %>
-                <% var endTime = new Date(auction.end_time); var remaining = Math.max(0, endTime - new Date()); %>
-                <% var hours = Math.floor(remaining / 3600000); var mins = Math.floor((remaining % 3600000) / 60000); %>
-                <p class="text-danger small mb-2">
-                  <i class="bi bi-clock"></i> 
-                  <% if (hours > 24) { %>
-                    <%= Math.floor(hours/24) %> days left
-                  <% } else if (hours > 0) { %>
-                    <%= hours %>h <%= mins %>m left
-                  <% } else { %>
-                    <%= mins %> minutes left
-                  <% } %>
-                </p>
-              <% } else { %>
-                <span class="badge bg-secondary mb-2"><%= auction.status %></span>
-              <% } %>
-
-              <a href="/auctions/<%= auction.id %>" class="btn btn-primary mt-auto">
-                <% if (auction.status === 'active') { %>
-                  <i class="bi bi-gavel"></i> Place Bid
-                <% } else { %>
-                  View Details
-                <% } %>
-              </a>
-            </div>
-          </div>
-        </div>
-      <% }); %>
-    </div>
-  <% } else { %>
-    <div class="text-center py-5">
-      <i class="bi bi-hammer display-4 text-muted"></i>
-      <p class="text-muted mt-3">No auctions found.</p>
-    </div>
-  <% } %>
+<main class="max-w-7xl mx-auto px-8 py-16">
+<!-- Header Section -->
+<header class="mb-12">
+<div class="flex items-center gap-3 mb-4">
+<h1 class="text-5xl font-serif font-extrabold tracking-tight">Live Auctions</h1>
+<span class="flex h-3 w-3 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-error"></span>
+</span>
 </div>
+<p class="max-w-2xl text-lg text-secondary leading-relaxed font-sans">
+    Bid on exclusive, one-of-a-kind pieces directly from the artisan's studio. These unique items are available for a limited time only.
+</p>
+</header>
+<!-- Filters and Controls -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+<div class="flex flex-wrap gap-3">
+<a href="/auctions" class="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2">
+    All Auctions
+</a>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-8 border-t md:border-t-0 pt-4 md:pt-0">
+<span class="text-sm font-sans text-secondary italic">Showing <%= auctions ? auctions.length : 0 %> active auctions</span>
+</div>
+</div>
+<!-- Auction Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+    <% if (auctions && auctions.length > 0) { %>
+        <% auctions.forEach(function(auction) { %>
+            <div class="group bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col transition-all duration-300 shadow-sm hover:shadow-xl">
+                <div class="relative aspect-[4/5] overflow-hidden">
+                    <a href="/auctions/<%= auction.id %>">
+                        <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="<%= auction.image || '/images/placeholder-product.jpg' %>" alt="<%= auction.product_name || auction.title %>" loading="lazy" onerror="this.src='/images/placeholder-product.jpg'"/>
+                    </a>
+                    
+                    <% if (auction.status === 'active') { %>
+                        <div class="absolute top-4 left-4 bg-tertiary text-white text-[10px] font-bold px-3 py-1 rounded-sm flex items-center gap-1.5 uppercase tracking-tighter shadow-sm">
+                            <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                            LIVE BID
+                        </div>
+                    <% } else if (auction.status === 'ended' || auction.status === 'sold') { %>
+                        <div class="absolute top-4 left-4 bg-surface-container-high text-on-surface-variant text-[10px] font-bold px-3 py-1 rounded-sm flex items-center gap-1.5 uppercase tracking-tighter shadow-sm">
+                            ENDED
+                        </div>
+                    <% } %>
+                </div>
+                <div class="p-5 flex flex-col flex-grow">
+                    <span class="font-sans text-[10px] font-extrabold uppercase tracking-[0.2em] text-secondary mb-2 whitespace-nowrap overflow-hidden text-ellipsis"><%= auction.category_name || 'AUCTION' %></span>
+                    <h3 class="font-serif text-xl font-bold mb-1 leading-tight text-on-surface whitespace-nowrap overflow-hidden text-ellipsis"><%= auction.title || auction.product_name %></h3>
+                    <p class="text-xs text-secondary mb-6 italic">by <%= auction.shop_name || 'Artisan' %></p>
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <span class="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Current Bid</span>
+                            <span class="text-xl font-serif font-bold text-primary">$<%= (auction.current_highest_bid || auction.starting_price).toFixed(2) %></span>
+                        </div>
+                        <div>
+                            <span class="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Ends In</span>
+                            <div class="flex items-center gap-1 text-sm font-bold text-error">
+                                <span class="material-symbols-outlined text-[16px]" data-icon="alarm">alarm</span>
+                                
+                                <% 
+                                    const now = new Date();
+                                    const end = new Date(auction.end_time);
+                                    let diff = end - now;
+                                    let timeString = '';
+                                    if (diff <= 0) {
+                                        timeString = 'Ended';
+                                    } else {
+                                        let hours = Math.floor(diff / (1000 * 60 * 60));
+                                        let days = Math.floor(hours / 24);
+                                        let hrs = hours % 24;
+                                        if (days > 0) timeString = `${days}d ${hrs}h`;
+                                        else timeString = `${hrs}h left`;
+                                    }
+                                %>
+                                <%= timeString %>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-auto">
+                        <a href="/auctions/<%= auction.id %>" class="block text-center w-full bg-primary-container text-on-primary-container py-3 rounded-lg font-bold text-sm uppercase tracking-widest hover:brightness-105 transition-all active:scale-95">
+                            Place Bid
+                        </a>
+                    </div>
+                </div>
+            </div>
+        <% }); %>
+    <% } else { %>
+        <div class="col-span-full">
+            <p class="text-center text-on-surface-variant my-12 text-lg">No live auctions at the moment. Check back soon!</p>
+        </div>
+    <% } %>
+</div>
+</main>
 
 <%- include('../partials/footer') %>

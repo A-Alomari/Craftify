@@ -8,7 +8,7 @@
           <div class="card shadow-sm border-0">
             <div class="row g-0">
               <div class="col-4">
-                <img src="<%= bid.image %>" class="img-fluid rounded-start h-100" style="object-fit: cover;">
+                <img src="<%= bid.image || '/images/placeholder-product.jpg' %>" class="img-fluid rounded-start h-100" style="object-fit: cover;" onerror="this.src='/images/placeholder-product.jpg'">
               </div>
               <div class="col-8">
                 <div class="card-body">

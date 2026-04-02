@@ -1,50 +1,107 @@
-<%- include('../partials/header', { title: title }) %>
+<%- include('../partials/header', { title: 'Create Account | Craftify' }) %>
 
-<div class="container py-5" style="max-width: 600px;">
-  <div class="card shadow-sm border-0">
-    <div class="card-body p-4">
-      <div class="text-center mb-4">
-        <h3 class="fw-bold"><i class="bi bi-person-plus"></i> Create Account</h3>
-        <p class="text-muted">Join the Craftify community</p>
-      </div>
-      
-      <form action="/auth/register" method="POST">
-        <div class="mb-3">
-          <label for="name" class="form-label">Full Name *</label>
-          <input type="text" name="name" id="name" class="form-control" required>
-        </div>
-        <div class="mb-3">
-          <label for="email" class="form-label">Email Address *</label>
-          <input type="email" name="email" id="email" class="form-control" required>
-        </div>
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label for="password" class="form-label">Password *</label>
-            <input type="password" name="password" id="password" class="form-control" minlength="6" required>
-          </div>
-          <div class="col-md-6 mb-3">
-            <label for="confirm_password" class="form-label">Confirm Password *</label>
-            <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
-          </div>
-        </div>
-        <div class="mb-3">
-          <label for="phone" class="form-label">Phone Number</label>
-          <input type="text" name="phone" id="phone" class="form-control">
-        </div>
-        <div class="mb-3">
-          <label for="shipping_address" class="form-label">Shipping Address</label>
-          <textarea name="shipping_address" id="shipping_address" class="form-control" rows="2"></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary w-100 py-2">Create Account</button>
-      </form>
-      
-      <hr>
-      <div class="text-center">
-        <p class="mb-1">Already have an account? <a href="/auth/login" class="text-decoration-none">Sign In</a></p>
-        <p class="mb-0 small text-muted">Want to sell? <a href="/auth/artisan-register" class="text-decoration-none">Become an Artisan</a></p>
-      </div>
-    </div>
-  </div>
+<main class="flex-grow flex items-center justify-center px-4 py-12">
+<!-- Auth Card -->
+<div class="w-full max-auto max-w-[480px] bg-surface-container-lowest rounded-xl shadow-[0px_20px_40px_rgba(25,28,30,0.06)] overflow-hidden z-10 relative">
+<!-- Brand Anchor -->
+<div class="pt-10 pb-6 flex flex-col items-center">
+<div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-6">
+<span class="text-on-primary font-serif italic text-3xl select-none">A</span>
+</div>
+<!-- Auth Tabs -->
+<div class="flex space-x-8 border-b border-surface-container-high w-full justify-center">
+<a href="/auth/login" class="pb-3 text-sm font-label tracking-wide uppercase text-secondary hover:text-primary transition-colors">
+    Sign In
+</a>
+<a href="/auth/register" class="pb-3 text-sm font-label tracking-wide uppercase text-primary border-b-2 border-primary font-bold">
+    Create Account
+</a>
+</div>
+</div>
+<!-- Content Area -->
+<div class="px-8 pb-10 pt-4">
+<header class="text-center mb-8">
+<h1 class="font-headline text-3xl font-bold text-on-surface mb-2 tracking-tight">Join our community</h1>
+<p class="text-secondary font-body text-sm">Create an account to start supporting artisans</p>
+</header>
+<form class="space-y-5" action="/auth/register" method="POST">
+<input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+<input type="hidden" name="role" value="customer">
+
+<!-- Full Name -->
+<div class="space-y-1.5">
+<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Full Name</label>
+<div class="relative group">
+<input name="name" required class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-0 focus:bg-surface-container-highest transition-colors placeholder:text-outline/50 text-on-surface" placeholder="John Doe" type="text"/>
+<div class="absolute left-0 top-1/4 bottom-1/4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+</div>
+</div>
+<!-- Email -->
+<div class="space-y-1.5">
+<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Email Address</label>
+<div class="relative group">
+<input name="email" required class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-0 focus:bg-surface-container-highest transition-colors placeholder:text-outline/50 text-on-surface" placeholder="you@example.com" type="email"/>
+<div class="absolute left-0 top-1/4 bottom-1/4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+</div>
+</div>
+<!-- Password Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="space-y-1.5">
+<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Password</label>
+<div class="relative group">
+<input name="password" required class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-0 focus:bg-surface-container-highest transition-colors placeholder:text-outline/50 text-on-surface" placeholder="Create a password" type="password"/>
+<div class="absolute left-0 top-1/4 bottom-1/4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Confirm Password</label>
+<div class="relative group">
+<input name="confirm_password" required class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-0 focus:bg-surface-container-highest transition-colors placeholder:text-outline/50 text-on-surface" placeholder="Confirm your password" type="password"/>
+<div class="absolute left-0 top-1/4 bottom-1/4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+</div>
+</div>
+</div>
+<!-- Terms Checkbox -->
+<div class="flex items-start pt-2">
+<div class="flex items-center h-5">
+<input required class="h-5 w-5 rounded-lg border-outline-variant text-primary focus:ring-primary/20 bg-surface-container-low transition-all" id="terms" name="terms" type="checkbox"/>
+</div>
+<div class="ml-3 text-sm">
+<label class="font-body text-secondary leading-tight" for="terms">
+    I agree to the <a class="text-on-surface underline decoration-primary/30 underline-offset-4 hover:decoration-primary transition-all" href="/terms">Terms of Service</a> and <a class="text-on-surface underline decoration-primary/30 underline-offset-4 hover:decoration-primary transition-all" href="/privacy">Privacy Policy</a>
+</label>
+</div>
+</div>
+<!-- Primary Action -->
+<div class="pt-4">
+<button class="w-full bg-primary-container text-on-primary-container font-label font-bold uppercase tracking-widest py-4 rounded-xl shadow-sm hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center space-x-2" type="submit">
+<span>Create Account</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<!-- Redirect Link -->
+<p class="text-center text-sm font-body text-secondary pt-4">
+    Are you an artisan? 
+    <a class="text-primary font-bold hover:underline underline-offset-4 ml-1" href="/auth/artisan-register">Register as Seller</a>
+</p>
+<p class="text-center text-sm font-body text-secondary pt-4">
+    Already have an account? 
+    <a class="text-primary font-bold hover:underline underline-offset-4 ml-1" href="/auth/login">Sign in</a>
+</p>
+</form>
+</div>
+</div>
+</main>
+<!-- Artistic Accent (Asymmetric overlap) -->
+<div class="fixed bottom-0 right-0 p-12 pointer-events-none opacity-20 hidden md:block">
+<div class="relative">
+<div class="w-64 h-64 border-[1px] border-primary rounded-full absolute -right-20 -bottom-20"></div>
+<div class="w-48 h-48 border-[1px] border-primary/40 rounded-full absolute -right-10 -bottom-10"></div>
+</div>
+</div>
+<!-- Decorative Corner Element -->
+<div class="fixed top-0 left-0 p-12 mt-16 pointer-events-none opacity-10 hidden md:block">
+<span class="font-serif italic text-[120px] text-primary select-none">Artisan</span>
 </div>
 
 <%- include('../partials/footer') %>

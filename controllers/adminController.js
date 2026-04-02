@@ -43,20 +43,30 @@ exports.dashboard = (req, res) => {
 exports.users = (req, res) => {
   try {
     const { role, status, search, page = 1 } = req.query;
-    const limit = 20;
+    const limit = 10;
     const offset = (page - 1) * limit;
 
     const filters = {};
     if (role) filters.role = role;
     if (status) filters.status = status;
     if (search) filters.search = search;
+    filters.limit = limit;
+    filters.offset = offset;
 
     const users = User.findAll(filters);
+    const totalUsers = User.count({ role: filters.role, status: filters.status });
+    const totalPages = Math.ceil(totalUsers / limit);
 
     res.render('admin/users', {
       title: 'User Management - Craftify',
       users,
-      filters: { role, status, search }
+      filters: { role, status, search },
+      pagination: {
+        current: parseInt(page),
+        total: totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
+      }
     });
   } catch (err) {
     console.error('Admin users error:', err);
@@ -66,7 +76,11 @@ exports.users = (req, res) => {
 
 exports.updateUserStatus = (req, res) => {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid user ID');
+      return res.redirect('/admin/users');
+    }
     const { status } = req.body;
 
     User.updateStatus(id, status);
@@ -80,7 +94,7 @@ exports.updateUserStatus = (req, res) => {
   } catch (err) {
     console.error('Update user status error:', err);
     if (req.xhr) {
-      return res.json({ success: false, message: 'Error updating status' });
+      return res.status(500).json({ success: false, message: 'Error updating status' });
     }
     res.redirect('/admin/users');
   }
@@ -88,12 +102,16 @@ exports.updateUserStatus = (req, res) => {
 
 exports.deleteUser = (req, res) => {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid user ID');
+      return res.redirect('/admin/users');
+    }
     
     // Don't allow deleting self
-    if (parseInt(id) === req.session.user.id) {
+    if (id === req.session.user.id) {
       if (req.xhr) {
-        return res.json({ success: false, message: 'Cannot delete yourself' });
+        return res.status(400).json({ success: false, message: 'Cannot delete yourself' });
       }
       req.flash('error_msg', 'Cannot delete yourself');
       return res.redirect('/admin/users');
@@ -110,7 +128,7 @@ exports.deleteUser = (req, res) => {
   } catch (err) {
     console.error('Delete user error:', err);
     if (req.xhr) {
-      return res.json({ success: false, message: 'Error deleting user' });
+      return res.status(500).json({ success: false, message: 'Error deleting user' });
     }
     res.redirect('/admin/users');
   }
@@ -142,7 +160,11 @@ exports.artisans = (req, res) => {
 
 exports.approveArtisan = (req, res) => {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid artisan ID');
+      return res.redirect('/admin/artisans');
+    }
     ArtisanProfile.approve(id);
 
     // Notify artisan
@@ -157,7 +179,7 @@ exports.approveArtisan = (req, res) => {
   } catch (err) {
     console.error('Approve artisan error:', err);
     if (req.xhr) {
-      return res.json({ success: false, message: 'Error approving artisan' });
+      return res.status(500).json({ success: false, message: 'Error approving artisan' });
     }
     res.redirect('/admin/artisans');
   }
@@ -165,7 +187,11 @@ exports.approveArtisan = (req, res) => {
 
 exports.rejectArtisan = (req, res) => {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid artisan ID');
+      return res.redirect('/admin/artisans');
+    }
     ArtisanProfile.reject(id);
 
     if (req.xhr) {
@@ -177,7 +203,7 @@ exports.rejectArtisan = (req, res) => {
   } catch (err) {
     console.error('Reject artisan error:', err);
     if (req.xhr) {
-      return res.json({ success: false, message: 'Error rejecting artisan' });
+      return res.status(500).json({ success: false, message: 'Error rejecting artisan' });
     }
     res.redirect('/admin/artisans');
   }
@@ -210,7 +236,11 @@ exports.products = (req, res) => {
 
 exports.approveProduct = (req, res) => {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid product ID');
+      return res.redirect('/admin/products');
+    }
     const product = Product.findById(id);
 
     Product.update(id, { status: 'approved' });
@@ -225,7 +255,7 @@ exports.approveProduct = (req, res) => {
   } catch (err) {
     console.error('Approve product error:', err);
     if (req.xhr) {
-      return res.json({ success: false, message: 'Error approving product' });
+      return res.status(500).json({ success: false, message: 'Error approving product' });
     }
     res.redirect('/admin/products');
   }
@@ -233,7 +263,11 @@ exports.approveProduct = (req, res) => {
 
 exports.rejectProduct = (req, res) => {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid product ID');
+      return res.redirect('/admin/products');
+    }
     const product = Product.findById(id);
 
     Product.update(id, { status: 'rejected' });
@@ -248,7 +282,7 @@ exports.rejectProduct = (req, res) => {
   } catch (err) {
     console.error('Reject product error:', err);
     if (req.xhr) {
-      return res.json({ success: false, message: 'Error rejecting product' });
+      return res.status(500).json({ success: false, message: 'Error rejecting product' });
     }
     res.redirect('/admin/products');
   }
@@ -256,7 +290,11 @@ exports.rejectProduct = (req, res) => {
 
 exports.toggleFeatured = (req, res) => {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid product ID');
+      return res.redirect('/admin/products');
+    }
     const product = Product.findById(id);
 
     Product.update(id, { featured: product.featured ? 0 : 1 });
@@ -269,7 +307,7 @@ exports.toggleFeatured = (req, res) => {
   } catch (err) {
     console.error('Toggle featured error:', err);
     if (req.xhr) {
-      return res.json({ success: false });
+      return res.status(500).json({ success: false });
     }
     res.redirect('/admin/products');
   }
@@ -309,7 +347,7 @@ exports.createCategory = (req, res) => {
   } catch (err) {
     console.error('Create category error:', err);
     if (req.xhr) {
-      return res.json({ success: false, message: 'Error creating category' });
+      return res.status(500).json({ success: false, message: 'Error creating category' });
     }
     req.flash('error_msg', 'Error creating category');
     res.redirect('/admin/categories');
@@ -318,7 +356,11 @@ exports.createCategory = (req, res) => {
 
 exports.updateCategory = (req, res) => {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid category ID');
+      return res.redirect('/admin/categories');
+    }
     const { name, description } = req.body;
     const updates = { name, description };
 
@@ -337,7 +379,7 @@ exports.updateCategory = (req, res) => {
   } catch (err) {
     console.error('Update category error:', err);
     if (req.xhr) {
-      return res.json({ success: false, message: 'Error updating category' });
+      return res.status(500).json({ success: false, message: 'Error updating category' });
     }
     res.redirect('/admin/categories');
   }
@@ -345,7 +387,11 @@ exports.updateCategory = (req, res) => {
 
 exports.deleteCategory = (req, res) => {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid category ID');
+      return res.redirect('/admin/categories');
+    }
     Category.delete(id);
 
     if (req.xhr) {
@@ -357,7 +403,7 @@ exports.deleteCategory = (req, res) => {
   } catch (err) {
     console.error('Delete category error:', err);
     if (req.xhr) {
-      return res.json({ success: false, message: 'Error deleting category' });
+      return res.status(500).json({ success: false, message: 'Error deleting category' });
     }
     res.redirect('/admin/categories');
   }
@@ -415,7 +461,11 @@ exports.orderDetail = (req, res) => {
 
 exports.updateOrderStatus = (req, res) => {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid order ID');
+      return res.redirect('/admin/orders');
+    }
     const { status } = req.body;
 
     Order.updateStatus(id, status);
@@ -431,7 +481,7 @@ exports.updateOrderStatus = (req, res) => {
   } catch (err) {
     console.error('Update order status error:', err);
     if (req.xhr) {
-      return res.json({ success: false });
+      return res.status(500).json({ success: false });
     }
     res.redirect('/admin/orders');
   }
@@ -464,7 +514,11 @@ exports.auctions = (req, res) => {
 
 exports.cancelAuction = (req, res) => {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid auction ID');
+      return res.redirect('/admin/auctions');
+    }
     Auction.cancel(id);
 
     if (req.xhr) {
@@ -476,7 +530,7 @@ exports.cancelAuction = (req, res) => {
   } catch (err) {
     console.error('Cancel auction error:', err);
     if (req.xhr) {
-      return res.json({ success: false });
+      return res.status(500).json({ success: false });
     }
     res.redirect('/admin/auctions');
   }
@@ -504,7 +558,11 @@ exports.reviews = (req, res) => {
 
 exports.updateReviewStatus = (req, res) => {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid review ID');
+      return res.redirect('/admin/reviews');
+    }
     const { status } = req.body;
 
     Review.updateStatus(id, status);
@@ -518,7 +576,55 @@ exports.updateReviewStatus = (req, res) => {
   } catch (err) {
     console.error('Update review status error:', err);
     if (req.xhr) {
-      return res.json({ success: false });
+      return res.status(500).json({ success: false });
+    }
+    res.redirect('/admin/reviews');
+  }
+};
+
+exports.approveReview = (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid review ID');
+      return res.redirect('/admin/reviews');
+    }
+    Review.updateStatus(id, 'visible');
+
+    if (req.xhr) {
+      return res.json({ success: true });
+    }
+
+    req.flash('success_msg', 'Review approved');
+    res.redirect('/admin/reviews');
+  } catch (err) {
+    console.error('Approve review error:', err);
+    if (req.xhr) {
+      return res.status(500).json({ success: false });
+    }
+    res.redirect('/admin/reviews');
+  }
+};
+
+exports.deleteReview = (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid review ID');
+      return res.redirect('/admin/reviews');
+    }
+    Review.delete(id);
+
+    if (req.xhr) {
+      return res.json({ success: true });
+    }
+
+    req.flash('success_msg', 'Review deleted');
+    res.redirect('/admin/reviews');
+  } catch (err) {
+    console.error('Delete review error:', err);
+    if (req.xhr) {
+      return res.status(500).json({ success: false });
     }
     res.redirect('/admin/reviews');
   }
@@ -564,7 +670,7 @@ exports.createCoupon = (req, res) => {
   } catch (err) {
     console.error('Create coupon error:', err);
     if (req.xhr) {
-      return res.json({ success: false, message: 'Error creating coupon' });
+      return res.status(500).json({ success: false, message: 'Error creating coupon' });
     }
     req.flash('error_msg', 'Error creating coupon');
     res.redirect('/admin/coupons');
@@ -573,7 +679,11 @@ exports.createCoupon = (req, res) => {
 
 exports.toggleCoupon = (req, res) => {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid coupon ID');
+      return res.redirect('/admin/coupons');
+    }
     const coupon = Coupon.toggleActive(id);
 
     if (req.xhr) {
@@ -584,7 +694,7 @@ exports.toggleCoupon = (req, res) => {
   } catch (err) {
     console.error('Toggle coupon error:', err);
     if (req.xhr) {
-      return res.json({ success: false });
+      return res.status(500).json({ success: false });
     }
     res.redirect('/admin/coupons');
   }
@@ -592,7 +702,11 @@ exports.toggleCoupon = (req, res) => {
 
 exports.deleteCoupon = (req, res) => {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid coupon ID');
+      return res.redirect('/admin/coupons');
+    }
     Coupon.delete(id);
 
     if (req.xhr) {
@@ -604,7 +718,7 @@ exports.deleteCoupon = (req, res) => {
   } catch (err) {
     console.error('Delete coupon error:', err);
     if (req.xhr) {
-      return res.json({ success: false });
+      return res.status(500).json({ success: false });
     }
     res.redirect('/admin/coupons');
   }
