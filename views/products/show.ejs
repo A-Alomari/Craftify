@@ -45,7 +45,7 @@
 <div class="flex items-center gap-3 mb-6">
 <div class="flex items-center gap-1 text-primary-container">
 <span class="material-symbols-outlined filled-icon">star</span>
-<span class="font-bold"><%= ratingStats && ratingStats.average ? ratingStats.average.toFixed(1) : 'New' %></span>
+<span class="font-bold"><%= ratingStats && ratingStats.avg_rating ? Number(ratingStats.avg_rating).toFixed(1) : 'New' %></span>
 <% if (ratingStats && ratingStats.count > 0) { %>
 <span class="text-on-secondary-container text-sm">(<%= ratingStats.count %> reviews)</span>
 <% } %>
@@ -114,7 +114,15 @@
 <p class="text-on-secondary-container leading-relaxed mb-6 font-body">
     <%= (artisan && artisan.bio) ? artisan.bio : 'Discover more amazing handcrafted products from this artisan.' %>
 </p>
+<div class="flex gap-4">
 <a class="text-primary font-bold font-headline underline underline-offset-4 hover:opacity-80 transition-opacity" href="/products/artisan/<%= product.artisan_id %>">View Artist Shop</a>
+<% if (user && user.id !== product.artisan_id) { %>
+<a class="inline-flex items-center gap-2 text-primary font-bold font-headline underline underline-offset-4 hover:opacity-80 transition-opacity" href="/user/messages/<%= product.artisan_id %>">
+<span class="material-symbols-outlined text-sm">chat</span>
+Send Message
+</a>
+<% } %>
+</div>
 </div>
 </section>
 <!-- Product Details -->
@@ -132,6 +140,137 @@
 </div>
 </section>
 </div>
+
+<%
+const distributionMap = {};
+(ratingDistribution || []).forEach(function(entry) {
+    distributionMap[entry.rating] = entry.count;
+});
+%>
+
+<section class="mt-24 grid grid-cols-1 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] gap-12">
+    <div class="space-y-8">
+        <div>
+            <p class="text-xs uppercase tracking-[0.2em] text-secondary font-semibold mb-3">Customer Feedback</p>
+            <h3 class="font-headline text-3xl text-on-surface">Reviews & Ratings</h3>
+        </div>
+
+        <div class="bg-surface-container-lowest rounded-2xl p-8 shadow-sm">
+            <div class="flex items-end gap-4 mb-8">
+                <div class="text-5xl font-headline font-bold text-on-surface"><%= ratingStats && ratingStats.avg_rating ? Number(ratingStats.avg_rating).toFixed(1) : 'New' %></div>
+                <div class="pb-1">
+                    <div class="flex items-center gap-1 text-primary">
+                        <% const roundedAverage = ratingStats && ratingStats.avg_rating ? Math.round(Number(ratingStats.avg_rating)) : 0; %>
+                        <% for (let star = 1; star <= 5; star++) { %>
+                            <span class="material-symbols-outlined text-sm"><%= star <= roundedAverage ? 'star' : 'star_outline' %></span>
+                        <% } %>
+                    </div>
+                    <p class="text-sm text-secondary mt-2">Based on <%= ratingStats && ratingStats.count ? ratingStats.count : 0 %> verified reviews</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <% for (let rating = 5; rating >= 1; rating--) { %>
+                    <% const totalReviews = ratingStats && ratingStats.count ? Number(ratingStats.count) : 0; %>
+                    <% const count = Number(distributionMap[rating] || 0); %>
+                    <% const width = totalReviews > 0 ? (count / totalReviews) * 100 : 0; %>
+                    <div class="grid grid-cols-[auto_1fr_auto] items-center gap-3 text-sm">
+                        <span class="font-semibold text-on-surface"><%= rating %>★</span>
+                        <div class="h-2.5 rounded-full bg-surface-container-low overflow-hidden">
+                            <div class="h-full rounded-full bg-primary" style="width: <%= width %>%;"></div>
+                        </div>
+                        <span class="text-secondary"><%= count %></span>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <div class="bg-surface-container-low rounded-2xl p-8">
+            <h4 class="font-headline text-xl text-on-surface mb-4">Write a Review</h4>
+            <% if (!user) { %>
+                <p class="text-secondary mb-4">Sign in to leave a review once your order has been delivered.</p>
+                <a href="/auth/login" class="inline-flex items-center gap-2 bg-primary-container text-on-primary-container px-5 py-3 rounded-xl font-semibold">
+                    <span class="material-symbols-outlined text-base">login</span>
+                    Log in to review
+                </a>
+            <% } else if (canReview && canReview.canReview) { %>
+                <form action="/user/reviews" method="POST" class="space-y-4">
+                    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                    <input type="hidden" name="product_id" value="<%= product.id %>">
+                    <div>
+                        <label for="review-rating" class="block text-sm font-semibold text-on-surface mb-2">Rating</label>
+                        <select id="review-rating" name="rating" required class="w-full rounded-xl border border-outline-variant/20 bg-white px-4 py-3 text-sm text-on-surface">
+                            <option value="">Choose a rating</option>
+                            <option value="5">5 stars</option>
+                            <option value="4">4 stars</option>
+                            <option value="3">3 stars</option>
+                            <option value="2">2 stars</option>
+                            <option value="1">1 star</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="review-title" class="block text-sm font-semibold text-on-surface mb-2">Title</label>
+                        <input id="review-title" name="title" type="text" maxlength="200" class="w-full rounded-xl border border-outline-variant/20 bg-white px-4 py-3 text-sm text-on-surface" placeholder="Summarize your experience">
+                    </div>
+                    <div>
+                        <label for="review-comment" class="block text-sm font-semibold text-on-surface mb-2">Comment</label>
+                        <textarea id="review-comment" name="comment" rows="4" required maxlength="1000" class="w-full rounded-xl border border-outline-variant/20 bg-white px-4 py-3 text-sm text-on-surface" placeholder="Share what you loved about this piece"></textarea>
+                    </div>
+                    <button type="submit" class="inline-flex items-center gap-2 bg-primary-container text-on-primary-container px-5 py-3 rounded-xl font-semibold">
+                        <span class="material-symbols-outlined text-base">rate_review</span>
+                        Submit review
+                    </button>
+                </form>
+            <% } else if (canReview && canReview.hasReviewed) { %>
+                <p class="text-secondary">You have already reviewed this product. Thanks for sharing your feedback.</p>
+            <% } else { %>
+                <p class="text-secondary">Reviews open after a delivered order so feedback stays tied to real purchases.</p>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="space-y-5">
+        <div class="flex items-center justify-between gap-4">
+            <div>
+                <p class="text-xs uppercase tracking-[0.2em] text-secondary font-semibold mb-2">Latest Feedback</p>
+                <h4 class="font-headline text-2xl text-on-surface">What buyers are saying</h4>
+            </div>
+            <% if (reviews && reviews.length > 0) { %>
+                <span class="text-sm text-secondary"><%= reviews.length %> visible review<%= reviews.length === 1 ? '' : 's' %></span>
+            <% } %>
+        </div>
+
+        <% if (reviews && reviews.length > 0) { %>
+            <% reviews.forEach(function(review) { %>
+                <article class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <img class="w-12 h-12 rounded-full object-cover" src="<%= review.reviewer_avatar || '/images/default-avatar.png' %>" alt="<%= review.reviewer_name %>" onerror="this.src='/images/default-avatar.png'"/>
+                            <div>
+                                <p class="font-semibold text-on-surface"><%= review.reviewer_name %></p>
+                                <p class="text-xs text-secondary"><%= new Date(review.created_at).toLocaleDateString() %></p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 text-primary">
+                            <% for (let star = 1; star <= 5; star++) { %>
+                                <span class="material-symbols-outlined text-sm"><%= star <= Number(review.rating || 0) ? 'star' : 'star_outline' %></span>
+                            <% } %>
+                        </div>
+                    </div>
+                    <% if (review.title) { %>
+                        <h5 class="font-semibold text-on-surface mt-5"><%= review.title %></h5>
+                    <% } %>
+                    <p class="text-secondary leading-relaxed mt-2"><%= review.comment %></p>
+                </article>
+            <% }); %>
+        <% } else { %>
+            <div class="bg-surface-container-low rounded-2xl p-8 text-center">
+                <span class="material-symbols-outlined text-5xl text-secondary/60">reviews</span>
+                <p class="text-secondary mt-3">No approved reviews yet for this product.</p>
+            </div>
+        <% } %>
+    </div>
+</section>
 
 <% } %>
 </main>

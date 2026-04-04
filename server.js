@@ -39,6 +39,13 @@ const sessionStorePath = process.env.SESSION_STORE_PATH
   ? path.resolve(process.env.SESSION_STORE_PATH)
   : path.join(__dirname, '.sessions');
 const sessionSecret = process.env.SESSION_SECRET || (isTest ? 'craftify-test-secret' : null);
+const enableNonProdCsp = ['1', 'true', 'yes', 'on'].includes(String(process.env.ENABLE_NON_PROD_CSP || '').toLowerCase());
+const socketBidWindowMs = Number.parseInt(process.env.SOCKET_BID_WINDOW_MS || '60000', 10);
+const socketBidMaxPerWindow = Number.parseInt(process.env.SOCKET_BID_MAX_PER_WINDOW || '12', 10);
+const socketBidBaseBlockMs = Number.parseInt(process.env.SOCKET_BID_BLOCK_MS || '30000', 10);
+const socketBidRateState = new Map();
+let lastSocketBidCleanupAt = 0;
+let cartCountWarningLogged = false;
 
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -62,15 +69,15 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Security headers
 app.use(helmet({
-  contentSecurityPolicy: isProduction
+  contentSecurityPolicy: (isProduction || enableNonProdCsp) && !isTest
     ? {
         directives: {
           defaultSrc: ["'self'"],
           scriptSrc: ["'self'", "'unsafe-inline'", 'https://cdn.jsdelivr.net'],
           styleSrc: ["'self'", "'unsafe-inline'", 'https://cdn.jsdelivr.net', 'https://fonts.googleapis.com'],
           fontSrc: ["'self'", 'https://fonts.gstatic.com', 'https://cdn.jsdelivr.net', 'data:'],
-          imgSrc: ["'self'", 'data:', 'blob:'],
-          connectSrc: ["'self'"],
+          imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
+          connectSrc: ["'self'", 'ws:', 'wss:'],
           objectSrc: ["'none'"],
           baseUri: ["'self'"],
           formAction: ["'self'"],
@@ -200,7 +207,10 @@ app.use(async (req, res, next) => {
       res.locals.cartCount = count?.count || 0;
     }
   } catch (err) {
-    // Database might not be initialized yet
+    if (!cartCountWarningLogged && !isTest) {
+      cartCountWarningLogged = true;
+      console.warn('Cart/notification count middleware skipped:', err.message);
+    }
   }
   next();
 });
@@ -217,6 +227,7 @@ const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/user');
 const apiRoutes = require('./routes/api');
 const Auction = require('./models/Auction');
+const Notification = require('./models/Notification');
 
 app.use('/', homeRoutes);
 app.use('/auth', authRoutes);
@@ -237,23 +248,89 @@ io.use((socket, next) => {
 
 io.use((socket, next) => {
   const sessionUser = socket.request?.session?.user;
-  if (sessionUser) {
+  if (sessionUser && sessionUser.id && sessionUser.status !== 'suspended') {
     socket.data.user = sessionUser;
     socket.data.authenticated = true;
   } else {
+    socket.data.user = null;
     socket.data.authenticated = false;
   }
   next();
 });
 
+function cleanupSocketBidRateState(now) {
+  if (now - lastSocketBidCleanupAt < socketBidWindowMs) {
+    return;
+  }
+
+  lastSocketBidCleanupAt = now;
+  const staleThreshold = now - Math.max(socketBidWindowMs, socketBidBaseBlockMs) * 4;
+  socketBidRateState.forEach((entry, key) => {
+    if ((entry.lastSeen || 0) < staleThreshold && (entry.blockedUntil || 0) < now) {
+      socketBidRateState.delete(key);
+    }
+  });
+}
+
+function consumeSocketBidAllowance(userId, auctionId) {
+  const now = Date.now();
+  cleanupSocketBidRateState(now);
+
+  const key = `${userId}:${auctionId}`;
+  const entry = socketBidRateState.get(key) || {
+    timestamps: [],
+    blockedUntil: 0,
+    strikes: 0,
+    lastSeen: now
+  };
+
+  entry.lastSeen = now;
+  entry.timestamps = entry.timestamps.filter((timestamp) => now - timestamp < socketBidWindowMs);
+
+  if (entry.blockedUntil > now) {
+    socketBidRateState.set(key, entry);
+    return {
+      allowed: false,
+      retryAfterMs: entry.blockedUntil - now
+    };
+  }
+
+  if (entry.timestamps.length >= socketBidMaxPerWindow) {
+    entry.strikes += 1;
+    const penaltyMs = Math.min(socketBidBaseBlockMs * entry.strikes, 5 * 60 * 1000);
+    entry.blockedUntil = now + penaltyMs;
+    entry.timestamps = [];
+    socketBidRateState.set(key, entry);
+    return {
+      allowed: false,
+      retryAfterMs: penaltyMs
+    };
+  }
+
+  entry.blockedUntil = 0;
+  entry.timestamps.push(now);
+  socketBidRateState.set(key, entry);
+  return { allowed: true };
+}
+
 io.on('connection', (socket) => {
   socket.on('joinAuction', (auctionId) => {
-    socket.join(`auction-${auctionId}`);
+    const parsedAuctionId = Number.parseInt(auctionId, 10);
+    if (!Number.isInteger(parsedAuctionId) || parsedAuctionId <= 0) {
+      return;
+    }
+    socket.join(`auction-${parsedAuctionId}`);
   });
   
   socket.on('placeBid', async (data) => {
     try {
       const { auctionId, amount } = data;
+      const parsedAuctionId = Number.parseInt(auctionId, 10);
+
+      if (!Number.isInteger(parsedAuctionId) || parsedAuctionId <= 0) {
+        socket.emit('bidError', { message: 'Invalid auction' });
+        return;
+      }
       
       // Socket.IO authentication: reject unauthenticated bid attempts
       if (!socket.data.authenticated || !socket.data.user) {
@@ -268,17 +345,37 @@ io.on('connection', (socket) => {
       }
 
       const userId = socket.data.user.id;
+      const allowance = consumeSocketBidAllowance(userId, parsedAuctionId);
+      if (!allowance.allowed) {
+        const retrySeconds = Math.max(Math.ceil(allowance.retryAfterMs / 1000), 1);
+        socket.emit('bidError', {
+          message: `Too many bids. Please wait ${retrySeconds}s before trying again.`
+        });
+        return;
+      }
 
-      const result = Auction.placeBid(auctionId, userId, parsedAmount);
+      const result = Auction.placeBid(parsedAuctionId, userId, parsedAmount);
 
-      io.to(`auction-${auctionId}`).emit('bidUpdate', {
-        auctionId,
+      if (result.previousBidderId && result.previousBidderId !== userId) {
+        Notification.auctionOutbid(
+          result.previousBidderId,
+          parsedAuctionId,
+          result.auction.title || result.auction.product_name
+        );
+      }
+
+      const bidUpdatePayload = {
+        auctionId: parsedAuctionId,
         amount: result.bid.amount,
         currentBid: result.auction.current_highest_bid,
         bidCount: result.auction.bid_count,
+        bidderId: userId,
         bidderName: socket.data.user.name || 'Anonymous',
-        bidIncrement: result.auction.bid_increment
-      });
+        bidIncrement: result.auction.bid_increment,
+        bidTime: result.bid.bid_time || result.bid.created_at
+      };
+
+      io.to(`auction-${parsedAuctionId}`).emit('bidUpdate', bidUpdatePayload);
       
     } catch (err) {
       console.error('Bid error:', err);
@@ -297,7 +394,11 @@ io.on('connection', (socket) => {
   });
   
   socket.on('leaveAuction', (auctionId) => {
-    socket.leave(`auction-${auctionId}`);
+    const parsedAuctionId = Number.parseInt(auctionId, 10);
+    if (!Number.isInteger(parsedAuctionId) || parsedAuctionId <= 0) {
+      return;
+    }
+    socket.leave(`auction-${parsedAuctionId}`);
   });
   
   socket.on('disconnect', () => {

@@ -27,6 +27,14 @@ function getReportWindowStartIso(period) {
   return now.toISOString();
 }
 
+function respondAdminNotFound(req, res, redirectPath, message) {
+  if (req.xhr) {
+    return res.status(404).json({ success: false, message });
+  }
+  req.flash('error_msg', message);
+  return res.redirect(redirectPath);
+}
+
 // Dashboard
 exports.dashboard = (req, res) => {
   try {
@@ -238,21 +246,33 @@ exports.rejectArtisan = (req, res) => {
 // Products management
 exports.products = (req, res) => {
   try {
-    const { status, category, search } = req.query;
+    const { status, category, search, page } = req.query;
     const filters = {};
+    const currentPage = Math.max(1, parseInt(page) || 1);
+    const limit = 20;
+    const offset = (currentPage - 1) * limit;
     
     if (status) filters.status = status;
     if (category) filters.category_id = parseInt(category);
     if (search) filters.search = search;
+    filters.limit = limit;
+    filters.offset = offset;
 
     const products = Product.findAll(filters);
+    const totalCount = Product.count(filters);
+    const totalPages = Math.ceil(totalCount / limit);
     const categories = Category.findAll();
 
     res.render('admin/products', {
       title: 'Product Management - Craftify',
       products,
       categories,
-      filters: { status, category, search }
+      filters: { status, category, search },
+      pagination: {
+        currentPage,
+        totalPages,
+        totalItems: totalCount
+      }
     });
   } catch (err) {
     console.error('Admin products error:', err);
@@ -268,6 +288,9 @@ exports.approveProduct = (req, res) => {
       return res.redirect('/admin/products');
     }
     const product = Product.findById(id);
+    if (!product) {
+      return respondAdminNotFound(req, res, '/admin/products', 'Product not found');
+    }
 
     Product.update(id, { status: 'approved' });
     Notification.productApproved(product.artisan_id, product.name);
@@ -295,6 +318,9 @@ exports.rejectProduct = (req, res) => {
       return res.redirect('/admin/products');
     }
     const product = Product.findById(id);
+    if (!product) {
+      return respondAdminNotFound(req, res, '/admin/products', 'Product not found');
+    }
 
     Product.update(id, { status: 'rejected' });
     Notification.productRejected(product.artisan_id, product.name);
@@ -322,6 +348,9 @@ exports.toggleFeatured = (req, res) => {
       return res.redirect('/admin/products');
     }
     const product = Product.findById(id);
+    if (!product) {
+      return respondAdminNotFound(req, res, '/admin/products', 'Product not found');
+    }
 
     Product.update(id, { featured: product.featured ? 0 : 1 });
 
@@ -502,8 +531,10 @@ exports.updateOrderStatus = (req, res) => {
       return res.redirect(`/admin/orders/${id}`);
     }
 
-    Order.updateStatus(id, status);
-    const order = Order.findById(id);
+    const order = Order.updateStatus(id, status);
+    if (!order) {
+      return respondAdminNotFound(req, res, '/admin/orders', 'Order not found');
+    }
     Notification.orderStatusChanged(order.user_id, id, status);
 
     if (req.xhr) {
@@ -553,7 +584,10 @@ exports.cancelAuction = (req, res) => {
       req.flash('error_msg', 'Invalid auction ID');
       return res.redirect('/admin/auctions');
     }
-    Auction.cancel(id);
+    const auction = Auction.cancel(id);
+    if (!auction) {
+      return respondAdminNotFound(req, res, '/admin/auctions', 'Auction not found');
+    }
 
     if (req.xhr) {
       return res.json({ success: true });
@@ -607,7 +641,10 @@ exports.updateReviewStatus = (req, res) => {
       return res.redirect('/admin/reviews');
     }
 
-    Review.updateStatus(id, status);
+    const updatedReview = Review.updateStatus(id, status);
+    if (!updatedReview) {
+      return respondAdminNotFound(req, res, '/admin/reviews', 'Review not found');
+    }
 
     if (req.xhr) {
       return res.json({ success: true });
@@ -631,7 +668,10 @@ exports.approveReview = (req, res) => {
       req.flash('error_msg', 'Invalid review ID');
       return res.redirect('/admin/reviews');
     }
-    Review.updateStatus(id, 'visible');
+    const updatedReview = Review.updateStatus(id, 'visible');
+    if (!updatedReview) {
+      return respondAdminNotFound(req, res, '/admin/reviews', 'Review not found');
+    }
 
     if (req.xhr) {
       return res.json({ success: true });
@@ -654,6 +694,10 @@ exports.deleteReview = (req, res) => {
     if (isNaN(id) || id <= 0) {
       req.flash('error_msg', 'Invalid review ID');
       return res.redirect('/admin/reviews');
+    }
+    const review = Review.findById(id);
+    if (!review) {
+      return respondAdminNotFound(req, res, '/admin/reviews', 'Review not found');
     }
     Review.delete(id);
 
@@ -764,6 +808,9 @@ exports.toggleCoupon = (req, res) => {
       return res.redirect('/admin/coupons');
     }
     const coupon = Coupon.toggleActive(id);
+    if (!coupon) {
+      return respondAdminNotFound(req, res, '/admin/coupons', 'Coupon not found');
+    }
 
     if (req.xhr) {
       return res.json({ success: true, active: coupon.active });
@@ -785,6 +832,10 @@ exports.deleteCoupon = (req, res) => {
     if (isNaN(id) || id <= 0) {
       req.flash('error_msg', 'Invalid coupon ID');
       return res.redirect('/admin/coupons');
+    }
+    const coupon = Coupon.findById(id);
+    if (!coupon) {
+      return respondAdminNotFound(req, res, '/admin/coupons', 'Coupon not found');
     }
     Coupon.delete(id);
 

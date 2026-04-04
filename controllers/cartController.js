@@ -102,7 +102,7 @@ exports.updateItem = (req, res) => {
     const { productId, quantity } = req.body;
     const parsedQuantity = Number.parseInt(quantity, 10);
 
-    if (!Number.isInteger(parsedQuantity) || parsedQuantity <= 0) {
+    if (!Number.isInteger(parsedQuantity)) {
       if (req.xhr) return res.status(400).json({ success: false, message: 'Invalid quantity' });
       req.flash('error_msg', 'Invalid quantity');
       return res.redirect('/cart');
@@ -110,6 +110,17 @@ exports.updateItem = (req, res) => {
 
     const userId = req.session.user ? req.session.user.id : null;
     const sessionId = !userId ? req.sessionID : null;
+
+    // If quantity is zero or less, treat as remove
+    if (parsedQuantity <= 0) {
+      Cart.removeItem(userId, sessionId, productId);
+      if (req.xhr) {
+        const totals = Cart.getTotal(userId, sessionId);
+        return res.json({ success: true, subtotal: totals.total, cartCount: totals.item_count });
+      }
+      req.flash('success_msg', 'Item removed from cart');
+      return res.redirect('/cart');
+    }
 
     const product = Product.findById(productId);
     if (!product) {

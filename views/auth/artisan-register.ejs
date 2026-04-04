@@ -14,7 +14,7 @@
 <h1 class="font-headline text-3xl font-bold text-on-surface mb-2 tracking-tight">Become an Artisan</h1>
 <p class="text-secondary font-body text-sm">Join our marketplace and share your craft</p>
 </header>
-<form class="space-y-5" action="/auth/artisan-register" method="POST">
+<form class="space-y-5" action="/auth/artisan-register" method="POST" enctype="multipart/form-data">
 <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
 <input type="hidden" name="role" value="artisan">
 
@@ -34,12 +34,43 @@
 <div class="absolute left-0 top-1/4 bottom-1/4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
 </div>
 </div>
+<!-- Phone -->
+<div class="space-y-1.5">
+<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Phone Number</label>
+<div class="relative group">
+<input name="phone" class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-0 focus:bg-surface-container-highest transition-colors placeholder:text-outline/50 text-on-surface" placeholder="+973 3000 0000" type="tel"/>
+<div class="absolute left-0 top-1/4 bottom-1/4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+</div>
+</div>
 <!-- Shop Name -->
 <div class="space-y-1.5">
 <label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Shop Name</label>
 <div class="relative group">
 <input name="shop_name" required class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-0 focus:bg-surface-container-highest transition-colors placeholder:text-outline/50 text-on-surface" placeholder="Your artisan shop name" type="text"/>
 <div class="absolute left-0 top-1/4 bottom-1/4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+</div>
+</div>
+<!-- Profile Image -->
+<div class="space-y-1.5">
+<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Profile Image</label>
+<div class="relative group">
+<input name="profile_image" accept="image/*" class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl text-sm text-on-surface file:mr-4 file:rounded-lg file:border-0 file:bg-primary-container file:px-3 file:py-2 file:font-semibold file:text-on-primary-container" type="file"/>
+</div>
+</div>
+<!-- Bio -->
+<div class="space-y-1.5">
+<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Artist Bio</label>
+<div class="relative group">
+<textarea name="bio" rows="4" class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-0 focus:bg-surface-container-highest transition-colors placeholder:text-outline/50 text-on-surface resize-none" placeholder="Tell customers about your craft, materials, and story"></textarea>
+<div class="absolute left-0 top-4 bottom-4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+</div>
+</div>
+<!-- Return Policy -->
+<div class="space-y-1.5">
+<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Return Policy</label>
+<div class="relative group">
+<textarea name="return_policy" rows="3" class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-0 focus:bg-surface-container-highest transition-colors placeholder:text-outline/50 text-on-surface resize-none" placeholder="Share any return, exchange, or made-to-order policies"></textarea>
+<div class="absolute left-0 top-4 bottom-4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
 </div>
 </div>
 <!-- Password Grid -->

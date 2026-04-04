@@ -4,12 +4,16 @@
     if (href === '/orders') {
       return pathValue === '/orders' || pathValue.startsWith('/orders/');
     }
+    if (href === '/auctions/my-bids') {
+      return pathValue === '/auctions/my-bids';
+    }
     return pathValue === href || pathValue.startsWith(`${href}/`);
   };
 
   const tabs = [
     { href: '/user/profile', icon: 'account_circle', label: 'Profile' },
     { href: '/orders', icon: 'shopping_bag', label: 'Orders' },
+    { href: '/auctions/my-bids', icon: 'gavel', label: 'My Bids' },
     { href: '/user/wishlist', icon: 'favorite', label: 'Wishlist' },
     { href: '/user/notifications', icon: 'notifications', label: 'Notifications' },
     { href: '/user/messages', icon: 'chat', label: 'Messages' },

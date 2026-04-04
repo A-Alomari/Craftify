@@ -2,9 +2,6 @@
   <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center gap-3">
     <a class="font-headline text-2xl text-primary-container font-bold" href="/">Craftify</a>
 
-    <form class="flex-1 min-w-[220px]" action="/products/search" method="GET">
-      <input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2 text-sm" type="search" name="q" placeholder="Search products..." aria-label="Search">
-    </form>
 
     <a class="text-sm font-semibold text-on-surface hover:text-primary" href="/products">Products</a>
     <a class="text-sm font-semibold text-on-surface hover:text-primary" href="/auctions">Auctions</a>
@@ -17,6 +14,9 @@
         <a class="text-sm font-semibold text-on-surface hover:text-primary" href="/admin/dashboard">Admin</a>
       <% } else if (user.role === 'artisan') { %>
         <a class="text-sm font-semibold text-on-surface hover:text-primary" href="/artisan/dashboard">Artisan</a>
+      <% } else { %>
+        <a class="text-sm font-semibold text-on-surface hover:text-primary" href="/orders">Orders</a>
+        <a class="text-sm font-semibold text-on-surface hover:text-primary" href="/auctions/my-bids">My Bids</a>
       <% } %>
 
       <a class="text-sm font-semibold text-on-surface hover:text-primary" href="/user/profile"><%= user.name.split(' ')[0] %></a>

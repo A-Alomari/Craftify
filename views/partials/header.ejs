@@ -14,9 +14,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 </head>
 <body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
-    <% 
+    <%
         const currentPathValue = typeof currentPath === 'string' ? currentPath : '/';
         const navItems = [{ href: '/', label: 'Home' }, { href: '/products', label: 'Shop' }, { href: '/auctions', label: 'Auctions' }];
+        if (user && user.role === 'customer') {
+            navItems.push({ href: '/orders', label: 'Orders' });
+            navItems.push({ href: '/auctions/my-bids', label: 'My Bids' });
+        }
         if (user && user.role === 'artisan') navItems.push({ href: '/artisan/dashboard', label: 'Artisan' });
         if (user && user.role === 'admin') navItems.push({ href: '/admin/dashboard', label: 'Admin' });
         if (!user) navItems.push({ href: '/auth/artisan-register', label: 'Sell on Craftify' });
@@ -74,6 +78,30 @@
                 <% } %>
             </div>
         </nav>
+        <div class="px-6 pb-4">
+            <div class="max-w-7xl mx-auto relative">
+                <form action="/products/search" method="GET" class="relative">
+                    <label for="searchInput" class="sr-only">Search products, categories, or artisans</label>
+                    <input
+                        id="searchInput"
+                        name="q"
+                        type="search"
+                        value="<%= typeof filters !== 'undefined' && filters && filters.search ? filters.search : '' %>"
+                        placeholder="Search products, categories, or artisans"
+                        autocomplete="off"
+                        class="w-full rounded-2xl border border-slate-200 bg-white px-5 py-3 pr-14 text-sm text-slate-900 shadow-sm outline-none transition-all focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
+                    />
+                    <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-amber-600" aria-label="Search">
+                        <span class="material-symbols-outlined">search</span>
+                    </button>
+                </form>
+                <div
+                    id="searchResults"
+                    class="list-group absolute left-0 right-0 top-full z-50 mt-2 hidden overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl"
+                    style="display: none;"
+                ></div>
+            </div>
+        </div>
         <% 
             // Standardized flash messages: supports both messages.error/messages.success and legacy error_msg/success_msg/error
             const flashError = (typeof messages !== 'undefined' && messages.error) || (typeof error_msg !== 'undefined' && error_msg) || (typeof error !== 'undefined' && error) || '';
@@ -91,3 +119,6 @@
         <% } %>
     </header>
 <main>
+<script src="/js/form-validation.js"></script>
+<script src="/js/form-loading.js"></script>
+<script src="/js/image-preview.js"></script>

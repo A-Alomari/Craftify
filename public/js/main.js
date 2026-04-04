@@ -274,6 +274,14 @@ function updateCartQuantity(productId, quantity) {
 function initSearch() {
   const searchInput = document.getElementById('searchInput');
   const searchResults = document.getElementById('searchResults');
+  const hideResults = () => {
+    searchResults.style.display = 'none';
+    searchResults.classList.add('hidden');
+  };
+  const showResults = () => {
+    searchResults.style.display = 'block';
+    searchResults.classList.remove('hidden');
+  };
   
   if (searchInput && searchResults) {
     let debounceTimer;
@@ -283,7 +291,7 @@ function initSearch() {
       const query = this.value.trim();
       
       if (query.length < 2) {
-        searchResults.style.display = 'none';
+        hideResults();
         return;
       }
       
@@ -323,23 +331,29 @@ function initSearch() {
                 </a>
               `;
             }).join('');
-            searchResults.style.display = 'block';
+            showResults();
           } else {
             searchResults.innerHTML = '<div class="list-group-item text-muted">No products found</div>';
-            searchResults.style.display = 'block';
+            showResults();
           }
         })
         .catch(() => {
           searchResults.innerHTML = '<div class="list-group-item text-muted">Unable to load suggestions</div>';
-          searchResults.style.display = 'block';
+          showResults();
         });
       }, 300);
+    });
+
+    searchInput.addEventListener('focus', function() {
+      if (this.value.trim().length >= 2 && searchResults.innerHTML.trim()) {
+        showResults();
+      }
     });
     
     // Hide results when clicking outside
     document.addEventListener('click', function(e) {
       if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-        searchResults.style.display = 'none';
+        hideResults();
       }
     });
   }
@@ -437,3 +451,122 @@ function timeAgo(date) {
   
   return 'Just now';
 }
+
+// Form Submit Helpers with Loading States
+function handleFormSubmit(form, options = {}) {
+  const submitBtn = form.querySelector('button[type="submit"]');
+  if (!submitBtn) return;
+
+  const originalBtnText = submitBtn.innerHTML;
+  const loadingText = options.loadingText || 'Processing...';
+  
+  // Disable submit button and show loading
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = `<span class="material-symbols-outlined animate-spin inline-block">progress_activity</span> ${loadingText}`;
+  
+  // Return cleanup function
+  return {
+    success: (message) => {
+      submitBtn.innerHTML = `<span class="material-symbols-outlined">check_circle</span> Success!`;
+      submitBtn.classList.add('bg-green-600');
+      if (message) showToast(message, 'success');
+      setTimeout(() => {
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('bg-green-600');
+      }, 2000);
+    },
+    error: (message) => {
+      submitBtn.innerHTML = originalBtnText;
+      submitBtn.disabled = false;
+      if (message) showToast(message, 'danger');
+    },
+    reset: () => {
+      submitBtn.innerHTML = originalBtnText;
+      submitBtn.disabled = false;
+    }
+  };
+}
+
+// Initialize form loading states on auth forms
+document.addEventListener('DOMContentLoaded', function() {
+  // Login form
+  const loginForm = document.querySelector('form[action*="/auth/login"]');
+  if (loginForm) {
+    loginForm.addEventListener('submit', function() {
+      handleFormSubmit(this, { loadingText: 'Signing in...' });
+    });
+  }
+
+  // Register form
+  const registerForm = document.querySelector('form[action*="/auth/register"]');
+  if (registerForm) {
+    registerForm.addEventListener('submit', function() {
+      handleFormSubmit(this, { loadingText: 'Creating account...' });
+    });
+  }
+
+  // Checkout form
+  const checkoutForm = document.getElementById('checkout-form');
+  if (checkoutForm) {
+    checkoutForm.addEventListener('submit', function(e) {
+      const handler = handleFormSubmit(this, { loadingText: 'Processing order...' });
+      // The form will submit normally, loading state provides feedback
+    });
+  }
+
+  // Message send form
+  const messageForm = document.querySelector('form[action*="/user/messages"]');
+  if (messageForm && messageForm.method.toUpperCase() === 'POST') {
+    messageForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const handler = handleFormSubmit(this, { loadingText: 'Sending...' });
+      
+      fetch(this.action, {
+        method: 'POST',
+        body: new FormData(this),
+        headers: getRequestHeaders('POST')
+      })
+      .then(response => {
+        if (response.ok) {
+          handler.success('Message sent!');
+          this.reset();
+          // Reload page after short delay to show new message
+          setTimeout(() => window.location.reload(), 1000);
+        } else {
+          handler.error('Failed to send message');
+        }
+      })
+      .catch(() => {
+        handler.error('Error sending message');
+      });
+    });
+  }
+
+  // Coupon form
+  const couponForm = document.querySelector('form[action*="/cart/coupon"]');
+  if (couponForm) {
+    couponForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const handler = handleFormSubmit(this, { loadingText: 'Applying...' });
+      
+      fetch(this.action, {
+        method: 'POST',
+        body: new FormData(this),
+        headers: getRequestHeaders('POST')
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          handler.success('Coupon applied!');
+          setTimeout(() => window.location.reload(), 1000);
+        } else {
+          handler.error(data.message || 'Invalid coupon code');
+        }
+      })
+      .catch(() => {
+        handler.error('Error applying coupon');
+      });
+    });
+  }
+});

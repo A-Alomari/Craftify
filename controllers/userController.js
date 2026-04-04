@@ -5,7 +5,8 @@ const Notification = require('../models/Notification');
 const Message = require('../models/Message');
 const Order = require('../models/Order');
 const ArtisanProfile = require('../models/ArtisanProfile');
-const { validateReviewInput, sanitizeString } = require('../utils/sanitizer');
+const { validateReviewInput, validateMessageInput, sanitizeString } = require('../utils/sanitizer');
+const { getMinPasswordLength, getPasswordValidationMessage } = require('../utils/securityPolicy');
 const { getSafeRedirect } = require('../utils/redirect');
 
 // Profile
@@ -57,8 +58,8 @@ exports.changePassword = async (req, res) => {
       return res.redirect('/user/profile');
     }
 
-    if (new_password.length < 6) {
-      req.flash('error_msg', 'Password must be at least 6 characters');
+    if (new_password.length < getMinPasswordLength()) {
+      req.flash('error_msg', getPasswordValidationMessage());
       return res.redirect('/user/profile');
     }
 
@@ -247,11 +248,23 @@ exports.deleteReview = (req, res) => {
 // Notifications
 exports.notifications = (req, res) => {
   try {
-    const notifications = Notification.findByUserId(req.session.user.id);
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = 20;
+    const offset = (page - 1) * limit;
+
+    const allNotifications = Notification.findByUserId(req.session.user.id);
+    const total = allNotifications.length;
+    const notifications = allNotifications.slice(offset, offset + limit);
+    const totalPages = Math.ceil(total / limit);
 
     res.render('user/notifications', {
       title: 'Notifications - Craftify',
-      notifications
+      notifications,
+      pagination: {
+        currentPage: page,
+        totalPages: totalPages,
+        totalItems: total
+      }
     });
   } catch (err) {
     console.error('Notifications error:', err);
@@ -325,11 +338,23 @@ exports.deleteNotification = (req, res) => {
 // Messages
 exports.messages = (req, res) => {
   try {
-    const conversations = Message.getConversations(req.session.user.id);
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = 20;
+    const offset = (page - 1) * limit;
+
+    const allConversations = Message.getConversations(req.session.user.id);
+    const total = allConversations.length;
+    const conversations = allConversations.slice(offset, offset + limit);
+    const totalPages = Math.ceil(total / limit);
 
     res.render('user/messages', {
       title: 'Messages - Craftify',
-      conversations
+      conversations,
+      pagination: {
+        currentPage: page,
+        totalPages: totalPages,
+        totalItems: total
+      }
     });
   } catch (err) {
     console.error('Messages error:', err);
@@ -368,15 +393,15 @@ exports.conversation = (req, res) => {
 
 exports.sendMessage = (req, res) => {
   try {
-    const { receiver_id, content } = req.body;
-    const parsedReceiverId = parseInt(receiver_id);
-    
-    if (isNaN(parsedReceiverId) || parsedReceiverId <= 0) {
-      if (req.xhr) return res.status(400).json({ success: false, message: 'Invalid recipient' });
-      req.flash('error_msg', 'Invalid recipient');
+    const { errors, sanitized } = validateMessageInput(req.body);
+    if (errors.length > 0) {
+      if (req.xhr) return res.status(400).json({ success: false, message: errors[0] });
+      req.flash('error_msg', errors[0]);
       return res.redirect('/user/messages');
     }
-    
+
+    const parsedReceiverId = sanitized.receiver_id;
+
     // Prevent sending messages to self
     if (parsedReceiverId === req.session.user.id) {
       if (req.xhr) return res.status(400).json({ success: false, message: 'Cannot send message to yourself' });
@@ -384,20 +409,57 @@ exports.sendMessage = (req, res) => {
       return res.redirect('/user/messages');
     }
 
+    const receiver = User.findById(parsedReceiverId);
+    if (!receiver || receiver.status !== 'active') {
+      if (req.xhr) return res.status(400).json({ success: false, message: 'Invalid recipient' });
+      req.flash('error_msg', 'Invalid recipient');
+      return res.redirect('/user/messages');
+    }
+
+    const hasRecentDuplicate = Message.hasRecentDuplicate(
+      req.session.user.id,
+      parsedReceiverId,
+      sanitized.content,
+      10
+    );
+    if (hasRecentDuplicate) {
+      if (req.xhr) return res.status(429).json({ success: false, message: 'Please wait before sending the same message again' });
+      req.flash('error_msg', 'Please wait before sending the same message again');
+      return res.redirect(`/user/messages/${parsedReceiverId}`);
+    }
+
     const message = Message.create({
       sender_id: req.session.user.id,
       receiver_id: parsedReceiverId,
-      content
+      content: sanitized.content
     });
 
-    Notification.newMessage(receiver_id, req.session.user.name);
+    Notification.newMessage(parsedReceiverId, req.session.user.name);
 
     if (req.xhr) return res.json({ success: true, message });
 
-    res.redirect(`/user/messages/${receiver_id}`);
+    res.redirect(`/user/messages/${parsedReceiverId}`);
   } catch (err) {
     console.error('Send message error:', err);
-    if (req.xhr) return res.status(500).json({ success: false, message: 'Error sending message' });
+    const userFacingMessage = [
+      'Message content is required',
+      'Message must be at most 2000 characters',
+      'Message subject must be at most 200 characters'
+    ].includes(err?.message)
+      ? err.message
+      : null;
+
+    if (req.xhr) {
+      if (userFacingMessage) {
+        return res.status(400).json({ success: false, message: userFacingMessage });
+      }
+      return res.status(500).json({ success: false, message: 'Error sending message' });
+    }
+
+    if (userFacingMessage) {
+      req.flash('error_msg', userFacingMessage);
+      return res.redirect('/user/messages');
+    }
     res.redirect('/user/messages');
   }
 };

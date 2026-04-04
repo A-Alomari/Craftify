@@ -107,6 +107,14 @@
           <p class="text-secondary mt-3">No products found for this filter.</p>
         </div>
       <% } %>
+
+      <% if (pagination && pagination.totalPages > 1) { %>
+        <%- include('../partials/pagination', { 
+          pagination: pagination, 
+          baseUrl: '/admin/products', 
+          query: filters 
+        }) %>
+      <% } %>
     </section>
   </main>
 </div>

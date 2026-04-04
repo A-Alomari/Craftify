@@ -39,6 +39,10 @@
                   <button class="bg-primary-container text-on-primary-container px-3 py-2 rounded-lg text-xs font-semibold">Mark Read</button>
                 </form>
               <% } %>
+              <form action="/user/notifications/<%= n.id %>?_method=DELETE" method="POST">
+                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                <button class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-2 rounded-lg text-xs font-semibold" onclick="return confirm('Delete this notification?');">Delete</button>
+              </form>
             </div>
           </div>
         </article>
@@ -48,6 +52,16 @@
     <div class="bg-surface-container-lowest rounded-xl py-14 text-center">
       <span class="material-symbols-outlined text-5xl text-emerald-600">check_circle</span>
       <p class="text-secondary mt-3">You're all caught up.</p>
+    </div>
+  <% } %>
+
+  <% if (pagination && pagination.totalPages > 1) { %>
+    <div class="mt-8">
+      <%- include('../partials/pagination', { 
+        pagination: pagination, 
+        baseUrl: '/user/notifications', 
+        query: {} 
+      }) %>
     </div>
   <% } %>
 </section>

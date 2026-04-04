@@ -4,6 +4,7 @@ const Cart = require('../models/Cart');
 const Notification = require('../models/Notification');
 const PasswordReset = require('../models/PasswordReset');
 const { sanitizeString } = require('../utils/sanitizer');
+const { getMinPasswordLength, getPasswordValidationMessage } = require('../utils/securityPolicy');
 const { sendPasswordResetEmail } = require('../utils/email');
 const crypto = require('crypto');
 
@@ -116,8 +117,8 @@ exports.register = async (req, res) => {
     if (password !== confirmedPassword) {
       errors.push('Passwords do not match');
     }
-    if (password && password.length < 6) {
-      errors.push('Password must be at least 6 characters');
+    if (password && password.length < getMinPasswordLength()) {
+      errors.push(getPasswordValidationMessage());
     }
     if (sanitizedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail)) {
       errors.push('Please enter a valid email address');
@@ -181,8 +182,8 @@ exports.registerArtisan = async (req, res) => {
     if (password !== confirmedPassword) {
       errors.push('Passwords do not match');
     }
-    if (password && password.length < 6) {
-      errors.push('Password must be at least 6 characters');
+    if (password && password.length < getMinPasswordLength()) {
+      errors.push(getPasswordValidationMessage());
     }
     if (sanitizedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail)) {
       errors.push('Please enter a valid email address');
@@ -328,8 +329,8 @@ exports.resetPassword = async (req, res) => {
       return res.redirect(`/auth/reset-password/${token}`);
     }
 
-    if (password.length < 6) {
-      req.flash('error_msg', 'Password must be at least 6 characters');
+    if (password.length < getMinPasswordLength()) {
+      req.flash('error_msg', getPasswordValidationMessage());
       return res.redirect(`/auth/reset-password/${token}`);
     }
 
@@ -346,7 +347,7 @@ exports.resetPassword = async (req, res) => {
     }
 
     await User.updatePassword(reset.user_id, password);
-  PasswordReset.markUsed(reset.id);
+    PasswordReset.markUsed(reset.id);
 
     req.flash('success_msg', 'Password reset successful! Please log in.');
     res.redirect('/auth/login');

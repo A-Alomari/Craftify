@@ -1,5 +1,17 @@
 <%- include('../partials/header', { title: 'Browse Products | Craftify' }) %>
 
+<%
+const activeFilters = typeof filters !== 'undefined' && filters ? filters : {};
+const paginationQuery = [];
+if (activeFilters.search) paginationQuery.push(`search=${encodeURIComponent(activeFilters.search)}`);
+if (activeFilters.category) paginationQuery.push(`category=${encodeURIComponent(activeFilters.category)}`);
+if (activeFilters.sort) paginationQuery.push(`sort=${encodeURIComponent(activeFilters.sort)}`);
+if (activeFilters.min_price) paginationQuery.push(`min_price=${encodeURIComponent(activeFilters.min_price)}`);
+if (activeFilters.max_price) paginationQuery.push(`max_price=${encodeURIComponent(activeFilters.max_price)}`);
+if (activeFilters.featured) paginationQuery.push(`featured=${encodeURIComponent(activeFilters.featured)}`);
+const paginationQueryString = paginationQuery.join('&');
+%>
+
 <main class="pt-8 pb-20 max-w-screen-2xl mx-auto px-6 flex flex-col lg:flex-row gap-10">
 <!-- SideNavBar / Filters -->
 <aside class="hidden lg:block w-72 flex-shrink-0">
@@ -12,7 +24,7 @@
         <a href="/products" class="block text-secondary hover:text-on-surface transition-colors">All Categories</a>
         <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
             <% categories.forEach(function(cat) { %>
-                <a href="/products?category=<%= cat.id %>" class="block text-secondary hover:text-on-surface transition-colors"><%= cat.name %></a>
+                <a href="/products/category/<%= cat.id %>" class="block text-secondary hover:text-on-surface transition-colors"><%= cat.name %></a>
             <% }); %>
         <% } %>
     </div>
@@ -31,10 +43,15 @@
 <form action="/products" method="GET">
     <select name="sort" onchange="this.form.submit()" class="bg-surface-container-low border-none rounded-lg text-sm px-4 py-2 focus:ring-primary cursor-pointer text-secondary font-medium">
         <option value="">Sort By</option>
-        <option value="newest">Newest Arrivals</option>
-        <option value="price_low">Price: Low to High</option>
-        <option value="price_high">Price: High to Low</option>
+        <option value="newest" <%= activeFilters.sort === 'newest' ? 'selected' : '' %>>Newest Arrivals</option>
+        <option value="price_low" <%= activeFilters.sort === 'price_low' ? 'selected' : '' %>>Price: Low to High</option>
+        <option value="price_high" <%= activeFilters.sort === 'price_high' ? 'selected' : '' %>>Price: High to Low</option>
     </select>
+    <% if (activeFilters.search) { %><input type="hidden" name="search" value="<%= activeFilters.search %>"><% } %>
+    <% if (activeFilters.category) { %><input type="hidden" name="category" value="<%= activeFilters.category %>"><% } %>
+    <% if (activeFilters.min_price) { %><input type="hidden" name="min_price" value="<%= activeFilters.min_price %>"><% } %>
+    <% if (activeFilters.max_price) { %><input type="hidden" name="max_price" value="<%= activeFilters.max_price %>"><% } %>
+    <% if (activeFilters.featured) { %><input type="hidden" name="featured" value="<%= activeFilters.featured %>"><% } %>
 </form>
 </div>
 </header>
@@ -47,9 +64,17 @@
                     <a href="/products/<%= product.id %>">
                         <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="<%= images[0] || '/images/placeholder-product.jpg' %>" alt="<%= product.name %>" loading="lazy" onerror="this.src='/images/placeholder-product.jpg'"/>
                     </a>
-                    <button class="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-md rounded-full text-secondary hover:text-tertiary transition-colors shadow-sm">
-                        <span class="material-symbols-outlined" data-icon="favorite">favorite</span>
-                    </button>
+                    <form action="/user/wishlist/toggle" method="POST" class="absolute top-3 right-3">
+                        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                        <input type="hidden" name="productId" value="<%= product.id %>">
+                        <button
+                            type="submit"
+                            class="p-2 bg-white/80 backdrop-blur-md rounded-full transition-colors shadow-sm <%= product.inWishlist ? 'text-tertiary' : 'text-secondary hover:text-tertiary' %>"
+                            aria-label="<%= product.inWishlist ? 'Remove from wishlist' : 'Add to wishlist' %>"
+                        >
+                            <span class="material-symbols-outlined" data-icon="favorite"><%= product.inWishlist ? 'favorite' : 'favorite_border' %></span>
+                        </button>
+                    </form>
                     <!-- Stock status -->
                     <% if (product.stock <= 0) { %>
                         <div class="absolute bottom-3 left-3 bg-red-100/90 backdrop-blur-md px-3 py-1 rounded-full shadow-sm">
@@ -100,6 +125,9 @@
         </div>
     <% } %>
 </div>
+<% if (typeof pagination !== 'undefined' && pagination) { %>
+<%- include('../partials/pagination', { pagination: pagination, queryString: paginationQueryString }) %>
+<% } %>
 
 </section>
 </main>

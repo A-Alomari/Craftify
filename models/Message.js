@@ -1,4 +1,5 @@
 const { getDb } = require('../config/database');
+const { sanitizeString, sanitizeText } = require('../utils/sanitizer');
 
 class Message {
   static findById(id) {
@@ -56,13 +57,47 @@ class Message {
   static create(messageData) {
     const db = getDb();
     const { sender_id, receiver_id, subject = null, content, parent_id = null } = messageData;
+    const normalizedSubject = subject === null ? null : sanitizeString(subject);
+    const normalizedContent = sanitizeText(content);
+
+    if (!normalizedContent) {
+      throw new Error('Message content is required');
+    }
+    if (normalizedContent.length > 2000) {
+      throw new Error('Message must be at most 2000 characters');
+    }
+    if (normalizedSubject && normalizedSubject.length > 200) {
+      throw new Error('Message subject must be at most 200 characters');
+    }
 
     const result = db.prepare(`
       INSERT INTO messages (sender_id, receiver_id, subject, content, parent_id)
       VALUES (?, ?, ?, ?, ?)
-    `).run(sender_id, receiver_id, subject, content, parent_id);
+    `).run(sender_id, receiver_id, normalizedSubject, normalizedContent, parent_id);
 
     return this.findById(result.lastInsertRowid);
+  }
+
+  static hasRecentDuplicate(senderId, receiverId, content, withinSeconds = 10) {
+    const db = getDb();
+    const safeWindow = Math.max(Number.parseInt(withinSeconds, 10) || 0, 1);
+    const normalizedContent = sanitizeText(content);
+    if (!normalizedContent) {
+      return false;
+    }
+
+    const existing = db.prepare(`
+      SELECT id
+      FROM messages
+      WHERE sender_id = ?
+        AND receiver_id = ?
+        AND content = ?
+        AND created_at >= datetime('now', ?)
+      ORDER BY id DESC
+      LIMIT 1
+    `).get(senderId, receiverId, normalizedContent, `-${safeWindow} seconds`);
+
+    return Boolean(existing);
   }
 
   static markAsRead(id) {

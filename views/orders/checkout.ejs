@@ -2,6 +2,10 @@
 
 <main class="pt-16 pb-24 px-6 max-w-7xl mx-auto">
 <header class="mb-12 mt-12">
+<a href="/cart" class="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:gap-3 transition-all mb-4">
+<span class="material-symbols-outlined text-base">arrow_back</span>
+Back to Cart
+</a>
 <h1 class="text-4xl font-headline font-bold text-on-surface">Secure Checkout</h1>
 <p class="text-on-secondary-container font-label mt-2">Finish your order to support independent artisans.</p>
 </header>
@@ -16,6 +20,7 @@
 </div>
 <form action="/orders/checkout" method="POST" id="checkout-form" class="space-y-6">
 <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+<input type="hidden" name="checkout_nonce" value="<%= checkoutNonce || '' %>">
 <div class="space-y-2">
 <label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container">Full Name</label>
 <input name="shipping_name" required class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="Your full name" type="text" value="<%= user ? user.name : '' %>"/>
@@ -50,17 +55,17 @@
 <div class="space-y-2">
 <label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container" for="card_number">Card Number</label>
 <div class="relative">
-<input id="card_number" name="card_number" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 pr-12" placeholder="0000 0000 0000 0000" type="text" value="4242 4242 4242 4242"/>
+<input id="card_number" name="card_number" form="checkout-form" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 pr-12" placeholder="0000 0000 0000 0000" type="text" value="4242 4242 4242 4242"/>
 </div>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 <div class="space-y-2">
 <label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container" for="card_expiry">Expiration Date (MM/YY)</label>
-<input id="card_expiry" name="card_expiry" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3" placeholder="MM/YY" type="text" value="12/25"/>
+<input id="card_expiry" name="card_expiry" form="checkout-form" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3" placeholder="MM/YY" type="text" value="12/25"/>
 </div>
 <div class="space-y-2">
 <label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container" for="card_cvc">CVV</label>
-<input id="card_cvc" name="card_cvc" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3" placeholder="123" type="password" value="123"/>
+<input id="card_cvc" name="card_cvc" form="checkout-form" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3" placeholder="123" type="password" value="123"/>
 </div>
 </div>
 </div>

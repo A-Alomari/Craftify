@@ -82,19 +82,25 @@
                     <% if (u.id === (user && user.id)) { %>
                       <span class="text-xs text-secondary">Current account</span>
                     <% } else { %>
-                      <% if (u.status === 'active') { %>
-                        <form action="/admin/users/<%= u.id %>/status" method="POST" class="inline-block">
+                      <div class="inline-flex items-center gap-2">
+                        <% if (u.status === 'active') { %>
+                          <form action="/admin/users/<%= u.id %>/status" method="POST" class="inline-block">
+                            <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                            <input type="hidden" name="status" value="suspended">
+                            <button class="bg-amber-100 text-amber-700 hover:bg-amber-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Suspend</button>
+                          </form>
+                        <% } else { %>
+                          <form action="/admin/users/<%= u.id %>/status" method="POST" class="inline-block">
+                            <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                            <input type="hidden" name="status" value="active">
+                            <button class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Activate</button>
+                          </form>
+                        <% } %>
+                        <form action="/admin/users/<%= u.id %>/delete" method="POST" class="inline-block" onsubmit="return confirm('Delete this user account?');">
                           <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                          <input type="hidden" name="status" value="suspended">
-                          <button class="bg-amber-100 text-amber-700 hover:bg-amber-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Suspend</button>
+                          <button class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Delete</button>
                         </form>
-                      <% } else { %>
-                        <form action="/admin/users/<%= u.id %>/status" method="POST" class="inline-block">
-                          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                          <input type="hidden" name="status" value="active">
-                          <button class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Activate</button>
-                        </form>
-                      <% } %>
+                      </div>
                     <% } %>
                   </td>
                 </tr>
@@ -110,34 +116,7 @@
       <% } %>
     </section>
 
-    <% if (pagination && pagination.total > 1) { %>
-      <nav class="max-w-7xl mx-auto mt-6 flex items-center justify-center gap-2">
-        <% const startPage = Math.max(1, pagination.current - 2); %>
-        <% const endPage = Math.min(pagination.total, pagination.current + 2); %>
-
-        <a class="px-3 py-2 rounded-lg text-sm <%= pagination.hasPrev ? 'bg-surface-container-low text-on-surface hover:bg-surface-container-high' : 'bg-surface-container-low text-secondary/50 pointer-events-none' %>" href="?page=<%= pagination.current - 1 %>&<%= queryString %>">Prev</a>
-
-        <% if (startPage > 1) { %>
-          <a class="px-3 py-2 rounded-lg text-sm bg-surface-container-low text-on-surface hover:bg-surface-container-high" href="?page=1&<%= queryString %>">1</a>
-          <% if (startPage > 2) { %>
-            <span class="px-2 text-secondary">...</span>
-          <% } %>
-        <% } %>
-
-        <% for (let i = startPage; i <= endPage; i++) { %>
-          <a class="px-3 py-2 rounded-lg text-sm <%= i === pagination.current ? 'bg-primary-container text-on-primary-container font-bold' : 'bg-surface-container-low text-on-surface hover:bg-surface-container-high' %>" href="?page=<%= i %>&<%= queryString %>"><%= i %></a>
-        <% } %>
-
-        <% if (endPage < pagination.total) { %>
-          <% if (endPage < pagination.total - 1) { %>
-            <span class="px-2 text-secondary">...</span>
-          <% } %>
-          <a class="px-3 py-2 rounded-lg text-sm bg-surface-container-low text-on-surface hover:bg-surface-container-high" href="?page=<%= pagination.total %>&<%= queryString %>"><%= pagination.total %></a>
-        <% } %>
-
-        <a class="px-3 py-2 rounded-lg text-sm <%= pagination.hasNext ? 'bg-surface-container-low text-on-surface hover:bg-surface-container-high' : 'bg-surface-container-low text-secondary/50 pointer-events-none' %>" href="?page=<%= pagination.current + 1 %>&<%= queryString %>">Next</a>
-      </nav>
-    <% } %>
+    <%- include('../partials/pagination', { pagination: pagination, queryString: queryString }) %>
   </main>
 </div>
 

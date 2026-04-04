@@ -23,7 +23,7 @@
 <span class="text-xs font-label uppercase tracking-widest text-secondary block mb-1">Order Number</span>
 <span class="font-mono text-primary font-bold text-lg">#ORD-<%= order.id.toString().padStart(6, '0') %></span>
 </div>
-<p class="mt-6 text-sm text-secondary">A confirmation email has been sent to <span class="font-semibold text-on-surface"><%= user ? user.email : 'your email' %></span></p>
+<p class="mt-6 text-sm text-secondary">Your receipt and shipping updates are available in your Craftify account, and we’ll keep your order status current as the shipment moves.</p>
 </section>
 
 <!-- Main Content Layout -->
@@ -102,16 +102,24 @@
     Estimated Delivery
 </h3>
 <div class="text-on-surface leading-relaxed">
-<% 
-    var deliveryDate = new Date();
-    deliveryDate.setDate(deliveryDate.getDate() + 5);
-%>
-<p class="font-bold text-primary"><%= deliveryDate.toDateString() %></p>
-<p class="text-sm text-secondary">via Artisan Shipping</p>
+<% if (shipment) { %>
+<p class="font-bold text-primary"><%= shipment.estimated_delivery ? new Date(shipment.estimated_delivery).toDateString() : 'Preparing estimate' %></p>
+<p class="text-sm text-secondary">via <%= shipment.carrier || 'Craftify Express' %></p>
+<% if (shipment.tracking_number) { %>
+<p class="text-xs text-secondary mt-2">Tracking: <span class="font-semibold text-on-surface"><%= shipment.tracking_number %></span></p>
+<% } %>
 <div class="mt-3 inline-flex items-center text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded border border-emerald-100">
 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></span>
-    Processing Order
+    <%= (shipment.status || 'pending').replace(/_/g, ' ') %>
 </div>
+<% } else { %>
+<p class="font-bold text-primary">Preparing your shipment</p>
+<p class="text-sm text-secondary">We’re generating tracking details for this order now.</p>
+<div class="mt-3 inline-flex items-center text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded border border-emerald-100">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></span>
+    Order confirmed
+</div>
+<% } %>
 </div>
 </div>
 </div>

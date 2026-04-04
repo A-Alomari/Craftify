@@ -534,6 +534,99 @@ function migrateOrderItemsForeignKey(sqlDb) {
   }
 }
 
+function ensureCartItemUniqueness(sqlDb) {
+  const tableCheck = sqlDb.exec("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'cart_items';");
+  const tableExists = Array.isArray(tableCheck)
+    && tableCheck.length > 0
+    && Array.isArray(tableCheck[0].values)
+    && tableCheck[0].values.length > 0;
+
+  if (!tableExists) {
+    return;
+  }
+
+  const duplicateCountResult = sqlDb.exec(`
+    SELECT
+      (
+        SELECT COUNT(*)
+        FROM (
+          SELECT user_id, product_id
+          FROM cart_items
+          WHERE user_id IS NOT NULL
+          GROUP BY user_id, product_id
+          HAVING COUNT(*) > 1
+        )
+      ) AS user_duplicates,
+      (
+        SELECT COUNT(*)
+        FROM (
+          SELECT session_id, product_id
+          FROM cart_items
+          WHERE user_id IS NULL AND session_id IS NOT NULL
+          GROUP BY session_id, product_id
+          HAVING COUNT(*) > 1
+        )
+      ) AS session_duplicates
+  `);
+
+  const duplicateRow = duplicateCountResult?.[0]?.values?.[0] || [0, 0];
+  const userDuplicates = Number(duplicateRow[0]) || 0;
+  const sessionDuplicates = Number(duplicateRow[1]) || 0;
+
+  if (userDuplicates > 0 || sessionDuplicates > 0) {
+    console.log('Compacting duplicate cart_items rows before enabling uniqueness indexes...');
+
+    sqlDb.run('DROP TABLE IF EXISTS cart_items_compacted;');
+    sqlDb.run(`
+      CREATE TEMP TABLE cart_items_compacted (
+        user_id INTEGER,
+        session_id TEXT,
+        product_id INTEGER NOT NULL,
+        quantity INTEGER NOT NULL,
+        created_at DATETIME
+      );
+    `);
+
+    sqlDb.run(`
+      INSERT INTO cart_items_compacted (user_id, session_id, product_id, quantity, created_at)
+      SELECT user_id, NULL, product_id, SUM(quantity) AS quantity, MIN(created_at) AS created_at
+      FROM cart_items
+      WHERE user_id IS NOT NULL
+      GROUP BY user_id, product_id;
+    `);
+
+    sqlDb.run(`
+      INSERT INTO cart_items_compacted (user_id, session_id, product_id, quantity, created_at)
+      SELECT NULL, session_id, product_id, SUM(quantity) AS quantity, MIN(created_at) AS created_at
+      FROM cart_items
+      WHERE user_id IS NULL AND session_id IS NOT NULL
+      GROUP BY session_id, product_id;
+    `);
+
+    sqlDb.run('DELETE FROM cart_items;');
+
+    sqlDb.run(`
+      INSERT INTO cart_items (user_id, session_id, product_id, quantity, created_at)
+      SELECT user_id, session_id, product_id, quantity, COALESCE(created_at, CURRENT_TIMESTAMP)
+      FROM cart_items_compacted;
+    `);
+
+    sqlDb.run('DROP TABLE cart_items_compacted;');
+  }
+
+  sqlDb.run(`
+    CREATE UNIQUE INDEX IF NOT EXISTS uq_cart_user_product
+    ON cart_items(user_id, product_id)
+    WHERE user_id IS NOT NULL;
+  `);
+
+  sqlDb.run(`
+    CREATE UNIQUE INDEX IF NOT EXISTS uq_cart_session_product
+    ON cart_items(session_id, product_id)
+    WHERE user_id IS NULL AND session_id IS NOT NULL;
+  `);
+}
+
 async function initDatabase() {
   SQL = await initSqlJs();
   
@@ -559,6 +652,8 @@ async function initDatabase() {
     if (needsOrderItemsForeignKeyMigration(db.sqlDb)) {
       migrateOrderItemsForeignKey(db.sqlDb);
     }
+
+    ensureCartItemUniqueness(db.sqlDb);
 
     db.save(true);
     console.log('Database initialized successfully');

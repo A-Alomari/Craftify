@@ -5,6 +5,7 @@ const { isGuest } = require('../middleware/auth');
 const rateLimit = require('express-rate-limit');
 const { body, validationResult } = require('express-validator');
 const { createImageUpload, validateUploadedImageSignatures } = require('../utils/upload');
+const { getMinPasswordLength, getPasswordValidationMessage } = require('../utils/securityPolicy');
 
 // Rate limiting (disabled during tests)
 const isTest = process.env.NODE_ENV === 'test' || process.argv.some(arg => arg.includes('jest'));
@@ -50,6 +51,8 @@ const resetPasswordLimiter = isTest
     });
 
 const upload = createImageUpload({ maxFileSize: 5 * 1024 * 1024 });
+const minPasswordLength = getMinPasswordLength();
+const passwordValidationMessage = getPasswordValidationMessage();
 
 function handleValidationErrors(redirectTo) {
   return (req, res, next) => {
@@ -71,7 +74,7 @@ const loginValidation = [
 const registerValidation = [
   body('name').trim().notEmpty().withMessage('Name is required'),
   body('email').trim().isEmail().withMessage('Please enter a valid email address'),
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('password').isLength({ min: minPasswordLength }).withMessage(passwordValidationMessage),
   body('confirm_password').custom((value, { req }) => {
     const confirm = value || req.body.confirmPassword;
     if (req.body.password !== confirm) {
@@ -91,7 +94,7 @@ const forgotPasswordValidation = [
 ];
 
 const resetPasswordValidation = [
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('password').isLength({ min: minPasswordLength }).withMessage(passwordValidationMessage),
   body('confirm_password').custom((value, { req }) => {
     if (req.body.password !== value) {
       throw new Error('Passwords do not match');

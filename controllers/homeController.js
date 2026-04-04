@@ -76,6 +76,39 @@ exports.privacy = (req, res) => {
   res.render('home/privacy', { title: 'Privacy Policy - Craftify' });
 };
 
+// Artisans directory
+exports.artisans = (req, res) => {
+  try {
+    const { getDb } = require('../config/database');
+    const db = getDb();
+    
+    const artisans = db.prepare(`
+      SELECT 
+        u.id, u.name, u.email,
+        ap.shop_name, ap.bio, ap.profile_image, ap.is_featured,
+        COUNT(DISTINCT p.id) as product_count,
+        AVG(r.rating) as avg_rating,
+        COUNT(DISTINCT r.id) as review_count
+      FROM users u
+      INNER JOIN artisan_profiles ap ON u.id = ap.user_id
+      LEFT JOIN products p ON u.id = p.artisan_id AND p.status = 'approved'
+      LEFT JOIN reviews r ON p.id = r.product_id AND r.status = 'approved'
+      WHERE u.role = 'artisan' AND u.status = 'active' AND ap.status = 'approved'
+      GROUP BY u.id, u.name, u.email, ap.shop_name, ap.bio, ap.profile_image, ap.is_featured
+      ORDER BY ap.is_featured DESC, review_count DESC, product_count DESC
+    `).all();
+    
+    res.render('home/artisans', {
+      title: 'Discover Artisans - Craftify',
+      artisans
+    });
+  } catch (err) {
+    console.error('Artisans page error:', err);
+    req.flash('error_msg', 'Error loading artisans');
+    res.redirect('/');
+  }
+};
+
 // Newsletter subscription
 exports.subscribe = (req, res) => {
   const { email } = req.body;

@@ -50,7 +50,35 @@
                 <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-secondary-container text-on-secondary-container"><%= cat.product_count || 0 %> Products</span>
               </div>
 
+              <% if (cat.image) { %>
+                <div class="mb-4 rounded-xl overflow-hidden bg-surface-container-low aspect-[16/9]">
+                  <img src="<%= cat.image %>" alt="<%= cat.name %>" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='/images/placeholder-product.jpg';">
+                </div>
+              <% } %>
+
               <p class="text-sm text-secondary min-h-[48px]"><%= cat.description || 'No description provided yet.' %></p>
+
+              <details class="mt-5 rounded-xl border border-outline-variant/10 bg-surface-container-low p-4">
+                <summary class="cursor-pointer text-sm font-semibold text-on-surface">Edit Category</summary>
+                <form action="/admin/categories/<%= cat.id %>" method="POST" enctype="multipart/form-data" class="mt-4 grid grid-cols-1 gap-4">
+                  <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                  <div>
+                    <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Name</label>
+                    <input type="text" name="name" value="<%= cat.name %>" required class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+                  </div>
+                  <div>
+                    <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Description</label>
+                    <input type="text" name="description" value="<%= cat.description || '' %>" class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+                  </div>
+                  <div>
+                    <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Replace Image</label>
+                    <input type="file" name="image" accept="image/jpeg,image/png,image/webp" class="w-full bg-surface-container-lowest border-none rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-primary-container">
+                  </div>
+                  <div class="flex justify-end">
+                    <button type="submit" class="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider">Save Changes</button>
+                  </div>
+                </form>
+              </details>
 
               <div class="mt-5 flex items-center justify-between">
                 <span class="text-xs text-secondary">Created <%= new Date(cat.created_at).toLocaleDateString() %></span>

@@ -2,6 +2,11 @@ const { getDb } = require('../config/database');
 
 class Cart {
   // Cart works directly with cart_items table (no separate carts table)
+
+  static isUniqueConstraintError(err) {
+    const message = String(err?.message || '');
+    return /UNIQUE constraint failed:\s*cart_items\./i.test(message);
+  }
   
   static getItems(userId = null, sessionId = null) {
     const db = getDb();
@@ -29,23 +34,77 @@ class Cart {
 
   static addItem(userId = null, sessionId = null, productId, quantity = 1) {
     const db = getDb();
-    // Check if item exists
-    let existing;
-    if (userId) {
-      existing = db.prepare('SELECT * FROM cart_items WHERE user_id = ? AND product_id = ?').get(userId, productId);
-    } else {
-      existing = db.prepare('SELECT * FROM cart_items WHERE session_id = ? AND product_id = ?').get(sessionId, productId);
+    const parsedProductId = Number.parseInt(productId, 10);
+    const parsedQuantity = Number.parseInt(quantity, 10);
+    const safeQuantity = Number.isInteger(parsedQuantity) && parsedQuantity > 0 ? parsedQuantity : 1;
+
+    if (!Number.isInteger(parsedProductId) || parsedProductId <= 0) {
+      throw new Error('Invalid product');
     }
 
-    if (existing) {
-      db.prepare('UPDATE cart_items SET quantity = quantity + ? WHERE id = ?').run(quantity, existing.id);
-      return db.prepare('SELECT * FROM cart_items WHERE id = ?').get(existing.id);
-    } else {
-      const result = db.prepare(
-        'INSERT INTO cart_items (user_id, session_id, product_id, quantity) VALUES (?, ?, ?, ?)'
-      ).run(userId, sessionId, productId, quantity);
-      return db.prepare('SELECT * FROM cart_items WHERE id = ?').get(result.lastInsertRowid);
+    const hasUser = Number.isInteger(Number(userId)) && Number(userId) > 0;
+    const hasSession = typeof sessionId === 'string' && sessionId.length > 0;
+
+    if (!hasUser && !hasSession) {
+      return {
+        user_id: null,
+        session_id: null,
+        product_id: parsedProductId,
+        quantity: safeQuantity
+      };
     }
+
+    if (hasUser) {
+      const updated = db.prepare(`
+        UPDATE cart_items
+        SET quantity = quantity + ?
+        WHERE user_id = ? AND product_id = ?
+      `).run(safeQuantity, userId, parsedProductId);
+
+      if (updated.changes === 0) {
+        try {
+          db.prepare(
+            'INSERT INTO cart_items (user_id, session_id, product_id, quantity) VALUES (?, NULL, ?, ?)'
+          ).run(userId, parsedProductId, safeQuantity);
+        } catch (err) {
+          if (!this.isUniqueConstraintError(err)) {
+            throw err;
+          }
+          db.prepare(`
+            UPDATE cart_items
+            SET quantity = quantity + ?
+            WHERE user_id = ? AND product_id = ?
+          `).run(safeQuantity, userId, parsedProductId);
+        }
+      }
+
+      return db.prepare('SELECT * FROM cart_items WHERE user_id = ? AND product_id = ?').get(userId, parsedProductId);
+    }
+
+    const updated = db.prepare(`
+      UPDATE cart_items
+      SET quantity = quantity + ?
+      WHERE session_id = ? AND product_id = ?
+    `).run(safeQuantity, sessionId, parsedProductId);
+
+    if (updated.changes === 0) {
+      try {
+        db.prepare(
+          'INSERT INTO cart_items (user_id, session_id, product_id, quantity) VALUES (NULL, ?, ?, ?)'
+        ).run(sessionId, parsedProductId, safeQuantity);
+      } catch (err) {
+        if (!this.isUniqueConstraintError(err)) {
+          throw err;
+        }
+        db.prepare(`
+          UPDATE cart_items
+          SET quantity = quantity + ?
+          WHERE session_id = ? AND product_id = ?
+        `).run(safeQuantity, sessionId, parsedProductId);
+      }
+    }
+
+    return db.prepare('SELECT * FROM cart_items WHERE session_id = ? AND product_id = ?').get(sessionId, parsedProductId);
   }
 
   static updateItemQuantity(userId = null, sessionId = null, productId, quantity) {
@@ -117,12 +176,7 @@ class Cart {
     const guestItems = db.prepare('SELECT * FROM cart_items WHERE session_id = ?').all(sessionId);
     
     guestItems.forEach(item => {
-      const existing = db.prepare('SELECT * FROM cart_items WHERE user_id = ? AND product_id = ?').get(userId, item.product_id);
-      if (existing) {
-        db.prepare('UPDATE cart_items SET quantity = quantity + ? WHERE id = ?').run(item.quantity, existing.id);
-      } else {
-        db.prepare('UPDATE cart_items SET user_id = ?, session_id = NULL WHERE id = ?').run(userId, item.id);
-      }
+      this.addItem(userId, null, item.product_id, item.quantity);
     });
     
     // Clean up remaining guest items

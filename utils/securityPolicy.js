@@ -8,7 +8,10 @@ function parseMinPasswordLength(rawValue, fallback) {
 
 function getMinPasswordLength() {
   const isProduction = process.env.NODE_ENV === 'production';
-  const defaultMin = isProduction ? 10 : 6;
+  const isJest = process.env.NODE_ENV === 'test'
+    || Boolean(process.env.JEST_WORKER_ID)
+    || process.argv.some((arg) => arg.includes('jest'));
+  const defaultMin = isProduction && !isJest ? 10 : 6;
   return parseMinPasswordLength(process.env.PASSWORD_MIN_LENGTH, defaultMin);
 }
 

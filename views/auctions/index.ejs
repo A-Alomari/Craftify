@@ -1,4 +1,10 @@
 <%- include('../partials/header', { title: 'Live Auctions | Craftify' }) %>
+<%
+const auctionFilters = typeof filters !== 'undefined' && filters ? filters : {};
+const statusFilter = auctionFilters.status || 'active';
+const sortFilter = auctionFilters.sort || 'ending_soon';
+const auctionQueryString = `status=${encodeURIComponent(statusFilter)}&sort=${encodeURIComponent(sortFilter)}`;
+%>
 
 <main class="max-w-7xl mx-auto px-8 py-16">
 <!-- Header Section -->
@@ -17,12 +23,35 @@
 <!-- Filters and Controls -->
 <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
 <div class="flex flex-wrap gap-3">
-<a href="/auctions" class="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2">
+<a href="/auctions?status=active&sort=<%= encodeURIComponent(sortFilter) %>" class="<%= statusFilter === 'active' ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-high text-on-surface hover:bg-surface-container-highest' %> px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 transition-colors">
+    Live Now
+</a>
+<a href="/auctions?status=all&sort=<%= encodeURIComponent(sortFilter) %>" class="<%= statusFilter === 'all' ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-high text-on-surface hover:bg-surface-container-highest' %> px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 transition-colors">
     All Auctions
 </a>
+<a href="/auctions?status=ended&sort=<%= encodeURIComponent(sortFilter) %>" class="<%= statusFilter === 'ended' ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-high text-on-surface hover:bg-surface-container-highest' %> px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 transition-colors">
+    Ended
+</a>
+<a href="/auctions?status=sold&sort=<%= encodeURIComponent(sortFilter) %>" class="<%= statusFilter === 'sold' ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-high text-on-surface hover:bg-surface-container-highest' %> px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 transition-colors">
+    Sold
+</a>
+<% if (typeof user !== 'undefined' && user && user.role === 'customer') { %>
+<a href="/auctions/my-bids" class="bg-surface-container-high text-on-surface px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
+    My Bids
+</a>
+<% } %>
 </div>
-<div class="flex items-center justify-between md:justify-end gap-8 border-t md:border-t-0 pt-4 md:pt-0">
-<span class="text-sm font-sans text-secondary italic">Showing <%= auctions ? auctions.length : 0 %> active auctions</span>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between md:justify-end gap-4 border-t md:border-t-0 pt-4 md:pt-0">
+<span class="text-sm font-sans text-secondary italic">Showing <%= auctions ? auctions.length : 0 %> auction<%= auctions && auctions.length === 1 ? '' : 's' %> for <%= statusFilter %> status</span>
+<form action="/auctions" method="GET">
+<input type="hidden" name="status" value="<%= statusFilter %>">
+    <select name="sort" onchange="this.form.submit()" class="bg-surface-container-low border-none rounded-lg text-sm px-4 py-2 focus:ring-primary cursor-pointer text-secondary font-medium">
+        <option value="ending_soon" <%= sortFilter === 'ending_soon' ? 'selected' : '' %>>Ending Soon</option>
+        <option value="newest" <%= sortFilter === 'newest' ? 'selected' : '' %>>Newest</option>
+        <option value="most_bids" <%= sortFilter === 'most_bids' ? 'selected' : '' %>>Most Bids</option>
+        <option value="highest_bid" <%= sortFilter === 'highest_bid' ? 'selected' : '' %>>Highest Bid</option>
+    </select>
+</form>
 </div>
 </div>
 <!-- Auction Grid -->
@@ -93,6 +122,7 @@
         </div>
     <% } %>
 </div>
+<%- include('../partials/pagination', { pagination: pagination, queryString: auctionQueryString }) %>
 </main>
 
 <%- include('../partials/footer') %>

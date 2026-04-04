@@ -97,12 +97,27 @@ exports.placeBid = (req, res) => {
       );
     }
 
+    const normalizedAuctionId = Number.parseInt(id, 10) || id;
+    const bidUpdatePayload = {
+      auctionId: normalizedAuctionId,
+      amount: result.bid.amount,
+      currentBid: result.auction.current_highest_bid,
+      bidCount: result.auction.bid_count,
+      bidderId: req.session.user.id,
+      bidderName: req.session.user.name,
+      bidIncrement: result.auction.bid_increment,
+      bidTime: result.bid.bid_time || result.bid.created_at
+    };
+
+    io.to(`auction-${id}`).emit('bidUpdate', bidUpdatePayload);
+
+    // Keep legacy event for compatibility with any existing clients.
     io.to(`auction-${id}`).emit('new-bid', {
-      auctionId: id,
+      auctionId: normalizedAuctionId,
       amount: result.bid.amount,
       bidderId: req.session.user.id,
       bidderName: req.session.user.name,
-      bidTime: result.bid.created_at,
+      bidTime: result.bid.bid_time || result.bid.created_at,
       totalBids: result.auction.bid_count
     });
 

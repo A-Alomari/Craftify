@@ -4,7 +4,7 @@ class ArtisanProfile {
   static findByUserId(userId) {
     const db = database.getDb();
     return db.prepare(`
-      SELECT ap.*, u.name, u.email, u.avatar, u.status, u.created_at as user_created_at
+      SELECT ap.*, u.name, u.email, u.avatar, u.status, u.phone as account_phone, u.created_at as user_created_at
       FROM artisan_profiles ap
       JOIN users u ON ap.user_id = u.id
       WHERE ap.user_id = ?
@@ -14,7 +14,7 @@ class ArtisanProfile {
   static findById(id) {
     const db = database.getDb();
     return db.prepare(`
-      SELECT ap.*, u.name, u.email, u.avatar, u.status
+      SELECT ap.*, u.name, u.email, u.avatar, u.status, u.phone as account_phone
       FROM artisan_profiles ap
       JOIN users u ON ap.user_id = u.id
       WHERE ap.id = ?

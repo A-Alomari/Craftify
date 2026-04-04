@@ -8,6 +8,7 @@ router.get('/contact', homeController.contact);
 router.get('/faq', homeController.faq);
 router.get('/terms', homeController.terms);
 router.get('/privacy', homeController.privacy);
+router.get('/artisans', homeController.artisans);
 router.post('/subscribe', homeController.subscribe);
 
 module.exports = router;

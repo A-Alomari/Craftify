@@ -137,6 +137,50 @@ class Order {
     `).all(orderId);
   }
 
+  static getPreviewItemsForOrders(orderIds = [], limitPerOrder = 3) {
+    if (!Array.isArray(orderIds) || orderIds.length === 0) {
+      return {};
+    }
+
+    const db = getDb();
+    const placeholders = orderIds.map(() => '?').join(', ');
+    const rows = db.prepare(`
+      SELECT oi.order_id, p.name as product_name, p.images
+      FROM order_items oi
+      JOIN products p ON oi.product_id = p.id
+      WHERE oi.order_id IN (${placeholders})
+      ORDER BY oi.order_id ASC, oi.id ASC
+    `).all(...orderIds);
+
+    const previewsByOrder = {};
+    rows.forEach((row) => {
+      if (!previewsByOrder[row.order_id]) {
+        previewsByOrder[row.order_id] = [];
+      }
+
+      if (previewsByOrder[row.order_id].length >= limitPerOrder) {
+        return;
+      }
+
+      let image = '/images/placeholder-product.jpg';
+      try {
+        const images = JSON.parse(row.images || '[]');
+        if (Array.isArray(images) && images.length > 0) {
+          image = images[0];
+        }
+      } catch (e) {
+        image = '/images/placeholder-product.jpg';
+      }
+
+      previewsByOrder[row.order_id].push({
+        product_name: row.product_name,
+        image
+      });
+    });
+
+    return previewsByOrder;
+  }
+
   static getItemsByArtisan(orderId, artisanId) {
     const db = getDb();
     return db.prepare(`
