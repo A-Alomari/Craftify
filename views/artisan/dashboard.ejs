@@ -3,9 +3,11 @@
 <div class="flex bg-surface min-h-screen">
     <%- include('./partials/sidebar') %>
     
-    <main class="flex-grow w-full min-h-screen px-8 py-10 bg-surface">
+    <main class="flex-grow w-full min-h-screen px-6 lg:px-8 py-8 bg-surface">
+        <%- include('./partials/topbar') %>
+
         <!-- Header Section -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end mt-8 mb-12 gap-4">
         <div>
         <h1 class="text-4xl font-serif font-bold text-on-surface mb-2">Artisan Dashboard</h1>
         <p class="text-secondary font-body">Manage your products and view your sales performance.</p>
@@ -16,7 +18,7 @@
         </a>
         </div>
         <!-- Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
         <div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-l-4 border-emerald-500">
         <div class="flex items-center justify-between mb-4">
         <span class="text-secondary text-xs font-medium uppercase tracking-wider">Revenue</span>
@@ -67,7 +69,7 @@
         </div>
 
         <!-- Tables Section -->
-        <div class="grid grid-cols-1 gap-12">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 gap-12">
         <!-- Recent Orders Table -->
         <section class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-outline-variant/10">
         <div class="px-8 py-6 flex justify-between items-center bg-surface-container-low/50">

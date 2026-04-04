@@ -1,16 +1,86 @@
 <%- include('../partials/header', { title: title }) %>
-<div class="container-fluid py-4"><div class="row"><div class="col-lg-2 mb-4"><%- include('./partials/sidebar') %></div>
-<div class="col-lg-10">
-  <div class="d-flex justify-content-between align-items-center mb-4"><h3><i class="bi bi-hammer"></i> My Auctions</h3><a href="/artisan/auctions/new" class="btn btn-primary"><i class="bi bi-plus"></i> New Auction</a></div>
-  <% if (auctions.length > 0) { %>
-    <div class="table-responsive"><table class="table table-hover"><thead><tr><th>Product</th><th>Start Price</th><th>Current Bid</th><th>Bids</th><th>Status</th><th>Ends</th><th></th></tr></thead>
-    <tbody><% auctions.forEach(function(a) { %><tr>
-      <td><%= a.product_name %></td><td>$<%= a.starting_price.toFixed(2) %></td>
-      <td>$<%= (a.current_highest_bid || 0).toFixed(2) %></td><td><%= a.bid_count || 0 %></td>
-      <td><span class="badge bg-<%= a.status === 'active' ? 'success' : a.status === 'sold' ? 'primary' : 'secondary' %>"><%= a.status %></span></td>
-      <td><%= new Date(a.end_time).toLocaleDateString() %></td>
-      <td><% if (a.status === 'active' || a.status === 'pending') { %><form action="/artisan/auctions/<%= a.id %>/cancel" method="POST"><input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"><button class="btn btn-sm btn-outline-danger">Cancel</button></form><% } %></td>
-    </tr><% }); %></tbody></table></div>
-  <% } else { %><div class="text-center py-5"><p class="text-muted">No auctions yet.</p></div><% } %>
-</div></div></div>
+
+<%
+  const auctionStatusClass = function(status) {
+    if (status === 'active') return 'bg-emerald-100 text-emerald-700';
+    if (status === 'sold') return 'bg-primary-container text-on-primary-container';
+    if (status === 'cancelled') return 'bg-red-100 text-red-700';
+    return 'bg-amber-100 text-amber-700';
+  };
+%>
+
+<div class="flex bg-surface min-h-screen">
+  <%- include('./partials/sidebar') %>
+
+  <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
+    <%- include('./partials/topbar') %>
+
+    <section class="max-w-7xl mx-auto mt-8 mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div>
+        <span class="font-label text-xs tracking-[0.2em] text-primary font-semibold uppercase">Artisan Studio</span>
+        <h1 class="font-headline text-3xl text-on-surface mt-2">My Auctions</h1>
+        <p class="text-secondary mt-1">Manage active listings and bidding outcomes.</p>
+      </div>
+      <a href="/artisan/auctions/new" class="bg-primary-container text-on-primary-container px-5 py-2.5 rounded-xl font-semibold text-sm inline-flex items-center gap-2">
+        <span class="material-symbols-outlined text-base">add</span>
+        New Auction
+      </a>
+    </section>
+
+    <section class="max-w-7xl mx-auto bg-surface-container-lowest rounded-xl overflow-hidden">
+      <% if (auctions && auctions.length > 0) { %>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="text-[10px] font-bold text-secondary uppercase tracking-widest border-b border-surface-container-high">
+                <th class="px-6 py-4">Product</th>
+                <th class="px-6 py-4">Start Price</th>
+                <th class="px-6 py-4">Current Bid</th>
+                <th class="px-6 py-4">Bids</th>
+                <th class="px-6 py-4">Status</th>
+                <th class="px-6 py-4">Ends</th>
+                <th class="px-6 py-4 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container-high/50">
+              <% auctions.forEach(function(a) { %>
+                <tr class="hover:bg-surface-container-low/20 transition-colors">
+                  <td class="px-6 py-5">
+                    <div class="flex items-center gap-3">
+                      <img src="<%= a.image || '/images/placeholder-product.jpg' %>" alt="<%= a.product_name %>" class="w-11 h-11 rounded-lg object-cover" onerror="this.src='/images/placeholder-product.jpg'">
+                      <p class="text-sm font-semibold text-on-surface"><%= a.product_name %></p>
+                    </div>
+                  </td>
+                  <td class="px-6 py-5 text-sm text-on-surface">$<%= Number(a.starting_price || 0).toFixed(2) %></td>
+                  <td class="px-6 py-5 text-sm text-on-surface">$<%= Number(a.current_highest_bid || 0).toFixed(2) %></td>
+                  <td class="px-6 py-5 text-sm text-on-surface"><%= a.bid_count || 0 %></td>
+                  <td class="px-6 py-5">
+                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest <%= auctionStatusClass(a.status) %>"><%= a.status %></span>
+                  </td>
+                  <td class="px-6 py-5 text-sm text-secondary"><%= new Date(a.end_time).toLocaleDateString() %></td>
+                  <td class="px-6 py-5 text-right">
+                    <% if (a.status === 'active' || a.status === 'pending') { %>
+                      <form action="/artisan/auctions/<%= a.id %>/cancel" method="POST" class="inline-block" onsubmit="return confirm('Cancel this auction?');">
+                        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                        <button class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Cancel</button>
+                      </form>
+                    <% } else { %>
+                      <span class="text-xs text-secondary">No action</span>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="py-14 text-center">
+          <span class="material-symbols-outlined text-5xl text-secondary/60">gavel</span>
+          <p class="text-secondary mt-3">No auctions yet.</p>
+        </div>
+      <% } %>
+    </section>
+  </main>
+</div>
+
 <%- include('../partials/footer') %>

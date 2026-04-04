@@ -261,8 +261,20 @@ exports.notifications = (req, res) => {
 
 exports.markNotificationRead = (req, res) => {
   try {
-    const { id } = req.params;
-    Notification.markAsRead(id);
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isInteger(id) || id <= 0) {
+      if (req.xhr) return res.status(400).json({ success: false, message: 'Invalid notification' });
+      req.flash('error_msg', 'Invalid notification');
+      return res.redirect('/user/notifications');
+    }
+
+    const updated = Notification.markAsRead(id, req.session.user.id);
+    if (!updated) {
+      if (req.xhr) return res.status(404).json({ success: false, message: 'Notification not found' });
+      req.flash('error_msg', 'Notification not found');
+      return res.redirect('/user/notifications');
+    }
+
     if (req.xhr) return res.json({ success: true });
     res.redirect('/user/notifications');
   } catch (err) {
@@ -287,8 +299,20 @@ exports.markAllNotificationsRead = (req, res) => {
 
 exports.deleteNotification = (req, res) => {
   try {
-    const { id } = req.params;
-    Notification.delete(id);
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isInteger(id) || id <= 0) {
+      if (req.xhr) return res.status(400).json({ success: false, message: 'Invalid notification' });
+      req.flash('error_msg', 'Invalid notification');
+      return res.redirect('/user/notifications');
+    }
+
+    const deleted = Notification.delete(id, req.session.user.id);
+    if (!deleted || deleted.changes === 0) {
+      if (req.xhr) return res.status(404).json({ success: false, message: 'Notification not found' });
+      req.flash('error_msg', 'Notification not found');
+      return res.redirect('/user/notifications');
+    }
+
     if (req.xhr) return res.json({ success: true });
     res.redirect('/user/notifications');
   } catch (err) {
@@ -325,6 +349,7 @@ exports.conversation = (req, res) => {
 
     Message.markThreadAsRead(req.session.user.id, userId);
 
+    const conversations = Message.getConversations(req.session.user.id);
     const messages = Message.getThread(req.session.user.id, userId);
     const artisanProfile = otherUser.role === 'artisan' ? ArtisanProfile.findByUserId(userId) : null;
 
@@ -332,7 +357,8 @@ exports.conversation = (req, res) => {
       title: `Chat with ${otherUser.name} - Craftify`,
       otherUser,
       artisanProfile,
-      messages
+      messages,
+      conversations
     });
   } catch (err) {
     console.error('Conversation error:', err);
@@ -390,7 +416,7 @@ exports.viewArtisan = (req, res) => {
     const Product = require('../models/Product');
     const products = Product.findAll({ artisan_id: id, status: 'approved', limit: 12 });
     const stats = ArtisanProfile.getStats(id);
-    const reviews = Review.findAll({ artisan_id: id, limit: 5 });
+    const reviews = Review.findAll({ artisan_id: id, limit: 5, status: 'visible' });
 
     products.forEach(p => {
       const images = JSON.parse(p.images || '[]');

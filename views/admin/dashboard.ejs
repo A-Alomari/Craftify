@@ -1,126 +1,291 @@
 <%- include('../partials/header', { title: 'Admin Dashboard | Craftify' }) %>
 
+<%
+    const adminName = user && user.name ? user.name : 'Admin User';
+    const adminRole = user && user.role ? user.role : 'Super Admin';
+    const displayRole = adminRole.charAt(0).toUpperCase() + adminRole.slice(1);
+    const totalUsers = userStats && typeof userStats.total === 'number' ? userStats.total : 0;
+    const totalProducts = productStats && typeof productStats.total === 'number' ? productStats.total : 0;
+    const totalOrders = orderStats && typeof orderStats.total === 'number' ? orderStats.total : 0;
+    const totalAuctions = auctionStats && typeof auctionStats.total === 'number' ? auctionStats.total : 0;
+    const totalRevenue = orderStats && typeof orderStats.totalRevenue === 'number' ? orderStats.totalRevenue : 0;
+    const pendingOrderCount = orderStats && typeof orderStats.pending === 'number' ? orderStats.pending : 0;
+    const pendingArtisanCount = pendingArtisans ? pendingArtisans.length : 0;
+    const spotlightArtisan = pendingArtisans && pendingArtisans.length > 0 ? pendingArtisans[0] : null;
+    const statusClass = function(status) {
+        if (status === 'delivered' || status === 'approved' || status === 'active') return 'bg-emerald-100 text-emerald-700';
+        if (status === 'shipped' || status === 'processing') return 'bg-blue-100 text-blue-700';
+        if (status === 'pending') return 'bg-secondary-container text-on-secondary-container';
+        return 'bg-amber-100 text-amber-700';
+    };
+%>
+
 <div class="flex bg-surface min-h-screen">
     <%- include('./partials/sidebar') %>
-    
-    <main class="flex-grow pt-12 pb-20 px-8 max-w-7xl mx-auto min-h-screen">
-        <!-- Header Section -->
-        <header class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-        <span class="font-label text-xs uppercase tracking-[0.2em] text-secondary font-bold mb-2 block">System Overview</span>
-        <h1 class="text-4xl font-bold text-on-surface">Admin Dashboard</h1>
-        </div>
-        <div class="flex gap-3">
-        <button class="px-6 py-2.5 rounded-xl text-sm font-semibold text-secondary bg-surface-container-high hover:bg-surface-container-highest transition-all">
-                            System Health
-                        </button>
-        </div>
-        </header>
-        <!-- Stats Bento Grid -->
-        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        <!-- Stat Card 1 -->
-        <div class="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
-        <div class="absolute -right-4 -top-4 w-20 h-20 bg-primary/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
-        <div class="relative z-10">
-        <span class="material-symbols-outlined text-primary mb-4 text-3xl">group</span>
-        <p class="font-label text-xs uppercase tracking-widest text-on-secondary-container font-medium">Total Users</p>
-        <h2 class="text-4xl font-headline font-bold mt-1 text-on-surface"><%= userStats ? userStats.total : 0 %></h2>
-        </div>
-        </div>
-        <!-- Stat Card 2 -->
-        <div class="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
-        <div class="absolute -right-4 -top-4 w-20 h-20 bg-secondary/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
-        <div class="relative z-10">
-        <span class="material-symbols-outlined text-secondary mb-4 text-3xl">inventory_2</span>
-        <p class="font-label text-xs uppercase tracking-widest text-on-secondary-container font-medium">Total Products</p>
-        <h2 class="text-4xl font-headline font-bold mt-1 text-on-surface"><%= productStats ? productStats.total : 0 %></h2>
-        </div>
-        </div>
-        <!-- Stat Card 3 -->
-        <div class="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
-        <div class="absolute -right-4 -top-4 w-20 h-20 bg-tertiary/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
-        <div class="relative z-10">
-        <span class="material-symbols-outlined text-tertiary mb-4 text-3xl">shopping_bag</span>
-        <p class="font-label text-xs uppercase tracking-widest text-on-secondary-container font-medium">Total Orders</p>
-        <h2 class="text-4xl font-headline font-bold mt-1 text-on-surface"><%= orderStats ? orderStats.total : 0 %></h2>
-        </div>
-        </div>
-        <!-- Stat Card 4 -->
-        <div class="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden group">
-        <div class="absolute -right-4 -top-4 w-20 h-20 bg-primary-container/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
-        <div class="relative z-10">
-        <span class="material-symbols-outlined text-primary mb-4 text-3xl">gavel</span>
-        <p class="font-label text-xs uppercase tracking-widest text-on-secondary-container font-medium">Total Auctions</p>
-        <h2 class="text-4xl font-headline font-bold mt-1 text-on-surface"><%= auctionStats ? auctionStats.total : 0 %></h2>
-        </div>
-        </div>
-        </section>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-            <!-- Pending Artisans -->
-            <section class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden border border-outline-variant/10">
-                <div class="px-8 py-6 flex justify-between items-center bg-surface-container-low/50">
-                    <h3 class="text-xl font-serif font-bold">Pending Artisans</h3>
-                    <a href="/admin/artisans" class="text-primary text-sm font-semibold hover:underline">View All</a>
+    <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
+        <header class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5 sticky top-20 z-20 bg-surface-container-lowest/80 backdrop-blur-md rounded-xl px-5 py-4 border border-outline-variant/10">
+            <div class="relative w-full max-w-md">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary opacity-60">search</span>
+                <input class="w-full bg-surface-container-low border-none rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary-container transition-all" placeholder="Search across artisans, products..." type="text">
+            </div>
+
+            <div class="flex items-center gap-4 text-secondary">
+                <button class="material-symbols-outlined hover:text-primary transition-colors">notifications</button>
+                <button class="material-symbols-outlined hover:text-primary transition-colors">chat_bubble</button>
+                <button class="material-symbols-outlined hover:text-primary transition-colors">help</button>
+                <div class="h-8 w-px bg-surface-container-high"></div>
+                <div class="flex items-center gap-3">
+                    <div class="text-right">
+                        <p class="text-xs font-bold text-on-surface"><%= adminName %></p>
+                        <p class="text-[10px] text-secondary"><%= displayRole %></p>
+                    </div>
+                    <img src="<%= (user && user.avatar) ? user.avatar : '/images/default-avatar.png' %>" alt="Admin Profile" class="w-10 h-10 rounded-full object-cover ring-2 ring-primary-container/20" onerror="this.src='/images/default-avatar.png'">
                 </div>
-                <div class="p-6">
-                    <% if (pendingArtisans && pendingArtisans.length > 0) { %>
-                        <div class="space-y-4">
-                        <% pendingArtisans.forEach(function(a) { %>
-                            <div class="flex items-center justify-between p-4 bg-surface-container hover:bg-surface-container-high rounded-xl transition-colors">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-primary-container flex justify-center items-center text-primary font-bold"><%= (a.shop_name || a.name || 'A')[0].toUpperCase() %></div>
-                                <div>
-                                <h4 class="font-bold text-on-surface"><%= a.shop_name || a.name %></h4>
-                                <p class="text-xs text-secondary"><%= a.email || 'Artisan Application' %></p>
-                                </div>
-                            </div>
-                            <div class="flex gap-2">
-                                <form action="/admin/artisans/<%= a.user_id || a.id %>/approve" method="POST">
-                                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                                    <button class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Approve</button>
-                                </form>
-                                <form action="/admin/artisans/<%= a.user_id || a.id %>/reject" method="POST">
-                                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                                    <button class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Reject</button>
-                                </form>
-                            </div>
-                            </div>
-                        <% }); %>
-                        </div>
-                    <% } else { %>
-                        <p class="text-secondary text-center py-8">No pending artisans.</p>
-                    <% } %>
+            </div>
+        </header>
+
+        <div class="max-w-7xl mx-auto space-y-10 mt-8">
+            <section class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <span class="font-label text-xs tracking-widest text-primary font-semibold uppercase">Platform Overview</span>
+                    <h1 class="font-headline text-4xl text-on-background mt-2">The Digital Atelier</h1>
+                    <p class="text-secondary mt-1">Daily snapshot of your artisan ecosystem performance.</p>
+                </div>
+                <div class="flex items-center gap-3 text-xs font-medium text-secondary">
+                    <span class="inline-flex w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span><%= pendingArtisanCount %> artisan applications pending review</span>
                 </div>
             </section>
 
-            <!-- Recent Orders -->
-            <section class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden border border-outline-variant/10">
-                <div class="px-8 py-6 flex justify-between items-center bg-surface-container-low/50">
-                    <h3 class="text-xl font-serif font-bold">Recent Orders</h3>
-                    <a href="/admin/orders" class="text-primary text-sm font-semibold hover:underline">View All</a>
+            <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-surface-container-lowest p-6 rounded-xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <span class="material-symbols-outlined text-6xl">payments</span>
+                    </div>
+                    <p class="text-xs font-bold text-secondary uppercase tracking-widest">Total Revenue</p>
+                    <h3 class="font-headline text-3xl mt-4 text-on-surface">$<%= totalRevenue.toFixed(2) %></h3>
+                    <div class="mt-4 flex items-center gap-1 text-primary">
+                        <span class="material-symbols-outlined text-sm">trending_up</span>
+                        <span class="text-xs font-bold">Paid order value</span>
+                    </div>
                 </div>
-                <div class="p-6">
-                    <% if (recentOrders && recentOrders.length > 0) { %>
-                        <div class="space-y-4">
-                        <% recentOrders.forEach(function(o) { %>
-                            <div class="flex items-center justify-between p-4 bg-surface-container hover:bg-surface-container-high rounded-xl transition-colors">
-                            <div>
-                                <a href="/admin/orders/<%= o.id %>" class="font-bold text-primary hover:underline">#ORD-<%= o.id.toString().padStart(4, '0') %></a>
-                                <p class="text-xs text-secondary"><%= new Date(o.created_at).toLocaleDateString() %></p>
-                            </div>
-                            <div class="text-right">
-                                <p class="font-bold text-on-surface">$<%= o.total_amount.toFixed(2) %></p>
-                                <span class="text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full font-bold <%= o.status === 'delivered' ? 'bg-emerald-100 text-emerald-700' : (o.status === 'shipped' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700') %>">
-                                    <%= o.status %>
-                                </span>
-                            </div>
-                            </div>
-                        <% }); %>
+
+                <div class="bg-surface-container-lowest p-6 rounded-xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <span class="material-symbols-outlined text-6xl">group</span>
+                    </div>
+                    <p class="text-xs font-bold text-secondary uppercase tracking-widest">Total Users</p>
+                    <h3 class="font-headline text-3xl mt-4 text-on-surface"><%= totalUsers %></h3>
+                    <div class="mt-4 flex items-center gap-1 text-primary">
+                        <span class="material-symbols-outlined text-sm">person_add</span>
+                        <span class="text-xs font-bold">All account types</span>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-lowest p-6 rounded-xl relative overflow-hidden group border-l-4 border-primary-container">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <span class="material-symbols-outlined text-6xl">inventory_2</span>
+                    </div>
+                    <p class="text-xs font-bold text-secondary uppercase tracking-widest">Total Products</p>
+                    <h3 class="font-headline text-3xl mt-4 text-on-surface"><%= totalProducts %></h3>
+                    <div class="mt-4 flex items-center gap-1 text-on-secondary-container">
+                        <span class="material-symbols-outlined text-sm">fiber_manual_record</span>
+                        <span class="text-xs font-bold">Marketplace listings</span>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-lowest p-6 rounded-xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <span class="material-symbols-outlined text-6xl">shopping_bag</span>
+                    </div>
+                    <p class="text-xs font-bold text-secondary uppercase tracking-widest">Total Orders</p>
+                    <h3 class="font-headline text-3xl mt-4 text-on-surface"><%= totalOrders %></h3>
+                    <div class="mt-4 flex items-center gap-1 text-tertiary">
+                        <span class="material-symbols-outlined text-sm">error</span>
+                        <span class="text-xs font-bold"><%= pendingOrderCount %> pending</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 bg-surface-container-lowest p-8 rounded-xl relative">
+                    <div class="flex justify-between items-start mb-8">
+                        <div>
+                            <h4 class="font-headline text-xl text-on-surface">Growth trajectory</h4>
+                            <p class="text-sm text-secondary">Volume of platform activity in recent periods</p>
                         </div>
-                    <% } else { %>
-                        <p class="text-secondary text-center py-8">No recent orders.</p>
-                    <% } %>
+                        <span class="bg-surface-container-low rounded-lg text-xs font-semibold px-4 py-2">Last 30 Days</span>
+                    </div>
+                    <div class="h-64 flex items-end justify-between gap-2 relative">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-20 pointer-events-none">
+                            <span class="material-symbols-outlined text-[10rem] text-primary-container">show_chart</span>
+                        </div>
+                        <div class="w-full flex items-end justify-between h-48 px-2 relative z-10">
+                            <div class="w-3 bg-primary-container/20 h-[35%] rounded-t-full"></div>
+                            <div class="w-3 bg-primary-container/20 h-[52%] rounded-t-full"></div>
+                            <div class="w-3 bg-primary-container h-[46%] rounded-t-full"></div>
+                            <div class="w-3 bg-primary-container/20 h-[63%] rounded-t-full"></div>
+                            <div class="w-3 bg-primary-container h-[70%] rounded-t-full"></div>
+                            <div class="w-3 bg-primary-container/20 h-[58%] rounded-t-full"></div>
+                            <div class="w-3 bg-primary-container h-[82%] rounded-t-full"></div>
+                            <div class="w-3 bg-primary-container/20 h-[74%] rounded-t-full"></div>
+                            <div class="w-3 bg-primary-container h-[90%] rounded-t-full"></div>
+                            <div class="w-3 bg-primary-container h-[100%] rounded-t-full"></div>
+                            <div class="w-3 bg-primary-container/20 h-[79%] rounded-t-full"></div>
+                            <div class="w-3 bg-primary-container h-[88%] rounded-t-full"></div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between mt-4 text-[10px] text-secondary font-bold uppercase tracking-widest border-t border-surface-container pt-4">
+                        <span>Week 1</span>
+                        <span>Week 3</span>
+                        <span>Today</span>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-high/50 p-6 rounded-xl space-y-6">
+                    <h4 class="font-headline text-lg text-on-surface">Artisan Spotlight</h4>
+                    <div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm space-y-4">
+                        <% if (spotlightArtisan) { %>
+                            <div>
+                                <p class="text-[10px] font-bold text-primary uppercase tracking-widest">Featured This Week</p>
+                                <h5 class="font-headline text-lg mt-1"><%= spotlightArtisan.shop_name || spotlightArtisan.name %></h5>
+                                <p class="text-xs text-secondary mt-1 leading-relaxed"><%= spotlightArtisan.bio || 'Pending artisan application currently in review.' %></p>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <form action="/admin/artisans/<%= spotlightArtisan.user_id || spotlightArtisan.id %>/approve" method="POST">
+                                    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                                    <button class="px-3 py-2 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold hover:bg-emerald-200 transition-colors">Approve</button>
+                                </form>
+                                <form action="/admin/artisans/<%= spotlightArtisan.user_id || spotlightArtisan.id %>/reject" method="POST">
+                                    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                                    <button class="px-3 py-2 bg-red-100 text-red-700 rounded-lg text-xs font-bold hover:bg-red-200 transition-colors">Reject</button>
+                                </form>
+                            </div>
+                        <% } else { %>
+                            <p class="text-sm text-secondary">No artisan applications are waiting right now.</p>
+                        <% } %>
+                    </div>
+
+                    <div class="space-y-3">
+                        <p class="text-[10px] font-bold text-secondary uppercase tracking-widest">Platform Pulse</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                            <span class="text-xs text-on-surface font-medium">All payment flows healthy</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 rounded-full bg-primary-container"></div>
+                            <span class="text-xs text-on-surface font-medium"><%= pendingArtisanCount %> artisan approvals pending</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-surface-container-lowest rounded-xl overflow-hidden">
+                <div class="px-8 py-6 flex justify-between items-center bg-surface-container-low/30">
+                    <h4 class="font-headline text-xl text-on-surface">Recent Activity</h4>
+                    <a href="/admin/reports" class="text-xs font-bold text-primary flex items-center gap-1 group">
+                        See Full Log
+                        <span class="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
+                    </a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-[10px] font-bold text-secondary uppercase tracking-widest border-b border-surface-container-high">
+                                <th class="px-8 py-4">Event Type</th>
+                                <th class="px-8 py-4">Details</th>
+                                <th class="px-8 py-4">Timestamp</th>
+                                <th class="px-8 py-4">Status</th>
+                                <th class="px-8 py-4 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-surface-container-high/50">
+                            <% if ((!recentOrders || recentOrders.length === 0) && (!pendingArtisans || pendingArtisans.length === 0) && (!pendingProducts || pendingProducts.length === 0)) { %>
+                                <tr>
+                                    <td colspan="5" class="px-8 py-8 text-center text-secondary">No recent activity yet.</td>
+                                </tr>
+                            <% } %>
+
+                            <% if (pendingArtisans && pendingArtisans.length > 0) { pendingArtisans.forEach(function(a) { %>
+                                <tr class="hover:bg-surface-container-low/20 transition-colors">
+                                    <td class="px-8 py-6">
+                                        <div class="flex items-center gap-3">
+                                            <div class="p-2 bg-primary-container/10 rounded-lg text-primary-container">
+                                                <span class="material-symbols-outlined text-lg">person_add</span>
+                                            </div>
+                                            <span class="text-sm font-semibold">Artisan Signup</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-8 py-6">
+                                        <div>
+                                            <p class="text-sm font-medium"><%= a.shop_name || a.name %></p>
+                                            <p class="text-[10px] text-secondary"><%= a.email || 'Application in review' %></p>
+                                        </div>
+                                    </td>
+                                    <td class="px-8 py-6 text-xs text-secondary"><%= new Date(a.created_at).toLocaleString() %></td>
+                                    <td class="px-8 py-6">
+                                        <span class="px-3 py-1 text-[10px] font-bold rounded-full bg-secondary-container text-on-secondary-container">PENDING REVIEW</span>
+                                    </td>
+                                    <td class="px-8 py-6 text-right">
+                                        <a href="/admin/artisans" class="material-symbols-outlined text-secondary hover:text-primary transition-colors">arrow_outward</a>
+                                    </td>
+                                </tr>
+                            <% }); } %>
+
+                            <% if (pendingProducts && pendingProducts.length > 0) { pendingProducts.forEach(function(p) { %>
+                                <tr class="hover:bg-surface-container-low/20 transition-colors">
+                                    <td class="px-8 py-6">
+                                        <div class="flex items-center gap-3">
+                                            <div class="p-2 bg-tertiary-container/10 rounded-lg text-tertiary">
+                                                <span class="material-symbols-outlined text-lg">verified</span>
+                                            </div>
+                                            <span class="text-sm font-semibold">Product Moderation</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-8 py-6">
+                                        <div>
+                                            <p class="text-sm font-medium"><%= p.name %></p>
+                                            <p class="text-[10px] text-secondary">Needs approval decision</p>
+                                        </div>
+                                    </td>
+                                    <td class="px-8 py-6 text-xs text-secondary"><%= new Date(p.created_at).toLocaleString() %></td>
+                                    <td class="px-8 py-6">
+                                        <span class="px-3 py-1 text-[10px] font-bold rounded-full bg-amber-100 text-amber-700">PENDING</span>
+                                    </td>
+                                    <td class="px-8 py-6 text-right">
+                                        <a href="/admin/products" class="material-symbols-outlined text-secondary hover:text-primary transition-colors">arrow_outward</a>
+                                    </td>
+                                </tr>
+                            <% }); } %>
+
+                            <% if (recentOrders && recentOrders.length > 0) { recentOrders.forEach(function(o) { %>
+                                <tr class="hover:bg-surface-container-low/20 transition-colors">
+                                    <td class="px-8 py-6">
+                                        <div class="flex items-center gap-3">
+                                            <div class="p-2 bg-secondary-container/10 rounded-lg text-secondary">
+                                                <span class="material-symbols-outlined text-lg">local_shipping</span>
+                                            </div>
+                                            <span class="text-sm font-semibold">Order Update</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-8 py-6">
+                                        <div>
+                                            <p class="text-sm font-medium">Order #ORD-<%= String(o.id).padStart(4, '0') %></p>
+                                            <p class="text-[10px] text-secondary">$<%= Number(o.total_amount || 0).toFixed(2) %></p>
+                                        </div>
+                                    </td>
+                                    <td class="px-8 py-6 text-xs text-secondary"><%= new Date(o.created_at).toLocaleString() %></td>
+                                    <td class="px-8 py-6">
+                                        <span class="px-3 py-1 text-[10px] font-bold rounded-full <%= statusClass(o.status) %>"><%= String(o.status || 'pending').toUpperCase() %></span>
+                                    </td>
+                                    <td class="px-8 py-6 text-right">
+                                        <a href="/admin/orders/<%= o.id %>" class="material-symbols-outlined text-secondary hover:text-primary transition-colors">arrow_outward</a>
+                                    </td>
+                                </tr>
+                            <% }); } %>
+                        </tbody>
+                    </table>
                 </div>
             </section>
         </div>

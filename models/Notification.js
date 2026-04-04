@@ -41,8 +41,14 @@ class Notification {
     return this.findById(result.lastInsertRowid);
   }
 
-  static markAsRead(id) {
+  static markAsRead(id, userId = null) {
     const db = getDb();
+
+    if (userId !== null && userId !== undefined) {
+      db.prepare('UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?').run(id, userId);
+      return db.prepare('SELECT * FROM notifications WHERE id = ? AND user_id = ?').get(id, userId);
+    }
+
     db.prepare('UPDATE notifications SET is_read = 1 WHERE id = ?').run(id);
     return this.findById(id);
   }
@@ -52,8 +58,13 @@ class Notification {
     db.prepare('UPDATE notifications SET is_read = 1 WHERE user_id = ?').run(userId);
   }
 
-  static delete(id) {
+  static delete(id, userId = null) {
     const db = getDb();
+
+    if (userId !== null && userId !== undefined) {
+      return db.prepare('DELETE FROM notifications WHERE id = ? AND user_id = ?').run(id, userId);
+    }
+
     return db.prepare('DELETE FROM notifications WHERE id = ?').run(id);
   }
 

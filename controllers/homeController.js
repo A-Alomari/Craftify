@@ -2,6 +2,7 @@ const Product = require('../models/Product');
 const Category = require('../models/Category');
 const ArtisanProfile = require('../models/ArtisanProfile');
 const Auction = require('../models/Auction');
+const NewsletterSubscription = require('../models/NewsletterSubscription');
 const { getSafeRedirect } = require('../utils/redirect');
 
 // Home page
@@ -86,9 +87,7 @@ exports.subscribe = (req, res) => {
       return res.redirect(getSafeRedirect(req, '/'));
     }
     
-    const { getDb } = require('../config/database');
-    const db = getDb();
-    db.prepare('INSERT OR IGNORE INTO newsletter_subscriptions (email) VALUES (?)').run(email.trim().toLowerCase());
+    NewsletterSubscription.subscribe(email.trim().toLowerCase());
     req.flash('success_msg', 'Thank you for subscribing to our newsletter!');
   } catch (err) {
     req.flash('error_msg', 'Could not subscribe. Please try again.');

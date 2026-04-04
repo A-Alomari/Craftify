@@ -1,23 +1,156 @@
 <%- include('../partials/header', { title: title }) %>
-<div class="container-fluid py-4"><div class="row"><div class="col-lg-2 mb-4"><%- include('./partials/sidebar') %></div>
-<div class="col-lg-10">
-  <h3 class="mb-4"><i class="bi bi-graph-up"></i> Reports</h3>
-  <div class="row g-4 mb-4">
-    <div class="col-md-4"><div class="card shadow-sm border-0"><div class="card-body text-center"><h6 class="text-muted">Total Revenue</h6><h3 class="text-success">$<%= totalRevenue.toFixed(2) %></h3></div></div></div>
-    <div class="col-md-4"><div class="card shadow-sm border-0"><div class="card-body text-center"><h6 class="text-muted">Total Orders</h6><h3><%= totalOrders %></h3></div></div></div>
-    <div class="col-md-4"><div class="card shadow-sm border-0"><div class="card-body text-center"><h6 class="text-muted">Avg Order</h6><h3>$<%= totalOrders > 0 ? (totalRevenue / totalOrders).toFixed(2) : '0.00' %></h3></div></div></div>
-  </div>
-  <% if (typeof salesData !== 'undefined' && salesData.length > 0) { %>
-    <div class="card shadow-sm border-0"><div class="card-header bg-white"><h5>Sales Data</h5></div><div class="card-body">
-      <table class="table"><thead><tr><th>Date</th><th>Orders</th><th>Revenue</th></tr></thead>
-      <tbody><% salesData.forEach(function(s) { %><tr><td><%= s.date %></td><td><%= s.orders %></td><td>$<%= (s.revenue || 0).toFixed(2) %></td></tr><% }); %></tbody></table>
-    </div></div>
-  <% } %>
-  <% if (typeof topProducts !== 'undefined' && topProducts.length > 0) { %>
-    <div class="card shadow-sm border-0 mt-4"><div class="card-header bg-white"><h5>Top Products</h5></div><div class="card-body">
-      <table class="table"><thead><tr><th>Product</th><th>Sold</th><th>Revenue</th></tr></thead>
-      <tbody><% topProducts.forEach(function(p) { %><tr><td><%= p.name %></td><td><%= p.total_sold %></td><td>$<%= (p.revenue || 0).toFixed(2) %></td></tr><% }); %></tbody></table>
-    </div></div>
-  <% } %>
-</div></div></div>
+<%
+  const selectedPeriod = period || 'month';
+  const revenue = Number(totalRevenue || 0);
+  const orders = Number(totalOrders || 0);
+  const averageOrder = orders > 0 ? revenue / orders : 0;
+%>
+
+<div class="flex bg-surface min-h-screen">
+  <%- include('./partials/sidebar') %>
+
+  <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
+    <%- include('./partials/topbar') %>
+
+    <section class="max-w-7xl mx-auto mt-8 mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div>
+        <span class="font-label text-xs tracking-[0.2em] text-primary font-semibold uppercase">Administration</span>
+        <h1 class="font-headline text-3xl text-on-surface mt-2">Performance Reports</h1>
+        <p class="text-secondary mt-1">Track revenue, orders, and best performers across defined windows.</p>
+      </div>
+
+      <form method="GET" action="/admin/reports" class="w-full md:w-auto">
+        <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Period</label>
+        <div class="flex gap-2">
+          <select name="period" class="bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container min-w-[180px]">
+            <option value="week" <%= selectedPeriod === 'week' ? 'selected' : '' %>>Last 7 Days</option>
+            <option value="month" <%= selectedPeriod === 'month' ? 'selected' : '' %>>Last 30 Days</option>
+            <option value="year" <%= selectedPeriod === 'year' ? 'selected' : '' %>>Last 365 Days</option>
+          </select>
+          <button type="submit" class="bg-primary-container text-on-primary-container px-5 py-2.5 rounded-xl font-semibold text-sm">Apply</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <article class="bg-surface-container-lowest rounded-xl p-5">
+        <p class="text-[10px] uppercase tracking-[0.2em] text-secondary font-bold">Total Revenue</p>
+        <p class="font-headline text-3xl text-on-surface mt-3">$<%= revenue.toFixed(2) %></p>
+      </article>
+      <article class="bg-surface-container-lowest rounded-xl p-5">
+        <p class="text-[10px] uppercase tracking-[0.2em] text-secondary font-bold">Total Orders</p>
+        <p class="font-headline text-3xl text-on-surface mt-3"><%= orders %></p>
+      </article>
+      <article class="bg-surface-container-lowest rounded-xl p-5">
+        <p class="text-[10px] uppercase tracking-[0.2em] text-secondary font-bold">Average Order Value</p>
+        <p class="font-headline text-3xl text-on-surface mt-3">$<%= averageOrder.toFixed(2) %></p>
+      </article>
+    </section>
+
+    <section class="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <article class="bg-surface-container-lowest rounded-xl overflow-hidden">
+        <header class="px-6 py-4 border-b border-surface-container-high">
+          <h2 class="font-headline text-xl text-on-surface">Sales Timeline</h2>
+        </header>
+
+        <% if (salesData && salesData.length > 0) { %>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="text-[10px] font-bold text-secondary uppercase tracking-widest border-b border-surface-container-high">
+                  <th class="px-6 py-4">Date</th>
+                  <th class="px-6 py-4">Orders</th>
+                  <th class="px-6 py-4">Revenue</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-surface-container-high/50">
+                <% salesData.forEach(function(s) { %>
+                  <tr class="hover:bg-surface-container-low/20 transition-colors">
+                    <td class="px-6 py-4 text-sm text-on-surface"><%= new Date(s.date).toLocaleDateString() %></td>
+                    <td class="px-6 py-4 text-sm text-on-surface"><%= Number(s.orders || 0) %></td>
+                    <td class="px-6 py-4 text-sm text-on-surface">$<%= Number(s.revenue || 0).toFixed(2) %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <div class="py-12 text-center text-secondary">
+            <span class="material-symbols-outlined text-5xl opacity-60">monitoring</span>
+            <p class="mt-2">No sales data for this period.</p>
+          </div>
+        <% } %>
+      </article>
+
+      <article class="bg-surface-container-lowest rounded-xl overflow-hidden">
+        <header class="px-6 py-4 border-b border-surface-container-high">
+          <h2 class="font-headline text-xl text-on-surface">Top Products</h2>
+        </header>
+
+        <% if (topProducts && topProducts.length > 0) { %>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="text-[10px] font-bold text-secondary uppercase tracking-widest border-b border-surface-container-high">
+                  <th class="px-6 py-4">Product</th>
+                  <th class="px-6 py-4">Units</th>
+                  <th class="px-6 py-4">Revenue</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-surface-container-high/50">
+                <% topProducts.forEach(function(p) { %>
+                  <tr class="hover:bg-surface-container-low/20 transition-colors">
+                    <td class="px-6 py-4 text-sm text-on-surface font-medium"><%= p.name %></td>
+                    <td class="px-6 py-4 text-sm text-on-surface"><%= Number(p.sold || 0) %></td>
+                    <td class="px-6 py-4 text-sm text-on-surface">$<%= Number(p.revenue || 0).toFixed(2) %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <div class="py-12 text-center text-secondary">
+            <span class="material-symbols-outlined text-5xl opacity-60">inventory_2</span>
+            <p class="mt-2">No top product data for this period.</p>
+          </div>
+        <% } %>
+      </article>
+
+      <article class="xl:col-span-2 bg-surface-container-lowest rounded-xl overflow-hidden">
+        <header class="px-6 py-4 border-b border-surface-container-high">
+          <h2 class="font-headline text-xl text-on-surface">Top Artisans</h2>
+        </header>
+
+        <% if (topArtisans && topArtisans.length > 0) { %>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="text-[10px] font-bold text-secondary uppercase tracking-widest border-b border-surface-container-high">
+                  <th class="px-6 py-4">Artisan</th>
+                  <th class="px-6 py-4">Shop</th>
+                  <th class="px-6 py-4">Revenue</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-surface-container-high/50">
+                <% topArtisans.forEach(function(a) { %>
+                  <tr class="hover:bg-surface-container-low/20 transition-colors">
+                    <td class="px-6 py-4 text-sm text-on-surface"><%= a.name %></td>
+                    <td class="px-6 py-4 text-sm text-on-surface"><%= a.shop_name || 'N/A' %></td>
+                    <td class="px-6 py-4 text-sm text-on-surface">$<%= Number(a.revenue || 0).toFixed(2) %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <div class="py-12 text-center text-secondary">
+            <span class="material-symbols-outlined text-5xl opacity-60">groups</span>
+            <p class="mt-2">No artisan performance data for this period.</p>
+          </div>
+        <% } %>
+      </article>
+    </section>
+  </main>
+</div>
+
 <%- include('../partials/footer') %>

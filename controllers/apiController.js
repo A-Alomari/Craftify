@@ -115,11 +115,44 @@ exports.searchSuggestions = (req, res) => {
     ).slice(0, 3);
     const artisans = ArtisanProfile.findAll({ approved: true, search: q, limit: 3 });
 
+    const productSuggestions = products.map((product) => {
+      let image = '/images/placeholder-product.jpg';
+      try {
+        const images = JSON.parse(product.images || '[]');
+        image = images[0] || image;
+      } catch (e) {
+        image = '/images/placeholder-product.jpg';
+      }
+
+      return {
+        type: 'product',
+        id: product.id,
+        name: product.name,
+        price: Number(product.price) || 0,
+        image,
+        link: `/products/${product.id}`
+      };
+    });
+
+    const categorySuggestions = categories.map((category) => ({
+      type: 'category',
+      id: category.id,
+      name: category.name,
+      link: `/products?category=${category.id}`
+    }));
+
+    const artisanSuggestions = artisans.map((artisan) => ({
+      type: 'artisan',
+      id: artisan.user_id,
+      name: artisan.shop_name,
+      link: `/products/artisan/${artisan.user_id}`
+    }));
+
     return res.json({
       suggestions: [
-        ...products.map(p => ({ type: 'product', name: p.name })),
-        ...categories.map(c => ({ type: 'category', name: c.name })),
-        ...artisans.map(a => ({ type: 'artisan', name: a.shop_name }))
+        ...productSuggestions,
+        ...categorySuggestions,
+        ...artisanSuggestions
       ]
     });
   } catch (err) {

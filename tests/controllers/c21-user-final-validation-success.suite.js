@@ -4,6 +4,7 @@ module.exports = ({ getTestContext, loginAs, makeUnique }) => {
   let app;
   let db;
   let ids;
+  const validJpeg = Buffer.from([0xff, 0xd8, 0xff, 0xdb, 0x00, 0x43, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
   beforeAll(() => {
     ({ app, db, ids } = getTestContext());
@@ -33,7 +34,7 @@ module.exports = ({ getTestContext, loginAs, makeUnique }) => {
         .field('name', 'Customer')
         .field('phone', '12345678')
         .field('shipping_address', '123 Main St')
-        .attach('avatar', Buffer.from('avatar-file'), { filename: 'avatar.jpg', contentType: 'image/jpeg' });
+        .attach('avatar', validJpeg, { filename: 'avatar.jpg', contentType: 'image/jpeg' });
       expect(profileWithAvatar.statusCode).toBe(302);
       expect(profileWithAvatar.headers.location).toContain('/user/profile');
 

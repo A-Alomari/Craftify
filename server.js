@@ -21,13 +21,24 @@ const server = http.createServer(app);
 const io = new Server(server);
 const isProduction = process.env.NODE_ENV === 'production';
 const isTest = process.env.NODE_ENV === 'test' || process.argv.some(arg => arg.includes('jest'));
+const trustProxyEnv = process.env.TRUST_PROXY;
+const trustProxyEnabled = typeof trustProxyEnv === 'string'
+  && trustProxyEnv.length > 0
+  && !['false', '0'].includes(trustProxyEnv.toLowerCase());
+const backgroundTasksEnv = process.env.RUN_BACKGROUND_TASKS;
+const backgroundTasksEnabled = typeof backgroundTasksEnv === 'string'
+  ? !['false', '0'].includes(backgroundTasksEnv.toLowerCase())
+  : true;
 const PORT = process.env.PORT || 3000;
+const defaultUploadDir = path.join(__dirname, '.uploads');
+const legacyUploadDir = path.join(__dirname, 'public', 'uploads');
 const uploadDir = process.env.UPLOAD_DIR
   ? path.resolve(process.env.UPLOAD_DIR)
-  : path.join(__dirname, 'public', 'uploads');
+  : defaultUploadDir;
 const sessionStorePath = process.env.SESSION_STORE_PATH
   ? path.resolve(process.env.SESSION_STORE_PATH)
   : path.join(__dirname, '.sessions');
+const sessionSecret = process.env.SESSION_SECRET || (isTest ? 'craftify-test-secret' : null);
 
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -37,8 +48,7 @@ if (!isTest && !fs.existsSync(sessionStorePath)) {
   fs.mkdirSync(sessionStorePath, { recursive: true });
 }
 
-// Enforce session secret in production
-if (isProduction && !process.env.SESSION_SECRET) {
+if (!sessionSecret) {
   console.error('FATAL: SESSION_SECRET environment variable is required in production');
   process.exit(1);
 }
@@ -52,13 +62,32 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Security headers
 app.use(helmet({
-  contentSecurityPolicy: isProduction ? undefined : false,
+  contentSecurityPolicy: isProduction
+    ? {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'", 'https://cdn.jsdelivr.net'],
+          styleSrc: ["'self'", "'unsafe-inline'", 'https://cdn.jsdelivr.net', 'https://fonts.googleapis.com'],
+          fontSrc: ["'self'", 'https://fonts.gstatic.com', 'https://cdn.jsdelivr.net', 'data:'],
+          imgSrc: ["'self'", 'data:', 'blob:'],
+          connectSrc: ["'self'"],
+          objectSrc: ["'none'"],
+          baseUri: ["'self'"],
+          formAction: ["'self'"],
+          frameAncestors: ["'self'"]
+        }
+      }
+    : false,
   crossOriginEmbedderPolicy: false
 }));
 
 // Trust proxy only when explicitly configured.
-if (process.env.TRUST_PROXY) {
-  app.set('trust proxy', process.env.TRUST_PROXY === 'true' ? 1 : process.env.TRUST_PROXY);
+if (trustProxyEnabled) {
+  const parsedProxyHops = Number.parseInt(trustProxyEnv, 10);
+  const trustProxySetting = Number.isNaN(parsedProxyHops)
+    ? (trustProxyEnv === 'true' ? 1 : trustProxyEnv)
+    : parsedProxyHops;
+  app.set('trust proxy', trustProxySetting);
 }
 
 // Middleware
@@ -66,7 +95,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(uploadDir));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+const uploadStaticOptions = {
+  dotfiles: 'deny',
+  index: false,
+  fallthrough: true
+};
+app.use('/uploads', express.static(uploadDir, uploadStaticOptions));
+if (path.resolve(uploadDir) !== path.resolve(legacyUploadDir) && fs.existsSync(legacyUploadDir)) {
+  app.use('/uploads', express.static(legacyUploadDir, uploadStaticOptions));
+}
 app.use(cookieParser());
 
 // Session configuration
@@ -81,17 +119,21 @@ if (!isTest) {
       logFn: () => {}
     });
   } catch (err) {
+    if (isProduction && !process.env.JEST_WORKER_ID) {
+      console.error('FATAL: Session file store is required in production.');
+      process.exit(1);
+    }
     console.warn('Session file store unavailable, using in-memory session store.');
   }
 }
 
 const sessionMiddleware = session({
-  secret: process.env.SESSION_SECRET || 'craftify-secret-key-2024',
+  secret: sessionSecret,
   name: 'craftify.sid',
   store: sessionStore,
   resave: false,
   saveUninitialized: false,
-  proxy: Boolean(process.env.TRUST_PROXY),
+  proxy: trustProxyEnabled,
   cookie: {
     secure: isProduction,
     httpOnly: true,
@@ -420,8 +462,8 @@ app.use((err, req, res, next) => {
 
 async function startServer(port = PORT) {
   await initDatabase();
-  // Skip background tasks in test mode to prevent hanging timers
-  if (process.env.NODE_ENV !== 'test') {
+  // Skip background tasks in test mode; allow env-level disable for multi-instance deployments.
+  if (!isTest && backgroundTasksEnabled) {
     startBackgroundTasks();
   }
   return new Promise((resolve, reject) => {

@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
-const { isAuthenticated, isAdmin } = require('../middleware/auth');
-const { createImageUpload } = require('../utils/upload');
+const { isAuthenticated, isActive, isAdmin } = require('../middleware/auth');
+const { createImageUpload, validateUploadedImageSignatures } = require('../utils/upload');
 
 const upload = createImageUpload({ maxFileSize: 5 * 1024 * 1024 });
 
 // Apply admin authentication to all routes
-router.use(isAuthenticated, isAdmin);
+router.use(isAuthenticated, isActive, isAdmin);
 
 // Dashboard
 router.get('/dashboard', adminController.dashboard);
@@ -31,8 +31,8 @@ router.post('/products/:id/featured', adminController.toggleFeatured);
 
 // Categories
 router.get('/categories', adminController.categories);
-router.post('/categories', upload.single('image'), adminController.createCategory);
-router.post('/categories/:id', upload.single('image'), adminController.updateCategory);
+router.post('/categories', upload.single('image'), validateUploadedImageSignatures, adminController.createCategory);
+router.post('/categories/:id', upload.single('image'), validateUploadedImageSignatures, adminController.updateCategory);
 router.delete('/categories/:id', adminController.deleteCategory);
 router.post('/categories/:id/delete', adminController.deleteCategory);
 

@@ -1,30 +1,124 @@
 <%- include('../partials/header', { title: title }) %>
-<div class="container py-4">
-  <h3 class="mb-4"><i class="bi bi-bag"></i> My Orders</h3>
-  <% if (orders.length > 0) { %>
-    <div class="table-responsive">
-      <table class="table table-hover">
-        <thead><tr><th>#</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th><th>Payment</th><th></th></tr></thead>
-        <tbody>
-          <% orders.forEach(function(order) { %>
-            <tr>
-              <td><strong>#<%= order.id %></strong></td>
-              <td><%= new Date(order.created_at).toLocaleDateString() %></td>
-              <td><%= order.item_count %> items</td>
-              <td>$<%= order.total_amount.toFixed(2) %></td>
-              <td><span class="badge bg-<%= order.status === 'delivered' ? 'success' : order.status === 'cancelled' ? 'danger' : 'primary' %>"><%= order.status %></span></td>
-              <td><span class="badge bg-<%= order.payment_status === 'paid' ? 'success' : 'warning' %>"><%= order.payment_status %></span></td>
-              <td><a href="/orders/<%= order.id %>" class="btn btn-sm btn-outline-primary">View</a></td>
-            </tr>
-          <% }); %>
-        </tbody>
-      </table>
+
+<%
+  const statusConfig = function(status) {
+    if (status === 'delivered') return { badge: 'bg-green-100 text-green-700', dot: 'bg-green-500', label: 'Delivered' };
+    if (status === 'shipped' || status === 'processing') return { badge: 'bg-blue-100 text-blue-700', dot: 'bg-blue-500', label: status === 'processing' ? 'Processing' : 'Shipped' };
+    if (status === 'cancelled' || status === 'refunded') return { badge: 'bg-red-100 text-red-700', dot: 'bg-red-500', label: 'Cancelled' };
+    return { badge: 'bg-amber-100 text-amber-700', dot: 'bg-amber-500', label: 'Pending' };
+  };
+
+  const paymentIcon = function(method) {
+    return method === 'cash' ? 'account_balance_wallet' : 'credit_card';
+  };
+%>
+
+<main class="flex-grow max-w-screen-xl mx-auto w-full px-6 py-12">
+  <div class="mb-12">
+    <h1 class="text-4xl font-serif font-bold text-on-surface mb-2">My Orders</h1>
+    <p class="text-on-secondary-container font-body tracking-wide">View and manage all your past and current orders.</p>
+  </div>
+
+  <div class="flex flex-col md:flex-row gap-4 mb-10 items-end justify-between bg-surface-container-low p-6 rounded-xl">
+    <div class="flex flex-wrap gap-4 w-full md:w-auto">
+      <div class="flex flex-col gap-1.5">
+        <span class="text-[10px] uppercase tracking-widest font-bold text-outline px-1">Order Status</span>
+        <select class="bg-surface-container-lowest border-none rounded-lg text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary-container min-w-[160px] text-on-surface">
+          <option>All Orders</option>
+          <option>Pending</option>
+          <option>Shipped</option>
+          <option>Delivered</option>
+          <option>Cancelled</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <span class="text-[10px] uppercase tracking-widest font-bold text-outline px-1">Sort By</span>
+        <select class="bg-surface-container-lowest border-none rounded-lg text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary-container min-w-[160px] text-on-surface">
+          <option>Newest First</option>
+          <option>Oldest First</option>
+        </select>
+      </div>
+    </div>
+    <div class="w-full md:w-72 lg:w-96">
+      <div class="relative">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+        <input class="w-full bg-surface-container-lowest border-none rounded-lg pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container" placeholder="Search order ID or product..." type="text"/>
+      </div>
+    </div>
+  </div>
+
+  <% if (orders && orders.length > 0) { %>
+    <div class="space-y-8">
+      <% orders.forEach(function(order) { const status = statusConfig(order.status); const orderItems = order.previewItems || []; %>
+        <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/10 shadow-[0px_20px_40px_rgba(25,28,30,0.04)] <%= order.status === 'cancelled' ? 'opacity-75' : '' %>">
+          <div class="flex flex-wrap justify-between items-start gap-4 mb-8">
+            <div class="flex gap-8">
+              <div>
+                <p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Order ID</p>
+                <p class="font-serif font-bold text-on-surface">#ORD-<%= String(order.id).padStart(6, '0') %></p>
+              </div>
+              <div>
+                <p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Date Placed</p>
+                <p class="font-medium text-on-surface"><%= new Date(order.created_at).toLocaleDateString() %></p>
+              </div>
+            </div>
+            <span class="inline-flex items-center px-3 py-1 rounded-full <%= status.badge %> text-xs font-bold uppercase tracking-wider">
+              <span class="w-1.5 h-1.5 rounded-full <%= status.dot %> mr-2"></span>
+              <%= status.label %>
+            </span>
+          </div>
+
+          <div class="flex items-center gap-4 mb-8">
+            <div class="flex -space-x-3 overflow-hidden">
+              <% if (orderItems.length > 0) { %>
+                <% orderItems.forEach(function(item) { %>
+                  <img alt="<%= item.product_name %>" class="inline-block h-20 w-20 rounded-lg ring-4 ring-surface-container-lowest object-cover" src="<%= item.image || '/images/placeholder-product.jpg' %>" onerror="this.src='/images/placeholder-product.jpg'"/>
+                <% }) %>
+              <% } else { %>
+                <img alt="Order Item" class="inline-block h-20 w-20 rounded-lg ring-4 ring-surface-container-lowest object-cover" src="/images/placeholder-product.jpg"/>
+              <% } %>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-on-surface"><%= Number(order.item_count || 0) %> Item<%= Number(order.item_count || 0) === 1 ? '' : 's' %></p>
+              <p class="text-xs text-outline italic">Craftify Order</p>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row justify-between items-end sm:items-center pt-8 border-t border-outline-variant/10">
+            <div class="flex gap-8 mb-4 sm:mb-0">
+              <div>
+                <p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Total Amount</p>
+                <p class="font-serif text-xl font-bold text-primary">$<%= Number(order.total_amount || 0).toFixed(2) %></p>
+              </div>
+              <div>
+                <p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Payment Method</p>
+                <div class="flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-sm" data-icon="<%= paymentIcon(order.payment_method) %>"><%= paymentIcon(order.payment_method) %></span>
+                  <p class="text-sm font-medium text-on-surface"><%= (order.payment_method || 'card').toUpperCase() %></p>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-4">
+              <a class="text-sm font-semibold text-primary hover:underline underline-offset-4" href="/products">Reorder</a>
+              <% if (order.status === 'delivered') { %>
+                <a class="text-sm font-semibold text-primary hover:underline underline-offset-4" href="/user/reviews">Write Review</a>
+              <% } %>
+              <% if (order.status === 'shipped' || order.status === 'processing') { %>
+                <a class="border-2 border-primary-container text-primary px-6 py-2 rounded-lg text-sm font-bold hover:bg-primary-container/5 transition-all" href="/orders/<%= order.id %>/track">Track Order</a>
+              <% } %>
+              <a class="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition-all scale-95 active:scale-90" href="/orders/<%= order.id %>">View Details</a>
+            </div>
+          </div>
+        </div>
+      <% }); %>
     </div>
   <% } else { %>
-    <div class="text-center py-5">
-      <i class="bi bi-bag-x display-4 text-muted"></i>
-      <p class="text-muted mt-3">No orders yet. <a href="/products">Start shopping!</a></p>
+    <div class="bg-surface-container-lowest rounded-xl p-12 text-center border border-outline-variant/10">
+      <span class="material-symbols-outlined text-5xl text-secondary/60">shopping_bag</span>
+      <p class="text-secondary mt-3">No orders yet. Start shopping to see your history here.</p>
+      <a href="/products" class="inline-flex mt-6 bg-primary-container text-on-primary-container px-6 py-2.5 rounded-lg text-sm font-bold">Browse Products</a>
     </div>
   <% } %>
-</div>
+</main>
+
 <%- include('../partials/footer') %>

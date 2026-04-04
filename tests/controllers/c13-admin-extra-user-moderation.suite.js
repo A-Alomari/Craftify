@@ -15,6 +15,13 @@ module.exports = ({ getTestContext, loginAs, makeUnique }) => {
       expect(invalidId.statusCode).toBe(302);
       expect(invalidId.headers.location).toContain('/admin/users');
 
+      const invalidStatus = await agent
+        .post(`/admin/users/${ids.custId}/status`)
+        .set('X-Requested-With', 'XMLHttpRequest')
+        .send({ status: 'super-admin' });
+      expect(invalidStatus.statusCode).toBe(400);
+      expect(invalidStatus.body.success).toBe(false);
+
       const selfDelete = await agent
         .post(`/admin/users/${ids.adminId}/delete`)
         .set('X-Requested-With', 'XMLHttpRequest');

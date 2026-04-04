@@ -37,6 +37,11 @@ class User {
       params.push(filters.limit);
     }
 
+    if (filters.offset) {
+      query += ' OFFSET ?';
+      params.push(filters.offset);
+    }
+
     return db.prepare(query).all(...params);
   }
 

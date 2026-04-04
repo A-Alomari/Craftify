@@ -47,9 +47,27 @@ function getRequestHeaders(method, baseHeaders = {}) {
     if (token) {
       headers['CSRF-Token'] = token;
     }
+    headers['X-Requested-With'] = 'XMLHttpRequest';
+    if (!headers.Accept) {
+      headers.Accept = 'application/json';
+    }
   }
 
   return headers;
+}
+
+function parseJsonResponse(response) {
+  if (response.redirected && response.url) {
+    window.location.href = response.url;
+    return null;
+  }
+
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    throw new Error('Unexpected response format');
+  }
+
+  return response.json();
 }
 
 // Cart Functions
@@ -78,13 +96,15 @@ function addToCart(productId, quantity, btn) {
   btn.innerHTML = '<span class="loading-spinner"></span>';
   btn.disabled = true;
 
-  fetch('/api/cart/add', {
+  fetch('/cart/add', {
     method: 'POST',
     headers: getRequestHeaders('POST', { 'Content-Type': 'application/json' }),
-    body: JSON.stringify({ product_id: productId, quantity: parseInt(quantity) })
+    body: JSON.stringify({ productId, quantity: parseInt(quantity, 10) || 1 })
   })
-  .then(r => r.json())
+  .then(parseJsonResponse)
   .then(data => {
+    if (!data) return;
+
     if (data.success) {
       btn.innerHTML = '<i class="bi bi-check"></i> Added!';
       btn.classList.remove('btn-primary', 'btn-outline-primary');
@@ -112,13 +132,15 @@ function addToCart(productId, quantity, btn) {
 }
 
 function removeFromCart(productId) {
-  fetch('/api/cart/remove', {
+  fetch('/cart/remove', {
     method: 'POST',
     headers: getRequestHeaders('POST', { 'Content-Type': 'application/json' }),
-    body: JSON.stringify({ product_id: productId })
+    body: JSON.stringify({ productId })
   })
-  .then(r => r.json())
+  .then(parseJsonResponse)
   .then(data => {
+    if (!data) return;
+
     if (data.success) {
       const item = document.querySelector(`.cart-item[data-product-id="${productId}"]`);
       if (item) {
@@ -164,26 +186,30 @@ function initWishlist() {
 }
 
 function toggleWishlist(productId, btn) {
-  const isActive = btn.classList.contains('active');
-  const method = isActive ? 'DELETE' : 'POST';
-  
-  fetch('/api/wishlist/' + productId, {
-    method,
-    headers: getRequestHeaders(method)
+  fetch('/user/wishlist/toggle', {
+    method: 'POST',
+    headers: getRequestHeaders('POST', { 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ productId })
   })
-  .then(r => r.json())
+  .then(parseJsonResponse)
   .then(data => {
+    if (!data) return;
+
     if (data.success) {
-      btn.classList.toggle('active');
+      const isNowInWishlist = Boolean(data.inWishlist);
+      btn.classList.toggle('active', isNowInWishlist);
       const icon = btn.querySelector('i');
       if (icon) {
-        icon.classList.toggle('bi-heart');
-        icon.classList.toggle('bi-heart-fill');
+        icon.classList.toggle('bi-heart', !isNowInWishlist);
+        icon.classList.toggle('bi-heart-fill', isNowInWishlist);
       }
-      showToast(isActive ? 'Removed from wishlist' : 'Added to wishlist', 'success');
-    } else if (data.redirect) {
-      window.location.href = data.redirect;
+      showToast(isNowInWishlist ? 'Added to wishlist' : 'Removed from wishlist', 'success');
+    } else {
+      showToast(data.message || 'Failed to update wishlist', 'danger');
     }
+  })
+  .catch(() => {
+    showToast('Error updating wishlist', 'danger');
   });
 }
 
@@ -222,13 +248,15 @@ function initQuantityButtons() {
 }
 
 function updateCartQuantity(productId, quantity) {
-  fetch('/api/cart/update', {
+  fetch('/cart/update', {
     method: 'POST',
     headers: getRequestHeaders('POST', { 'Content-Type': 'application/json' }),
-    body: JSON.stringify({ product_id: productId, quantity: parseInt(quantity) })
+    body: JSON.stringify({ productId, quantity: parseInt(quantity, 10) || 1 })
   })
-  .then(r => r.json())
+  .then(parseJsonResponse)
   .then(data => {
+    if (!data) return;
+
     if (data.success) {
       // Update item subtotal
       const item = document.querySelector(`.cart-item[data-product-id="${productId}"]`);
@@ -260,24 +288,50 @@ function initSearch() {
       }
       
       debounceTimer = setTimeout(() => {
-        fetch('/api/search?q=' + encodeURIComponent(query))
-        .then(r => r.json())
+        fetch('/api/search/suggestions?q=' + encodeURIComponent(query))
+        .then(parseJsonResponse)
         .then(data => {
-          if (data.products && data.products.length > 0) {
-            searchResults.innerHTML = data.products.map(p => `
-              <a href="/products/${p.id}" class="list-group-item list-group-item-action d-flex align-items-center">
-                <img src="${p.image}" alt="${p.name}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
-                <div class="flex-grow-1">
-                  <strong>${p.name}</strong>
-                  <small class="text-muted d-block">$${p.price.toFixed(2)}</small>
-                </div>
-              </a>
-            `).join('');
+          if (!data) return;
+
+          const suggestions = Array.isArray(data.suggestions) ? data.suggestions : [];
+          if (suggestions.length > 0) {
+            searchResults.innerHTML = suggestions.map(item => {
+              const name = escapeHtml(item.name || 'Untitled');
+              const type = escapeHtml((item.type || 'item').toString());
+              const link = item.link || '#';
+
+              if (item.type === 'product') {
+                const image = escapeHtml(item.image || '/images/placeholder-product.jpg');
+                const price = Number(item.price);
+                const priceLabel = Number.isFinite(price) ? `$${price.toFixed(2)}` : '';
+
+                return `
+                  <a href="${link}" class="list-group-item list-group-item-action d-flex align-items-center">
+                    <img src="${image}" alt="${name}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                    <div class="flex-grow-1">
+                      <strong>${name}</strong>
+                      <small class="text-muted d-block">${priceLabel}</small>
+                    </div>
+                  </a>
+                `;
+              }
+
+              return `
+                <a href="${link}" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
+                  <strong>${name}</strong>
+                  <small class="text-muted text-uppercase">${type}</small>
+                </a>
+              `;
+            }).join('');
             searchResults.style.display = 'block';
           } else {
             searchResults.innerHTML = '<div class="list-group-item text-muted">No products found</div>';
             searchResults.style.display = 'block';
           }
+        })
+        .catch(() => {
+          searchResults.innerHTML = '<div class="list-group-item text-muted">Unable to load suggestions</div>';
+          searchResults.style.display = 'block';
         });
       }, 300);
     });
@@ -289,6 +343,15 @@ function initSearch() {
       }
     });
   }
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 // Toast Notifications

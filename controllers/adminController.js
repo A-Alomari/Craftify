@@ -7,7 +7,25 @@ const Auction = require('../models/Auction');
 const Review = require('../models/Review');
 const Coupon = require('../models/Coupon');
 const Notification = require('../models/Notification');
-const { getDb } = require('../config/database');
+
+function getReportWindowStartIso(period) {
+  const now = new Date();
+
+  switch (period) {
+    case 'week':
+      now.setDate(now.getDate() - 7);
+      break;
+    case 'year':
+      now.setDate(now.getDate() - 365);
+      break;
+    case 'month':
+    default:
+      now.setDate(now.getDate() - 30);
+      break;
+  }
+
+  return now.toISOString();
+}
 
 // Dashboard
 exports.dashboard = (req, res) => {
@@ -82,6 +100,14 @@ exports.updateUserStatus = (req, res) => {
       return res.redirect('/admin/users');
     }
     const { status } = req.body;
+    const allowedStatuses = new Set(['active', 'suspended']);
+    if (!allowedStatuses.has(status)) {
+      if (req.xhr) {
+        return res.status(400).json({ success: false, message: 'Invalid status' });
+      }
+      req.flash('error_msg', 'Invalid status');
+      return res.redirect('/admin/users');
+    }
 
     User.updateStatus(id, status);
 
@@ -467,6 +493,14 @@ exports.updateOrderStatus = (req, res) => {
       return res.redirect('/admin/orders');
     }
     const { status } = req.body;
+    const allowedStatuses = new Set(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded']);
+    if (!allowedStatuses.has(status)) {
+      if (req.xhr) {
+        return res.status(400).json({ success: false, message: 'Invalid status' });
+      }
+      req.flash('error_msg', 'Invalid status');
+      return res.redirect(`/admin/orders/${id}`);
+    }
 
     Order.updateStatus(id, status);
     const order = Order.findById(id);
@@ -564,6 +598,14 @@ exports.updateReviewStatus = (req, res) => {
       return res.redirect('/admin/reviews');
     }
     const { status } = req.body;
+    const allowedStatuses = new Set(['visible', 'approved', 'hidden', 'rejected']);
+    if (!allowedStatuses.has(status)) {
+      if (req.xhr) {
+        return res.status(400).json({ success: false, message: 'Invalid status' });
+      }
+      req.flash('error_msg', 'Invalid status');
+      return res.redirect('/admin/reviews');
+    }
 
     Review.updateStatus(id, status);
 
@@ -649,16 +691,53 @@ exports.createCoupon = (req, res) => {
   try {
     const { code, description, discount_type, discount_value, min_purchase, max_discount, valid_from, valid_until, usage_limit } = req.body;
 
+    const parsedDiscountValue = Number.parseFloat(discount_value);
+    const parsedMinPurchase = min_purchase ? Number.parseFloat(min_purchase) : 0;
+    const parsedMaxDiscount = max_discount ? Number.parseFloat(max_discount) : null;
+    const parsedUsageLimit = usage_limit ? Number.parseInt(usage_limit, 10) : null;
+
+    if (!code || !discount_type || !Number.isFinite(parsedDiscountValue) || parsedDiscountValue <= 0) {
+      if (req.xhr) {
+        return res.status(400).json({ success: false, message: 'Invalid coupon data' });
+      }
+      req.flash('error_msg', 'Invalid coupon data');
+      return res.redirect('/admin/coupons');
+    }
+
+    if (!Number.isFinite(parsedMinPurchase) || parsedMinPurchase < 0) {
+      if (req.xhr) {
+        return res.status(400).json({ success: false, message: 'Invalid minimum purchase amount' });
+      }
+      req.flash('error_msg', 'Invalid minimum purchase amount');
+      return res.redirect('/admin/coupons');
+    }
+
+    if (parsedMaxDiscount !== null && (!Number.isFinite(parsedMaxDiscount) || parsedMaxDiscount <= 0)) {
+      if (req.xhr) {
+        return res.status(400).json({ success: false, message: 'Invalid maximum discount amount' });
+      }
+      req.flash('error_msg', 'Invalid maximum discount amount');
+      return res.redirect('/admin/coupons');
+    }
+
+    if (parsedUsageLimit !== null && (!Number.isInteger(parsedUsageLimit) || parsedUsageLimit <= 0)) {
+      if (req.xhr) {
+        return res.status(400).json({ success: false, message: 'Invalid usage limit' });
+      }
+      req.flash('error_msg', 'Invalid usage limit');
+      return res.redirect('/admin/coupons');
+    }
+
     Coupon.create({
       code,
       description,
       discount_type,
-      discount_value: parseFloat(discount_value),
-      min_purchase: parseFloat(min_purchase) || 0,
-      max_discount: max_discount ? parseFloat(max_discount) : null,
+      discount_value: parsedDiscountValue,
+      min_purchase: parsedMinPurchase,
+      max_discount: parsedMaxDiscount,
       valid_from: valid_from || null,
       valid_until: valid_until || null,
-      usage_limit: usage_limit ? parseInt(usage_limit) : null
+      usage_limit: parsedUsageLimit
     });
 
     if (req.xhr) {
@@ -728,64 +807,12 @@ exports.deleteCoupon = (req, res) => {
 exports.reports = (req, res) => {
   try {
     const { period = 'month' } = req.query;
-
-    // Get sales data
-    let dateFilter;
-    switch (period) {
-      case 'week':
-        dateFilter = "datetime('now', '-7 days')";
-        break;
-      case 'month':
-        dateFilter = "datetime('now', '-30 days')";
-        break;
-      case 'year':
-        dateFilter = "datetime('now', '-365 days')";
-        break;
-      default:
-        dateFilter = "datetime('now', '-30 days')";
-    }
-
-    const db = getDb();
-    const salesData = db.prepare(`
-      SELECT DATE(created_at) as date, SUM(total_amount) as revenue, COUNT(*) as orders
-      FROM orders
-      WHERE payment_status = 'paid' AND created_at >= ${dateFilter}
-      GROUP BY DATE(created_at)
-      ORDER BY date
-    `).all();
-
-    const topProducts = db.prepare(`
-      SELECT p.name, SUM(oi.quantity) as sold, SUM(oi.total_price) as revenue
-      FROM order_items oi
-      JOIN products p ON oi.product_id = p.id
-      JOIN orders o ON oi.order_id = o.id
-      WHERE o.payment_status = 'paid' AND o.created_at >= ${dateFilter}
-      GROUP BY p.id
-      ORDER BY revenue DESC
-      LIMIT 10
-    `).all();
-
-    const topArtisans = db.prepare(`
-      SELECT ap.shop_name, u.name, SUM(oi.total_price) as revenue
-      FROM order_items oi
-      JOIN users u ON oi.artisan_id = u.id
-      JOIN artisan_profiles ap ON u.id = ap.user_id
-      JOIN orders o ON oi.order_id = o.id
-      WHERE o.payment_status = 'paid' AND o.created_at >= ${dateFilter}
-      GROUP BY oi.artisan_id
-      ORDER BY revenue DESC
-      LIMIT 10
-    `).all();
-
-    const totalRevenue = db.prepare(`
-      SELECT COALESCE(SUM(total_amount), 0) as total FROM orders 
-      WHERE payment_status = 'paid' AND created_at >= ${dateFilter}
-    `).get().total;
-
-    const totalOrders = db.prepare(`
-      SELECT COUNT(*) as total FROM orders 
-      WHERE created_at >= ${dateFilter}
-    `).get().total;
+    const startIso = getReportWindowStartIso(period);
+    const salesData = Order.getSalesDataSince(startIso);
+    const topProducts = Order.getTopProductsSince(startIso, 10);
+    const topArtisans = Order.getTopArtisansSince(startIso, 10);
+    const totalRevenue = Order.getTotalRevenueSince(startIso);
+    const totalOrders = Order.countSince(startIso);
 
     res.render('admin/reports', {
       title: 'Reports - Craftify',

@@ -4,7 +4,7 @@ const authController = require('../controllers/authController');
 const { isGuest } = require('../middleware/auth');
 const rateLimit = require('express-rate-limit');
 const { body, validationResult } = require('express-validator');
-const { createImageUpload } = require('../utils/upload');
+const { createImageUpload, validateUploadedImageSignatures } = require('../utils/upload');
 
 // Rate limiting (disabled during tests)
 const isTest = process.env.NODE_ENV === 'test' || process.argv.some(arg => arg.includes('jest'));
@@ -112,7 +112,9 @@ router.post('/register', registerLimiter, registerValidation, handleValidationEr
 router.get('/artisan-register', isGuest, authController.showArtisanRegister);
 router.post(
   '/artisan-register',
+  registerLimiter,
   upload.single('profile_image'),
+  validateUploadedImageSignatures,
   artisanRegisterValidation,
   handleValidationErrors(() => '/auth/artisan-register'),
   authController.registerArtisan

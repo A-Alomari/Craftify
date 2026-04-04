@@ -67,6 +67,8 @@ class Product {
       'oldest': 'p.created_at ASC',
       'price_low': 'p.price ASC',
       'price_high': 'p.price DESC',
+      'price_asc': 'p.price ASC',
+      'price_desc': 'p.price DESC',
       'popular': 'p.views DESC',
       'rating': 'avg_rating DESC'
     };
@@ -178,20 +180,43 @@ class Product {
 
   static count(filters = {}) {
     const db = getDb();
-    let query = 'SELECT COUNT(*) as count FROM products WHERE 1=1';
+    let query = `
+      SELECT COUNT(DISTINCT p.id) as count
+      FROM products p
+      LEFT JOIN artisan_profiles ap ON p.artisan_id = ap.user_id
+      WHERE 1=1
+    `;
     const params = [];
 
     if (filters.status) {
-      query += ' AND status = ?';
+      query += ' AND p.status = ?';
       params.push(filters.status);
     }
     if (filters.artisan_id) {
-      query += ' AND artisan_id = ?';
+      query += ' AND p.artisan_id = ?';
       params.push(filters.artisan_id);
     }
     if (filters.category_id) {
-      query += ' AND category_id = ?';
+      query += ' AND p.category_id = ?';
       params.push(filters.category_id);
+    }
+    if (filters.featured) {
+      query += ' AND p.featured = 1';
+    }
+    if (filters.search) {
+      query += ' AND (p.name LIKE ? OR p.description LIKE ? OR ap.shop_name LIKE ?)';
+      params.push(`%${filters.search}%`, `%${filters.search}%`, `%${filters.search}%`);
+    }
+    if (filters.minPrice) {
+      query += ' AND p.price >= ?';
+      params.push(filters.minPrice);
+    }
+    if (filters.maxPrice) {
+      query += ' AND p.price <= ?';
+      params.push(filters.maxPrice);
+    }
+    if (filters.inStock) {
+      query += ' AND p.stock > 0';
     }
 
     return db.prepare(query).get(...params)?.count || 0;

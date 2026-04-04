@@ -4,6 +4,9 @@ module.exports = ({ getTestContext, loginAs, makeUnique }) => {
   let app;
   let db;
   let ids;
+  const validPng = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d]);
+  const validWebp = Buffer.from([0x52, 0x49, 0x46, 0x46, 0x24, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50]);
+  const validJpeg = Buffer.from([0xff, 0xd8, 0xff, 0xdb, 0x00, 0x43, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
   beforeAll(() => {
     ({ app, db, ids } = getTestContext());
@@ -17,7 +20,7 @@ module.exports = ({ getTestContext, loginAs, makeUnique }) => {
         .post('/admin/categories')
         .field('name', `Upload Category ${makeUnique('upload')}`)
         .field('description', 'Valid upload file')
-        .attach('image', Buffer.from('valid-admin-image'), { filename: 'admin.png', contentType: 'image/png' });
+        .attach('image', validPng, { filename: 'admin.png', contentType: 'image/png' });
       expect([200, 302]).toContain(adminCategory.statusCode);
 
       const adminInvalidUpload = await adminAgent
@@ -34,7 +37,7 @@ module.exports = ({ getTestContext, loginAs, makeUnique }) => {
         .field('shop_name', 'Test Shop')
         .field('bio', 'Valid artisan upload')
         .field('return_policy', 'Policy')
-        .attach('profile_image', Buffer.from('valid-artisan-image'), { filename: 'artisan.webp', contentType: 'image/webp' });
+        .attach('profile_image', validWebp, { filename: 'artisan.webp', contentType: 'image/webp' });
       expect([200, 302]).toContain(artisanValidUpload.statusCode);
 
       const artisanInvalidUpload = await artisanAgent
@@ -57,7 +60,7 @@ module.exports = ({ getTestContext, loginAs, makeUnique }) => {
         .field('shop_name', 'Auth Upload Shop')
         .field('bio', 'Auth upload bio')
         .field('return_policy', 'Auth policy')
-        .attach('profile_image', Buffer.from('auth-valid-image'), { filename: 'auth.jpg', contentType: 'image/jpeg' });
+        .attach('profile_image', validJpeg, { filename: 'auth.jpg', contentType: 'image/jpeg' });
       expect(authValidUpload.statusCode).toBe(302);
       expect(authValidUpload.headers.location).toContain('/auth/login');
 

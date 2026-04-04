@@ -6,8 +6,7 @@ const Order = require('../models/Order');
 const Auction = require('../models/Auction');
 const Review = require('../models/Review');
 const Notification = require('../models/Notification');
-const path = require('path');
-const { validateProductInput, sanitizeString } = require('../utils/sanitizer');
+const { validateProductInput } = require('../utils/sanitizer');
 
 // Dashboard
 exports.dashboard = (req, res) => {
@@ -284,8 +283,27 @@ exports.orderDetail = (req, res) => {
 
 exports.updateOrderStatus = (req, res) => {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isInteger(id) || id <= 0) {
+      if (req.xhr) return res.status(400).json({ success: false, message: 'Invalid order ID' });
+      req.flash('error_msg', 'Invalid order ID');
+      return res.redirect('/artisan/orders');
+    }
+
     const { status } = req.body;
+    const allowedStatuses = new Set(['processing', 'shipped', 'delivered']);
+    if (!allowedStatuses.has(status)) {
+      if (req.xhr) return res.status(400).json({ success: false, message: 'Invalid status' });
+      req.flash('error_msg', 'Invalid status');
+      return res.redirect(`/artisan/orders/${id}`);
+    }
+
+    const artisanItems = Order.getItemsByArtisan(id, req.session.user.id);
+    if (!artisanItems || artisanItems.length === 0) {
+      if (req.xhr) return res.status(404).json({ success: false, message: 'Order not found' });
+      req.flash('error_msg', 'Order not found');
+      return res.redirect('/artisan/orders');
+    }
 
     Order.updateStatus(id, status);
     const order = Order.findById(id);
@@ -405,30 +423,8 @@ exports.analytics = (req, res) => {
   try {
     const artisanId = req.session.user.id;
     const stats = ArtisanProfile.getStats(artisanId);
-    const { getDb } = require('../config/database');
-    const db = getDb();
-
-    const monthlyRevenue = db.prepare(`
-      SELECT strftime('%Y-%m', o.created_at) as month,
-        SUM(oi.total_price) as revenue
-      FROM order_items oi
-      JOIN orders o ON oi.order_id = o.id
-      JOIN products p ON oi.product_id = p.id
-      WHERE p.artisan_id = ? AND o.payment_status = 'paid'
-        AND o.created_at >= datetime('now', '-6 months')
-      GROUP BY month
-      ORDER BY month
-    `).all(artisanId);
-
-    const topProducts = db.prepare(`
-      SELECT p.name, SUM(oi.quantity) as sold, SUM(oi.total_price) as revenue
-      FROM order_items oi
-      JOIN products p ON oi.product_id = p.id
-      WHERE p.artisan_id = ?
-      GROUP BY p.id
-      ORDER BY sold DESC
-      LIMIT 5
-    `).all(artisanId);
+    const monthlyRevenue = Order.getMonthlyRevenueByArtisan(artisanId, 6);
+    const topProducts = Order.getTopProductsByArtisan(artisanId, 5);
 
     res.render('artisan/analytics', {
       title: 'Analytics - Craftify',

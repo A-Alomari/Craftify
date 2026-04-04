@@ -1,4 +1,5 @@
 // Authentication middleware
+const ArtisanProfile = require('../models/ArtisanProfile');
 
 const isAuthenticated = (req, res, next) => {
   if (req.session.user) {
@@ -41,10 +42,8 @@ const isAdmin = (req, res, next) => {
 
 const isApprovedArtisan = (req, res, next) => {
   if (req.session.user && req.session.user.role === 'artisan') {
-    const { getDb } = require('../config/database');
     try {
-      const db = getDb();
-      const profile = db.prepare('SELECT is_approved FROM artisan_profiles WHERE user_id = ?').get(req.session.user.id);
+      const profile = ArtisanProfile.findByUserId(req.session.user.id);
       if (profile && profile.is_approved) {
         return next();
       }
@@ -60,7 +59,11 @@ const isApprovedArtisan = (req, res, next) => {
 };
 
 const isActive = (req, res, next) => {
-  if (req.session.user && req.session.user.status === 'active') {
+  if (!req.session || !req.session.user) {
+    return next();
+  }
+
+  if (req.session.user.status === 'active') {
     return next();
   }
 

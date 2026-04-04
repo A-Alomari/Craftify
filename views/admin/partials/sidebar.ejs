@@ -1,41 +1,60 @@
-<!-- SideNavBar -->
-<aside class="w-64 flex-shrink-0 bg-slate-50 dark:bg-slate-950 font-sans text-sm font-medium border-r border-outline-variant/20 min-h-screen">
-<div class="px-6 py-8 flex items-center gap-3">
-    <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden font-bold text-primary">
-        A
+<%
+    const currentPathValue = typeof currentPath === 'string' ? currentPath : '';
+    const isActive = (href) => currentPathValue === href || currentPathValue.startsWith(`${href}/`);
+    const adminName = user && user.name ? user.name : 'Admin User';
+    const navItems = [
+        { href: '/admin/dashboard', icon: 'dashboard', label: 'Dashboard' },
+        { href: '/admin/users', icon: 'group', label: 'Users' },
+        { href: '/admin/artisans', icon: 'handyman', label: 'Artisans' },
+        { href: '/admin/products', icon: 'inventory_2', label: 'Products' },
+        { href: '/admin/categories', icon: 'category', label: 'Categories' },
+        { href: '/admin/orders', icon: 'local_shipping', label: 'Orders' },
+        { href: '/admin/auctions', icon: 'gavel', label: 'Auctions' },
+        { href: '/admin/reviews', icon: 'rate_review', label: 'Reviews' },
+        { href: '/admin/reports', icon: 'leaderboard', label: 'Analytics' }
+    ];
+%>
+
+<aside class="w-full lg:w-64 flex-shrink-0 bg-surface py-6 px-4 border-r border-outline-variant/20 flex flex-col lg:min-h-screen">
+    <div class="mb-10 px-2 flex items-center gap-3">
+        <span class="material-symbols-outlined text-primary-container text-3xl">token</span>
+        <div>
+            <h1 class="font-headline text-2xl font-bold text-primary-container leading-tight">Craftify</h1>
+            <p class="text-[10px] font-medium tracking-[0.2em] text-secondary uppercase opacity-70">Admin Console</p>
+        </div>
     </div>
-    <div>
-        <h3 class="text-on-surface font-bold">Admin Panel</h3>
-        <p class="text-xs text-secondary italic">Superuser</p>
+
+    <nav class="flex-1 space-y-1">
+        <% navItems.forEach(function(item) { const active = isActive(item.href); %>
+            <a
+                href="<%= item.href %>"
+                class="flex items-center gap-3 px-4 py-3 transition-colors duration-200 <%= active ? 'text-primary font-bold border-l-4 border-primary-container bg-surface-container-high' : 'text-secondary hover:text-on-surface hover:bg-surface-container-high' %>"
+            >
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' <%= active ? 1 : 0 %>"><%= item.icon %></span>
+                <span class="font-body text-sm font-medium tracking-wide"><%= item.label %></span>
+            </a>
+        <% }); %>
+    </nav>
+
+    <div class="pt-6 border-t border-surface-container-high space-y-1">
+        <a href="/admin/reports" class="w-full bg-primary-container text-on-primary-container font-semibold py-3 px-4 rounded-xl mb-4 flex items-center justify-center gap-2 active:opacity-80 transition-all">
+            <span class="material-symbols-outlined text-lg">add</span>
+            New Report
+        </a>
+
+        <a href="/admin/settings" class="flex items-center gap-3 px-4 py-2 text-secondary hover:text-on-surface transition-colors">
+            <span class="material-symbols-outlined">settings</span>
+            <span class="font-body text-sm font-medium">Settings</span>
+        </a>
+
+        <form action="/auth/logout" method="POST" class="m-0">
+            <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+            <button type="submit" class="w-full flex items-center gap-3 px-4 py-2 text-secondary hover:text-tertiary transition-colors text-left">
+                <span class="material-symbols-outlined">logout</span>
+                <span class="font-body text-sm font-medium">Logout</span>
+            </button>
+        </form>
+
+        <p class="px-4 pt-3 text-[10px] uppercase tracking-widest text-secondary"><%= adminName %></p>
     </div>
-</div>
-<nav class="flex flex-col gap-1 px-3">
-    <a href="/admin/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-slate-300">
-        <span class="material-symbols-outlined text-xl">speedometer</span> Dashboard
-    </a>
-    <a href="/admin/users" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-slate-300">
-        <span class="material-symbols-outlined text-xl">people</span> Users
-    </a>
-    <a href="/admin/artisans" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-slate-300">
-        <span class="material-symbols-outlined text-xl">palette</span> Artisans
-    </a>
-    <a href="/admin/products" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-slate-300">
-        <span class="material-symbols-outlined text-xl">inventory_2</span> Products
-    </a>
-    <a href="/admin/categories" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-slate-300">
-        <span class="material-symbols-outlined text-xl">category</span> Categories
-    </a>
-    <a href="/admin/orders" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-slate-300">
-        <span class="material-symbols-outlined text-xl">receipt_long</span> Orders
-    </a>
-    <a href="/admin/auctions" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-slate-300">
-        <span class="material-symbols-outlined text-xl">gavel</span> Auctions
-    </a>
-    <a href="/admin/reviews" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-slate-300">
-        <span class="material-symbols-outlined text-xl">star</span> Reviews
-    </a>
-    <a href="/admin/reports" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-slate-300">
-        <span class="material-symbols-outlined text-xl">monitoring</span> Reports
-    </a>
-</nav>
 </aside>

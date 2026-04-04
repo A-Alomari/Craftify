@@ -1,24 +1,144 @@
 <%- include('../partials/header', { title: title }) %>
-<div class="container-fluid py-4"><div class="row"><div class="col-lg-2 mb-4"><%- include('./partials/sidebar') %></div>
-<div class="col-lg-10">
-  <h3 class="mb-4"><i class="bi bi-people"></i> User Management</h3>
-  <% if (users && users.length > 0) { %>
-  <div class="table-responsive"><table class="table table-hover"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th></th></tr></thead>
-  <tbody><% users.forEach(function(u) { %><tr>
-    <td><%= u.name %></td><td><%= u.email %></td>
-    <td><span class="badge bg-<%= u.role === 'admin' ? 'danger' : u.role === 'artisan' ? 'info' : 'secondary' %>"><%= u.role %></span></td>
-    <td><span class="badge bg-<%= u.status === 'active' ? 'success' : 'warning' %>"><%= u.status %></span></td>
-    <td><%= new Date(u.created_at).toLocaleDateString() %></td>
-    <td>
-      <% if (u.status === 'active') { %><form action="/admin/users/<%= u.id %>/status" method="POST" class="d-inline"><input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"><input type="hidden" name="status" value="suspended"><button class="btn btn-sm btn-warning">Suspend</button></form><% } else { %><form action="/admin/users/<%= u.id %>/status" method="POST" class="d-inline"><input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"><input type="hidden" name="status" value="active"><button class="btn btn-sm btn-success">Activate</button></form><% } %>
-    </td>
-  </tr><% }); %></tbody></table></div>
-  <% } else { %>
-    <div class="text-center py-5">
-      <i class="bi bi-people display-4 text-muted"></i>
-      <p class="text-muted mt-3">No users found.</p>
-    </div>
-  <% } %>
-  <%- include('../partials/pagination', { pagination: pagination, baseUrl: '/admin/users', queryString: 'role=' + (filters.role || '') + '&status=' + (filters.status || '') + '&search=' + (filters.search || '') }) %>
-</div></div></div>
+<%
+  const roleFilter = filters && filters.role ? filters.role : '';
+  const statusFilter = filters && filters.status ? filters.status : '';
+  const searchFilter = filters && filters.search ? filters.search : '';
+  const queryString = `role=${encodeURIComponent(roleFilter)}&status=${encodeURIComponent(statusFilter)}&search=${encodeURIComponent(searchFilter)}`;
+%>
+
+<div class="flex bg-surface min-h-screen">
+  <%- include('./partials/sidebar') %>
+
+  <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
+    <%- include('./partials/topbar') %>
+
+    <section class="max-w-7xl mx-auto mt-8 mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div>
+        <span class="font-label text-xs tracking-[0.2em] text-primary font-semibold uppercase">Administration</span>
+        <h1 class="font-headline text-3xl text-on-surface mt-2">User Management</h1>
+        <p class="text-secondary mt-1">Manage account roles and platform access.</p>
+      </div>
+      <p class="text-xs text-secondary uppercase tracking-widest">Records: <%= users ? users.length : 0 %></p>
+    </section>
+
+    <section class="max-w-7xl mx-auto bg-surface-container-lowest rounded-xl p-5 md:p-6 mb-6">
+      <form method="GET" action="/admin/users" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Role</label>
+          <select name="role" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+            <option value="">All Roles</option>
+            <option value="admin" <%= roleFilter === 'admin' ? 'selected' : '' %>>Admin</option>
+            <option value="artisan" <%= roleFilter === 'artisan' ? 'selected' : '' %>>Artisan</option>
+            <option value="customer" <%= roleFilter === 'customer' ? 'selected' : '' %>>Customer</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Status</label>
+          <select name="status" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+            <option value="">All Statuses</option>
+            <option value="active" <%= statusFilter === 'active' ? 'selected' : '' %>>Active</option>
+            <option value="suspended" <%= statusFilter === 'suspended' ? 'selected' : '' %>>Suspended</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Search</label>
+          <input type="text" name="search" value="<%= searchFilter %>" placeholder="Name or email" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+        </div>
+        <div class="flex items-end gap-2">
+          <button type="submit" class="bg-primary-container text-on-primary-container px-5 py-2.5 rounded-xl font-semibold text-sm">Apply</button>
+          <a href="/admin/users" class="bg-surface-container-high text-on-surface px-5 py-2.5 rounded-xl font-semibold text-sm">Reset</a>
+        </div>
+      </form>
+    </section>
+
+    <section class="max-w-7xl mx-auto bg-surface-container-lowest rounded-xl overflow-hidden">
+      <% if (users && users.length > 0) { %>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="text-[10px] font-bold text-secondary uppercase tracking-widest border-b border-surface-container-high">
+                <th class="px-6 py-4">User</th>
+                <th class="px-6 py-4">Role</th>
+                <th class="px-6 py-4">Status</th>
+                <th class="px-6 py-4">Joined</th>
+                <th class="px-6 py-4 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container-high/50">
+              <% users.forEach(function(u) { %>
+                <tr class="hover:bg-surface-container-low/20 transition-colors">
+                  <td class="px-6 py-5">
+                    <p class="text-sm font-semibold text-on-surface"><%= u.name %></p>
+                    <p class="text-xs text-secondary"><%= u.email %></p>
+                  </td>
+                  <td class="px-6 py-5">
+                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest <%= u.role === 'admin' ? 'bg-tertiary-container text-on-tertiary-container' : (u.role === 'artisan' ? 'bg-secondary-container text-on-secondary-container' : 'bg-surface-container-high text-on-surface') %>"><%= u.role %></span>
+                  </td>
+                  <td class="px-6 py-5">
+                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest <%= u.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' %>"><%= u.status %></span>
+                  </td>
+                  <td class="px-6 py-5 text-sm text-secondary"><%= new Date(u.created_at).toLocaleDateString() %></td>
+                  <td class="px-6 py-5 text-right">
+                    <% if (u.id === (user && user.id)) { %>
+                      <span class="text-xs text-secondary">Current account</span>
+                    <% } else { %>
+                      <% if (u.status === 'active') { %>
+                        <form action="/admin/users/<%= u.id %>/status" method="POST" class="inline-block">
+                          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                          <input type="hidden" name="status" value="suspended">
+                          <button class="bg-amber-100 text-amber-700 hover:bg-amber-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Suspend</button>
+                        </form>
+                      <% } else { %>
+                        <form action="/admin/users/<%= u.id %>/status" method="POST" class="inline-block">
+                          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                          <input type="hidden" name="status" value="active">
+                          <button class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Activate</button>
+                        </form>
+                      <% } %>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="py-14 text-center">
+          <span class="material-symbols-outlined text-5xl text-secondary/60">group_off</span>
+          <p class="text-secondary mt-3">No users found for the selected filters.</p>
+        </div>
+      <% } %>
+    </section>
+
+    <% if (pagination && pagination.total > 1) { %>
+      <nav class="max-w-7xl mx-auto mt-6 flex items-center justify-center gap-2">
+        <% const startPage = Math.max(1, pagination.current - 2); %>
+        <% const endPage = Math.min(pagination.total, pagination.current + 2); %>
+
+        <a class="px-3 py-2 rounded-lg text-sm <%= pagination.hasPrev ? 'bg-surface-container-low text-on-surface hover:bg-surface-container-high' : 'bg-surface-container-low text-secondary/50 pointer-events-none' %>" href="?page=<%= pagination.current - 1 %>&<%= queryString %>">Prev</a>
+
+        <% if (startPage > 1) { %>
+          <a class="px-3 py-2 rounded-lg text-sm bg-surface-container-low text-on-surface hover:bg-surface-container-high" href="?page=1&<%= queryString %>">1</a>
+          <% if (startPage > 2) { %>
+            <span class="px-2 text-secondary">...</span>
+          <% } %>
+        <% } %>
+
+        <% for (let i = startPage; i <= endPage; i++) { %>
+          <a class="px-3 py-2 rounded-lg text-sm <%= i === pagination.current ? 'bg-primary-container text-on-primary-container font-bold' : 'bg-surface-container-low text-on-surface hover:bg-surface-container-high' %>" href="?page=<%= i %>&<%= queryString %>"><%= i %></a>
+        <% } %>
+
+        <% if (endPage < pagination.total) { %>
+          <% if (endPage < pagination.total - 1) { %>
+            <span class="px-2 text-secondary">...</span>
+          <% } %>
+          <a class="px-3 py-2 rounded-lg text-sm bg-surface-container-low text-on-surface hover:bg-surface-container-high" href="?page=<%= pagination.total %>&<%= queryString %>"><%= pagination.total %></a>
+        <% } %>
+
+        <a class="px-3 py-2 rounded-lg text-sm <%= pagination.hasNext ? 'bg-surface-container-low text-on-surface hover:bg-surface-container-high' : 'bg-surface-container-low text-secondary/50 pointer-events-none' %>" href="?page=<%= pagination.current + 1 %>&<%= queryString %>">Next</a>
+      </nav>
+    <% } %>
+  </main>
+</div>
+
 <%- include('../partials/footer') %>

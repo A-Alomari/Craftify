@@ -1,28 +1,74 @@
 <%- include('../partials/header', { title: title }) %>
-<div class="container-fluid py-4"><div class="row"><div class="col-lg-2 mb-4"><%- include('./partials/sidebar') %></div>
-<div class="col-lg-10">
-  <h3 class="mb-4">Create Auction</h3>
-  <div class="card shadow-sm border-0"><div class="card-body">
-    <form action="/artisan/auctions" method="POST">
-    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-      <div class="mb-3"><label class="form-label">Select Product *</label>
-        <select name="product_id" class="form-select" required><option value="">Choose a product...</option>
-          <% products.forEach(function(p) { %><option value="<%= p.id %>"><%= p.name %> ($<%= p.price.toFixed(2) %>)</option><% }); %>
-        </select>
-      </div>
-      <div class="mb-3"><label class="form-label">Auction Title</label><input type="text" name="title" class="form-control"></div>
-      <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="3"></textarea></div>
-      <div class="row">
-        <div class="col-md-4 mb-3"><label class="form-label">Starting Bid ($) *</label><input type="number" name="starting_bid" class="form-control" step="0.01" required></div>
-        <div class="col-md-4 mb-3"><label class="form-label">Reserve Price ($)</label><input type="number" name="reserve_price" class="form-control" step="0.01"></div>
-        <div class="col-md-4 mb-3"><label class="form-label">Bid Increment ($)</label><input type="number" name="bid_increment" class="form-control" step="0.01" value="1.00"></div>
-      </div>
-      <div class="row">
-        <div class="col-md-6 mb-3"><label class="form-label">Start Time *</label><input type="datetime-local" name="start_time" class="form-control" required></div>
-        <div class="col-md-6 mb-3"><label class="form-label">End Time *</label><input type="datetime-local" name="end_time" class="form-control" required></div>
-      </div>
-      <button type="submit" class="btn btn-primary">Create Auction</button>
-    </form>
-  </div></div>
-</div></div></div>
+
+<div class="flex bg-surface min-h-screen">
+  <%- include('./partials/sidebar') %>
+
+  <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
+    <%- include('./partials/topbar') %>
+
+    <section class="max-w-5xl mx-auto mt-8 mb-6">
+      <span class="font-label text-xs tracking-[0.2em] text-primary font-semibold uppercase">Artisan Studio</span>
+      <h1 class="font-headline text-3xl text-on-surface mt-2">Create Auction</h1>
+      <p class="text-secondary mt-1">Launch a timed listing and attract competitive bids.</p>
+    </section>
+
+    <section class="max-w-5xl mx-auto bg-surface-container-lowest rounded-xl p-6 md:p-8">
+      <form action="/artisan/auctions" method="POST" class="space-y-5">
+        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+
+        <div>
+          <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Select Product</label>
+          <select name="product_id" required class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+            <option value="">Choose a product...</option>
+            <% products.forEach(function(p) { %>
+              <option value="<%= p.id %>"><%= p.name %> ($<%= Number(p.price || 0).toFixed(2) %>)</option>
+            <% }); %>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Auction Title</label>
+          <input type="text" name="title" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+        </div>
+
+        <div>
+          <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Description</label>
+          <textarea name="description" rows="4" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Starting Bid</label>
+            <input type="number" name="starting_bid" step="0.01" min="0.01" required class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Reserve Price</label>
+            <input type="number" name="reserve_price" step="0.01" min="0" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Bid Increment</label>
+            <input type="number" name="bid_increment" step="0.01" min="0.01" value="1.00" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Start Time</label>
+            <input type="datetime-local" name="start_time" required class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">End Time</label>
+            <input type="datetime-local" name="end_time" required class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2">
+          <a href="/artisan/auctions" class="bg-surface-container-high text-on-surface px-5 py-2.5 rounded-xl font-semibold text-sm">Cancel</a>
+          <button type="submit" class="bg-primary-container text-on-primary-container px-5 py-2.5 rounded-xl font-semibold text-sm">Create Auction</button>
+        </div>
+      </form>
+    </section>
+  </main>
+</div>
+
 <%- include('../partials/footer') %>

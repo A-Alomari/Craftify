@@ -1,15 +1,23 @@
 <%- include('../partials/header', { title: title }) %>
-<div class="container py-5 text-center">
-  <i class="bi bi-hourglass-split display-1 text-warning"></i>
-  <h2 class="mt-3">Pending Approval</h2>
-  <p class="text-muted mb-4">Your artisan account is currently under review. Our team will verify your application and notify you once it's approved.</p>
-  <p>In the meantime, you can update your profile below:</p>
-  <% if (profile) { %>
-    <div class="card shadow-sm border-0 mx-auto mt-4"><div class="card-body text-start">
-      <p><strong>Shop Name:</strong> <%= profile.shop_name %></p>
-      <p><strong>Status:</strong> <span class="badge bg-warning">Pending</span></p>
-    </div></div>
-  <% } %>
-  <a href="/" class="btn btn-outline-primary mt-4">Go Home</a>
-</div>
+
+<section class="max-w-3xl mx-auto px-6 py-14">
+  <article class="bg-surface-container-lowest rounded-xl p-8 md:p-10 text-center">
+    <span class="material-symbols-outlined text-6xl text-amber-600">hourglass_top</span>
+    <h1 class="font-headline text-3xl text-on-surface mt-4">Pending Approval</h1>
+    <p class="text-secondary mt-3">Your artisan account is under review. We will notify you as soon as verification is complete.</p>
+
+    <% if (profile) { %>
+      <div class="mt-6 bg-surface-container-low rounded-xl p-5 text-left">
+        <p class="text-sm text-on-surface"><span class="font-semibold">Shop Name:</span> <%= profile.shop_name %></p>
+        <p class="text-sm text-on-surface mt-2"><span class="font-semibold">Status:</span> <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-amber-100 text-amber-700">Pending</span></p>
+      </div>
+    <% } %>
+
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <a href="/artisan/profile" class="bg-primary-container text-on-primary-container px-5 py-2.5 rounded-xl font-semibold text-sm">Update Profile</a>
+      <a href="/" class="bg-surface-container-high text-on-surface px-5 py-2.5 rounded-xl font-semibold text-sm">Go Home</a>
+    </div>
+  </article>
+</section>
+
 <%- include('../partials/footer') %>

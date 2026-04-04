@@ -24,5 +24,6 @@ router.post('/coupons/validate', apiController.validateCoupon);
 
 // Search suggestions
 router.get('/search/suggestions', apiController.searchSuggestions);
+router.get('/search', apiController.searchSuggestions);
 
 module.exports = router;

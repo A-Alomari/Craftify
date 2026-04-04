@@ -55,6 +55,13 @@ exports.index = (req, res) => {
 exports.addItem = (req, res) => {
   try {
     const { productId, quantity = 1 } = req.body;
+    const parsedQuantity = Number.parseInt(quantity, 10);
+
+    if (!Number.isInteger(parsedQuantity) || parsedQuantity <= 0) {
+      if (req.xhr) return res.status(400).json({ success: false, message: 'Invalid quantity' });
+      req.flash('error_msg', 'Invalid quantity');
+      return res.redirect(getBackUrl(req));
+    }
 
     const product = Product.findById(productId);
     if (!product || product.status !== 'approved') {
@@ -63,7 +70,7 @@ exports.addItem = (req, res) => {
       return res.redirect(getBackUrl(req));
     }
 
-    if (product.stock < quantity) {
+    if (product.stock < parsedQuantity) {
       if (req.xhr) return res.status(409).json({ success: false, message: 'Insufficient stock' });
       req.flash('error_msg', 'Not enough stock available');
       return res.redirect(getBackUrl(req));
@@ -72,7 +79,7 @@ exports.addItem = (req, res) => {
     const userId = req.session.user ? req.session.user.id : null;
     const sessionId = !userId ? req.sessionID : null;
 
-    Cart.addItem(userId, sessionId, productId, parseInt(quantity));
+    Cart.addItem(userId, sessionId, productId, parsedQuantity);
     const newCount = Cart.getCount(userId, sessionId);
 
     if (req.xhr) {
@@ -93,6 +100,13 @@ exports.addItem = (req, res) => {
 exports.updateItem = (req, res) => {
   try {
     const { productId, quantity } = req.body;
+    const parsedQuantity = Number.parseInt(quantity, 10);
+
+    if (!Number.isInteger(parsedQuantity) || parsedQuantity <= 0) {
+      if (req.xhr) return res.status(400).json({ success: false, message: 'Invalid quantity' });
+      req.flash('error_msg', 'Invalid quantity');
+      return res.redirect('/cart');
+    }
 
     const userId = req.session.user ? req.session.user.id : null;
     const sessionId = !userId ? req.sessionID : null;
@@ -104,13 +118,13 @@ exports.updateItem = (req, res) => {
       return res.redirect('/cart');
     }
 
-    if (quantity > product.stock) {
+    if (parsedQuantity > product.stock) {
       if (req.xhr) return res.status(409).json({ success: false, message: `Only ${product.stock} items available` });
       req.flash('error_msg', `Only ${product.stock} items available`);
       return res.redirect('/cart');
     }
 
-    Cart.updateItemQuantity(userId, sessionId, productId, parseInt(quantity));
+    Cart.updateItemQuantity(userId, sessionId, productId, parsedQuantity);
     const totals = Cart.getTotal(userId, sessionId);
 
     if (req.xhr) {

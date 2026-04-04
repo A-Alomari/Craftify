@@ -1,0 +1,72 @@
+<%- include('../partials/header', { title: title }) %>
+
+<div class="flex bg-surface min-h-screen">
+  <%- include('./partials/sidebar') %>
+
+  <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
+    <%- include('./partials/topbar') %>
+
+    <section class="max-w-7xl mx-auto mt-8 mb-6">
+      <span class="font-label text-xs tracking-[0.2em] text-primary font-semibold uppercase">Administration</span>
+      <h1 class="font-headline text-3xl text-on-surface mt-2">Platform Settings</h1>
+      <p class="text-secondary mt-1">Operational preferences and system-level controls for the marketplace.</p>
+    </section>
+
+    <section class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <article class="lg:col-span-2 bg-surface-container-lowest rounded-xl p-6">
+        <h2 class="font-headline text-xl text-on-surface mb-4">Storefront Preferences</h2>
+        <form class="grid grid-cols-1 md:grid-cols-2 gap-4" onsubmit="event.preventDefault();">
+          <div>
+            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Platform Name</label>
+            <input type="text" value="Craftify" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm" readonly>
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Support Email</label>
+            <input type="email" value="support@craftify.local" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm" readonly>
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Default Currency</label>
+            <input type="text" value="BHD" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm" readonly>
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Moderation Mode</label>
+            <input type="text" value="Manual Approval" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm" readonly>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Maintenance Notice</label>
+            <textarea rows="3" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm resize-none" readonly>Settings persistence is not enabled yet. This page is prepared with the new admin design shell.</textarea>
+          </div>
+        </form>
+      </article>
+
+      <article class="bg-surface-container-lowest rounded-xl p-6">
+        <h2 class="font-headline text-xl text-on-surface mb-4">Security Status</h2>
+        <ul class="space-y-3">
+          <li class="flex items-center justify-between bg-surface-container-low rounded-xl px-4 py-3">
+            <span class="text-sm text-on-surface">CSRF Protection</span>
+            <span class="px-2 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold bg-emerald-100 text-emerald-700">Active</span>
+          </li>
+          <li class="flex items-center justify-between bg-surface-container-low rounded-xl px-4 py-3">
+            <span class="text-sm text-on-surface">Session Guard</span>
+            <span class="px-2 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold bg-emerald-100 text-emerald-700">Enabled</span>
+          </li>
+          <li class="flex items-center justify-between bg-surface-container-low rounded-xl px-4 py-3">
+            <span class="text-sm text-on-surface">Admin Route Access</span>
+            <span class="px-2 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold bg-emerald-100 text-emerald-700">Restricted</span>
+          </li>
+        </ul>
+      </article>
+
+      <article class="lg:col-span-3 bg-surface-container-lowest rounded-xl p-6">
+        <h2 class="font-headline text-xl text-on-surface mb-4">Quick Links</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <a href="/admin/reports" class="bg-surface-container-low hover:bg-surface-container-high rounded-xl px-4 py-3 text-sm font-semibold text-on-surface transition-colors">View analytics reports</a>
+          <a href="/admin/users" class="bg-surface-container-low hover:bg-surface-container-high rounded-xl px-4 py-3 text-sm font-semibold text-on-surface transition-colors">Manage user accounts</a>
+          <a href="/admin/products" class="bg-surface-container-low hover:bg-surface-container-high rounded-xl px-4 py-3 text-sm font-semibold text-on-surface transition-colors">Review product queue</a>
+        </div>
+      </article>
+    </section>
+  </main>
+</div>
+
+<%- include('../partials/footer') %>

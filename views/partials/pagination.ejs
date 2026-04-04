@@ -1,58 +1,39 @@
 <% if (typeof pagination !== 'undefined' && pagination.total > 1) { %>
-<nav aria-label="Page navigation" class="mt-4">
-  <ul class="pagination justify-content-center">
+  <% 
+    let startPage = Math.max(1, pagination.current - 2);
+    let endPage = Math.min(pagination.total, pagination.current + 2);
+    const querySuffix = typeof queryString !== 'undefined' && queryString ? '&' + queryString : '';
+  %>
+
+  <nav aria-label="Pagination" class="mt-6 flex items-center justify-center gap-2">
     <% if (pagination.hasPrev) { %>
-      <li class="page-item">
-        <a class="page-link" href="?page=<%= pagination.current - 1 %><%= typeof queryString !== 'undefined' ? '&' + queryString : '' %>">
-          <i class="bi bi-chevron-left"></i>
-        </a>
-      </li>
+      <a class="px-3 py-2 rounded-lg text-sm bg-surface-container-low text-on-surface hover:bg-surface-container-high transition-colors" href="?page=<%= pagination.current - 1 %><%= querySuffix %>">Prev</a>
     <% } else { %>
-      <li class="page-item disabled">
-        <span class="page-link"><i class="bi bi-chevron-left"></i></span>
-      </li>
+      <span class="px-3 py-2 rounded-lg text-sm bg-surface-container-low text-secondary/50">Prev</span>
     <% } %>
-    
-    <% 
-      let startPage = Math.max(1, pagination.current - 2);
-      let endPage = Math.min(pagination.total, pagination.current + 2);
-    %>
-    
+
     <% if (startPage > 1) { %>
-      <li class="page-item">
-        <a class="page-link" href="?page=1<%= typeof queryString !== 'undefined' ? '&' + queryString : '' %>">1</a>
-      </li>
+      <a class="px-3 py-2 rounded-lg text-sm bg-surface-container-low text-on-surface hover:bg-surface-container-high transition-colors" href="?page=1<%= querySuffix %>">1</a>
       <% if (startPage > 2) { %>
-        <li class="page-item disabled"><span class="page-link">...</span></li>
+        <span class="px-2 text-secondary">...</span>
       <% } %>
     <% } %>
-    
+
     <% for (let i = startPage; i <= endPage; i++) { %>
-      <li class="page-item <%= i === pagination.current ? 'active' : '' %>">
-        <a class="page-link" href="?page=<%= i %><%= typeof queryString !== 'undefined' ? '&' + queryString : '' %>"><%= i %></a>
-      </li>
+      <a class="px-3 py-2 rounded-lg text-sm <%= i === pagination.current ? 'bg-primary-container text-on-primary-container font-bold' : 'bg-surface-container-low text-on-surface hover:bg-surface-container-high transition-colors' %>" href="?page=<%= i %><%= querySuffix %>"><%= i %></a>
     <% } %>
-    
+
     <% if (endPage < pagination.total) { %>
       <% if (endPage < pagination.total - 1) { %>
-        <li class="page-item disabled"><span class="page-link">...</span></li>
+        <span class="px-2 text-secondary">...</span>
       <% } %>
-      <li class="page-item">
-        <a class="page-link" href="?page=<%= pagination.total %><%= typeof queryString !== 'undefined' ? '&' + queryString : '' %>"><%= pagination.total %></a>
-      </li>
+      <a class="px-3 py-2 rounded-lg text-sm bg-surface-container-low text-on-surface hover:bg-surface-container-high transition-colors" href="?page=<%= pagination.total %><%= querySuffix %>"><%= pagination.total %></a>
     <% } %>
-    
+
     <% if (pagination.hasNext) { %>
-      <li class="page-item">
-        <a class="page-link" href="?page=<%= pagination.current + 1 %><%= typeof queryString !== 'undefined' ? '&' + queryString : '' %>">
-          <i class="bi bi-chevron-right"></i>
-        </a>
-      </li>
+      <a class="px-3 py-2 rounded-lg text-sm bg-surface-container-low text-on-surface hover:bg-surface-container-high transition-colors" href="?page=<%= pagination.current + 1 %><%= querySuffix %>">Next</a>
     <% } else { %>
-      <li class="page-item disabled">
-        <span class="page-link"><i class="bi bi-chevron-right"></i></span>
-      </li>
+      <span class="px-3 py-2 rounded-lg text-sm bg-surface-container-low text-secondary/50">Next</span>
     <% } %>
-  </ul>
-</nav>
+  </nav>
 <% } %>

@@ -28,6 +28,13 @@ module.exports = ({ getTestContext, loginAs, makeUnique }) => {
       expect(addMissingProduct.statusCode).toBe(404);
       expect(addMissingProduct.body.success).toBe(false);
 
+      const addInvalidQuantity = await customerAgent
+        .post('/cart/add')
+        .set('X-Requested-With', 'XMLHttpRequest')
+        .send({ productId: ids.vaseId, quantity: 0 });
+      expect(addInvalidQuantity.statusCode).toBe(400);
+      expect(addInvalidQuantity.body.success).toBe(false);
+
       const addInsufficientStock = await customerAgent
         .post('/cart/add')
         .set('X-Requested-With', 'XMLHttpRequest')
@@ -41,6 +48,13 @@ module.exports = ({ getTestContext, loginAs, makeUnique }) => {
         .send({ productId: ids.vaseId, quantity: 999 });
       expect(overUpdate.statusCode).toBe(409);
       expect(overUpdate.body.success).toBe(false);
+
+      const updateInvalidQuantity = await customerAgent
+        .post('/cart/update')
+        .set('X-Requested-With', 'XMLHttpRequest')
+        .send({ productId: ids.vaseId, quantity: 'NaN' });
+      expect(updateInvalidQuantity.statusCode).toBe(400);
+      expect(updateInvalidQuantity.body.success).toBe(false);
 
       const updateOk = await customerAgent
         .post('/cart/update')

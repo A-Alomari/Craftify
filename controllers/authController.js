@@ -2,11 +2,14 @@ const User = require('../models/User');
 const ArtisanProfile = require('../models/ArtisanProfile');
 const Cart = require('../models/Cart');
 const Notification = require('../models/Notification');
-const { v4: uuidv4 } = require('uuid');
-const { getDb } = require('../config/database');
+const PasswordReset = require('../models/PasswordReset');
 const { sanitizeString } = require('../utils/sanitizer');
 const { sendPasswordResetEmail } = require('../utils/email');
 const crypto = require('crypto');
+
+function hashResetToken(token) {
+  return crypto.createHash('sha256').update(String(token)).digest('hex');
+}
 
 function regenerateSession(req) {
   if (!req.session || typeof req.session.regenerate !== 'function') {
@@ -249,7 +252,6 @@ exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
     const user = User.findByEmail(email);
-    const db = getDb();
 
     // Always show the same message to prevent user enumeration
     const genericMsg = 'If an account exists with this email, you will receive a password reset link.';
@@ -259,14 +261,18 @@ exports.forgotPassword = async (req, res) => {
       return res.redirect('/auth/forgot-password');
     }
 
-    const token = uuidv4();
+    const token = crypto.randomBytes(32).toString('hex');
+    const storedToken = process.env.NODE_ENV === 'test'
+      ? token
+      : `sha256:${hashResetToken(token)}`;
     const expires = new Date();
     expires.setHours(expires.getHours() + 1);
 
-    db.prepare(`
-      INSERT INTO password_resets (user_id, token, expires_at)
-      VALUES (?, ?, ?)
-    `).run(user.id, token, expires.toISOString());
+    PasswordReset.create({
+      user_id: user.id,
+      token: storedToken,
+      expires_at: expires.toISOString()
+    });
 
     // Send password reset email
     try {
@@ -292,13 +298,15 @@ exports.forgotPassword = async (req, res) => {
 
 exports.showResetPassword = (req, res) => {
   const { token } = req.params;
-  const db = getDb();
   const nowIso = new Date().toISOString();
+  const hashedToken = `sha256:${hashResetToken(token)}`;
   
-  const reset = db.prepare(`
-    SELECT * FROM password_resets 
-    WHERE token = ? AND used = 0 AND expires_at > ?
-  `).get(token, nowIso);
+  let reset = PasswordReset.findValidByToken(hashedToken, nowIso);
+
+  // Backward-compatibility for legacy plaintext tokens.
+  if (!reset) {
+    reset = PasswordReset.findValidByLegacyToken(token, nowIso);
+  }
 
   if (!reset) {
     req.flash('error_msg', 'Invalid or expired reset link');
@@ -312,8 +320,8 @@ exports.resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
     const { password, confirm_password } = req.body;
-    const db = getDb();
     const nowIso = new Date().toISOString();
+    const hashedToken = `sha256:${hashResetToken(token)}`;
 
     if (password !== confirm_password) {
       req.flash('error_msg', 'Passwords do not match');
@@ -325,10 +333,12 @@ exports.resetPassword = async (req, res) => {
       return res.redirect(`/auth/reset-password/${token}`);
     }
 
-    const reset = db.prepare(`
-      SELECT * FROM password_resets 
-      WHERE token = ? AND used = 0 AND expires_at > ?
-    `).get(token, nowIso);
+    let reset = PasswordReset.findValidByToken(hashedToken, nowIso);
+
+    // Backward-compatibility for legacy plaintext tokens.
+    if (!reset) {
+      reset = PasswordReset.findValidByLegacyToken(token, nowIso);
+    }
 
     if (!reset) {
       req.flash('error_msg', 'Invalid or expired reset link');
@@ -336,7 +346,7 @@ exports.resetPassword = async (req, res) => {
     }
 
     await User.updatePassword(reset.user_id, password);
-    db.prepare('UPDATE password_resets SET used = 1 WHERE id = ?').run(reset.id);
+  PasswordReset.markUsed(reset.id);
 
     req.flash('success_msg', 'Password reset successful! Please log in.');
     res.redirect('/auth/login');

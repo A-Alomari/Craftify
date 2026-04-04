@@ -25,7 +25,11 @@ exports.index = (req, res) => {
     if (featured) filters.featured = true;
 
     const products = Product.findAll(filters);
-    const totalProducts = Product.count({ status: 'approved', category_id: filters.category_id, featured: filters.featured });
+    const countFilters = { ...filters };
+    delete countFilters.limit;
+    delete countFilters.offset;
+    delete countFilters.sort;
+    const totalProducts = Product.count(countFilters);
     const totalPages = Math.ceil(totalProducts / limit);
     const categories = Category.findAll();
 

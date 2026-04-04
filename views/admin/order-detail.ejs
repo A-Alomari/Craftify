@@ -1,36 +1,93 @@
 <%- include('../partials/header', { title: title }) %>
-<div class="container-fluid py-4"><div class="row"><div class="col-lg-2 mb-4"><%- include('./partials/sidebar') %></div>
-<div class="col-lg-10">
-  <h3 class="mb-4">Order #<%= order.id %></h3>
-  <div class="row">
-    <div class="col-md-8">
-      <div class="card shadow-sm border-0 mb-4"><div class="card-body">
-        <div class="d-flex justify-content-between mb-3">
-          <span>Status: <span class="badge bg-primary fs-6"><%= order.status %></span></span>
-          <span>Payment: <span class="badge bg-<%= order.payment_status === 'paid' ? 'success' : 'warning' %>"><%= order.payment_status %></span></span>
-        </div>
-        <h6>Items</h6>
-        <% if (items && items.length > 0) { items.forEach(function(item) { %>
-          <div class="d-flex justify-content-between mb-2"><span><%= item.product_name %> &times; <%= item.quantity %></span><span>$<%= item.total_price.toFixed(2) %></span></div>
-        <% }); } %>
-        <hr>
-        <div class="d-flex justify-content-between fw-bold"><span>Total</span><span>$<%= order.total_amount.toFixed(2) %></span></div>
-      </div></div>
-      <form action="/admin/orders/<%= order.id %>/status" method="POST" class="d-flex gap-2">
-      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-        <select name="status" class="form-select">
-          <option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="processing">Processing</option>
-          <option value="shipped">Shipped</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option>
-        </select>
-        <button class="btn btn-primary">Update Status</button>
-      </form>
+<%
+  const orderStatusClass = function(status) {
+    if (status === 'delivered') return 'bg-emerald-100 text-emerald-700';
+    if (status === 'cancelled' || status === 'refunded') return 'bg-red-100 text-red-700';
+    if (status === 'shipped' || status === 'processing') return 'bg-blue-100 text-blue-700';
+    return 'bg-amber-100 text-amber-700';
+  };
+%>
+
+<div class="flex bg-surface min-h-screen">
+  <%- include('./partials/sidebar') %>
+
+  <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
+    <%- include('./partials/topbar') %>
+
+    <section class="max-w-7xl mx-auto mt-8 mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div>
+        <a href="/admin/orders" class="text-xs uppercase tracking-[0.2em] text-secondary hover:text-primary">Back to Orders</a>
+        <h1 class="font-headline text-3xl text-on-surface mt-2">Order #ORD-<%= String(order.id).padStart(4, '0') %></h1>
+        <p class="text-secondary mt-1">Placed on <%= new Date(order.created_at).toLocaleString() %></p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest <%= orderStatusClass(order.status) %>"><%= order.status %></span>
+        <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest <%= order.payment_status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' %>"><%= order.payment_status %></span>
+      </div>
+    </section>
+
+    <div class="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <section class="xl:col-span-2 space-y-6">
+        <article class="bg-surface-container-lowest rounded-xl p-6">
+          <h2 class="font-headline text-xl text-on-surface mb-5">Order Items</h2>
+
+          <% if (items && items.length > 0) { %>
+            <div class="space-y-4">
+              <% items.forEach(function(item) { %>
+                <div class="flex items-center justify-between gap-4 p-4 rounded-xl bg-surface-container-low">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <img src="<%= item.image || '/images/placeholder-product.jpg' %>" alt="<%= item.product_name %>" class="w-12 h-12 rounded-lg object-cover" onerror="this.src='/images/placeholder-product.jpg'">
+                    <div class="min-w-0">
+                      <p class="text-sm font-semibold text-on-surface truncate"><%= item.product_name %></p>
+                      <p class="text-xs text-secondary">Qty <%= item.quantity %> x $<%= Number(item.unit_price || 0).toFixed(2) %></p>
+                    </div>
+                  </div>
+                  <p class="text-sm font-bold text-on-surface">$<%= Number(item.total_price || 0).toFixed(2) %></p>
+                </div>
+              <% }); %>
+            </div>
+          <% } else { %>
+            <p class="text-secondary">No order items found.</p>
+          <% } %>
+
+          <div class="mt-6 pt-5 border-t border-surface-container-high flex justify-between items-center">
+            <span class="font-label text-xs uppercase tracking-[0.2em] text-secondary">Order Total</span>
+            <span class="font-headline text-2xl text-on-surface">$<%= Number(order.total_amount || 0).toFixed(2) %></span>
+          </div>
+        </article>
+
+        <article class="bg-surface-container-lowest rounded-xl p-6">
+          <h2 class="font-headline text-xl text-on-surface mb-4">Update Status</h2>
+          <form action="/admin/orders/<%= order.id %>/status" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+            <select name="status" class="md:col-span-2 bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+              <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>Pending</option>
+              <option value="confirmed" <%= order.status === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
+              <option value="processing" <%= order.status === 'processing' ? 'selected' : '' %>>Processing</option>
+              <option value="shipped" <%= order.status === 'shipped' ? 'selected' : '' %>>Shipped</option>
+              <option value="delivered" <%= order.status === 'delivered' ? 'selected' : '' %>>Delivered</option>
+              <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+            </select>
+            <button class="bg-primary-container text-on-primary-container px-4 py-2.5 rounded-xl font-semibold text-sm">Save</button>
+          </form>
+        </article>
+      </section>
+
+      <aside class="space-y-6">
+        <article class="bg-surface-container-lowest rounded-xl p-6">
+          <h2 class="font-headline text-lg text-on-surface mb-3">Customer</h2>
+          <p class="text-sm font-semibold text-on-surface"><%= order.customer_name %></p>
+          <p class="text-sm text-secondary mt-1"><%= order.customer_email %></p>
+        </article>
+
+        <article class="bg-surface-container-lowest rounded-xl p-6">
+          <h2 class="font-headline text-lg text-on-surface mb-3">Shipping</h2>
+          <p class="text-sm text-on-surface"><%= order.shipping_address %></p>
+          <p class="text-sm text-secondary mt-1"><%= order.shipping_city || '' %> <%= order.shipping_country || '' %></p>
+        </article>
+      </aside>
     </div>
-    <div class="col-md-4">
-      <div class="card shadow-sm border-0"><div class="card-body">
-        <h6>Customer</h6><p><%= order.customer_name %><br><%= order.customer_email %></p>
-        <h6>Shipping</h6><p><%= order.shipping_address %><br><%= order.shipping_city || '' %> <%= order.shipping_country || '' %></p>
-      </div></div>
-    </div>
-  </div>
-</div></div></div>
+  </main>
+</div>
+
 <%- include('../partials/footer') %>

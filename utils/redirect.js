@@ -3,8 +3,8 @@ function isSafeRelativePath(pathname) {
     typeof pathname === 'string' &&
     pathname.startsWith('/') &&
     !pathname.startsWith('//') &&
-    !pathname.includes('\\r') &&
-    !pathname.includes('\\n')
+    !pathname.includes('\r') &&
+    !pathname.includes('\n')
   );
 }
 

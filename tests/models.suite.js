@@ -19,5 +19,7 @@ module.exports = (suiteContext) => {
     require('./models/m14-helpers.suite')(suiteContext);
     require('./models/m15-database-branches.suite')(suiteContext);
     require('./models/m16-final-coverage.suite')(suiteContext);
+    require('./models/m17-utils.suite')(suiteContext);
+    require('./models/m18-newsletter-password-reset.suite')(suiteContext);
   });
 };

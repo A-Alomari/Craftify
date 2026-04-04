@@ -1,37 +1,152 @@
 <%- include('../partials/header', { title: title }) %>
-<div class="container py-4">
-  <h3 class="mb-4"><i class="bi bi-heart"></i> My Wishlist</h3>
-  <% if (items.length > 0) { %>
-    <div class="row g-4">
-      <% items.forEach(function(item) { %>
-        <div class="col-6 col-md-4 col-lg-3">
-          <div class="card h-100 border-0 shadow-sm">
-            <img src="<%= item.image || '/images/placeholder-product.jpg' %>" class="card-img-top" alt="<%= item.name %>" style="height: 180px; object-fit: cover;" onerror="this.src='/images/placeholder-product.jpg'">
-            <div class="card-body d-flex flex-column">
-              <h6><a href="/products/<%= item.product_id %>" class="text-decoration-none text-dark"><%= item.name %></a></h6>
-              <span class="text-primary fw-bold mb-2">$<%= item.price.toFixed(2) %></span>
-              <div class="mt-auto d-flex gap-2">
-                <form action="/user/wishlist/move-to-cart" method="POST" class="flex-grow-1">
-                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                  <input type="hidden" name="productId" value="<%= item.product_id %>">
-                  <button class="btn btn-primary btn-sm w-100"><i class="bi bi-cart-plus"></i></button>
-                </form>
-                <form action="/user/wishlist/remove" method="POST">
-                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                  <input type="hidden" name="productId" value="<%= item.product_id %>">
-                  <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
-                </form>
+
+<%
+  const wishlistItems = Array.isArray(items) ? items : [];
+
+  const formatPrice = function(value) {
+    return Number(value || 0).toFixed(2);
+  };
+
+  const renderStars = function(rating) {
+    const safeRating = Number(rating || 0);
+    const stars = [];
+    for (let i = 1; i <= 5; i += 1) {
+      if (safeRating >= i) {
+        stars.push('star');
+      } else if (safeRating >= i - 0.5) {
+        stars.push('star_half');
+      } else {
+        stars.push('star');
+      }
+    }
+    return stars;
+  };
+%>
+
+<section class="pt-12 pb-20 px-8 max-w-screen-2xl mx-auto">
+  <div class="mb-10">
+    <%- include('./partials/account-nav') %>
+  </div>
+
+  <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+    <div>
+      <div class="flex items-center gap-3 mb-2">
+        <span class="material-symbols-outlined text-tertiary text-3xl filled-icon">favorite</span>
+        <h1 class="text-4xl md:text-5xl font-headline font-bold tracking-tight">My Wishlist</h1>
+      </div>
+      <p class="text-on-surface-variant font-medium ml-12"><%= wishlistItems.length %> item<%= wishlistItems.length === 1 ? '' : 's' %> saved</p>
+    </div>
+    <div class="flex items-center gap-6 ml-12 md:ml-0">
+      <a href="/products" class="px-6 py-2.5 rounded-lg border border-outline text-on-surface font-semibold hover:bg-surface-container-low transition-colors duration-200 flex items-center gap-2">
+        <span class="material-symbols-outlined text-xl">add_shopping_cart</span>
+        Browse More
+      </a>
+    </div>
+  </div>
+
+  <% if (wishlistItems.length > 0) { %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
+      <% wishlistItems.forEach(function(item) { %>
+        <% const stars = renderStars(item.avg_rating); %>
+        <% const inStock = Number(item.stock || 0) > 0; %>
+        <article class="group flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden hover:shadow-xl transition-shadow duration-300">
+          <div class="relative aspect-[4/5] overflow-hidden <%= inStock ? '' : 'grayscale-[0.4]' %>">
+            <a href="/products/<%= item.product_id %>">
+              <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="<%= item.image || '/images/placeholder-product.jpg' %>" alt="<%= item.name %>" onerror="this.src='/images/placeholder-product.jpg'"/>
+            </a>
+
+            <form action="/user/wishlist/remove" method="POST" class="absolute top-4 right-4">
+              <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+              <input type="hidden" name="productId" value="<%= item.product_id %>">
+              <button type="submit" class="w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-tertiary shadow-sm" aria-label="Remove from wishlist">
+                <span class="material-symbols-outlined filled-icon">favorite</span>
+              </button>
+            </form>
+
+            <% if (!inStock) { %>
+              <div class="absolute inset-0 bg-black/10 flex items-center justify-center pointer-events-none">
+                <span class="bg-black/60 text-white px-4 py-2 text-xs font-bold rounded uppercase tracking-widest">Out of Stock</span>
               </div>
+            <% } %>
+          </div>
+
+          <div class="p-6 flex flex-col flex-grow">
+            <span class="text-[10px] font-bold tracking-[0.2em] text-secondary uppercase mb-2">HANDMADE</span>
+            <h2 class="text-xl font-bold font-headline mb-1 line-clamp-2 min-h-[56px]"><a href="/products/<%= item.product_id %>" class="hover:text-primary transition-colors"><%= item.name %></a></h2>
+            <p class="text-on-surface-variant text-sm mb-3">by <span class="hover:text-primary transition-colors"><%= item.shop_name || 'Craftify Artisan' %></span></p>
+
+            <div class="flex items-center gap-2 mb-4">
+              <div class="flex text-amber-500">
+                <% stars.forEach(function(star, index) { %>
+                  <span class="material-symbols-outlined text-sm <%= Number(item.avg_rating || 0) >= index + 1 ? 'filled-icon' : '' %>"><%= star %></span>
+                <% }); %>
+              </div>
+              <span class="text-xs text-on-surface-variant font-medium"><%= Number(item.avg_rating || 0).toFixed(1) %></span>
+            </div>
+
+            <div class="mt-auto">
+              <div class="flex justify-between items-center mb-4">
+                <span class="text-2xl font-bold font-headline text-on-surface">$<%= formatPrice(item.price) %></span>
+                <span class="text-xs font-bold <%= inStock ? 'text-emerald-600' : 'text-error' %> flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full <%= inStock ? 'bg-emerald-600' : 'bg-error' %>"></span>
+                  <%= inStock ? 'In Stock' : 'Out of Stock' %>
+                </span>
+              </div>
+
+              <% if (inStock) { %>
+                <form action="/user/wishlist/move-to-cart" method="POST">
+                  <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                  <input type="hidden" name="productId" value="<%= item.product_id %>">
+                  <button class="w-full py-3 bg-primary-container text-on-primary-container font-bold rounded-lg hover:bg-primary transition-colors duration-200" type="submit">
+                    Add to Cart
+                  </button>
+                </form>
+              <% } else { %>
+                <button class="w-full py-3 border border-outline text-on-surface font-bold rounded-lg hover:bg-surface-container-low transition-colors duration-200" type="button" disabled>
+                  Notify Me
+                </button>
+              <% } %>
             </div>
           </div>
-        </div>
+        </article>
       <% }); %>
     </div>
+
+    <% const recommendations = wishlistItems.slice(0, 4); %>
+    <% if (recommendations.length > 0) { %>
+      <section class="mt-32">
+        <div class="flex justify-between items-center mb-8">
+          <h2 class="text-3xl font-headline font-bold">Recommended For You</h2>
+          <a class="text-primary font-semibold hover:underline flex items-center gap-2" href="/products">
+            View All <span class="material-symbols-outlined text-xl">arrow_forward</span>
+          </a>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <% recommendations.forEach(function(item) { %>
+            <article class="bg-surface-container-lowest p-4 rounded-xl hover:shadow-lg transition-shadow">
+              <a href="/products/<%= item.product_id %>">
+                <div class="aspect-square rounded-lg overflow-hidden mb-4">
+                  <img class="w-full h-full object-cover" src="<%= item.image || '/images/placeholder-product.jpg' %>" alt="<%= item.name %>" onerror="this.src='/images/placeholder-product.jpg'"/>
+                </div>
+              </a>
+              <h4 class="font-bold text-sm mb-1 truncate"><a href="/products/<%= item.product_id %>" class="hover:text-primary transition-colors"><%= item.name %></a></h4>
+              <p class="text-primary font-headline font-bold">$<%= formatPrice(item.price) %></p>
+            </article>
+          <% }); %>
+        </div>
+      </section>
+    <% } %>
   <% } else { %>
-    <div class="text-center py-5">
-      <i class="bi bi-heart display-4 text-muted"></i>
-      <p class="text-muted mt-3">Your wishlist is empty. <a href="/products">Browse products</a></p>
+    <div class="bg-surface-container-lowest rounded-2xl py-16 text-center">
+      <span class="material-symbols-outlined text-6xl text-secondary/70">favorite</span>
+      <h2 class="font-headline text-2xl mt-4">Your wishlist is empty</h2>
+      <p class="text-secondary mt-2">Browse handmade pieces and save your favorites here.</p>
+      <a href="/products" class="inline-flex mt-6 items-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-semibold">
+        <span class="material-symbols-outlined text-lg">storefront</span>
+        Browse Products
+      </a>
     </div>
   <% } %>
-</div>
+</section>
+
 <%- include('../partials/footer') %>

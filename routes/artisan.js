@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const artisanController = require('../controllers/artisanController');
-const { isAuthenticated, isArtisan, isApprovedArtisan } = require('../middleware/auth');
-const { createImageUpload } = require('../utils/upload');
+const { isAuthenticated, isActive, isArtisan, isApprovedArtisan } = require('../middleware/auth');
+const { createImageUpload, validateUploadedImageSignatures } = require('../utils/upload');
 
 const upload = createImageUpload({ maxFileSize: 5 * 1024 * 1024, maxFiles: 5 });
 
 // Apply artisan authentication to all routes
-router.use(isAuthenticated, isArtisan);
+router.use(isAuthenticated, isActive, isArtisan);
 
 // Dashboard
 router.get('/dashboard', isApprovedArtisan, artisanController.dashboard);
@@ -17,14 +17,14 @@ router.get('/pending', artisanController.pending);
 
 // Profile
 router.get('/profile', artisanController.profile);
-router.post('/profile', upload.single('profile_image'), artisanController.updateProfile);
+router.post('/profile', upload.single('profile_image'), validateUploadedImageSignatures, artisanController.updateProfile);
 
 // Products
 router.get('/products', isApprovedArtisan, artisanController.products);
 router.get('/products/new', isApprovedArtisan, artisanController.newProduct);
-router.post('/products', isApprovedArtisan, upload.array('images', 5), artisanController.createProduct);
+router.post('/products', isApprovedArtisan, upload.array('images', 5), validateUploadedImageSignatures, artisanController.createProduct);
 router.get('/products/:id/edit', isApprovedArtisan, artisanController.editProduct);
-router.post('/products/:id', isApprovedArtisan, upload.array('images', 5), artisanController.updateProduct);
+router.post('/products/:id', isApprovedArtisan, upload.array('images', 5), validateUploadedImageSignatures, artisanController.updateProduct);
 router.delete('/products/:id', isApprovedArtisan, artisanController.deleteProduct);
 router.post('/products/:id/delete', isApprovedArtisan, artisanController.deleteProduct);
 

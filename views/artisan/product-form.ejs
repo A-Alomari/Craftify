@@ -1,30 +1,74 @@
 <%- include('../partials/header', { title: title }) %>
-<div class="container-fluid py-4"><div class="row"><div class="col-lg-2 mb-4"><%- include('./partials/sidebar') %></div>
-<div class="col-lg-10">
-  <h3 class="mb-4"><%= product ? 'Edit Product' : 'Add New Product' %></h3>
-  <div class="card shadow-sm border-0"><div class="card-body">
-    <form action="<%= product ? '/artisan/products/' + product.id : '/artisan/products' %>" method="POST" enctype="multipart/form-data">
-    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-      <div class="mb-3"><label class="form-label">Product Name *</label><input type="text" name="name" class="form-control" value="<%= product ? product.name : '' %>" required></div>
-      <div class="mb-3"><label class="form-label">Description *</label><textarea name="description" class="form-control" rows="4" required><%= product ? product.description : '' %></textarea></div>
-      <div class="row">
-        <div class="col-md-4 mb-3"><label class="form-label">Price ($) *</label><input type="number" name="price" class="form-control" step="0.01" value="<%= product ? product.price : '' %>" required></div>
-        <div class="col-md-4 mb-3"><label class="form-label">Stock *</label><input type="number" name="stock" class="form-control" value="<%= product ? product.stock : '0' %>" required></div>
-        <div class="col-md-4 mb-3"><label class="form-label">Category</label>
-          <select name="category_id" class="form-select"><option value="">Select Category</option>
-            <% categories.forEach(function(cat) { %><option value="<%= cat.id %>" <%= product && product.category_id == cat.id ? 'selected' : '' %>><%= cat.name %></option><% }); %>
-          </select>
+
+<div class="flex bg-surface min-h-screen">
+  <%- include('./partials/sidebar') %>
+
+  <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
+    <%- include('./partials/topbar') %>
+
+    <section class="max-w-5xl mx-auto mt-8 mb-6">
+      <span class="font-label text-xs tracking-[0.2em] text-primary font-semibold uppercase">Artisan Studio</span>
+      <h1 class="font-headline text-3xl text-on-surface mt-2"><%= product ? 'Edit Product' : 'Add New Product' %></h1>
+      <p class="text-secondary mt-1">Publish clear, complete details for better conversion.</p>
+    </section>
+
+    <section class="max-w-5xl mx-auto bg-surface-container-lowest rounded-xl p-6 md:p-8">
+      <form action="<%= product ? '/artisan/products/' + product.id : '/artisan/products' %>" method="POST" enctype="multipart/form-data" class="space-y-5">
+        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+
+        <div>
+          <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Product Name</label>
+          <input type="text" name="name" required value="<%= product ? product.name : '' %>" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
         </div>
-      </div>
-      <div class="mb-3"><label class="form-label">Product Images</label><input type="file" name="images" class="form-control" multiple accept="image/*"></div>
-      <% if (product && product.imageArray && product.imageArray.length > 0) { %>
-        <div class="mb-3"><label class="form-label">Current Images</label><div class="d-flex gap-2">
-          <% product.imageArray.forEach(function(img) { %><img src="<%= img %>" class="rounded" style="width: 80px; height: 80px; object-fit: cover;" onerror="this.src='/images/placeholder-product.jpg'"><% }); %>
-        </div></div>
-      <% } %>
-      <button type="submit" class="btn btn-primary"><%= product ? 'Update Product' : 'Create Product' %></button>
-      <a href="/artisan/products" class="btn btn-outline-secondary ms-2">Cancel</a>
-    </form>
-  </div></div>
-</div></div></div>
+
+        <div>
+          <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Description</label>
+          <textarea name="description" rows="5" required class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container"><%= product ? product.description : '' %></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Price</label>
+            <input type="number" name="price" step="0.01" min="0" required value="<%= product ? product.price : '' %>" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Stock</label>
+            <input type="number" name="stock" min="0" required value="<%= product ? product.stock : '0' %>" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Category</label>
+            <select name="category_id" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+              <option value="">Select Category</option>
+              <% categories.forEach(function(cat) { %>
+                <option value="<%= cat.id %>" <%= product && product.category_id == cat.id ? 'selected' : '' %>><%= cat.name %></option>
+              <% }); %>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Product Images</label>
+          <input type="file" name="images" multiple accept="image/jpeg,image/png,image/webp" class="w-full bg-surface-container-low border-none rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-primary-container">
+        </div>
+
+        <% if (product && product.imageArray && product.imageArray.length > 0) { %>
+          <div>
+            <p class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Current Images</p>
+            <div class="flex flex-wrap gap-2">
+              <% product.imageArray.forEach(function(img) { %>
+                <img src="<%= img %>" alt="Current Product" class="w-20 h-20 rounded-lg object-cover" onerror="this.src='/images/placeholder-product.jpg'">
+              <% }); %>
+            </div>
+          </div>
+        <% } %>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <a href="/artisan/products" class="bg-surface-container-high text-on-surface px-5 py-2.5 rounded-xl font-semibold text-sm">Cancel</a>
+          <button type="submit" class="bg-primary-container text-on-primary-container px-5 py-2.5 rounded-xl font-semibold text-sm"><%= product ? 'Update Product' : 'Create Product' %></button>
+        </div>
+      </form>
+    </section>
+  </main>
+</div>
+
 <%- include('../partials/footer') %>

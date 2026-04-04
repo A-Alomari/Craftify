@@ -1,8 +1,8 @@
-const { getDb } = require('../config/database');
+const database = require('../config/database');
 
 class ArtisanProfile {
   static findByUserId(userId) {
-    const db = getDb();
+    const db = database.getDb();
     return db.prepare(`
       SELECT ap.*, u.name, u.email, u.avatar, u.status, u.created_at as user_created_at
       FROM artisan_profiles ap
@@ -12,7 +12,7 @@ class ArtisanProfile {
   }
 
   static findById(id) {
-    const db = getDb();
+    const db = database.getDb();
     return db.prepare(`
       SELECT ap.*, u.name, u.email, u.avatar, u.status
       FROM artisan_profiles ap
@@ -22,7 +22,7 @@ class ArtisanProfile {
   }
 
   static findAll(filters = {}) {
-    const db = getDb();
+    const db = database.getDb();
     let query = `
       SELECT ap.*, u.name, u.email, u.avatar, u.status,
         (SELECT COUNT(*) FROM products WHERE artisan_id = ap.user_id AND status = 'approved') as product_count,
@@ -57,7 +57,7 @@ class ArtisanProfile {
   }
 
   static create(profileData) {
-    const db = getDb();
+    const db = database.getDb();
     const { user_id, shop_name, bio = '', profile_image = '', banner_image = '', shipping_methods = '[]', return_policy = '' } = profileData;
 
     const result = db.prepare(`
@@ -69,7 +69,7 @@ class ArtisanProfile {
   }
 
   static update(userId, profileData) {
-    const db = getDb();
+    const db = database.getDb();
     const fields = [];
     const params = [];
 
@@ -100,19 +100,19 @@ class ArtisanProfile {
   }
 
   static approve(userId) {
-    const db = getDb();
+    const db = database.getDb();
     db.prepare('UPDATE artisan_profiles SET is_approved = 1 WHERE user_id = ?').run(userId);
     return this.findByUserId(userId);
   }
 
   static reject(userId) {
-    const db = getDb();
+    const db = database.getDb();
     db.prepare('UPDATE artisan_profiles SET is_approved = 0 WHERE user_id = ?').run(userId);
     return this.findByUserId(userId);
   }
 
   static getStats(userId) {
-    const db = getDb();
+    const db = database.getDb();
     const stats = db.prepare(`
       SELECT 
         (SELECT COUNT(*) FROM products WHERE artisan_id = ? AND status = 'approved') as total_products,
@@ -127,7 +127,7 @@ class ArtisanProfile {
   }
 
   static getFeatured(limit = 6) {
-    const db = getDb();
+    const db = database.getDb();
     return db.prepare(`
       SELECT ap.*, u.name, u.avatar,
         (SELECT COUNT(*) FROM products WHERE artisan_id = ap.user_id AND status = 'approved') as product_count,
@@ -141,7 +141,7 @@ class ArtisanProfile {
   }
 
   static count(filters = {}) {
-    const db = getDb();
+    const db = database.getDb();
     let query = 'SELECT COUNT(*) as count FROM artisan_profiles ap JOIN users u ON ap.user_id = u.id WHERE 1=1';
     const params = [];
 

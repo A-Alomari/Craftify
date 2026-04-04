@@ -48,6 +48,13 @@ module.exports = ({ getTestContext, loginAs, makeUnique }) => {
       expect(db.prepare('SELECT status FROM orders WHERE id = ?').get(ids.orderId).status).toBe('shipped');
       db.prepare('UPDATE orders SET status = ? WHERE id = ?').run('delivered', ids.orderId);
 
+      const invalidOrderStatus = await agent
+        .post(`/admin/orders/${ids.orderId}/status`)
+        .set('X-Requested-With', 'XMLHttpRequest')
+        .send({ status: 'warp-speed' });
+      expect(invalidOrderStatus.statusCode).toBe(400);
+      expect(invalidOrderStatus.body.success).toBe(false);
+
       const tempAuctionTitle = `Admin Cancel Auction ${makeUnique('auc')}`;
       const tempProductId = db.prepare(`
         INSERT INTO products (artisan_id, category_id, name, description, price, stock, images, status, is_active)

@@ -4,6 +4,7 @@ module.exports = ({ getTestContext, loginAs, makeUnique }) => {
   let app;
   let db;
   let ids;
+  const validPng = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d]);
 
   beforeAll(() => {
     ({ app, db, ids } = getTestContext());
@@ -25,7 +26,7 @@ module.exports = ({ getTestContext, loginAs, makeUnique }) => {
         .field('shop_name', 'Test Shop')
         .field('bio', 'Upload profile bio')
         .field('return_policy', 'Upload return policy')
-        .attach('profile_image', Buffer.from('profile-image-data'), { filename: 'profile.png', contentType: 'image/png' });
+        .attach('profile_image', validPng, { filename: 'profile.png', contentType: 'image/png' });
       expect(profileUpload.statusCode).toBe(302);
       expect(profileUpload.headers.location).toContain('/artisan/profile');
 
@@ -37,7 +38,7 @@ module.exports = ({ getTestContext, loginAs, makeUnique }) => {
         .field('price', '29')
         .field('stock', '4')
         .field('category_id', String(ids.potId))
-        .attach('images', Buffer.from('product-image-data'), { filename: 'product.png', contentType: 'image/png' });
+        .attach('images', validPng, { filename: 'product.png', contentType: 'image/png' });
       expect(createWithImage.statusCode).toBe(302);
       expect(createWithImage.headers.location).toContain('/artisan/products');
 
@@ -51,7 +52,7 @@ module.exports = ({ getTestContext, loginAs, makeUnique }) => {
         .field('price', '31')
         .field('stock', '6')
         .field('category_id', String(ids.potId))
-        .attach('images', Buffer.from('product-image-data-2'), { filename: 'product2.png', contentType: 'image/png' });
+        .attach('images', validPng, { filename: 'product2.png', contentType: 'image/png' });
       expect(updateWithImage.statusCode).toBe(302);
       expect(updateWithImage.headers.location).toContain('/artisan/products');
 
@@ -163,6 +164,15 @@ module.exports = ({ getTestContext, loginAs, makeUnique }) => {
       const foreignOrderDetail = await agent.get(`/artisan/orders/${foreignOrderId}`);
       expect(foreignOrderDetail.statusCode).toBe(302);
       expect(foreignOrderDetail.headers.location).toContain('/artisan/orders');
+
+      const foreignOrderStatusBefore = db.prepare('SELECT status FROM orders WHERE id = ?').get(foreignOrderId).status;
+      const foreignStatusUpdate = await agent
+        .post(`/artisan/orders/${foreignOrderId}/status`)
+        .set('X-Requested-With', 'XMLHttpRequest')
+        .send({ status: 'shipped' });
+      expect(foreignStatusUpdate.statusCode).toBe(404);
+      expect(foreignStatusUpdate.body.success).toBe(false);
+      expect(db.prepare('SELECT status FROM orders WHERE id = ?').get(foreignOrderId).status).toBe(foreignOrderStatusBefore);
 
       const updateOrderSpy = jest.spyOn(Order, 'updateStatus').mockImplementation(() => {
         throw new Error('Forced artisan update order status catch');

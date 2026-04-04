@@ -100,21 +100,37 @@ module.exports = ({ getTestContext, loginAs, makeUnique }) => {
 
     test('Notification routes mark and delete notifications', async () => {
       const agent = await loginAs('customer@test.com', 'cust123');
+      const customer2Agent = await loginAs('customer2@test.com', 'cust123');
 
       const createdId = db.prepare(`
         INSERT INTO notifications (user_id, type, title, message, is_read)
         VALUES (?, 'system', 'Temp', 'Temp notification', 0)
       `).run(ids.custId).lastInsertRowid;
 
+      const unauthorizedTargetId = db.prepare(`
+        INSERT INTO notifications (user_id, type, title, message, is_read)
+        VALUES (?, 'system', 'Private', 'Private notification', 0)
+      `).run(ids.custId).lastInsertRowid;
+
       const markRes = await agent.post(`/user/notifications/${createdId}/read`);
       expect(markRes.statusCode).toBe(302);
       expect(db.prepare('SELECT is_read FROM notifications WHERE id = ?').get(createdId).is_read).toBe(1);
+
+      const unauthorizedMark = await customer2Agent.post(`/user/notifications/${unauthorizedTargetId}/read`);
+      expect(unauthorizedMark.statusCode).toBe(302);
+      expect(db.prepare('SELECT is_read FROM notifications WHERE id = ?').get(unauthorizedTargetId).is_read).toBe(0);
 
       const markAllRes = await agent.post('/user/notifications/read-all');
       expect(markAllRes.statusCode).toBe(302);
 
       const deleteRes = await agent.delete(`/user/notifications/${createdId}`);
       expect([200, 302]).toContain(deleteRes.statusCode);
+
+      const unauthorizedDelete = await customer2Agent.delete(`/user/notifications/${unauthorizedTargetId}`);
+      expect([302, 404]).toContain(unauthorizedDelete.statusCode);
+      expect(db.prepare('SELECT id FROM notifications WHERE id = ?').get(unauthorizedTargetId)).toBeTruthy();
+
+      await agent.delete(`/user/notifications/${unauthorizedTargetId}`);
     });
 
     test('Message routes validate recipients and render conversation', async () => {

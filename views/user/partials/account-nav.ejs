@@ -1,0 +1,27 @@
+<%
+  const pathValue = typeof currentPath === 'string' ? currentPath : '';
+  const isTabActive = function(href) {
+    if (href === '/orders') {
+      return pathValue === '/orders' || pathValue.startsWith('/orders/');
+    }
+    return pathValue === href || pathValue.startsWith(`${href}/`);
+  };
+
+  const tabs = [
+    { href: '/user/profile', icon: 'account_circle', label: 'Profile' },
+    { href: '/orders', icon: 'shopping_bag', label: 'Orders' },
+    { href: '/user/wishlist', icon: 'favorite', label: 'Wishlist' },
+    { href: '/user/notifications', icon: 'notifications', label: 'Notifications' },
+    { href: '/user/messages', icon: 'chat', label: 'Messages' },
+    { href: '/user/reviews', icon: 'rate_review', label: 'Reviews' }
+  ];
+%>
+
+<nav class="flex flex-wrap gap-2">
+  <% tabs.forEach(function(tab) { const active = isTabActive(tab.href); %>
+    <a href="<%= tab.href %>" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors <%= active ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-low text-on-surface hover:bg-surface-container-high' %>">
+      <span class="material-symbols-outlined text-base"><%= tab.icon %></span>
+      <span><%= tab.label %></span>
+    </a>
+  <% }); %>
+</nav>

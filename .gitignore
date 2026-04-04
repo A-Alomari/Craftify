@@ -106,3 +106,6 @@ Thumbs.db
 craftify.db
 DEPLOY_RAILWAY.md
 design.md
+.uploads/
+.sessions/
+task.md

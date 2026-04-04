@@ -1,5 +1,4 @@
 const { getDb } = require('../config/database');
-const { v4: uuidv4 } = require('uuid');
 
 class Order {
   static findById(id) {
@@ -255,6 +254,93 @@ class Order {
       JOIN products p ON oi.product_id = p.id
       WHERE p.artisan_id = ?
       ORDER BY o.created_at DESC
+      LIMIT ?
+    `).all(artisanId, limit);
+  }
+
+  static getSalesDataSince(startIso) {
+    const db = getDb();
+    return db.prepare(`
+      SELECT DATE(created_at) as date, SUM(total_amount) as revenue, COUNT(*) as orders
+      FROM orders
+      WHERE payment_status = 'paid' AND created_at >= ?
+      GROUP BY DATE(created_at)
+      ORDER BY date
+    `).all(startIso);
+  }
+
+  static getTopProductsSince(startIso, limit = 10) {
+    const db = getDb();
+    return db.prepare(`
+      SELECT p.name, SUM(oi.quantity) as sold, SUM(oi.total_price) as revenue
+      FROM order_items oi
+      JOIN products p ON oi.product_id = p.id
+      JOIN orders o ON oi.order_id = o.id
+      WHERE o.payment_status = 'paid' AND o.created_at >= ?
+      GROUP BY p.id
+      ORDER BY revenue DESC
+      LIMIT ?
+    `).all(startIso, limit);
+  }
+
+  static getTopArtisansSince(startIso, limit = 10) {
+    const db = getDb();
+    return db.prepare(`
+      SELECT ap.shop_name, u.name, SUM(oi.total_price) as revenue
+      FROM order_items oi
+      JOIN users u ON oi.artisan_id = u.id
+      JOIN artisan_profiles ap ON u.id = ap.user_id
+      JOIN orders o ON oi.order_id = o.id
+      WHERE o.payment_status = 'paid' AND o.created_at >= ?
+      GROUP BY oi.artisan_id
+      ORDER BY revenue DESC
+      LIMIT ?
+    `).all(startIso, limit);
+  }
+
+  static getTotalRevenueSince(startIso) {
+    const db = getDb();
+    const row = db.prepare(`
+      SELECT COALESCE(SUM(total_amount), 0) as total
+      FROM orders
+      WHERE payment_status = 'paid' AND created_at >= ?
+    `).get(startIso);
+    return row?.total || 0;
+  }
+
+  static countSince(startIso) {
+    const db = getDb();
+    const row = db.prepare('SELECT COUNT(*) as total FROM orders WHERE created_at >= ?').get(startIso);
+    return row?.total || 0;
+  }
+
+  static getMonthlyRevenueByArtisan(artisanId, months = 6) {
+    const db = getDb();
+    const monthsWindow = Math.max(1, parseInt(months, 10) || 6);
+
+    return db.prepare(`
+      SELECT strftime('%Y-%m', o.created_at) as month,
+        SUM(oi.total_price) as revenue
+      FROM order_items oi
+      JOIN orders o ON oi.order_id = o.id
+      JOIN products p ON oi.product_id = p.id
+      WHERE p.artisan_id = ?
+        AND o.payment_status = 'paid'
+        AND o.created_at >= datetime('now', ?)
+      GROUP BY month
+      ORDER BY month
+    `).all(artisanId, `-${monthsWindow} months`);
+  }
+
+  static getTopProductsByArtisan(artisanId, limit = 5) {
+    const db = getDb();
+    return db.prepare(`
+      SELECT p.name, SUM(oi.quantity) as sold, SUM(oi.total_price) as revenue
+      FROM order_items oi
+      JOIN products p ON oi.product_id = p.id
+      WHERE p.artisan_id = ?
+      GROUP BY p.id
+      ORDER BY sold DESC
       LIMIT ?
     `).all(artisanId, limit);
   }

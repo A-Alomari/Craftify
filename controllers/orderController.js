@@ -290,6 +290,26 @@ exports.index = (req, res) => {
   try {
     const orders = Order.findByUserId(req.session.user.id);
 
+    // Attach lightweight item previews so the order-history layout can render thumbnail stacks.
+    orders.forEach((order) => {
+      const previewItems = (Order.getItems(order.id) || []).slice(0, 3).map((item) => {
+        let image = '/images/placeholder-product.jpg';
+        try {
+          const images = JSON.parse(item.images || '[]');
+          if (images && images.length > 0) image = images[0];
+        } catch (e) {
+          image = '/images/placeholder-product.jpg';
+        }
+
+        return {
+          product_name: item.product_name,
+          image
+        };
+      });
+
+      order.previewItems = previewItems;
+    });
+
     res.render('orders/index', {
       title: 'My Orders - Craftify',
       orders
@@ -347,12 +367,19 @@ exports.track = (req, res) => {
 
     const shipment = Shipment.findByOrderId(id);
     const shipmentHistory = shipment ? Shipment.getHistory(shipment.id) : [];
+    const items = Order.getItems(id);
+
+    items.forEach((item) => {
+      const images = JSON.parse(item.images || '[]');
+      item.image = images[0] || '/images/placeholder-product.jpg';
+    });
 
     res.render('orders/track', {
       title: `Track Order #${id} - Craftify`,
       order,
       shipment,
-      shipmentHistory
+      shipmentHistory,
+      items
     });
   } catch (err) {
     console.error('Track order error:', err);
@@ -376,12 +403,29 @@ exports.cancel = (req, res) => {
       return res.redirect(`/orders/${id}`);
     }
 
-    const items = Order.getItems(id);
-    items.forEach(item => {
-      Product.updateStock(item.product_id, item.quantity);
-    });
+    const { getDb } = require('../config/database');
+    const db = getDb();
+    let inTransaction = false;
 
-    Order.cancel(id);
+    try {
+      runTransactionCommand(db, 'BEGIN TRANSACTION');
+      inTransaction = true;
+
+      const items = Order.getItems(id);
+      items.forEach(item => {
+        Product.updateStock(item.product_id, item.quantity);
+      });
+
+      Order.cancel(id);
+      runTransactionCommand(db, 'COMMIT');
+      inTransaction = false;
+    } catch (txErr) {
+      if (inTransaction) {
+        try { runTransactionCommand(db, 'ROLLBACK'); } catch (rollbackErr) { /* no-op */ }
+      }
+      throw txErr;
+    }
+
     req.flash('success_msg', 'Order cancelled successfully');
     res.redirect('/orders');
   } catch (err) {

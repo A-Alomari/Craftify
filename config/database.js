@@ -127,7 +127,7 @@ const schema = `
     total_price REAL NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT
   );
 
   CREATE TABLE IF NOT EXISTS shipments (
@@ -279,18 +279,28 @@ const schema = `
   CREATE INDEX IF NOT EXISTS idx_orders_status_created ON orders(status, created_at);
   CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
   CREATE INDEX IF NOT EXISTS idx_order_items_product ON order_items(product_id);
+  CREATE INDEX IF NOT EXISTS idx_shipments_order ON shipments(order_id);
+  CREATE INDEX IF NOT EXISTS idx_shipments_status ON shipments(status);
   CREATE INDEX IF NOT EXISTS idx_cart_user ON cart_items(user_id);
   CREATE INDEX IF NOT EXISTS idx_cart_session ON cart_items(session_id);
   CREATE INDEX IF NOT EXISTS idx_cart_user_product ON cart_items(user_id, product_id);
   CREATE INDEX IF NOT EXISTS idx_cart_session_product ON cart_items(session_id, product_id);
   CREATE INDEX IF NOT EXISTS idx_auctions_status ON auctions(status);
+  CREATE INDEX IF NOT EXISTS idx_auctions_status_start ON auctions(status, start_time);
   CREATE INDEX IF NOT EXISTS idx_auctions_end_time ON auctions(end_time);
+  CREATE INDEX IF NOT EXISTS idx_auctions_status_end_time ON auctions(status, end_time);
   CREATE INDEX IF NOT EXISTS idx_auctions_artisan_status ON auctions(artisan_id, status);
   CREATE INDEX IF NOT EXISTS idx_bids_auction ON bids(auction_id);
   CREATE INDEX IF NOT EXISTS idx_bids_auction_winning ON bids(auction_id, is_winning);
   CREATE INDEX IF NOT EXISTS idx_bids_user ON bids(user_id);
+  CREATE INDEX IF NOT EXISTS idx_reviews_product_approved_created ON reviews(product_id, is_approved, created_at);
+  CREATE INDEX IF NOT EXISTS idx_reviews_user_created ON reviews(user_id, created_at);
   CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
   CREATE INDEX IF NOT EXISTS idx_notifications_user_read ON notifications(user_id, is_read);
+  CREATE INDEX IF NOT EXISTS idx_notifications_user_created ON notifications(user_id, created_at);
+  CREATE INDEX IF NOT EXISTS idx_messages_receiver_read_created ON messages(receiver_id, is_read, created_at);
+  CREATE INDEX IF NOT EXISTS idx_messages_sender_created ON messages(sender_id, created_at);
+  CREATE INDEX IF NOT EXISTS idx_messages_sender_receiver_created ON messages(sender_id, receiver_id, created_at);
   CREATE INDEX IF NOT EXISTS idx_password_resets_token_used_expires ON password_resets(token, used, expires_at);
 `;
 
@@ -461,6 +471,69 @@ class DatabaseWrapper {
   }
 }
 
+function getForeignKeys(sqlDb, tableName) {
+  const result = sqlDb.exec(`PRAGMA foreign_key_list(${tableName})`);
+  if (!result || result.length === 0) {
+    return [];
+  }
+
+  const { columns, values } = result[0];
+  return values.map((row) => {
+    const mapped = {};
+    columns.forEach((column, idx) => {
+      mapped[column] = row[idx];
+    });
+    return mapped;
+  });
+}
+
+function needsOrderItemsForeignKeyMigration(sqlDb) {
+  const foreignKeys = getForeignKeys(sqlDb, 'order_items');
+  if (foreignKeys.length === 0) {
+    return false;
+  }
+
+  return foreignKeys.some((foreignKey) => {
+    return foreignKey.table === 'products' && String(foreignKey.on_delete).toUpperCase() === 'SET NULL';
+  });
+}
+
+function migrateOrderItemsForeignKey(sqlDb) {
+  console.log('Applying order_items foreign key migration...');
+
+  sqlDb.run('PRAGMA foreign_keys = OFF;');
+  try {
+    sqlDb.run(`
+      CREATE TABLE IF NOT EXISTS order_items__new (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        order_id INTEGER NOT NULL,
+        product_id INTEGER NOT NULL,
+        artisan_id INTEGER,
+        quantity INTEGER NOT NULL,
+        unit_price REAL NOT NULL,
+        total_price REAL NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT
+      );
+    `);
+
+    sqlDb.run(`
+      INSERT INTO order_items__new (id, order_id, product_id, artisan_id, quantity, unit_price, total_price, created_at)
+      SELECT id, order_id, product_id, artisan_id, quantity, unit_price, total_price, created_at
+      FROM order_items;
+    `);
+
+    sqlDb.run('DROP TABLE order_items;');
+    sqlDb.run('ALTER TABLE order_items__new RENAME TO order_items;');
+
+    sqlDb.run('CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);');
+    sqlDb.run('CREATE INDEX IF NOT EXISTS idx_order_items_product ON order_items(product_id);');
+  } finally {
+    sqlDb.run('PRAGMA foreign_keys = ON;');
+  }
+}
+
 async function initDatabase() {
   SQL = await initSqlJs();
   
@@ -482,6 +555,11 @@ async function initDatabase() {
     for (const stmt of statements) {
       db.sqlDb.run(stmt);
     }
+
+    if (needsOrderItemsForeignKeyMigration(db.sqlDb)) {
+      migrateOrderItemsForeignKey(db.sqlDb);
+    }
+
     db.save(true);
     console.log('Database initialized successfully');
   } catch (e) {

@@ -24,6 +24,13 @@ module.exports = ({ getTestContext, loginAs, makeUnique }) => {
       expect(reviewStatus.body.success).toBe(true);
       expect(db.prepare('SELECT is_approved FROM reviews WHERE id = ?').get(tempReviewId).is_approved).toBe(1);
 
+      const invalidReviewStatus = await agent
+        .post(`/admin/reviews/${tempReviewId}/status`)
+        .set('X-Requested-With', 'XMLHttpRequest')
+        .send({ status: 'mystery' });
+      expect(invalidReviewStatus.statusCode).toBe(400);
+      expect(invalidReviewStatus.body.success).toBe(false);
+
       const approveReview = await agent
         .post(`/admin/reviews/${tempReviewId}/approve`)
         .set('X-Requested-With', 'XMLHttpRequest');
@@ -55,6 +62,20 @@ module.exports = ({ getTestContext, loginAs, makeUnique }) => {
         });
       expect(createCoupon.statusCode).toBe(200);
       expect(createCoupon.body.success).toBe(true);
+
+      const invalidCoupon = await agent
+        .post('/admin/coupons')
+        .set('X-Requested-With', 'XMLHttpRequest')
+        .send({
+          code: makeUnique('badcoupon').toUpperCase(),
+          description: 'Invalid coupon',
+          discount_type: 'percent',
+          discount_value: -10,
+          min_purchase: 20,
+          usage_limit: 3
+        });
+      expect(invalidCoupon.statusCode).toBe(400);
+      expect(invalidCoupon.body.success).toBe(false);
 
       const coupon = db.prepare('SELECT id FROM coupons WHERE code = ?').get(couponCode);
       expect(coupon).toBeTruthy();

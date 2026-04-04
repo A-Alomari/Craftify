@@ -1,25 +1,99 @@
 <%- include('../partials/header', { title: title }) %>
-<div class="container-fluid py-4"><div class="row"><div class="col-lg-2 mb-4"><%- include('./partials/sidebar') %></div>
-<div class="col-lg-10">
-  <h3 class="mb-4"><i class="bi bi-palette"></i> Artisan Management</h3>
-  <% if (artisans && artisans.length > 0) { %>
-  <div class="table-responsive"><table class="table table-hover"><thead><tr><th>Shop Name</th><th>Owner</th><th>Status</th><th>Products</th><th>Joined</th><th></th></tr></thead>
-  <tbody><% artisans.forEach(function(a) { %><tr>
-    <td><%= a.shop_name %></td><td><%= a.user_name || a.name %></td>
-    <td><span class="badge bg-<%= a.is_approved ? 'success' : 'warning' %>"><%= a.is_approved ? 'Approved' : 'Pending' %></span></td>
-    <td><%= a.product_count || 0 %></td><td><%= new Date(a.created_at).toLocaleDateString() %></td>
-    <td>
-      <% if (!a.is_approved) { %>
-        <form action="/admin/artisans/<%= a.user_id %>/approve" method="POST" class="d-inline"><input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"><button class="btn btn-sm btn-success">Approve</button></form>
+<%
+  const approvedFilter = filters && typeof filters.approved !== 'undefined' ? filters.approved : '';
+  const searchFilter = filters && filters.search ? filters.search : '';
+%>
+
+<div class="flex bg-surface min-h-screen">
+  <%- include('./partials/sidebar') %>
+
+  <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
+    <%- include('./partials/topbar') %>
+
+    <section class="max-w-7xl mx-auto mt-8 mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div>
+        <span class="font-label text-xs tracking-[0.2em] text-primary font-semibold uppercase">Administration</span>
+        <h1 class="font-headline text-3xl text-on-surface mt-2">Artisan Management</h1>
+        <p class="text-secondary mt-1">Review and moderate artisan applications.</p>
+      </div>
+      <p class="text-xs text-secondary uppercase tracking-widest">Applications: <%= artisans ? artisans.length : 0 %></p>
+    </section>
+
+    <section class="max-w-7xl mx-auto bg-surface-container-lowest rounded-xl p-5 md:p-6 mb-6">
+      <form method="GET" action="/admin/artisans" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Approval Status</label>
+          <select name="approved" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+            <option value="" <%= approvedFilter === '' ? 'selected' : '' %>>All</option>
+            <option value="true" <%= approvedFilter === 'true' ? 'selected' : '' %>>Approved</option>
+            <option value="false" <%= approvedFilter === 'false' ? 'selected' : '' %>>Pending</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Search</label>
+          <input type="text" name="search" value="<%= searchFilter %>" placeholder="Shop or owner" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+        </div>
+        <div class="flex items-end gap-2">
+          <button type="submit" class="bg-primary-container text-on-primary-container px-5 py-2.5 rounded-xl font-semibold text-sm">Apply</button>
+          <a href="/admin/artisans" class="bg-surface-container-high text-on-surface px-5 py-2.5 rounded-xl font-semibold text-sm">Reset</a>
+        </div>
+      </form>
+    </section>
+
+    <section class="max-w-7xl mx-auto bg-surface-container-lowest rounded-xl overflow-hidden">
+      <% if (artisans && artisans.length > 0) { %>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="text-[10px] font-bold text-secondary uppercase tracking-widest border-b border-surface-container-high">
+                <th class="px-6 py-4">Artisan</th>
+                <th class="px-6 py-4">Owner</th>
+                <th class="px-6 py-4">Status</th>
+                <th class="px-6 py-4">Products</th>
+                <th class="px-6 py-4">Joined</th>
+                <th class="px-6 py-4 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container-high/50">
+              <% artisans.forEach(function(a) { %>
+                <tr class="hover:bg-surface-container-low/20 transition-colors">
+                  <td class="px-6 py-5">
+                    <p class="text-sm font-semibold text-on-surface"><%= a.shop_name || 'Unnamed Shop' %></p>
+                    <p class="text-xs text-secondary"><%= a.email || '' %></p>
+                  </td>
+                  <td class="px-6 py-5 text-sm text-on-surface"><%= a.user_name || a.name || '-' %></td>
+                  <td class="px-6 py-5">
+                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest <%= a.is_approved ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' %>"><%= a.is_approved ? 'Approved' : 'Pending' %></span>
+                  </td>
+                  <td class="px-6 py-5 text-sm text-on-surface"><%= a.product_count || 0 %></td>
+                  <td class="px-6 py-5 text-sm text-secondary"><%= new Date(a.created_at).toLocaleDateString() %></td>
+                  <td class="px-6 py-5 text-right">
+                    <div class="inline-flex gap-2">
+                      <% if (!a.is_approved) { %>
+                        <form action="/admin/artisans/<%= a.user_id %>/approve" method="POST" class="inline-block">
+                          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                          <button class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Approve</button>
+                        </form>
+                      <% } %>
+                      <form action="/admin/artisans/<%= a.user_id %>/reject" method="POST" class="inline-block">
+                        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                        <button class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Reject</button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="py-14 text-center">
+          <span class="material-symbols-outlined text-5xl text-secondary/60">handyman</span>
+          <p class="text-secondary mt-3">No artisans found for this filter.</p>
+        </div>
       <% } %>
-      <form action="/admin/artisans/<%= a.user_id %>/reject" method="POST" class="d-inline"><input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"><button class="btn btn-sm btn-danger">Reject</button></form>
-    </td>
-  </tr><% }); %></tbody></table></div>
-  <% } else { %>
-    <div class="text-center py-5">
-      <i class="bi bi-palette display-4 text-muted"></i>
-      <p class="text-muted mt-3">No artisans found.</p>
-    </div>
-  <% } %>
-</div></div></div>
+    </section>
+  </main>
+</div>
+
 <%- include('../partials/footer') %>

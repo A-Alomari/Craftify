@@ -42,10 +42,10 @@
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-4">
                 <div class="w-16 h-16 bg-surface-container rounded-lg overflow-hidden flex-shrink-0">
-                    <img alt="<%= item.name %>" class="w-full h-full object-cover" src="<%= images[0] || '/images/placeholder-product.jpg' %>" onerror="this.src='/images/placeholder-product.jpg'"/>
+                    <img alt="<%= item.product_name || item.name %>" class="w-full h-full object-cover" src="<%= images[0] || '/images/placeholder-product.jpg' %>" onerror="this.src='/images/placeholder-product.jpg'"/>
                 </div>
                 <div>
-                    <h3 class="font-medium text-on-surface"><%= item.name %></h3>
+                    <h3 class="font-medium text-on-surface"><%= item.product_name || item.name %></h3>
                     <p class="text-sm text-secondary">Quantity: <%= item.quantity %></p>
                 </div>
             </div>
@@ -88,12 +88,11 @@
     Shipping Address
 </h3>
 <div class="text-on-surface leading-relaxed">
-    <% var address = {}; try { address = JSON.parse(order.shipping_address || '{}'); } catch(e) {} %>
-    <p class="font-bold"><%= address.name || user.name %></p>
-    <p><%= address.street || '' %></p>
-    <p><%= address.city || '' %><%= address.state ? ', ' + address.state : '' %></p>
-    <p><%= address.zip || '' %></p>
-    <p><%= address.country || '' %></p>
+    <p class="font-bold"><%= user ? user.name : 'Customer' %></p>
+    <p><%= order.shipping_address || '' %></p>
+    <p><%= order.shipping_city || '' %></p>
+    <p><%= order.shipping_postal || '' %></p>
+    <p><%= order.shipping_country || '' %></p>
 </div>
 </div>
 <!-- Delivery Info -->
@@ -120,7 +119,7 @@
 <!-- Bottom Actions -->
 <div class="flex flex-col items-center gap-6 pt-8">
 <div class="flex flex-col sm:flex-row gap-4 w-full justify-center">
-<a href="/orders/track" class="bg-primary-container text-on-primary-container font-medium px-10 py-4 rounded-xl shadow-md hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center">
+<a href="/orders/<%= order.id %>/track" class="bg-primary-container text-on-primary-container font-medium px-10 py-4 rounded-xl shadow-md hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center">
     Track Your Order
     <span class="material-symbols-outlined ml-2 text-xl">map</span>
 </a>
