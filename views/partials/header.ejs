@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
     <link href="/assets/styles.css" rel="stylesheet"/>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -23,7 +21,6 @@
         }
         if (user && user.role === 'artisan') navItems.push({ href: '/artisan/dashboard', label: 'Artisan' });
         if (user && user.role === 'admin') navItems.push({ href: '/admin/dashboard', label: 'Admin' });
-        if (!user) navItems.push({ href: '/auth/artisan-register', label: 'Sell on Craftify' });
     %>
     <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 w-full z-50 shadow-sm dark:shadow-none bg-surface-container-lowest">
         <nav class="flex justify-between items-center px-6 py-4 max-w-full mx-auto">
@@ -43,9 +40,6 @@
                 <% }) %>
             </div>
             <div class="flex items-center gap-2">
-                <a href="/products" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform text-slate-700 dark:text-slate-300">
-                    <span class="material-symbols-outlined">search</span>
-                </a>
                 <a href="/cart" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform text-slate-700 dark:text-slate-300 relative">
                     <span class="material-symbols-outlined">shopping_cart</span>
                     <% if (typeof cartCount !== 'undefined' && cartCount > 0) { %>
@@ -59,6 +53,9 @@
                             <span class="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-600 px-1 text-[10px] font-bold text-white"><%= notificationCount > 9 ? '9+' : notificationCount %></span>
                         <% } %>
                     </a>
+                    <a href="/user/messages" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform text-slate-700 dark:text-slate-300" aria-label="Messages">
+                        <span class="material-symbols-outlined">chat</span>
+                    </a>
                     <a href="/user/profile" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform text-slate-700 dark:text-slate-300">
                         <span class="material-symbols-outlined">account_circle</span>
                     </a>
@@ -69,8 +66,11 @@
                         </button>
                     </form>
                 <% } else { %>
-                    <a href="/auth/login" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform text-slate-700 dark:text-slate-300">
-                        <span class="material-symbols-outlined">login</span>
+                    <a href="/auth/artisan-register" class="hidden lg:inline-flex items-center rounded-lg px-3 py-2 text-sm font-headline text-amber-700 underline decoration-amber-300 underline-offset-4 transition-colors hover:text-amber-800">
+                        Sell on Craftify
+                    </a>
+                    <a href="/auth/login" class="inline-flex items-center rounded-lg border border-amber-200 bg-white px-4 py-2 text-sm font-semibold text-amber-800 transition-colors hover:bg-amber-50">
+                        Sign In
                     </a>
                     <a href="/auth/register" class="hidden sm:inline-flex items-center rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-amber-700">
                         Sign Up
@@ -78,30 +78,6 @@
                 <% } %>
             </div>
         </nav>
-        <div class="px-6 pb-4">
-            <div class="max-w-7xl mx-auto relative">
-                <form action="/products/search" method="GET" class="relative">
-                    <label for="searchInput" class="sr-only">Search products, categories, or artisans</label>
-                    <input
-                        id="searchInput"
-                        name="q"
-                        type="search"
-                        value="<%= typeof filters !== 'undefined' && filters && filters.search ? filters.search : '' %>"
-                        placeholder="Search products, categories, or artisans"
-                        autocomplete="off"
-                        class="w-full rounded-2xl border border-slate-200 bg-white px-5 py-3 pr-14 text-sm text-slate-900 shadow-sm outline-none transition-all focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
-                    />
-                    <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-amber-600" aria-label="Search">
-                        <span class="material-symbols-outlined">search</span>
-                    </button>
-                </form>
-                <div
-                    id="searchResults"
-                    class="list-group absolute left-0 right-0 top-full z-50 mt-2 hidden overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl"
-                    style="display: none;"
-                ></div>
-            </div>
-        </div>
         <% 
             // Standardized flash messages: supports both messages.error/messages.success and legacy error_msg/success_msg/error
             const flashError = (typeof messages !== 'undefined' && messages.error) || (typeof error_msg !== 'undefined' && error_msg) || (typeof error !== 'undefined' && error) || '';
@@ -118,7 +94,3 @@
             </div>
         <% } %>
     </header>
-<main>
-<script src="/js/form-validation.js"></script>
-<script src="/js/form-loading.js"></script>
-<script src="/js/image-preview.js"></script>

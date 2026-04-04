@@ -18,6 +18,10 @@ Back to Cart
 <span class="material-symbols-outlined text-amber-600" data-icon="local_shipping">local_shipping</span>
 <h2 class="text-xl font-headline font-bold">Shipping Address</h2>
 </div>
+<div class="mb-6 rounded-xl border border-amber-200/70 bg-amber-50/70 px-4 py-3 flex items-center gap-3">
+<span class="material-symbols-outlined text-amber-700" data-icon="home_pin">home_pin</span>
+<p class="text-sm text-amber-900">Use a complete address for accurate delivery updates and tracking milestones.</p>
+</div>
 <form action="/orders/checkout" method="POST" id="checkout-form" class="space-y-6">
 <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
 <input type="hidden" name="checkout_nonce" value="<%= checkoutNonce || '' %>">
@@ -29,10 +33,14 @@ Back to Cart
 <label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container">Street Address</label>
 <input name="shipping_address" required class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="123 Main Street" type="text" value="<%= user && user.shipping_address ? user.shipping_address : '' %>"/>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 <div class="space-y-2">
 <label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container">City</label>
 <input name="shipping_city" required class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="Manama" type="text" value="<%= user && user.city ? user.city : '' %>"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container">Postal Code</label>
+<input name="shipping_postal" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="321" type="text" value="<%= user && user.postal_code ? user.postal_code : '' %>"/>
 </div>
 <div class="space-y-2">
 <label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container">Country</label>

@@ -131,6 +131,9 @@ class Auction {
     if (new Date(auction.end_time) <= new Date()) {
       throw new Error('Auction has ended');
     }
+    if (Number.parseInt(auction.artisan_id, 10) === Number.parseInt(userId, 10)) {
+      throw new Error('You cannot bid on your own auction');
+    }
 
     const minBid = getMinimumBid(auction);
 
@@ -154,6 +157,9 @@ class Auction {
       }
       if (new Date(freshAuction.end_time) <= new Date()) {
         throw new Error('Auction has ended');
+      }
+      if (Number.parseInt(freshAuction.artisan_id, 10) === Number.parseInt(userId, 10)) {
+        throw new Error('You cannot bid on your own auction');
       }
 
       const freshMinBid = getMinimumBid(freshAuction);

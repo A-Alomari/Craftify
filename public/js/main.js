@@ -70,6 +70,11 @@ function parseJsonResponse(response) {
   return response.json();
 }
 
+function toIntegerOrDefault(value, defaultValue) {
+  const parsed = Number.parseInt(value, 10);
+  return Number.isInteger(parsed) ? parsed : defaultValue;
+}
+
 // Cart Functions
 function initCart() {
   // Add to cart buttons
@@ -92,6 +97,7 @@ function initCart() {
 }
 
 function addToCart(productId, quantity, btn) {
+  const parsedQuantity = toIntegerOrDefault(quantity, 1);
   const originalHtml = btn.innerHTML;
   btn.innerHTML = '<span class="loading-spinner"></span>';
   btn.disabled = true;
@@ -99,7 +105,7 @@ function addToCart(productId, quantity, btn) {
   fetch('/cart/add', {
     method: 'POST',
     headers: getRequestHeaders('POST', { 'Content-Type': 'application/json' }),
-    body: JSON.stringify({ productId, quantity: parseInt(quantity, 10) || 1 })
+    body: JSON.stringify({ productId, quantity: parsedQuantity > 0 ? parsedQuantity : 1 })
   })
   .then(parseJsonResponse)
   .then(data => {
@@ -110,7 +116,7 @@ function addToCart(productId, quantity, btn) {
       btn.classList.remove('btn-primary', 'btn-outline-primary');
       btn.classList.add('btn-success');
       updateCartBadge(data.cartCount);
-      showToast('Added to cart!', 'success');
+      showToast('Item added to cart!', 'success');
       
       setTimeout(() => {
         btn.innerHTML = originalHtml;
@@ -219,9 +225,9 @@ function initQuantityButtons() {
     btn.addEventListener('click', function() {
       const input = this.parentElement.querySelector('.qty-input');
       const action = this.dataset.action;
-      let value = parseInt(input.value) || 1;
-      const max = parseInt(input.max) || 999;
-      const min = parseInt(input.min) || 1;
+      let value = toIntegerOrDefault(input.value, 1);
+      const max = toIntegerOrDefault(input.max, 999);
+      const min = Number.isInteger(Number.parseInt(input.min, 10)) ? Number.parseInt(input.min, 10) : 0;
       
       if (action === 'increase' && value < max) {
         input.value = value + 1;
@@ -248,10 +254,12 @@ function initQuantityButtons() {
 }
 
 function updateCartQuantity(productId, quantity) {
+  const parsedQuantity = toIntegerOrDefault(quantity, 1);
+
   fetch('/cart/update', {
     method: 'POST',
     headers: getRequestHeaders('POST', { 'Content-Type': 'application/json' }),
-    body: JSON.stringify({ productId, quantity: parseInt(quantity, 10) || 1 })
+    body: JSON.stringify({ productId, quantity: parsedQuantity })
   })
   .then(parseJsonResponse)
   .then(data => {
@@ -260,6 +268,16 @@ function updateCartQuantity(productId, quantity) {
     if (data.success) {
       // Update item subtotal
       const item = document.querySelector(`.cart-item[data-product-id="${productId}"]`);
+
+      if (parsedQuantity <= 0) {
+        if (item) {
+          item.remove();
+        }
+        updateCartTotals(data);
+        updateCartBadge(data.cartCount);
+        return;
+      }
+
       if (item && data.itemSubtotal) {
         const subtotalEl = item.querySelector('.item-subtotal');
         if (subtotalEl) subtotalEl.textContent = '$' + data.itemSubtotal.toFixed(2);
@@ -370,28 +388,67 @@ function escapeHtml(value) {
 
 // Toast Notifications
 function showToast(message, type = 'info') {
-  let container = document.querySelector('.toast-container');
+  const toneMap = {
+    success: 'success',
+    danger: 'error',
+    error: 'error',
+    warning: 'warning',
+    info: 'info'
+  };
+  const iconMap = {
+    success: 'check_circle',
+    error: 'error',
+    warning: 'warning',
+    info: 'info'
+  };
+  const tone = toneMap[type] || 'info';
+
+  let container = document.querySelector('.craft-toast-stack');
   if (!container) {
     container = document.createElement('div');
-    container.className = 'toast-container';
+    container.className = 'craft-toast-stack';
     document.body.appendChild(container);
   }
-  
+
   const toast = document.createElement('div');
-  toast.className = `toast align-items-center text-white bg-${type} border-0 show`;
-  toast.innerHTML = `
-    <div class="d-flex">
-      <div class="toast-body">${message}</div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-    </div>
-  `;
-  
+  toast.className = `craft-toast craft-toast--${tone}`;
+  toast.setAttribute('role', 'status');
+  toast.setAttribute('aria-live', 'polite');
+
+  const icon = document.createElement('span');
+  icon.className = 'material-symbols-outlined craft-toast__icon';
+  icon.textContent = iconMap[tone] || 'info';
+
+  const text = document.createElement('p');
+  text.className = 'craft-toast__text';
+  text.textContent = String(message || 'Update completed');
+
+  const closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.className = 'craft-toast__close';
+  closeBtn.setAttribute('aria-label', 'Dismiss notification');
+  closeBtn.innerHTML = '<span class="material-symbols-outlined">close</span>';
+
+  toast.appendChild(icon);
+  toast.appendChild(text);
+  toast.appendChild(closeBtn);
   container.appendChild(toast);
-  
-  setTimeout(() => {
-    toast.classList.remove('show');
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
+
+  requestAnimationFrame(() => toast.classList.add('is-visible'));
+
+  const dismiss = () => {
+    if (!toast.isConnected) return;
+    toast.classList.remove('is-visible');
+    toast.classList.add('is-leaving');
+    setTimeout(() => {
+      if (toast.isConnected) {
+        toast.remove();
+      }
+    }, 220);
+  };
+
+  closeBtn.addEventListener('click', dismiss);
+  setTimeout(dismiss, 3200);
 }
 
 // Image Gallery
@@ -555,8 +612,9 @@ document.addEventListener('DOMContentLoaded', function() {
         body: new FormData(this),
         headers: getRequestHeaders('POST')
       })
-      .then(response => response.json())
+      .then(parseJsonResponse)
       .then(data => {
+        if (!data) return;
         if (data.success) {
           handler.success('Coupon applied!');
           setTimeout(() => window.location.reload(), 1000);

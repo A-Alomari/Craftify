@@ -67,7 +67,16 @@ function handleValidationErrors(redirectTo) {
 }
 
 const loginValidation = [
-  body('email').trim().isEmail().withMessage('Please enter a valid email address'),
+  body('identifier').optional({ checkFalsy: true }).trim(),
+  body('email').optional({ checkFalsy: true }).trim(),
+  body('phone').optional({ checkFalsy: true }).trim(),
+  body().custom((value, { req }) => {
+    const loginIdentifier = String(req.body.identifier || req.body.email || req.body.phone || '').trim();
+    if (!loginIdentifier) {
+      throw new Error('Email or phone number is required');
+    }
+    return true;
+  }),
   body('password').notEmpty().withMessage('Password is required')
 ];
 

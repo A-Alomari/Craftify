@@ -141,10 +141,10 @@
 <!-- Promo Code -->
 <div class="mt-6 bg-tertiary-container/10 p-6 rounded-xl border border-tertiary-container/20">
 <label class="block text-xs font-bold uppercase tracking-widest text-tertiary mb-3">Apply Promo Code</label>
-<form action="/cart/coupon" method="POST" class="flex gap-2">
+<form action="/cart/coupon" method="POST" class="flex flex-col sm:flex-row gap-2">
 <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
 <input name="code" value="<%= appliedCoupon ? appliedCoupon.code : '' %>" class="flex-grow min-w-0 bg-surface-container-lowest border-none rounded-lg text-sm px-4 py-3 focus:ring-2 focus:ring-tertiary" placeholder="Enter code" type="text"/>
-<button type="submit" class="bg-tertiary text-on-tertiary px-6 py-3 rounded-lg text-sm font-bold uppercase tracking-wider hover:opacity-90">Apply</button>
+<button type="submit" class="bg-tertiary text-on-tertiary px-6 py-3 rounded-lg text-sm font-bold uppercase tracking-wider hover:opacity-90 sm:w-auto">Apply</button>
 </form>
 </div>
 

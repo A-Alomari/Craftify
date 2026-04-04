@@ -1,155 +1,249 @@
 <%- include('../partials/header', { title: title }) %>
+
+<main class="flex-grow min-h-screen">
 <%
   const profileName = userProfile && userProfile.name ? userProfile.name : 'Artisan User';
   const profileEmail = userProfile && userProfile.email ? userProfile.email : '';
   const profilePhone = userProfile && userProfile.phone ? userProfile.phone : '';
   const profileAddress = userProfile && userProfile.shipping_address ? userProfile.shipping_address : '';
+  const profileCity = userProfile && userProfile.city ? userProfile.city : '';
+  const profileCountry = userProfile && userProfile.country ? userProfile.country : 'Bahrain';
+  const profilePostalCode = userProfile && userProfile.postal_code ? userProfile.postal_code : '';
   const profileAvatar = userProfile && userProfile.avatar ? userProfile.avatar : '/images/default-avatar.png';
   const roleSource = userProfile && userProfile.role ? userProfile.role : 'customer';
   const roleLabel = roleSource.charAt(0).toUpperCase() + roleSource.slice(1);
+  const pathValue = typeof currentPath === 'string' ? currentPath : '/user/profile';
+  const joinedYear = userProfile && userProfile.created_at ? new Date(userProfile.created_at).getFullYear() : new Date().getFullYear();
+
+  const accountLinks = [
+    { href: '/user/profile', icon: 'account_circle', label: 'Profile' },
+    { href: '/orders', icon: 'shopping_bag', label: 'Orders' },
+    { href: '/auctions/my-bids', icon: 'gavel', label: 'My Bids' },
+    { href: '/user/wishlist', icon: 'favorite', label: 'Wishlist' },
+    { href: '/user/notifications', icon: 'notifications', label: 'Notifications' },
+    { href: '/user/messages', icon: 'chat', label: 'Messages' },
+    { href: '/user/reviews', icon: 'rate_review', label: 'Reviews' }
+  ];
+
+  const isAccountLinkActive = function(href) {
+    if (href === '/orders') return pathValue === '/orders' || pathValue.startsWith('/orders/');
+    if (href === '/auctions/my-bids') return pathValue === '/auctions/my-bids';
+    return pathValue === href || pathValue.startsWith(`${href}/`);
+  };
 %>
 
-<section class="px-6 md:px-10 py-10 max-w-6xl mx-auto">
-  <div class="mb-10">
-    <%- include('./partials/account-nav') %>
-  </div>
+<section class="px-6 lg:px-8 py-10 max-w-screen-2xl mx-auto">
+  <div class="flex gap-8 lg:gap-12">
+    <aside class="hidden md:flex md:w-72 lg:w-80 flex-col pt-4 pb-8 space-y-4 self-start sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto">
+      <div class="px-5 mb-6">
+        <h2 class="text-2xl font-headline font-bold text-on-surface">The Collector's Atelier</h2>
+        <p class="font-label text-[10px] tracking-[0.16em] uppercase text-secondary mt-1">Member since <%= joinedYear %></p>
+      </div>
 
-  <div class="mb-12">
-    <span class="font-label text-xs uppercase tracking-[0.2em] text-secondary font-semibold">Digital Atelier</span>
-    <h1 class="font-headline text-4xl font-bold tracking-tight text-on-surface mt-3">My Profile</h1>
-    <p class="text-secondary font-body mt-2">Manage your account details and security preferences.</p>
-  </div>
+      <nav class="flex flex-col space-y-1">
+        <% accountLinks.forEach(function(link) { const active = isAccountLinkActive(link.href); %>
+          <a href="<%= link.href %>" class="flex items-center gap-3 pl-5 pr-4 py-3 text-sm tracking-wide uppercase transition-all duration-200 <%= active ? 'text-primary font-bold border-l-4 border-primary-container bg-primary-container/10' : 'text-secondary hover:bg-primary-container/10 hover:text-primary' %>">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' <%= active ? 1 : 0 %>"><%= link.icon %></span>
+            <span><%= link.label %></span>
+          </a>
+        <% }); %>
+      </nav>
 
-  <form action="/user/profile" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-10">
-    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-
-    <aside class="lg:col-span-4">
-      <div class="bg-surface-container-lowest rounded-xl p-8 text-center space-y-5">
-        <div class="relative mx-auto w-40 h-40 rounded-full overflow-hidden border-4 border-surface-container-high bg-surface-container-low">
-          <img
-            src="<%= profileAvatar %>"
-            alt="Profile Avatar"
-            class="w-full h-full object-cover"
-            onerror="this.src='/images/default-avatar.png'"
-          >
-        </div>
-        <div>
-          <h2 class="font-headline text-2xl font-bold text-on-surface"><%= profileName %></h2>
-          <p class="text-secondary text-xs uppercase tracking-widest font-label font-semibold mt-1"><%= roleLabel %></p>
-        </div>
-        <div class="text-left">
-          <label for="avatar" class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold mb-2">Profile Photo</label>
-          <input
-            id="avatar"
-            type="file"
-            name="avatar"
-            accept="image/jpeg,image/png,image/webp"
-            class="w-full bg-surface-container-low border-none rounded-xl px-3 py-2 text-sm text-on-surface focus:ring-0"
-          >
-        </div>
-        <div class="rounded-xl bg-surface-container-low p-4 text-left">
-          <p class="text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold mb-1">Profile Focus</p>
-          <p class="text-sm text-on-surface">Personal Information and Security only.</p>
-        </div>
+      <div class="mt-auto px-5 pt-8">
+        <a href="/auth/artisan-register" class="w-full inline-flex items-center justify-center py-3 rounded-xl bg-primary-container text-on-primary-container font-semibold text-sm tracking-wider uppercase transition-transform active:scale-95">Become a Maker</a>
       </div>
     </aside>
 
-    <div class="lg:col-span-8">
-      <div class="bg-surface-container-lowest rounded-xl p-8 md:p-10">
-        <h2 class="font-headline text-2xl font-bold text-on-surface mb-8">Personal Information</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div class="space-y-2">
-            <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Full Name</label>
-            <input
-              type="text"
-              name="name"
-              value="<%= profileName %>"
-              class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
-              required
-            >
-          </div>
-          <div class="space-y-2">
-            <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Email Address</label>
-            <input
-              type="email"
-              value="<%= profileEmail %>"
-              class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-secondary"
-              disabled
-            >
-          </div>
-          <div class="space-y-2 md:col-span-2">
-            <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Phone Number</label>
-            <input
-              type="text"
-              name="phone"
-              value="<%= profilePhone %>"
-              class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
-            >
-          </div>
-          <div class="space-y-2 md:col-span-2">
-            <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Shipping Address</label>
-            <textarea
-              name="shipping_address"
-              rows="4"
-              class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all resize-none"
-            ><%= profileAddress %></textarea>
-          </div>
-        </div>
-        <div class="flex justify-end">
-          <button type="submit" class="bg-primary-container text-on-primary-container px-8 py-3 rounded-xl font-bold text-sm tracking-wide hover:brightness-105 active:scale-95 transition-all">
-            Save Changes
-          </button>
-        </div>
-      </div>
-    </div>
-  </form>
+    <div class="flex-1 min-w-0 space-y-10">
+      <header>
+        <h1 class="text-4xl lg:text-5xl font-headline font-bold text-on-surface">Profile</h1>
+        <p class="text-secondary font-label text-sm tracking-widest uppercase mt-2">Personal Workspace</p>
+      </header>
 
-  <section class="max-w-4xl ml-auto bg-surface-container-lowest rounded-xl p-8 md:p-10">
-    <div class="flex items-center gap-3 mb-8">
-      <span class="material-symbols-outlined text-primary">lock_reset</span>
-      <h2 class="font-headline text-2xl font-bold text-on-surface">Change Password</h2>
+      <div class="md:hidden">
+        <div class="flex gap-2 overflow-x-auto pb-2">
+          <% accountLinks.forEach(function(link) { const active = isAccountLinkActive(link.href); %>
+            <a href="<%= link.href %>" class="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider <%= active ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-low text-on-surface' %>">
+              <span class="material-symbols-outlined text-base"><%= link.icon %></span>
+              <span><%= link.label %></span>
+            </a>
+          <% }); %>
+        </div>
+      </div>
+
+      <form action="/user/profile" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+
+        <aside class="xl:col-span-4">
+          <div class="bg-surface-container-lowest rounded-xl p-8 text-center space-y-5">
+            <div class="relative mx-auto w-40 h-40 rounded-xl overflow-hidden border-4 border-surface-container-high bg-surface-container-low">
+              <img
+                src="<%= profileAvatar %>"
+                alt="Profile Avatar"
+                class="w-full h-full object-cover"
+                onerror="this.src='/images/default-avatar.png'"
+              >
+            </div>
+            <div>
+              <h2 class="font-headline text-2xl font-bold text-on-surface"><%= profileName %></h2>
+              <p class="text-secondary text-xs uppercase tracking-widest font-label font-semibold mt-1"><%= roleLabel %></p>
+            </div>
+            <div class="text-left">
+              <label for="avatar" class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold mb-2">Profile Photo</label>
+              <input
+                id="avatar"
+                type="file"
+                name="avatar"
+                accept="image/jpeg,image/png,image/webp"
+                class="w-full bg-surface-container-low border-none rounded-xl px-3 py-2 text-sm text-on-surface focus:ring-0"
+              >
+            </div>
+            <div class="rounded-xl bg-surface-container-low p-4 text-left">
+              <p class="text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold mb-1">Profile Focus</p>
+              <p class="text-sm text-on-surface">Personal information, shipping defaults, and account security.</p>
+            </div>
+          </div>
+        </aside>
+
+        <div class="xl:col-span-8 space-y-8">
+          <div class="bg-surface-container-lowest rounded-xl p-8 md:p-10">
+            <h2 class="font-headline text-2xl font-bold text-on-surface mb-8">Personal Information</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div class="space-y-2">
+                <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Full Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value="<%= profileName %>"
+                  class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
+                  required
+                >
+              </div>
+              <div class="space-y-2">
+                <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Email Address</label>
+                <input
+                  type="email"
+                  value="<%= profileEmail %>"
+                  class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-secondary"
+                  disabled
+                >
+              </div>
+              <div class="space-y-2 md:col-span-2">
+                <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Phone Number</label>
+                <input
+                  type="text"
+                  name="phone"
+                  value="<%= profilePhone %>"
+                  class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
+                >
+              </div>
+              <div class="md:col-span-2 rounded-2xl border border-outline-variant/25 bg-surface-container-low p-5 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Shipping Address</label>
+                  <span class="inline-flex items-center rounded-full bg-primary-container/20 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary">Checkout Default</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div class="space-y-2 md:col-span-2">
+                    <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Street Address</label>
+                    <textarea
+                      name="shipping_address"
+                      rows="3"
+                      class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all resize-none"
+                      placeholder="Building, street, block"
+                    ><%= profileAddress %></textarea>
+                  </div>
+                  <div class="space-y-2">
+                    <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Postal Code</label>
+                    <input
+                      type="text"
+                      name="postal_code"
+                      value="<%= profilePostalCode %>"
+                      class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
+                      placeholder="12345"
+                    >
+                  </div>
+                  <div class="space-y-2">
+                    <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">City</label>
+                    <input
+                      type="text"
+                      name="city"
+                      value="<%= profileCity %>"
+                      class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
+                      placeholder="Manama"
+                    >
+                  </div>
+                  <div class="space-y-2">
+                    <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Country</label>
+                    <input
+                      type="text"
+                      name="country"
+                      value="<%= profileCountry %>"
+                      class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
+                      placeholder="Bahrain"
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-end">
+              <button type="submit" class="bg-primary-container text-on-primary-container px-8 py-3 rounded-xl font-bold text-sm tracking-wide hover:brightness-105 active:scale-95 transition-all">
+                Save Changes
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-surface-container-lowest rounded-xl p-8 md:p-10">
+            <div class="flex items-center gap-3 mb-8">
+              <span class="material-symbols-outlined text-primary">lock_reset</span>
+              <h2 class="font-headline text-2xl font-bold text-on-surface">Change Password</h2>
+            </div>
+            <form action="/user/change-password" method="POST">
+              <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+              <div class="space-y-6 mb-8">
+                <div class="space-y-2">
+                  <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Current Password</label>
+                  <input
+                    type="password"
+                    name="current_password"
+                    class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
+                    required
+                  >
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="space-y-2">
+                    <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">New Password</label>
+                    <input
+                      type="password"
+                      name="new_password"
+                      minlength="6"
+                      class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
+                      required
+                    >
+                  </div>
+                  <div class="space-y-2">
+                    <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Confirm New Password</label>
+                    <input
+                      type="password"
+                      name="confirm_password"
+                      class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
+                      required
+                    >
+                  </div>
+                </div>
+              </div>
+              <div class="flex justify-end">
+                <button type="submit" class="bg-primary-container text-on-primary-container px-8 py-3 rounded-xl font-bold text-sm tracking-wide hover:brightness-105 active:scale-95 transition-all">
+                  Change Password
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </form>
     </div>
-    <form action="/user/change-password" method="POST">
-      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-      <div class="space-y-6 mb-8">
-        <div class="space-y-2">
-          <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Current Password</label>
-          <input
-            type="password"
-            name="current_password"
-            class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
-            required
-          >
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="space-y-2">
-            <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">New Password</label>
-            <input
-              type="password"
-              name="new_password"
-              minlength="6"
-              class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
-              required
-            >
-          </div>
-          <div class="space-y-2">
-            <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Confirm New Password</label>
-            <input
-              type="password"
-              name="confirm_password"
-              class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
-              required
-            >
-          </div>
-        </div>
-      </div>
-      <div class="flex justify-end">
-        <button type="submit" class="bg-primary-container text-on-primary-container px-8 py-3 rounded-xl font-bold text-sm tracking-wide hover:brightness-105 active:scale-95 transition-all">
-          Change Password
-        </button>
-      </div>
-    </form>
-  </section>
+  </div>
 </section>
+
+</main>
 
 <%- include('../partials/footer') %>

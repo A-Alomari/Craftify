@@ -20,9 +20,9 @@ exports.profile = (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, phone, shipping_address } = req.body;
+    const { name, phone, shipping_address, city, country, postal_code } = req.body;
 
-    const updates = { name, phone, shipping_address };
+    const updates = { name, phone, shipping_address, city, country, postal_code };
     if (req.file) {
       updates.avatar = `/uploads/${req.file.filename}`;
     }

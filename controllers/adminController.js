@@ -720,10 +720,12 @@ exports.deleteReview = (req, res) => {
 exports.coupons = (req, res) => {
   try {
     const coupons = Coupon.findAll();
+    const artisans = ArtisanProfile.findAll({ approved: true, status: 'active' });
 
     res.render('admin/coupons', {
       title: 'Coupon Management - Craftify',
-      coupons
+      coupons,
+      artisans
     });
   } catch (err) {
     console.error('Admin coupons error:', err);
@@ -733,12 +735,26 @@ exports.coupons = (req, res) => {
 
 exports.createCoupon = (req, res) => {
   try {
-    const { code, description, discount_type, discount_value, min_purchase, max_discount, valid_from, valid_until, usage_limit } = req.body;
+    const {
+      code,
+      description,
+      discount_type,
+      discount_value,
+      min_purchase,
+      max_discount,
+      valid_from,
+      valid_until,
+      usage_limit,
+      scope,
+      artisan_id
+    } = req.body;
 
     const parsedDiscountValue = Number.parseFloat(discount_value);
     const parsedMinPurchase = min_purchase ? Number.parseFloat(min_purchase) : 0;
     const parsedMaxDiscount = max_discount ? Number.parseFloat(max_discount) : null;
     const parsedUsageLimit = usage_limit ? Number.parseInt(usage_limit, 10) : null;
+    const normalizedScope = scope === 'artisan' ? 'artisan' : 'global';
+    const parsedArtisanId = artisan_id ? Number.parseInt(artisan_id, 10) : null;
 
     if (!code || !discount_type || !Number.isFinite(parsedDiscountValue) || parsedDiscountValue <= 0) {
       if (req.xhr) {
@@ -772,6 +788,14 @@ exports.createCoupon = (req, res) => {
       return res.redirect('/admin/coupons');
     }
 
+    if (normalizedScope === 'artisan' && (!Number.isInteger(parsedArtisanId) || parsedArtisanId <= 0)) {
+      if (req.xhr) {
+        return res.status(400).json({ success: false, message: 'Please select an artisan for artisan-scoped coupons' });
+      }
+      req.flash('error_msg', 'Please select an artisan for artisan-scoped coupons');
+      return res.redirect('/admin/coupons');
+    }
+
     Coupon.create({
       code,
       description,
@@ -781,7 +805,10 @@ exports.createCoupon = (req, res) => {
       max_discount: parsedMaxDiscount,
       valid_from: valid_from || null,
       valid_until: valid_until || null,
-      usage_limit: parsedUsageLimit
+      usage_limit: parsedUsageLimit,
+      scope: normalizedScope,
+      artisan_id: normalizedScope === 'artisan' ? parsedArtisanId : null,
+      created_by: req.session.user.id
     });
 
     if (req.xhr) {

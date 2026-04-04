@@ -10,13 +10,13 @@ const expectedCounts = {
   products: 32,
   orders: 5,
   shipments: 5,
-  auctions: 4,
-  bids: 18,
+  auctions: 6,
+  bids: 26,
   reviews: 10,
   wishlist: 6,
-  messages: 4,
-  coupons: 4,
-  notifications: 8
+  messages: 7,
+  coupons: 7,
+  notifications: 12
 };
 
 const tablesToReset = [
@@ -255,14 +255,90 @@ async function seed() {
     console.log('Creating auctions...');
     const insAuc = db.prepare('INSERT INTO auctions (product_id,artisan_id,title,description,starting_price,current_highest_bid,bid_increment,start_time,end_time,status,winner_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
 
-    // Active auction 1 - ending in 2 days
-    const auc1Res = insAuc.run(pid('Vintage Kiln-Fired Vase'), art1, 'Vintage Kiln-Fired Vase', 'Rare kiln-fired vase from the master ceramicist Elena Rodriguez. One-of-a-kind piece.', 80.00, 145.00, 5.00, new Date(now - 3*dayMs).toISOString(), new Date(now + 2*dayMs).toISOString(), 'active', null);
+    // Active auction 1 - longer campaign (9 days remaining)
+    const auc1Res = insAuc.run(
+      pid('Vintage Kiln-Fired Vase'),
+      art1,
+      'Vintage Kiln-Fired Vase',
+      'Rare kiln-fired vase from the master ceramicist Elena Rodriguez. One-of-a-kind piece.',
+      80.00,
+      145.00,
+      5.00,
+      new Date(now - 3 * dayMs).toISOString(),
+      new Date(now + 9 * dayMs).toISOString(),
+      'active',
+      null
+    );
     // Active auction 2 - ending soon (6 hours)
-    const auc2Res = insAuc.run(pid('Indigo Woven Wall Hanging'), art3, 'Indigo Woven Wall Hanging', 'Stunning hand-woven indigo piece. Bidding ending soon!', 120.00, 210.00, 10.00, new Date(now - 2*dayMs).toISOString(), new Date(now + 0.25*dayMs).toISOString(), 'active', null);
-    // Active auction 3 - ending in 4 days
-    const auc3Res = insAuc.run(pid('Raw Silver Signet Ring'), art4, 'Raw Silver Signet Ring', 'Handcrafted signet ring with raw turquoise. A collector piece.', 50.00, 85.00, 5.00, new Date(now - 1*dayMs).toISOString(), new Date(now + 4*dayMs).toISOString(), 'active', null);
+    const auc2Res = insAuc.run(
+      pid('Indigo Woven Wall Hanging'),
+      art3,
+      'Indigo Woven Wall Hanging',
+      'Stunning hand-woven indigo piece. Bidding ending soon!',
+      120.00,
+      210.00,
+      10.00,
+      new Date(now - 2 * dayMs).toISOString(),
+      new Date(now + 0.25 * dayMs).toISOString(),
+      'active',
+      null
+    );
+    // Active auction 3 - long running (14 days remaining)
+    const auc3Res = insAuc.run(
+      pid('Raw Silver Signet Ring'),
+      art4,
+      'Raw Silver Signet Ring',
+      'Handcrafted signet ring with raw turquoise. A collector piece.',
+      50.00,
+      85.00,
+      5.00,
+      new Date(now - 1 * dayMs).toISOString(),
+      new Date(now + 14 * dayMs).toISOString(),
+      'active',
+      null
+    );
     // Ended auction
-    const auc4Res = insAuc.run(pid('Fused Glass Wall Art'), art3, 'Fused Glass Wall Art', 'Beautiful abstract glass art piece.', 100.00, 220.00, 10.00, new Date(now - 10*dayMs).toISOString(), new Date(now - 3*dayMs).toISOString(), 'sold', cust1);
+    const auc4Res = insAuc.run(
+      pid('Fused Glass Wall Art'),
+      art3,
+      'Fused Glass Wall Art',
+      'Beautiful abstract glass art piece.',
+      100.00,
+      220.00,
+      10.00,
+      new Date(now - 10 * dayMs).toISOString(),
+      new Date(now - 3 * dayMs).toISOString(),
+      'sold',
+      cust1
+    );
+    // Active auction 4 - premium leather piece (21 days remaining)
+    const auc5Res = insAuc.run(
+      pid('Artisan Satchel Bag'),
+      art5,
+      'Artisan Satchel Bag Collector Drop',
+      'Limited-run satchel crafted from premium full-grain leather. Long-form bidding window for collectors.',
+      220.00,
+      340.00,
+      15.00,
+      new Date(now - 1 * dayMs).toISOString(),
+      new Date(now + 21 * dayMs).toISOString(),
+      'active',
+      null
+    );
+    // Pending auction - starts soon and runs for a full month
+    const auc6Res = insAuc.run(
+      pid('Moonstone Stacker Rings'),
+      art4,
+      'Moonstone Stacker Rings - Studio Reserve',
+      'Upcoming monthly auction drop for a hand-finished moonstone ring set.',
+      70.00,
+      null,
+      5.00,
+      new Date(now + 2 * dayMs).toISOString(),
+      new Date(now + 35 * dayMs).toISOString(),
+      'pending',
+      null
+    );
 
     // ── Bids ──
     console.log('Creating bids...');
@@ -293,6 +369,16 @@ async function seed() {
   insBid.run(auc4Res.lastInsertRowid, cust1, 160.00, 0, new Date(now - 6*dayMs).toISOString());
   insBid.run(auc4Res.lastInsertRowid, cust3, 200.00, 0, new Date(now - 5*dayMs).toISOString());
   insBid.run(auc4Res.lastInsertRowid, cust1, 220.00, 1, new Date(now - 4*dayMs).toISOString());
+
+  // Bids on long-running premium auction
+  insBid.run(auc5Res.lastInsertRowid, cust1, 235.00, 0, new Date(now - 0.9*dayMs).toISOString());
+  insBid.run(auc5Res.lastInsertRowid, cust2, 255.00, 0, new Date(now - 0.75*dayMs).toISOString());
+  insBid.run(auc5Res.lastInsertRowid, cust3, 270.00, 0, new Date(now - 0.6*dayMs).toISOString());
+  insBid.run(auc5Res.lastInsertRowid, cust1, 290.00, 0, new Date(now - 0.45*dayMs).toISOString());
+  insBid.run(auc5Res.lastInsertRowid, cust2, 305.00, 0, new Date(now - 0.3*dayMs).toISOString());
+  insBid.run(auc5Res.lastInsertRowid, cust3, 320.00, 0, new Date(now - 0.2*dayMs).toISOString());
+  insBid.run(auc5Res.lastInsertRowid, cust1, 335.00, 0, new Date(now - 0.12*dayMs).toISOString());
+  insBid.run(auc5Res.lastInsertRowid, cust2, 340.00, 1, new Date(now - 0.08*dayMs).toISOString());
 
     // ── Reviews ──
     console.log('Creating reviews...');
@@ -325,14 +411,20 @@ async function seed() {
   insMsg.run(art1, cust1, 'Re: Custom vase inquiry', "Thank you for reaching out! I'd be happy to create a custom piece. Taller forms work beautifully with wood firing. Let's discuss dimensions and timeline. A custom piece would be around $200-250.", 1, new Date(now - 4.5*dayMs).toISOString());
   insMsg.run(cust2, art5, 'Leather color options', 'Do you offer the satchel bag in a lighter tan color? The dark brown is gorgeous but I prefer something lighter.', 0, new Date(now - 2*dayMs).toISOString());
   insMsg.run(cust3, art4, 'Ring sizing question', 'What sizes do you carry for the Moonstone Stacker Rings? My ring size is 7.', 0, new Date(now - 1*dayMs).toISOString());
+  insMsg.run(art5, cust2, 'Re: Leather color options', 'Absolutely. I can finish the satchel in saddle tan and share a photo before shipping.', 0, new Date(now - 1.7*dayMs).toISOString());
+  insMsg.run(cust1, art2, 'Wood stool delivery timeline', 'If I place an order today for the walnut stool, when could it be delivered?', 0, new Date(now - 0.9*dayMs).toISOString());
+  insMsg.run(art2, cust1, 'Re: Wood stool delivery timeline', 'Current lead time is 5-7 days. I can rush one for next week if needed.', 0, new Date(now - 0.8*dayMs).toISOString());
 
     // ── Coupons ──
     console.log('Creating coupons...');
-    const insCoup = db.prepare('INSERT INTO coupons (code,description,type,value,min_order,max_uses,used_count,is_active,expires_at) VALUES (?,?,?,?,?,?,?,1,?)');
-  insCoup.run('WELCOME10', 'Welcome discount - 10% off your first order', 'percent', 10, 20, 100, 3, new Date(now + 90*dayMs).toISOString());
-  insCoup.run('SAVE5', '$5 off orders over $30', 'fixed', 5, 30, null, 8, new Date(now + 60*dayMs).toISOString());
-  insCoup.run('ARTISAN20', '20% off for artisan appreciation week', 'percent', 20, 50, 50, 0, new Date(now + 14*dayMs).toISOString());
-  insCoup.run('FREESHIP', 'Free shipping on orders over $100', 'fixed', 5, 100, 200, 12, new Date(now + 30*dayMs).toISOString());
+    const insCoup = db.prepare('INSERT INTO coupons (code,description,type,discount_type,value,discount_value,min_order,min_purchase,max_uses,usage_limit,used_count,times_used,is_active,active,scope,artisan_id,created_by,expires_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?,?,?)');
+  insCoup.run('WELCOME10', 'Welcome discount - 10% off your first order', 'percent', 'percent', 10, 10, 20, 20, 100, 100, 3, 3, 'global', null, adminId, new Date(now + 90*dayMs).toISOString());
+  insCoup.run('SAVE5', '$5 off orders over $30', 'fixed', 'fixed', 5, 5, 30, 30, null, null, 8, 8, 'global', null, adminId, new Date(now + 60*dayMs).toISOString());
+  insCoup.run('ARTISAN20', '20% off for artisan appreciation week', 'percent', 'percent', 20, 20, 50, 50, 50, 50, 0, 0, 'global', null, adminId, new Date(now + 14*dayMs).toISOString());
+  insCoup.run('FREESHIP', 'Shipping rebate on orders over $100', 'fixed', 'fixed', 5, 5, 100, 100, 200, 200, 12, 12, 'global', null, adminId, new Date(now + 30*dayMs).toISOString());
+  insCoup.run('ELENA15', '15% off Elena\'s Ceramics collection', 'percent', 'percent', 15, 15, 40, 40, 120, 120, 6, 6, 'artisan', art1, art1, new Date(now + 45*dayMs).toISOString());
+  insCoup.run('THORNE25', '$25 off Thorne Woodcraft over $180', 'fixed', 'fixed', 25, 25, 180, 180, 40, 40, 2, 2, 'artisan', art2, art2, new Date(now + 21*dayMs).toISOString());
+  insCoup.run('YUKIGLASS10', '10% off Yuki Glass Studio pieces', 'percent', 'percent', 10, 10, 60, 60, 90, 90, 4, 4, 'artisan', art3, art3, new Date(now + 55*dayMs).toISOString());
 
     // ── Notifications ──
     console.log('Creating notifications...');
@@ -345,6 +437,10 @@ async function seed() {
   insNotif.run(art1, 'order', 'New Order Received!', 'You have a new order for Vintage Kiln-Fired Vase and Rustic Breakfast Bowl Set.', '/artisan/orders', 1, new Date(now - 14*dayMs).toISOString());
   insNotif.run(art1, 'auction', 'Auction Activity', 'Your Vintage Kiln-Fired Vase auction has received 6 bids!', `/artisan/auctions`, 0, new Date(now - 0.3*dayMs).toISOString());
   insNotif.run(art2, 'order', 'New Order!', 'You received a new order for Walnut Joinery Stool.', '/artisan/orders', 0, new Date(now - 5*dayMs).toISOString());
+  insNotif.run(cust2, 'message', 'Reply from Okafor Leather Co.', 'Your artisan replied with color options for the satchel.', `/user/messages/${art5}`, 0, new Date(now - 1.6*dayMs).toISOString());
+  insNotif.run(cust1, 'promotion', 'Shop Offer Unlocked', 'Use ELENA15 on eligible Elena ceramics items this month.', '/products', 0, new Date(now - 0.9*dayMs).toISOString());
+  insNotif.run(art5, 'auction', 'Premium Auction Momentum', 'Your satchel auction crossed 8 bids and reached $340.', '/artisan/auctions', 0, new Date(now - 0.08*dayMs).toISOString());
+  insNotif.run(art4, 'auction', 'Upcoming Auction Scheduled', 'Your Moonstone Stacker Rings auction will open in 2 days.', '/artisan/auctions', 0, new Date(now - 0.2*dayMs).toISOString());
 
     // Verify expected row counts before announcing success.
     verifyCounts(db);
@@ -377,12 +473,12 @@ async function seed() {
     console.log('   - 5 Artisan Shops with bios');
     console.log('   - 32 Products with real Unsplash images');
     console.log('   - 5 Orders with shipments');
-    console.log('   - 4 Auctions (3 active, 1 ended) with 18 bids');
+    console.log('   - 6 Auctions (4 active, 1 pending, 1 ended) with 26 bids');
     console.log('   - 10 Reviews');
     console.log('   - 6 Wishlist items');
-    console.log('   - 4 Messages');
-    console.log('   - 4 Coupons (WELCOME10, SAVE5, ARTISAN20, FREESHIP)');
-    console.log('   - 8 Notifications');
+    console.log('   - 7 Messages');
+    console.log('   - 7 Coupons (global + artisan-scoped)');
+    console.log('   - 12 Notifications');
     console.log('');
   } catch (err) {
     if (inTransaction) {

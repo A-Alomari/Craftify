@@ -384,7 +384,8 @@ io.on('connection', (socket) => {
         'Invalid bid amount',
         'Auction not found',
         'Auction is not active',
-        'Auction has ended'
+        'Auction has ended',
+        'You cannot bid on your own auction'
       ].includes(message) || /^Minimum bid is \$\d+\.\d{2}$/.test(message);
 
       socket.emit('bidError', {

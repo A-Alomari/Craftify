@@ -18,6 +18,14 @@ exports.checkout = (req, res) => {
       return res.redirect('/cart');
     }
 
+    if (req.session.user.role === 'artisan') {
+      const ownItem = items.find((item) => Number.parseInt(item.artisan_id, 10) === Number.parseInt(userId, 10));
+      if (ownItem) {
+        req.flash('error_msg', 'You cannot buy your own product. Remove it from the cart to continue.');
+        return res.redirect('/cart');
+      }
+    }
+
     const stockIssues = Cart.validateItems(userId);
     if (stockIssues.length > 0) {
       req.flash('error_msg', `Stock issue: ${stockIssues[0].name} only has ${stockIssues[0].available} available`);
@@ -28,7 +36,7 @@ exports.checkout = (req, res) => {
     const appliedCoupon = req.session.appliedCoupon;
     let discount = 0;
     if (appliedCoupon) {
-      const validation = Coupon.validate(appliedCoupon.code, totals.total);
+      const validation = Coupon.validate(appliedCoupon.code, totals.total, items);
       if (validation.valid) discount = validation.discount;
     }
 
@@ -70,6 +78,14 @@ exports.placeOrder = (req, res) => {
     if (items.length === 0) {
       req.flash('error_msg', 'Your cart is empty');
       return res.redirect('/cart');
+    }
+
+    if (req.session.user.role === 'artisan') {
+      const ownItem = items.find((item) => Number.parseInt(item.artisan_id, 10) === Number.parseInt(userId, 10));
+      if (ownItem) {
+        req.flash('error_msg', 'You cannot buy your own product. Remove it from the cart to continue.');
+        return res.redirect('/cart');
+      }
     }
 
     const stockIssues = Cart.validateItems(userId);

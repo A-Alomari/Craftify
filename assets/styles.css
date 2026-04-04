@@ -4009,6 +4009,104 @@ h3 {
     --tw-scale-y: 1.01
 }
 
+.craft-toast-stack {
+    position: fixed;
+    top: 5.5rem;
+    right: 1rem;
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    width: min(22rem, calc(100vw - 2rem))
+}
+
+.craft-toast {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: .75rem;
+    padding: .8rem .9rem;
+    border-radius: .95rem;
+    border: 1px solid rgba(15, 23, 42, .12);
+    background: linear-gradient(135deg, #fffbeb 0%, #fff7ed 100%);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, .14);
+    color: #1f2937;
+    transform: translateY(-8px) scale(.98);
+    opacity: 0;
+    transition: transform .22s ease, opacity .22s ease
+}
+
+.craft-toast.is-visible {
+    transform: translateY(0) scale(1);
+    opacity: 1
+}
+
+.craft-toast.is-leaving {
+    transform: translateY(-8px) scale(.98);
+    opacity: 0
+}
+
+.craft-toast__icon {
+    font-variation-settings: 'FILL' 1;
+    font-size: 1.25rem
+}
+
+.craft-toast__text {
+    margin: 0;
+    font-size: .84rem;
+    font-weight: 600;
+    line-height: 1.35
+}
+
+.craft-toast__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 999px;
+    color: inherit;
+    background: rgba(255, 255, 255, .45);
+    transition: background-color .2s ease
+}
+
+.craft-toast__close:hover {
+    background: rgba(255, 255, 255, .75)
+}
+
+.craft-toast--success {
+    background: linear-gradient(135deg, #ecfdf3 0%, #dcfce7 100%);
+    color: #166534;
+    border-color: rgba(22, 101, 52, .2)
+}
+
+.craft-toast--error {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    color: #991b1b;
+    border-color: rgba(153, 27, 27, .18)
+}
+
+.craft-toast--warning {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    color: #92400e;
+    border-color: rgba(146, 64, 14, .2)
+}
+
+.craft-toast--info {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    color: #1e3a8a;
+    border-color: rgba(30, 58, 138, .2)
+}
+
+@media (max-width: 640px) {
+    .craft-toast-stack {
+        top: 5rem;
+        right: .75rem;
+        left: .75rem;
+        width: auto
+    }
+}
+
 .hover\:scale-\[1\.02\]:hover {
     --tw-scale-x: 1.02;
     --tw-scale-y: 1.02;

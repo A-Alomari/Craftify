@@ -2,6 +2,11 @@ const { getDb } = require('../config/database');
 const bcrypt = require('bcryptjs');
 
 class User {
+  static normalizePhone(phone) {
+    if (!phone) return '';
+    return String(phone).trim().replace(/[\s().-]/g, '');
+  }
+
   static findById(id) {
     const db = getDb();
     return db.prepare('SELECT * FROM users WHERE id = ?').get(id);
@@ -10,6 +15,31 @@ class User {
   static findByEmail(email) {
     const db = getDb();
     return db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase());
+  }
+
+  static findByPhone(phone) {
+    const db = getDb();
+    const normalizedPhone = this.normalizePhone(phone);
+    if (!normalizedPhone) return undefined;
+
+    const normalizedPhoneNoPlus = normalizedPhone.replace(/^\+/, '');
+    return db.prepare(`
+      SELECT * FROM users
+      WHERE REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(phone, ''), ' ', ''), '-', ''), '(', ''), ')', ''), '.', '') = ?
+         OR REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(phone, ''), ' ', ''), '-', ''), '(', ''), ')', ''), '.', '') = ?
+      LIMIT 1
+    `).get(normalizedPhone, normalizedPhoneNoPlus);
+  }
+
+  static findByIdentifier(identifier) {
+    const value = String(identifier || '').trim();
+    if (!value) return undefined;
+
+    if (value.includes('@')) {
+      return this.findByEmail(value);
+    }
+
+    return this.findByPhone(value) || this.findByEmail(value);
   }
 
   static findAll(filters = {}) {
@@ -66,8 +96,8 @@ class User {
     return this.findById(result.lastInsertRowid);
   }
 
-  static async verifyPassword(email, password) {
-    const user = this.findByEmail(email);
+  static async verifyPassword(identifier, password) {
+    const user = this.findByIdentifier(identifier);
     if (!user) return null;
 
     const isValid = await bcrypt.compare(password, user.password);

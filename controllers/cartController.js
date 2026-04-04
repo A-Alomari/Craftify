@@ -26,7 +26,7 @@ exports.index = (req, res) => {
     const appliedCoupon = req.session.appliedCoupon || null;
     let discount = 0;
     if (appliedCoupon) {
-      const validation = Coupon.validate(appliedCoupon.code, totals.total);
+      const validation = Coupon.validate(appliedCoupon.code, totals.total, items);
       if (validation.valid) {
         discount = validation.discount;
       } else {
@@ -67,6 +67,16 @@ exports.addItem = (req, res) => {
     if (!product || product.status !== 'approved') {
       if (req.xhr) return res.status(404).json({ success: false, message: 'Product not found' });
       req.flash('error_msg', 'Product not found');
+      return res.redirect(getBackUrl(req));
+    }
+
+    if (
+      req.session.user
+      && req.session.user.role === 'artisan'
+      && Number.parseInt(product.artisan_id, 10) === Number.parseInt(req.session.user.id, 10)
+    ) {
+      if (req.xhr) return res.status(403).json({ success: false, message: 'You cannot buy your own product' });
+      req.flash('error_msg', 'You cannot buy your own product');
       return res.redirect(getBackUrl(req));
     }
 
@@ -185,7 +195,8 @@ exports.applyCoupon = (req, res) => {
     const sessionId = !userId ? req.sessionID : null;
 
     const totals = Cart.getTotal(userId, sessionId);
-    const validation = Coupon.validate(code, totals.total);
+    const items = Cart.getItems(userId, sessionId);
+    const validation = Coupon.validate(code, totals.total, items);
 
     if (!validation.valid) {
       if (req.xhr) return res.status(400).json({ success: false, message: validation.error });

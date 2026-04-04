@@ -13,15 +13,33 @@ class Coupon {
 
   static findAll(filters = {}) {
     const db = getDb();
-    let query = 'SELECT * FROM coupons WHERE 1=1';
+    let query = `
+      SELECT c.*, ap.shop_name as artisan_shop_name, u.name as artisan_name
+      FROM coupons c
+      LEFT JOIN artisan_profiles ap ON c.artisan_id = ap.user_id
+      LEFT JOIN users u ON c.artisan_id = u.id
+      WHERE 1=1
+    `;
     const params = [];
 
     if (filters.active !== undefined) {
-      query += ' AND is_active = ?';
+      query += ' AND c.is_active = ?';
       params.push(filters.active ? 1 : 0);
     }
+    if (filters.scope) {
+      query += ' AND c.scope = ?';
+      params.push(filters.scope);
+    }
+    if (filters.artisan_id) {
+      query += ' AND c.artisan_id = ?';
+      params.push(filters.artisan_id);
+    }
+    if (filters.created_by) {
+      query += ' AND c.created_by = ?';
+      params.push(filters.created_by);
+    }
 
-    query += ' ORDER BY created_at DESC';
+    query += ' ORDER BY c.created_at DESC';
 
     if (filters.limit) {
       query += ' LIMIT ?';
@@ -36,20 +54,21 @@ class Coupon {
     const {
       code, description = '', discount_type = 'percent', discount_value,
       min_purchase = 0, max_discount = null, valid_from = null,
-      valid_until = null, usage_limit = null
+      valid_until = null, usage_limit = null,
+      scope = 'global', artisan_id = null, created_by = null
     } = couponData;
 
     const result = db.prepare(`
       INSERT INTO coupons (
         code, description, type, discount_type, value, discount_value,
         min_order, min_purchase, max_discount, max_uses, usage_limit,
-        valid_from, valid_until, is_active, active
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1)
+        valid_from, valid_until, scope, artisan_id, created_by, is_active, active
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1)
     `).run(
       code.toUpperCase(), description, discount_type, discount_type,
       discount_value, discount_value,
       min_purchase, min_purchase, max_discount, usage_limit, usage_limit,
-      valid_from, valid_until
+      valid_from, valid_until, scope, artisan_id, created_by
     );
 
     return this.findById(result.lastInsertRowid);
@@ -63,7 +82,8 @@ class Coupon {
     const allowedColumns = [
       'code', 'description', 'type', 'discount_type', 'value', 'discount_value',
       'min_order', 'min_purchase', 'max_discount', 'max_uses', 'usage_limit',
-      'used_count', 'times_used', 'is_active', 'active', 'valid_from', 'valid_until', 'expires_at'
+      'used_count', 'times_used', 'is_active', 'active', 'valid_from', 'valid_until', 'expires_at',
+      'scope', 'artisan_id', 'created_by'
     ];
 
     Object.entries(couponData).forEach(([key, value]) => {
@@ -86,7 +106,48 @@ class Coupon {
     return db.prepare('DELETE FROM coupons WHERE id = ?').run(id);
   }
 
-  static validate(code, cartTotal) {
+  static getScope(coupon) {
+    if (coupon.scope) return coupon.scope;
+    if (coupon.artisan_id) return 'artisan';
+    return 'global';
+  }
+
+  static getCartTotalFromItems(cartItems = []) {
+    if (!Array.isArray(cartItems) || cartItems.length === 0) {
+      return 0;
+    }
+
+    return cartItems.reduce((sum, item) => {
+      const quantity = Number.parseInt(item.quantity, 10) || 0;
+      const price = Number.parseFloat(item.price || item.unit_price) || 0;
+      return sum + (quantity * price);
+    }, 0);
+  }
+
+  static getEligibleTotal(coupon, cartItems = [], fallbackTotal = 0) {
+    const scope = this.getScope(coupon);
+    if (scope !== 'artisan' || !coupon.artisan_id) {
+      return Number.isFinite(fallbackTotal) ? fallbackTotal : this.getCartTotalFromItems(cartItems);
+    }
+
+    if (!Array.isArray(cartItems) || cartItems.length === 0) {
+      return 0;
+    }
+
+    const targetArtisanId = Number.parseInt(coupon.artisan_id, 10);
+    return cartItems.reduce((sum, item) => {
+      const itemArtisanId = Number.parseInt(item.artisan_id, 10);
+      if (!Number.isInteger(targetArtisanId) || itemArtisanId !== targetArtisanId) {
+        return sum;
+      }
+
+      const quantity = Number.parseInt(item.quantity, 10) || 0;
+      const price = Number.parseFloat(item.price || item.unit_price) || 0;
+      return sum + (quantity * price);
+    }, 0);
+  }
+
+  static validate(code, cartTotal, cartItems = []) {
     const coupon = this.findByCode(code);
     if (!coupon) {
       return { valid: false, error: 'Invalid coupon code' };
@@ -108,9 +169,14 @@ class Coupon {
     if (usageLimit && timesUsed >= usageLimit) {
       return { valid: false, error: 'Coupon usage limit reached' };
     }
+
+    const eligibleTotal = this.getEligibleTotal(coupon, cartItems, cartTotal);
+    if (this.getScope(coupon) === 'artisan' && eligibleTotal <= 0) {
+      return { valid: false, error: 'This promo code applies only to the artisan shop that created it' };
+    }
     
     const minPurchase = coupon.min_purchase || coupon.min_order || 0;
-    if (cartTotal < minPurchase) {
+    if (eligibleTotal < minPurchase) {
       return { valid: false, error: `Minimum purchase of $${minPurchase} required` };
     }
 
@@ -119,7 +185,7 @@ class Coupon {
     const discountValue = coupon.discount_value || coupon.value;
     let discount;
     if (discountType === 'percent') {
-      discount = cartTotal * (discountValue / 100);
+      discount = eligibleTotal * (discountValue / 100);
       if (coupon.max_discount && discount > coupon.max_discount) {
         discount = coupon.max_discount;
       }
@@ -130,8 +196,14 @@ class Coupon {
     return {
       valid: true,
       coupon,
-      discount: Math.min(discount, cartTotal)
+      discount: Math.min(discount, eligibleTotal),
+      eligibleTotal
     };
+  }
+
+  static validateForCart(code, cartItems = []) {
+    const cartTotal = this.getCartTotalFromItems(cartItems);
+    return this.validate(code, cartTotal, cartItems);
   }
 
   static use(code) {

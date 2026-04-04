@@ -1,10 +1,8 @@
 <%- include('../partials/header', { title: title }) %>
 
-<section class="max-w-7xl mx-auto px-6 py-10">
-  <div class="mb-10">
-    <%- include('../user/partials/account-nav') %>
-  </div>
+<main class="flex-grow min-h-screen">
 
+<section class="max-w-7xl mx-auto px-6 py-10">
   <div class="mb-6">
     <span class="font-label text-xs uppercase tracking-[0.2em] text-primary font-semibold">Auction Desk</span>
     <h1 class="font-headline text-3xl text-on-surface mt-2">My Bids</h1>
@@ -46,5 +44,7 @@
     </div>
   <% } %>
 </section>
+
+</main>
 
 <%- include('../partials/footer') %>

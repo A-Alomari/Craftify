@@ -8,22 +8,21 @@
 
     <section class="max-w-7xl mx-auto mt-8 mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
       <div>
-        <span class="font-label text-xs tracking-[0.2em] text-primary font-semibold uppercase">Administration</span>
-        <h1 class="font-headline text-3xl text-on-surface mt-2">Coupon Management</h1>
-        <p class="text-secondary mt-1">Create and control promotional pricing campaigns.</p>
+        <span class="font-label text-xs tracking-[0.2em] text-primary font-semibold uppercase">Artisan Studio</span>
+        <h1 class="font-headline text-3xl text-on-surface mt-2">Promo Codes</h1>
+        <p class="text-secondary mt-1">Create offers that apply only to products from your own shop.</p>
       </div>
-      <p class="text-xs text-secondary uppercase tracking-widest">Coupons: <%= coupons ? coupons.length : 0 %></p>
+      <p class="text-xs text-secondary uppercase tracking-widest">Codes: <%= coupons ? coupons.length : 0 %></p>
     </section>
 
     <section class="max-w-7xl mx-auto bg-surface-container-lowest rounded-xl p-5 md:p-6 mb-6">
-      <h2 class="font-headline text-xl text-on-surface mb-4">Create Coupon</h2>
-      <% const artisanOptions = Array.isArray(artisans) ? artisans : []; %>
-      <form action="/admin/coupons" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <h2 class="font-headline text-xl text-on-surface mb-4">Create Artisan Promo Code</h2>
+      <form action="/artisan/coupons" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
 
         <div>
           <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Code</label>
-          <input type="text" name="code" required class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+          <input type="text" name="code" required class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container" placeholder="MYSHOP10">
         </div>
 
         <div>
@@ -44,27 +43,9 @@
           <input type="number" name="min_purchase" step="0.01" min="0" value="0" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
         </div>
 
-        <div>
-          <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Scope</label>
-          <select name="scope" id="couponScopeSelect" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
-            <option value="global">Global (all products)</option>
-            <option value="artisan">Artisan only</option>
-          </select>
-        </div>
-
-        <div id="couponArtisanSelectWrap" class="hidden">
-          <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Target Artisan</label>
-          <select name="artisan_id" id="couponArtisanSelect" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
-            <option value="">Select artisan</option>
-            <% artisanOptions.forEach(function(artisan) { %>
-              <option value="<%= artisan.user_id %>"><%= artisan.shop_name || artisan.name %> (<%= artisan.name %>)</option>
-            <% }); %>
-          </select>
-        </div>
-
         <div class="md:col-span-2">
           <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Description</label>
-          <input type="text" name="description" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+          <input type="text" name="description" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container" placeholder="Seasonal offer for your shop">
         </div>
 
         <div>
@@ -88,7 +69,7 @@
         </div>
 
         <div class="md:col-span-2 flex justify-end">
-          <button type="submit" class="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-xl font-semibold text-sm">Create Coupon</button>
+          <button type="submit" class="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-xl font-semibold text-sm">Create Promo Code</button>
         </div>
       </form>
     </section>
@@ -100,9 +81,9 @@
             <thead>
               <tr class="text-[10px] font-bold text-secondary uppercase tracking-widest border-b border-surface-container-high">
                 <th class="px-6 py-4">Code</th>
-                <th class="px-6 py-4">Scope</th>
                 <th class="px-6 py-4">Type</th>
                 <th class="px-6 py-4">Value</th>
+                <th class="px-6 py-4">Min Purchase</th>
                 <th class="px-6 py-4">Used</th>
                 <th class="px-6 py-4">Status</th>
                 <th class="px-6 py-4 text-right">Action</th>
@@ -114,30 +95,23 @@
                 <% const couponValue = Number(c.value || c.discount_value || 0); %>
                 <% const couponUsed = c.times_used || c.used_count || 0; %>
                 <% const couponActive = c.is_active === 1 || c.is_active === true || c.active === 1 || c.active === true; %>
-                <% const couponScope = c.scope || (c.artisan_id ? 'artisan' : 'global'); %>
+                <% const minPurchase = Number(c.min_purchase || c.min_order || 0); %>
                 <tr class="hover:bg-surface-container-low/20 transition-colors">
                   <td class="px-6 py-5 text-sm font-semibold text-on-surface"><span class="bg-surface-container-low px-2 py-1 rounded"><%= c.code %></span></td>
-                  <td class="px-6 py-5 text-sm text-on-surface">
-                    <% if (couponScope === 'artisan') { %>
-                      <span class="inline-flex items-center rounded-full bg-amber-100 text-amber-800 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest">Artisan</span>
-                      <div class="text-xs text-secondary mt-1"><%= c.artisan_shop_name || c.artisan_name || 'Assigned artisan' %></div>
-                    <% } else { %>
-                      <span class="inline-flex items-center rounded-full bg-blue-100 text-blue-800 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest">Global</span>
-                    <% } %>
-                  </td>
                   <td class="px-6 py-5 text-sm text-on-surface"><%= couponType %></td>
                   <td class="px-6 py-5 text-sm text-on-surface"><%= couponType === 'percent' ? `${couponValue}%` : `$${couponValue.toFixed(2)}` %></td>
+                  <td class="px-6 py-5 text-sm text-on-surface">$<%= minPurchase.toFixed(2) %></td>
                   <td class="px-6 py-5 text-sm text-on-surface"><%= couponUsed %></td>
                   <td class="px-6 py-5">
                     <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest <%= couponActive ? 'bg-emerald-100 text-emerald-700' : 'bg-surface-container-high text-on-surface' %>"><%= couponActive ? 'Active' : 'Inactive' %></span>
                   </td>
                   <td class="px-6 py-5 text-right">
                     <div class="inline-flex gap-2">
-                      <form action="/admin/coupons/<%= c.id %>/toggle" method="POST" class="inline-block">
+                      <form action="/artisan/coupons/<%= c.id %>/toggle" method="POST" class="inline-block">
                         <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                         <button class="bg-surface-container-high text-on-surface hover:bg-surface-container-highest px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"><%= couponActive ? 'Deactivate' : 'Activate' %></button>
                       </form>
-                      <form action="/admin/coupons/<%= c.id %>/delete" method="POST" class="inline-block" onsubmit="return confirm('Delete this coupon?');">
+                      <form action="/artisan/coupons/<%= c.id %>/delete" method="POST" class="inline-block" onsubmit="return confirm('Delete this promo code?');">
                         <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                         <button class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Delete</button>
                       </form>
@@ -150,33 +124,12 @@
         </div>
       <% } else { %>
         <div class="py-14 text-center">
-          <span class="material-symbols-outlined text-5xl text-secondary/60">sell</span>
-          <p class="text-secondary mt-3">No coupons created yet.</p>
+          <span class="material-symbols-outlined text-5xl text-secondary/60">local_offer</span>
+          <p class="text-secondary mt-3">No promo codes yet. Create your first offer.</p>
         </div>
       <% } %>
     </section>
   </main>
 </div>
-
-<script>
-  (function() {
-    const scopeSelect = document.getElementById('couponScopeSelect');
-    const artisanWrap = document.getElementById('couponArtisanSelectWrap');
-    const artisanSelect = document.getElementById('couponArtisanSelect');
-    if (!scopeSelect || !artisanWrap || !artisanSelect) return;
-
-    const syncScopeFields = function() {
-      const isArtisan = scopeSelect.value === 'artisan';
-      artisanWrap.classList.toggle('hidden', !isArtisan);
-      artisanSelect.required = isArtisan;
-      if (!isArtisan) {
-        artisanSelect.value = '';
-      }
-    };
-
-    scopeSelect.addEventListener('change', syncScopeFields);
-    syncScopeFields();
-  })();
-</script>
 
 <%- include('../partials/footer') %>

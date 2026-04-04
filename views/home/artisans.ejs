@@ -1,5 +1,7 @@
 <%- include('../partials/header', { title: title }) %>
 
+<main class="flex-grow min-h-screen">
+
 <%
   const artisanList = Array.isArray(artisans) ? artisans : [];
   
@@ -146,5 +148,7 @@
     </a>
   </div>
 </section>
+
+</main>
 
 <%- include('../partials/footer') %>

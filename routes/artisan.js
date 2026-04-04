@@ -42,6 +42,12 @@ router.post('/auctions/:id/cancel', isApprovedArtisan, artisanController.cancelA
 // Reviews
 router.get('/reviews', isApprovedArtisan, artisanController.reviews);
 
+// Coupons
+router.get('/coupons', isApprovedArtisan, artisanController.coupons);
+router.post('/coupons', isApprovedArtisan, artisanController.createCoupon);
+router.post('/coupons/:id/toggle', isApprovedArtisan, artisanController.toggleCoupon);
+router.post('/coupons/:id/delete', isApprovedArtisan, artisanController.deleteCoupon);
+
 // Analytics
 router.get('/analytics', isApprovedArtisan, artisanController.analytics);
 

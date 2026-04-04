@@ -1,5 +1,7 @@
 <%- include('../partials/header', { title: title }) %>
 
+<main class="flex-grow min-h-screen">
+
 <%
   const wishlistItems = Array.isArray(items) ? items : [];
 
@@ -24,10 +26,6 @@
 %>
 
 <section class="pt-12 pb-20 px-8 max-w-screen-2xl mx-auto">
-  <div class="mb-10">
-    <%- include('./partials/account-nav') %>
-  </div>
-
   <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
     <div>
       <div class="flex items-center gap-3 mb-2">
@@ -148,5 +146,7 @@
     </div>
   <% } %>
 </section>
+
+</main>
 
 <%- include('../partials/footer') %>

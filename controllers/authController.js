@@ -36,15 +36,16 @@ exports.showLogin = (req, res) => {
 // Process login
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { identifier, email, phone, password } = req.body;
+    const loginIdentifier = sanitizeString(identifier || email || phone || '');
     const previousSessionId = req.sessionID;
 
-    if (!email || !password) {
+    if (!loginIdentifier || !password) {
       req.flash('error_msg', 'Please fill in all fields');
       return res.redirect('/auth/login');
     }
 
-    const user = await User.verifyPassword(email, password);
+    const user = await User.verifyPassword(loginIdentifier, password);
     if (!user) {
       req.flash('error_msg', 'Invalid email or password');
       return res.redirect('/auth/login');

@@ -249,6 +249,9 @@ const schema = `
     times_used INTEGER DEFAULT 0,
     is_active INTEGER DEFAULT 1,
     active INTEGER DEFAULT 1,
+    scope TEXT DEFAULT 'global',
+    artisan_id INTEGER,
+    created_by INTEGER,
     valid_from DATETIME,
     valid_until DATETIME,
     expires_at DATETIME,
@@ -301,6 +304,8 @@ const schema = `
   CREATE INDEX IF NOT EXISTS idx_messages_receiver_read_created ON messages(receiver_id, is_read, created_at);
   CREATE INDEX IF NOT EXISTS idx_messages_sender_created ON messages(sender_id, created_at);
   CREATE INDEX IF NOT EXISTS idx_messages_sender_receiver_created ON messages(sender_id, receiver_id, created_at);
+  CREATE INDEX IF NOT EXISTS idx_coupons_scope ON coupons(scope);
+  CREATE INDEX IF NOT EXISTS idx_coupons_artisan ON coupons(artisan_id);
   CREATE INDEX IF NOT EXISTS idx_password_resets_token_used_expires ON password_resets(token, used, expires_at);
 `;
 
@@ -627,6 +632,49 @@ function ensureCartItemUniqueness(sqlDb) {
   `);
 }
 
+function getTableColumns(sqlDb, tableName) {
+  const result = sqlDb.exec(`PRAGMA table_info(${tableName})`);
+  if (!result || result.length === 0) {
+    return [];
+  }
+
+  const { columns, values } = result[0];
+  const nameIndex = columns.indexOf('name');
+  if (nameIndex < 0) {
+    return [];
+  }
+
+  return values.map((row) => String(row[nameIndex]));
+}
+
+function ensureCouponScopeColumns(sqlDb) {
+  const tableCheck = sqlDb.exec("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'coupons';");
+  const couponsExists = Array.isArray(tableCheck)
+    && tableCheck.length > 0
+    && Array.isArray(tableCheck[0].values)
+    && tableCheck[0].values.length > 0;
+
+  if (!couponsExists) {
+    return;
+  }
+
+  const columns = new Set(getTableColumns(sqlDb, 'coupons'));
+
+  if (!columns.has('scope')) {
+    sqlDb.run("ALTER TABLE coupons ADD COLUMN scope TEXT DEFAULT 'global';");
+  }
+  if (!columns.has('artisan_id')) {
+    sqlDb.run('ALTER TABLE coupons ADD COLUMN artisan_id INTEGER;');
+  }
+  if (!columns.has('created_by')) {
+    sqlDb.run('ALTER TABLE coupons ADD COLUMN created_by INTEGER;');
+  }
+
+  sqlDb.run("UPDATE coupons SET scope = 'global' WHERE scope IS NULL OR trim(scope) = '';");
+  sqlDb.run('CREATE INDEX IF NOT EXISTS idx_coupons_scope ON coupons(scope);');
+  sqlDb.run('CREATE INDEX IF NOT EXISTS idx_coupons_artisan ON coupons(artisan_id);');
+}
+
 async function initDatabase() {
   SQL = await initSqlJs();
   
@@ -654,6 +702,7 @@ async function initDatabase() {
     }
 
     ensureCartItemUniqueness(db.sqlDb);
+    ensureCouponScopeColumns(db.sqlDb);
 
     db.save(true);
     console.log('Database initialized successfully');

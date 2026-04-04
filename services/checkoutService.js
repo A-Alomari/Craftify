@@ -32,8 +32,13 @@ function createOrderFromCheckout({ userId, checkoutData, cartItems, totals, appl
   let discount = 0;
   let couponCode = null;
 
+  const ownItem = (cartItems || []).find((item) => Number.parseInt(item.artisan_id, 10) === Number.parseInt(userId, 10));
+  if (ownItem) {
+    throwCheckoutError('You cannot buy your own product', 'CHECKOUT_VALIDATION');
+  }
+
   if (appliedCoupon) {
-    const validation = Coupon.validate(appliedCoupon.code, totals.total);
+    const validation = Coupon.validate(appliedCoupon.code, totals.total, cartItems || []);
     if (validation.valid) {
       discount = validation.discount;
       couponCode = appliedCoupon.code;

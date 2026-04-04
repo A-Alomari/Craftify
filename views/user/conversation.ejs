@@ -1,5 +1,7 @@
 <%- include('../partials/header', { title: title }) %>
 
+<main class="flex-grow min-h-screen">
+
 <%
   const conversationList = Array.isArray(conversations) ? conversations : [];
   const threadMessages = Array.isArray(messages) ? messages : [];
@@ -175,5 +177,7 @@
     </form>
   </section>
 </section>
+
+</main>
 
 <%- include('../partials/footer') %>

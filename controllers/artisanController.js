@@ -5,6 +5,7 @@ const Category = require('../models/Category');
 const Order = require('../models/Order');
 const Auction = require('../models/Auction');
 const Review = require('../models/Review');
+const Coupon = require('../models/Coupon');
 const Notification = require('../models/Notification');
 const { validateProductInput } = require('../utils/sanitizer');
 
@@ -416,6 +417,136 @@ exports.reviews = (req, res) => {
   } catch (err) {
     console.error('Artisan reviews error:', err);
     res.redirect('/artisan/dashboard');
+  }
+};
+
+exports.coupons = (req, res) => {
+  try {
+    const artisanId = req.session.user.id;
+    const coupons = Coupon.findAll({ artisan_id: artisanId });
+
+    res.render('artisan/coupons', {
+      title: 'Promo Codes - Craftify',
+      coupons
+    });
+  } catch (err) {
+    console.error('Artisan coupons error:', err);
+    req.flash('error_msg', 'Unable to load promo codes');
+    res.redirect('/artisan/dashboard');
+  }
+};
+
+exports.createCoupon = (req, res) => {
+  try {
+    const artisanId = req.session.user.id;
+    const {
+      code,
+      description,
+      discount_type,
+      discount_value,
+      min_purchase,
+      max_discount,
+      valid_from,
+      valid_until,
+      usage_limit
+    } = req.body;
+
+    const parsedDiscountValue = Number.parseFloat(discount_value);
+    const parsedMinPurchase = min_purchase ? Number.parseFloat(min_purchase) : 0;
+    const parsedMaxDiscount = max_discount ? Number.parseFloat(max_discount) : null;
+    const parsedUsageLimit = usage_limit ? Number.parseInt(usage_limit, 10) : null;
+
+    if (!code || !discount_type || !Number.isFinite(parsedDiscountValue) || parsedDiscountValue <= 0) {
+      req.flash('error_msg', 'Invalid promo code data');
+      return res.redirect('/artisan/coupons');
+    }
+
+    if (!Number.isFinite(parsedMinPurchase) || parsedMinPurchase < 0) {
+      req.flash('error_msg', 'Invalid minimum purchase amount');
+      return res.redirect('/artisan/coupons');
+    }
+
+    if (parsedMaxDiscount !== null && (!Number.isFinite(parsedMaxDiscount) || parsedMaxDiscount <= 0)) {
+      req.flash('error_msg', 'Invalid maximum discount amount');
+      return res.redirect('/artisan/coupons');
+    }
+
+    if (parsedUsageLimit !== null && (!Number.isInteger(parsedUsageLimit) || parsedUsageLimit <= 0)) {
+      req.flash('error_msg', 'Invalid usage limit');
+      return res.redirect('/artisan/coupons');
+    }
+
+    Coupon.create({
+      code,
+      description,
+      discount_type,
+      discount_value: parsedDiscountValue,
+      min_purchase: parsedMinPurchase,
+      max_discount: parsedMaxDiscount,
+      valid_from: valid_from || null,
+      valid_until: valid_until || null,
+      usage_limit: parsedUsageLimit,
+      scope: 'artisan',
+      artisan_id: artisanId,
+      created_by: artisanId
+    });
+
+    req.flash('success_msg', 'Promo code created');
+    return res.redirect('/artisan/coupons');
+  } catch (err) {
+    console.error('Artisan create coupon error:', err);
+    req.flash('error_msg', 'Unable to create promo code. Code may already exist.');
+    return res.redirect('/artisan/coupons');
+  }
+};
+
+exports.toggleCoupon = (req, res) => {
+  try {
+    const artisanId = req.session.user.id;
+    const id = Number.parseInt(req.params.id, 10);
+    if (!Number.isInteger(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid promo code');
+      return res.redirect('/artisan/coupons');
+    }
+
+    const coupon = Coupon.findById(id);
+    if (!coupon || Number.parseInt(coupon.artisan_id, 10) !== Number.parseInt(artisanId, 10)) {
+      req.flash('error_msg', 'Promo code not found');
+      return res.redirect('/artisan/coupons');
+    }
+
+    Coupon.toggleActive(id);
+    req.flash('success_msg', 'Promo code status updated');
+    return res.redirect('/artisan/coupons');
+  } catch (err) {
+    console.error('Artisan toggle coupon error:', err);
+    req.flash('error_msg', 'Unable to update promo code');
+    return res.redirect('/artisan/coupons');
+  }
+};
+
+exports.deleteCoupon = (req, res) => {
+  try {
+    const artisanId = req.session.user.id;
+    const id = Number.parseInt(req.params.id, 10);
+    if (!Number.isInteger(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid promo code');
+      return res.redirect('/artisan/coupons');
+    }
+
+    const coupon = Coupon.findById(id);
+    if (!coupon || Number.parseInt(coupon.artisan_id, 10) !== Number.parseInt(artisanId, 10)) {
+      req.flash('error_msg', 'Promo code not found');
+      return res.redirect('/artisan/coupons');
+    }
+
+    Coupon.delete(id);
+    req.flash('success_msg', 'Promo code deleted');
+    return res.redirect('/artisan/coupons');
+  } catch (err) {
+    console.error('Artisan delete coupon error:', err);
+    req.flash('error_msg', 'Unable to delete promo code');
+    return res.redirect('/artisan/coupons');
   }
 };
 
