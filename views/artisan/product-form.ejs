@@ -36,7 +36,7 @@
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   <% product.imageArray.forEach(function(img, idx) { %>
                     <div class="aspect-square rounded-xl bg-surface-container-lowest overflow-hidden relative group">
-                      <img src="<%= img %>" alt="Product image <%= idx + 1 %>" class="w-full h-full object-cover" onerror="this.src='/images/placeholder-product.jpg'">
+                      <img src="<%= img %>" alt="Product image <%= idx + 1 %>" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'">
                       <% if (idx === 0) { %>
                         <div class="absolute top-2 left-2">
                           <span class="bg-primary-container text-on-primary-container text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">COVER</span>
@@ -163,7 +163,7 @@
               <div class="group relative mb-6">
                 <div class="aspect-[4/5] rounded-lg overflow-hidden mb-4 bg-surface-container-low flex items-center justify-center" id="preview-img-wrap">
                   <% if (product && product.imageArray && product.imageArray.length > 0) { %>
-                    <img src="<%= product.imageArray[0] %>" alt="Preview" class="w-full h-full object-cover" onerror="this.src='/images/placeholder-product.jpg'" id="preview-img">
+                    <img src="<%= product.imageArray[0] %>" alt="Preview" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'" id="preview-img">
                   <% } else { %>
                     <span class="material-symbols-outlined text-4xl text-outline">image</span>
                   <% } %>

@@ -5,6 +5,7 @@ const Product = require('../models/Product');
 const Shipment = require('../models/Shipment');
 const Coupon = require('../models/Coupon');
 const Notification = require('../models/Notification');
+const User = require('../models/User');
 const { authorizePayment } = require('./paymentService');
 
 function runTransactionCommand(db, command) {
@@ -68,6 +69,7 @@ function createOrderFromCheckout({ userId, checkoutData, cartItems, totals, appl
     const order = Order.create({
       user_id: userId,
       shipping_address: checkoutData.shipping_address,
+      shipping_building: checkoutData.shipping_building || '',
       shipping_city: checkoutData.shipping_city,
       shipping_postal: checkoutData.shipping_postal,
       shipping_country: checkoutData.shipping_country || 'Bahrain',
@@ -79,6 +81,20 @@ function createOrderFromCheckout({ userId, checkoutData, cartItems, totals, appl
       payment_method: checkoutData.payment_method,
       notes: checkoutData.notes || ''
     });
+
+    // Save delivery address to user profile for future orders
+    try {
+      User.update(userId, {
+        shipping_address: checkoutData.shipping_address,
+        building: checkoutData.shipping_building || '',
+        city: checkoutData.shipping_city,
+        postal_code: checkoutData.shipping_postal || '',
+        country: checkoutData.shipping_country || 'Bahrain'
+      });
+    } catch (profileErr) {
+      // Non-fatal: log but don't fail the order
+      console.warn('Could not save delivery address to user profile:', profileErr.message);
+    }
 
     const artisanIds = new Set();
 

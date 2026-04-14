@@ -3,9 +3,32 @@
 <%
   const currentStatus = shipment ? shipment.status : (order ? order.status : 'pending');
   const normalizedStatus = String(currentStatus || 'pending').toLowerCase();
-  const processingReached = ['processing', 'shipped', 'in_transit', 'delivered'].includes(normalizedStatus);
-  const shippedReached = ['shipped', 'in_transit', 'delivered'].includes(normalizedStatus);
-  const deliveredReached = normalizedStatus === 'delivered';
+
+  // Determine each step's state: 'done', 'current', or 'pending'
+  const isPending    = ['pending', 'confirmed'].includes(normalizedStatus);
+  const isProcessing = normalizedStatus === 'processing';
+  const isShipped    = ['shipped', 'in_transit'].includes(normalizedStatus);
+  const isDelivered  = normalizedStatus === 'delivered';
+
+  // Order Placed: always at least current (we have an order)
+  const orderPlacedDone    = isProcessing || isShipped || isDelivered;
+  const orderPlacedCurrent = isPending;
+
+  // Processing step
+  const processingDone    = isShipped || isDelivered;
+  const processingCurrent = isProcessing;
+  const processingReached = isProcessing || isShipped || isDelivered;
+
+  // Shipped step
+  const shippedDone    = isDelivered;
+  const shippedCurrent = isShipped;
+  const shippedReached = isShipped || isDelivered;
+
+  // Delivered step
+  const deliveredDone    = isDelivered;
+  const deliveredCurrent = isDelivered;
+  const deliveredReached = isDelivered;
+
   const history = (shipmentHistory || []).slice().reverse();
 
   const estimatedDate = shipment && shipment.estimated_delivery
@@ -48,35 +71,39 @@
 
       <section class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/20">
         <div class="flex items-center justify-between">
+          <!-- Step 1: Order Placed -->
           <div class="flex flex-col items-center flex-1">
-            <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-3">
-              <span class="material-symbols-outlined text-xl">check_circle</span>
+            <div class="w-10 h-10 rounded-full <%= orderPlacedDone ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white' %> flex items-center justify-center mb-3">
+              <span class="material-symbols-outlined text-xl"><%= orderPlacedDone ? 'check_circle' : 'receipt_long' %></span>
             </div>
-            <p class="text-xs font-bold uppercase tracking-widest text-emerald-600">Order Placed</p>
+            <p class="text-xs font-bold uppercase tracking-widest <%= orderPlacedDone ? 'text-emerald-600' : 'text-amber-600' %>">Order Placed</p>
           </div>
           <div class="tracking-stepper-line <%= processingReached ? 'completed' : '' %> mx-2 md:mx-4"></div>
 
+          <!-- Step 2: Processing -->
           <div class="flex flex-col items-center flex-1">
-            <div class="w-10 h-10 rounded-full <%= processingReached ? 'bg-emerald-500 text-white' : 'bg-surface-container-high text-on-surface-variant' %> flex items-center justify-center mb-3">
-              <span class="material-symbols-outlined text-xl"><%= processingReached ? 'sync_saved_locally' : 'schedule' %></span>
+            <div class="w-10 h-10 rounded-full <%= processingDone ? 'bg-emerald-500 text-white' : processingCurrent ? 'bg-amber-500 text-white' : 'bg-surface-container-high text-on-surface-variant' %> flex items-center justify-center mb-3">
+              <span class="material-symbols-outlined text-xl"><%= processingDone ? 'sync_saved_locally' : processingCurrent ? 'sync_saved_locally' : 'schedule' %></span>
             </div>
-            <p class="text-xs font-bold uppercase tracking-widest <%= processingReached ? 'text-emerald-600' : 'text-on-surface-variant' %>">Processing</p>
+            <p class="text-xs font-bold uppercase tracking-widest <%= processingDone ? 'text-emerald-600' : processingCurrent ? 'text-amber-600' : 'text-on-surface-variant' %>">Processing</p>
           </div>
-          <div class="tracking-stepper-line <%= shippedReached ? 'active completed' : '' %> mx-2 md:mx-4"></div>
+          <div class="tracking-stepper-line <%= shippedReached ? 'completed' : '' %> mx-2 md:mx-4"></div>
 
+          <!-- Step 3: Shipped -->
           <div class="flex flex-col items-center flex-1">
-            <div class="<%= shippedReached ? 'w-12 h-12 bg-primary-container text-on-primary-container ring-4 ring-primary-container/20' : 'w-10 h-10 bg-surface-container-high text-on-surface-variant' %> rounded-full flex items-center justify-center mb-3">
-              <span class="material-symbols-outlined <%= shippedReached ? 'text-2xl' : 'text-xl' %>">local_shipping</span>
+            <div class="w-10 h-10 rounded-full <%= shippedDone ? 'bg-emerald-500 text-white' : shippedCurrent ? 'bg-amber-500 text-white' : 'bg-surface-container-high text-on-surface-variant' %> flex items-center justify-center mb-3">
+              <span class="material-symbols-outlined text-xl">local_shipping</span>
             </div>
-            <p class="text-xs font-bold uppercase tracking-widest <%= shippedReached ? 'text-primary' : 'text-on-surface-variant' %>">Shipped</p>
+            <p class="text-xs font-bold uppercase tracking-widest <%= shippedDone ? 'text-emerald-600' : shippedCurrent ? 'text-amber-600' : 'text-on-surface-variant' %>">Shipped</p>
           </div>
           <div class="tracking-stepper-line <%= deliveredReached ? 'completed' : '' %> mx-2 md:mx-4"></div>
 
+          <!-- Step 4: Delivered -->
           <div class="flex flex-col items-center flex-1">
-            <div class="w-10 h-10 rounded-full <%= deliveredReached ? 'bg-emerald-500 text-white' : 'bg-surface-container-high text-on-surface-variant' %> flex items-center justify-center mb-3">
+            <div class="w-10 h-10 rounded-full <%= deliveredDone ? 'bg-emerald-500 text-white' : 'bg-surface-container-high text-on-surface-variant' %> flex items-center justify-center mb-3">
               <span class="material-symbols-outlined text-xl">inventory_2</span>
             </div>
-            <p class="text-xs font-bold uppercase tracking-widest <%= deliveredReached ? 'text-emerald-600' : 'text-on-surface-variant' %>">Delivered</p>
+            <p class="text-xs font-bold uppercase tracking-widest <%= deliveredDone ? 'text-emerald-600' : 'text-on-surface-variant' %>">Delivered</p>
           </div>
         </div>
       </section>
@@ -126,7 +153,7 @@
             <% items.forEach(function(item) { %>
               <div class="flex gap-4">
                 <div class="w-20 h-20 bg-surface-container rounded-lg overflow-hidden flex-shrink-0">
-                  <img alt="<%= item.product_name %>" class="w-full h-full object-cover" src="<%= item.image || '/images/placeholder-product.jpg' %>" onerror="this.src='/images/placeholder-product.jpg'"/>
+                  <img alt="<%= item.product_name %>" class="w-full h-full object-cover" src="<%= item.image || '/images/placeholder-product.svg' %>" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'"/>
                 </div>
                 <div class="flex-1">
                   <p class="font-headline font-semibold text-on-surface leading-tight"><%= item.product_name %></p>

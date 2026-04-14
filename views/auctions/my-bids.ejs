@@ -15,7 +15,7 @@
         <article class="bg-surface-container-lowest rounded-xl overflow-hidden">
           <div class="grid grid-cols-3">
             <div class="col-span-1">
-              <img src="<%= bid.image || '/images/placeholder-product.jpg' %>" alt="<%= bid.product_name || bid.title %>" class="w-full h-full min-h-[150px] object-cover" onerror="this.src='/images/placeholder-product.jpg'">
+              <img src="<%= bid.image || '/images/placeholder-product.svg' %>" alt="<%= bid.product_name || bid.title %>" class="w-full h-full min-h-[150px] object-cover" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'">
             </div>
 
             <div class="col-span-2 p-4">

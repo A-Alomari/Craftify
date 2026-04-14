@@ -63,14 +63,15 @@ function validateCheckoutInput(body = {}) {
   const errors = [];
 
   const shipping_address = sanitizeString(body.shipping_address);
+  const shipping_building = sanitizeString(body.shipping_building) || '';
   const shipping_city = sanitizeString(body.shipping_city);
   const shipping_postal = sanitizeString(body.shipping_postal) || '';
   const shipping_country = sanitizeString(body.shipping_country) || 'Bahrain';
   const payment_method = sanitizeString(body.payment_method);
   const notes = sanitizeText(body.notes) || '';
 
-  if (!shipping_address || !shipping_city) {
-    errors.push('Shipping address and city are required');
+  if (!shipping_address || !shipping_building || !shipping_city) {
+    errors.push('Shipping address, building, and city are required');
   }
 
   const allowedPaymentMethods = new Set(['card', 'cash']);
@@ -82,6 +83,7 @@ function validateCheckoutInput(body = {}) {
 
   const sanitized = {
     shipping_address,
+    shipping_building,
     shipping_city,
     shipping_postal,
     shipping_country,

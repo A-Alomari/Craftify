@@ -160,6 +160,17 @@ class Cart {
     return result || { total: 0, item_count: 0 };
   }
 
+  static getItemQuantity(userId = null, sessionId = null, productId) {
+    const db = getDb();
+    let row;
+    if (userId) {
+      row = db.prepare('SELECT quantity FROM cart_items WHERE user_id = ? AND product_id = ?').get(userId, productId);
+    } else {
+      row = db.prepare('SELECT quantity FROM cart_items WHERE session_id = ? AND product_id = ?').get(sessionId, productId);
+    }
+    return row ? row.quantity : 0;
+  }
+
   static getCount(userId = null, sessionId = null) {
     const db = getDb();
     let result;

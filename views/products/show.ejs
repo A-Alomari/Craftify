@@ -17,19 +17,19 @@
     </div>
 <% } else { %>
     <% var images = []; try { images = JSON.parse(product.images || '[]'); } catch(e) {} %>
-    <% if (images.length === 0) images.push('/images/placeholder-product.jpg'); %>
+    <% if (images.length === 0) images.push('/images/placeholder-product.svg'); %>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
 <!-- Left Column: Product Gallery -->
 <div class="space-y-6">
 <div class="bg-surface-container-lowest rounded-xl overflow-hidden aspect-square shadow-sm">
-<img id="mainProductImg" alt="<%= product.name %>" class="w-full h-full object-cover transition-opacity duration-200" src="<%= images[0] %>" onerror="this.src='/images/placeholder-product.jpg'"/>
+<img id="mainProductImg" alt="<%= product.name %>" class="w-full h-full object-cover transition-opacity duration-200" src="<%= images[0] %>" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'"/>
 </div>
 <% if (images.length > 1) { %>
 <div class="grid grid-cols-4 gap-4" id="productThumbnails">
     <% images.forEach(function(img, index) { %>
         <button class="product-thumb aspect-square rounded-lg overflow-hidden border-2 <%= index === 0 ? 'border-primary-container ring-2 ring-primary-container/20' : 'border-transparent hover:border-primary-container/50' %> transition-all" data-src="<%= img %>">
-        <img alt="Thumbnail <%= index + 1 %>" class="w-full h-full object-cover" src="<%= img %>" onerror="this.src='/images/placeholder-product.jpg'"/>
+        <img alt="Thumbnail <%= index + 1 %>" class="w-full h-full object-cover" src="<%= img %>" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'"/>
         </button>
     <% }); %>
 </div>
@@ -66,8 +66,10 @@
             <form action="/cart/add" method="POST" class="flex items-center gap-4 flex-1">
                 <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                 <input type="hidden" name="productId" value="<%= product.id %>">
-                <div class="flex items-center bg-surface-container-low rounded-xl px-2">
-                    <input type="number" name="quantity" value="1" min="1" max="<%= product.stock %>" class="w-20 text-center bg-transparent border-none text-lg font-bold focus:ring-0">
+                <div class="flex items-center bg-surface-container-low rounded-xl px-1 gap-1">
+                    <button type="button" class="qty-btn w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high transition-colors font-bold text-lg" data-action="decrease">−</button>
+                    <input type="number" name="quantity" value="1" min="1" max="<%= product.stock %>" class="qty-input w-12 text-center bg-transparent border-none text-lg font-bold focus:ring-0">
+                    <button type="button" class="qty-btn w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high transition-colors font-bold text-lg" data-action="increase">+</button>
                 </div>
                 <button type="submit" class="flex-1 bg-primary-container text-on-primary-container font-bold py-4 px-8 rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95">
                     <span class="material-symbols-outlined">shopping_bag</span>
@@ -77,8 +79,8 @@
             <form action="/user/wishlist/toggle" method="POST">
                 <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                 <input type="hidden" name="productId" value="<%= product.id %>">
-                <button type="submit" class="p-4 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-colors" aria-label="Add to wishlist">
-                    <span class="material-symbols-outlined" data-icon="favorite">favorite_border</span>
+                <button type="submit" class="p-4 border border-outline-variant rounded-xl hover:bg-surface-container-low transition-colors <%= inWishlist ? 'text-red-500' : 'text-on-surface' %>" aria-label="<%= inWishlist ? 'Remove from wishlist' : 'Add to wishlist' %>">
+                    <span class="material-symbols-outlined <%= inWishlist ? 'filled-icon' : '' %>" data-icon="favorite">favorite</span>
                 </button>
             </form>
         </div>
@@ -268,7 +270,7 @@ const distributionMap = {};
                 <article class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm">
                     <div class="flex items-start justify-between gap-4">
                         <div class="flex items-center gap-4">
-                            <img class="w-12 h-12 rounded-full object-cover" src="<%= review.reviewer_avatar || '/images/default-avatar.png' %>" alt="<%= review.reviewer_name %>" onerror="this.src='/images/default-avatar.png'"/>
+                            <img class="w-12 h-12 rounded-full object-cover" src="<%= review.reviewer_avatar || '/images/default-avatar.png' %>" alt="<%= review.reviewer_name %>" onerror="this.onerror=null;this.src='/images/default-avatar.png'"/>
                             <div>
                                 <p class="font-semibold text-on-surface"><%= review.reviewer_name %></p>
                                 <p class="text-xs text-secondary"><%= new Date(review.created_at).toLocaleDateString() %></p>

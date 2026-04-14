@@ -101,6 +101,7 @@ const maxPriceDefault = 1000;
               <option value="price_low" <%= activeFilters.sort === 'price_low' ? 'selected' : '' %>>Price: Low to High</option>
               <option value="price_high" <%= activeFilters.sort === 'price_high' ? 'selected' : '' %>>Price: High to Low</option>
               <option value="popular" <%= activeFilters.sort === 'popular' ? 'selected' : '' %>>Most Popular</option>
+              <option value="highest_rated" <%= activeFilters.sort === 'highest_rated' ? 'selected' : '' %>>Highest Rated</option>
             </select>
           </div>
 
@@ -147,24 +148,24 @@ const maxPriceDefault = 1000;
                   <a href="/products/<%= product.id %>">
                     <img
                       class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      src="<%= images[0] || '/images/placeholder-product.jpg' %>"
+                      src="<%= images[0] || '/images/placeholder-product.svg' %>"
                       alt="<%= product.name %>"
                       loading="lazy"
-                      onerror="this.src='/images/placeholder-product.jpg'"
+                      onerror="this.onerror=null;this.src='/images/placeholder-product.svg'"
                     />
                   </a>
 
                   <!-- Wishlist button -->
                   <% if (!user || user.role === 'customer') { %>
-                  <form action="/user/wishlist/toggle" method="POST" class="absolute top-2 right-2 sm:top-3 sm:right-3">
+                  <form action="/user/wishlist/toggle" method="POST" class="absolute top-2 right-2 sm:top-3 sm:right-3 wishlist-form" data-no-loading>
                     <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                     <input type="hidden" name="productId" value="<%= product.id %>">
                     <button
                       type="submit"
-                      class="w-8 h-8 sm:w-9 sm:h-9 bg-white/85 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm transition-all hover:scale-110 <%= product.inWishlist ? 'text-tertiary' : 'text-secondary hover:text-tertiary' %>"
+                      class="w-8 h-8 sm:w-9 sm:h-9 bg-white/85 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm transition-all hover:scale-110 <%= product.inWishlist ? 'text-red-500' : 'text-secondary hover:text-red-400' %>"
                       aria-label="<%= product.inWishlist ? 'Remove from wishlist' : 'Add to wishlist' %>"
                     >
-                      <span class="material-symbols-outlined text-base sm:text-lg <%= product.inWishlist ? 'filled-icon' : '' %>" data-icon="favorite"><%= product.inWishlist ? 'favorite' : 'favorite_border' %></span>
+                      <span class="material-symbols-outlined text-base sm:text-lg <%= product.inWishlist ? 'filled-icon' : '' %>" data-icon="favorite">favorite</span>
                     </button>
                   </form>
                   <% } %>
@@ -175,6 +176,11 @@ const maxPriceDefault = 1000;
                       <span class="bg-black/55 backdrop-blur-sm text-white text-[8px] sm:text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full"><%= categoryName %></span>
                     </div>
                   <% } %>
+
+                  <!-- Price badge -->
+                  <div class="absolute top-3 right-3">
+                    <span class="bg-primary-container text-on-primary-container text-sm font-bold px-3 py-1.5 rounded-xl font-headline shadow-md">$<%= Number(product.price || 0).toFixed(2) %></span>
+                  </div>
 
                   <!-- Out of Stock overlay -->
                   <% if (product.stock <= 0) { %>
@@ -189,15 +195,17 @@ const maxPriceDefault = 1000;
                   <h3 class="font-['Noto_Serif'] font-bold text-sm sm:text-base text-on-surface leading-snug group-hover:text-primary transition-colors line-clamp-2 mb-1">
                     <a href="/products/<%= product.id %>"><%= product.name %></a>
                   </h3>
-                  <p class="text-[11px] sm:text-xs text-secondary mb-2 sm:mb-3">
+                  <p class="text-[11px] sm:text-xs text-secondary mb-1">
                     by <a href="/user/artisan/<%= product.artisan_id %>" class="hover:text-primary underline decoration-outline/30 underline-offset-4 transition-colors"><%= product.shop_name || 'Artisan' %></a>
                   </p>
 
+                  <!-- Price -->
+
                   <!-- Rating -->
-                  <div class="flex items-center gap-1 mb-3 sm:mb-4">
+                  <div class="flex items-center gap-1 mb-3">
                     <div class="flex">
                       <% for(var s=1; s<=5; s++) { %>
-                        <span class="material-symbols-outlined text-[10px] sm:text-xs text-amber-400 <%= product.avg_rating >= s ? 'filled-icon' : '' %>">star</span>
+                        <span class="material-symbols-outlined text-[10px] sm:text-xs <%= product.avg_rating >= s ? 'filled-icon' : '' %>" style="color:#f59e0b">star</span>
                       <% } %>
                     </div>
                     <span class="text-[10px] sm:text-[11px] text-secondary font-medium">
@@ -206,25 +214,21 @@ const maxPriceDefault = 1000;
                     </span>
                   </div>
 
-                  <!-- Price + CTA -->
-                  <div class="mt-auto flex flex-col sm:flex-row sm:items-center gap-2">
-                    <span class="font-['Noto_Serif'] font-bold text-lg sm:text-xl text-on-surface">$<%= Number(product.price || 0).toFixed(2) %></span>
+                  <!-- CTA -->
+                  <div class="mt-auto">
                     <% if (!user || user.role === 'customer') { %>
                     <% if (product.stock > 0) { %>
-                      <form action="/cart/add" method="POST" class="flex-1">
+                      <form action="/cart/add" method="POST" data-no-loading>
                         <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                         <input type="hidden" name="productId" value="<%= product.id %>">
                         <input type="hidden" name="quantity" value="1">
-                        <button type="submit" class="w-full flex items-center justify-center gap-1 bg-primary-container text-on-primary-container py-2 rounded-xl font-bold text-[11px] sm:text-xs tracking-wide hover:opacity-90 transition-colors active:scale-95">
+                        <button type="submit" class="w-full flex items-center justify-center gap-1 bg-primary-container text-on-primary-container py-2 rounded-xl font-bold text-xs tracking-wide hover:opacity-90 transition-colors active:scale-95">
                           <span class="material-symbols-outlined text-sm" data-icon="add_shopping_cart">add_shopping_cart</span>
-                          <span class="hidden sm:inline">Add to Cart</span>
-                          <span class="sm:hidden">Add</span>
+                          Add to Cart
                         </button>
                       </form>
                     <% } else { %>
-                      <button class="flex-1 py-2 rounded-xl border border-outline text-secondary text-xs font-bold cursor-not-allowed opacity-60" disabled>
-                        Out of Stock
-                      </button>
+                      <button class="w-full py-2 rounded-xl border border-outline text-secondary text-xs font-bold cursor-not-allowed opacity-60" disabled>Out of Stock</button>
                     <% } %>
                     <% } %>
                   </div>
@@ -254,12 +258,32 @@ const maxPriceDefault = 1000;
                 <span class="material-symbols-outlined text-base">chevron_left</span>
               </a>
             <% } %>
-            <% for(var pg = 1; pg <= pagination.total; pg++) { %>
-              <a href="/products?page=<%= pg %>&<%= paginationQueryString %>"
-                 class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-colors <%= pg === pagination.current ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-low hover:bg-surface-container-high text-on-surface' %>">
-                <%= pg %>
-              </a>
-            <% } %>
+            <%
+              var cur = pagination.current;
+              var tot = pagination.total;
+              var win = [];
+              if (tot <= 5) {
+                for (var i = 1; i <= tot; i++) win.push(i);
+              } else {
+                win.push(1);
+                var start = Math.max(2, cur - 1);
+                var end   = Math.min(tot - 1, cur + 1);
+                if (start > 2) win.push('...');
+                for (var i = start; i <= end; i++) win.push(i);
+                if (end < tot - 1) win.push('...');
+                win.push(tot);
+              }
+            %>
+            <% win.forEach(function(pg) { %>
+              <% if (pg === '...') { %>
+                <span class="w-10 h-10 flex items-center justify-center text-sm text-secondary">…</span>
+              <% } else { %>
+                <a href="/products?page=<%= pg %>&<%= paginationQueryString %>"
+                   class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-colors <%= pg === cur ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-low hover:bg-surface-container-high text-on-surface' %>">
+                  <%= pg %>
+                </a>
+              <% } %>
+            <% }); %>
             <% if (pagination.hasNext) { %>
               <a href="/products?page=<%= pagination.current + 1 %>&<%= paginationQueryString %>" class="w-10 h-10 rounded-full bg-surface-container-low hover:bg-primary-container flex items-center justify-center transition-colors" aria-label="Next page">
                 <span class="material-symbols-outlined text-base">chevron_right</span>
@@ -274,3 +298,51 @@ const maxPriceDefault = 1000;
 </main>
 
 <%- include('../partials/footer') %>
+
+<% if (typeof user !== 'undefined' && user && user.role !== 'artisan' && user.role !== 'admin') { %>
+<script>
+(function() {
+  var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+  var csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : '';
+
+  document.querySelectorAll('.wishlist-form').forEach(function(form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var btn = form.querySelector('button[type="submit"]');
+      var icon = btn ? btn.querySelector('[data-icon="favorite"]') : null;
+      var productInput = form.querySelector('input[name="productId"]');
+      if (!productInput) return;
+
+      fetch('/user/wishlist/toggle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: '_csrf=' + encodeURIComponent(csrfToken) + '&productId=' + encodeURIComponent(productInput.value)
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (!data.success || !icon || !btn) return;
+        if (data.inWishlist) {
+          icon.classList.add('filled-icon');
+          btn.classList.remove('text-secondary', 'hover:text-red-400');
+          btn.classList.add('text-red-500');
+          btn.setAttribute('aria-label', 'Remove from wishlist');
+          if (typeof showToast === 'function') showToast('Added to wishlist!', 'success');
+        } else {
+          icon.classList.remove('filled-icon');
+          btn.classList.remove('text-red-500');
+          btn.classList.add('text-secondary', 'hover:text-red-400');
+          btn.setAttribute('aria-label', 'Add to wishlist');
+          if (typeof showToast === 'function') showToast('Removed from wishlist', 'info');
+        }
+      })
+      .catch(function() {
+        form.submit();
+      });
+    });
+  });
+})();
+</script>
+<% } %>

@@ -101,7 +101,7 @@ exports.show = (req, res) => {
     // Parse images
     product.imageArray = JSON.parse(product.images || '[]');
     if (product.imageArray.length === 0) {
-      product.imageArray = ['/images/placeholder-product.jpg'];
+      product.imageArray = ['/images/placeholder-product.svg'];
     }
 
     res.render('products/show', {

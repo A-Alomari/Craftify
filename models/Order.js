@@ -93,19 +93,19 @@ class Order {
   static create(orderData) {
     const db = getDb();
     const {
-      user_id, shipping_address, shipping_city, shipping_postal, shipping_country = 'Bahrain',
+      user_id, shipping_address, shipping_building = '', shipping_city, shipping_postal, shipping_country = 'Bahrain',
       total_amount, subtotal, shipping_cost = 0, discount_amount = 0, coupon_code = null,
       payment_method, notes = ''
     } = orderData;
 
     const result = db.prepare(`
       INSERT INTO orders (
-        user_id, shipping_address, shipping_city, shipping_postal, shipping_country,
+        user_id, shipping_address, shipping_building, shipping_city, shipping_postal, shipping_country,
         total_amount, subtotal, shipping_cost, discount_amount, coupon_code,
         payment_method, notes
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
-      user_id, shipping_address, shipping_city, shipping_postal, shipping_country,
+      user_id, shipping_address, shipping_building, shipping_city, shipping_postal, shipping_country,
       total_amount, subtotal, shipping_cost, discount_amount, coupon_code,
       payment_method, notes
     );

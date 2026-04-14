@@ -1,11 +1,12 @@
 const Auction = require('../models/Auction');
 const Product = require('../models/Product');
+const Category = require('../models/Category');
 const Notification = require('../models/Notification');
 
 // List auctions
 exports.index = (req, res) => {
   try {
-    const { status = 'active', sort = 'ending_soon', page = 1 } = req.query;
+    const { status = 'active', sort = 'ending_soon', page = 1, category } = req.query;
     const limit = 12;
     const offset = (page - 1) * limit;
 
@@ -15,21 +16,24 @@ exports.index = (req, res) => {
     } else if (status !== 'all') {
       filters.status = status;
     }
+    if (category) filters.category_id = parseInt(category);
 
     const auctions = Auction.findAll(filters);
     const totalAuctions = Auction.count(status === 'active' ? { status: 'active' } : {});
     const totalPages = Math.ceil(totalAuctions / limit);
+    const categories = Category.findAll();
 
     auctions.forEach(a => {
       // FIX: fall back to a.images for standalone auctions that have no linked product.
       const images = JSON.parse(a.product_images || a.images || '[]');
-      a.image = images[0] || '/images/placeholder-product.jpg';
+      a.image = images[0] || '/images/placeholder-product.svg';
     });
 
     res.render('auctions/index', {
       title: 'Live Auctions - Craftify',
       auctions,
-      filters: { status, sort },
+      categories,
+      filters: { status, sort, category: category ? parseInt(category) : null },
       pagination: {
         current: parseInt(page),
         total: totalPages,
@@ -63,7 +67,7 @@ exports.show = (req, res) => {
     // FIX: standalone auctions (no product) have their own `images` field;
     // fall back to it when product_images is absent.
     const images = JSON.parse(auction.product_images || auction.images || '[]');
-    auction.imageArray = images.length > 0 ? images : ['/images/placeholder-product.jpg'];
+    auction.imageArray = images.length > 0 ? images : ['/images/placeholder-product.svg'];
 
     const endTime = new Date(auction.end_time);
     const now = new Date();
@@ -153,7 +157,7 @@ exports.myBids = (req, res) => {
     bids.forEach(b => {
       // FIX: fall back to b.auction_images for bids on standalone auctions (no product).
       const images = JSON.parse(b.product_images || b.auction_images || '[]');
-      b.image = images[0] || '/images/placeholder-product.jpg';
+      b.image = images[0] || '/images/placeholder-product.svg';
       b.isWinning = b.winner_id === req.session.user.id;
     });
 

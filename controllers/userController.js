@@ -251,8 +251,14 @@ exports.notifications = (req, res) => {
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = 20;
     const offset = (page - 1) * limit;
+    const activeType = req.query.type || 'all';
 
-    const allNotifications = Notification.findByUserId(req.session.user.id);
+    const typeMap = { orders: 'order', auctions: 'auction', messages: 'message', promotions: 'system' };
+    const typeFilter = typeMap[activeType] || null;
+
+    const filters = typeFilter ? { type: typeFilter } : {};
+    const allNotifications = Notification.findByUserId(req.session.user.id, filters);
+    const unreadCount = Notification.getUnreadCount(req.session.user.id);
     const total = allNotifications.length;
     const notifications = allNotifications.slice(offset, offset + limit);
     const totalPages = Math.ceil(total / limit);
@@ -260,6 +266,8 @@ exports.notifications = (req, res) => {
     res.render('user/notifications', {
       title: 'Notifications - Craftify',
       notifications,
+      unreadCount,
+      activeType,
       pagination: {
         currentPage: page,
         totalPages: totalPages,

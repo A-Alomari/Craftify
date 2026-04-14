@@ -89,6 +89,19 @@ exports.addItem = (req, res) => {
     const userId = req.session.user ? req.session.user.id : null;
     const sessionId = !userId ? req.sessionID : null;
 
+    // Check total quantity (existing in cart + new request) against stock
+    const existingItem = Cart.getItemQuantity(userId, sessionId, productId);
+    const existingQty = existingItem || 0;
+    if (existingQty + parsedQuantity > product.stock) {
+      const remaining = product.stock - existingQty;
+      const msg = remaining <= 0
+        ? 'This item is already at max quantity in your cart'
+        : `Only ${remaining} more can be added (stock limit)`;
+      if (req.xhr) return res.status(409).json({ success: false, message: msg });
+      req.flash('error_msg', msg);
+      return res.redirect(getBackUrl(req));
+    }
+
     Cart.addItem(userId, sessionId, productId, parsedQuantity);
     const newCount = Cart.getCount(userId, sessionId);
 

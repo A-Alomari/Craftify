@@ -39,6 +39,7 @@ exports.login = async (req, res) => {
     const { identifier, email, phone, password } = req.body;
     const loginIdentifier = sanitizeString(identifier || email || phone || '');
     const previousSessionId = req.sessionID;
+    const previousAppliedCoupon = req.session.appliedCoupon || null;
 
     if (!loginIdentifier || !password) {
       req.flash('error_msg', 'Please fill in all fields');
@@ -72,6 +73,11 @@ exports.login = async (req, res) => {
     // Merge guest cart if exists
     if (previousSessionId) {
       Cart.mergeGuestCart(user.id, previousSessionId);
+    }
+
+    // Restore coupon applied before login
+    if (previousAppliedCoupon) {
+      req.session.appliedCoupon = previousAppliedCoupon;
     }
 
     // If artisan, get profile

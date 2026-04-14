@@ -51,6 +51,10 @@ class Auction {
       query += ' AND (COALESCE(p.name, a.title) LIKE ? OR a.title LIKE ?)';
       params.push(`%${filters.search}%`, `%${filters.search}%`);
     }
+    if (filters.category_id) {
+      query += ' AND p.category_id = ?';
+      params.push(filters.category_id);
+    }
 
     const sortOptions = {
       'ending_soon': 'a.end_time ASC',

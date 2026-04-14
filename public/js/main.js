@@ -207,8 +207,9 @@ function initWishlist() {
     });
   });
 
-  // Also intercept form-based wishlist toggles (prevents full page reload)
+  // Intercept form-based wishlist toggles (skip forms with custom handler class)
   document.querySelectorAll('form[action="/user/wishlist/toggle"]').forEach(form => {
+    if (form.classList.contains('wishlist-form')) return; // custom handler in page
     form.addEventListener('submit', function(e) {
       e.preventDefault();
       const productId = form.querySelector('input[name="productId"]')?.value;
@@ -248,7 +249,6 @@ function toggleWishlist(productId, btn) {
 
 function toggleWishlistForm(productId, btn) {
   const icon = btn ? btn.querySelector('.material-symbols-outlined[data-icon="favorite"]') : null;
-  const currentlyActive = btn ? btn.classList.contains('text-tertiary') : false;
 
   fetch('/user/wishlist/toggle', {
     method: 'POST',
@@ -260,12 +260,16 @@ function toggleWishlistForm(productId, btn) {
     if (!data) return;
     if (data.success) {
       const inWishlist = Boolean(data.inWishlist);
-      if (btn) {
-        btn.classList.toggle('text-tertiary', inWishlist);
-        btn.classList.toggle('text-secondary', !inWishlist);
-      }
       if (icon) {
-        icon.textContent = inWishlist ? 'favorite' : 'favorite_border';
+        icon.textContent = 'favorite'; // always keep 'favorite' text (Material Symbols variable fill)
+        if (inWishlist) {
+          icon.classList.add('filled-icon', 'text-red-500');
+        } else {
+          icon.classList.remove('filled-icon', 'text-red-500');
+        }
+      }
+      if (btn) {
+        btn.setAttribute('aria-label', inWishlist ? 'Remove from wishlist' : 'Add to wishlist');
       }
       showToast(inWishlist ? 'Added to wishlist!' : 'Removed from wishlist', 'success');
     } else if (data.redirect) {
@@ -387,7 +391,7 @@ function initSearch() {
               const link = item.link || '#';
 
               if (item.type === 'product') {
-                const image = escapeHtml(item.image || '/images/placeholder-product.jpg');
+                const image = escapeHtml(item.image || '/images/placeholder-product.svg');
                 const price = Number(item.price);
                 const priceLabel = Number.isFinite(price) ? `$${price.toFixed(2)}` : '';
 

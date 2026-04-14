@@ -3,7 +3,8 @@
 const auctionFilters = typeof filters !== 'undefined' && filters ? filters : {};
 const statusFilter = auctionFilters.status || 'active';
 const sortFilter = auctionFilters.sort || 'ending_soon';
-const auctionQueryString = `status=${encodeURIComponent(statusFilter)}&sort=${encodeURIComponent(sortFilter)}`;
+const categoryFilter = auctionFilters.category || null;
+const auctionQueryString = `status=${encodeURIComponent(statusFilter)}&sort=${encodeURIComponent(sortFilter)}${categoryFilter ? '&category=' + categoryFilter : ''}`;
 %>
 
 <main class="max-w-7xl mx-auto px-8 py-16">
@@ -61,7 +62,7 @@ const auctionQueryString = `status=${encodeURIComponent(statusFilter)}&sort=${en
             <div class="group bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col transition-all duration-300 shadow-sm hover:shadow-xl">
                 <div class="relative aspect-[4/5] overflow-hidden">
                     <a href="/auctions/<%= auction.id %>">
-                        <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="<%= auction.image || '/images/placeholder-product.jpg' %>" alt="<%= auction.product_name || auction.title %>" loading="lazy" onerror="this.src='/images/placeholder-product.jpg'"/>
+                        <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="<%= auction.image || '/images/placeholder-product.svg' %>" alt="<%= auction.product_name || auction.title %>" loading="lazy" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'"/>
                     </a>
                     
                     <% if (auction.status === 'active') { %>
@@ -74,11 +75,16 @@ const auctionQueryString = `status=${encodeURIComponent(statusFilter)}&sort=${en
                             ENDED
                         </div>
                     <% } %>
+                    <% if (auction.category_name) { %>
+                        <div class="absolute top-4 right-4">
+                            <span class="bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold tracking-widest rounded-md uppercase px-3 py-1"><%= auction.category_name %></span>
+                        </div>
+                    <% } %>
                 </div>
                 <div class="p-5 flex flex-col flex-grow">
                     <span class="font-sans text-[10px] font-extrabold uppercase tracking-[0.2em] text-secondary mb-2 whitespace-nowrap overflow-hidden text-ellipsis"><%= auction.category_name || 'AUCTION' %></span>
                     <h3 class="font-serif text-xl font-bold mb-1 leading-tight text-on-surface whitespace-nowrap overflow-hidden text-ellipsis"><%= auction.title || auction.product_name %></h3>
-                    <p class="text-xs text-secondary mb-6 italic">by <%= auction.shop_name || 'Artisan' %></p>
+                    <p class="text-xs text-secondary mb-6 italic">by <%= auction.shop_name || 'Artisan' %> &nbsp;·&nbsp; <span class="font-semibold not-italic"><%= auction.bid_count || 0 %></span> bid<%= (auction.bid_count || 0) === 1 ? '' : 's' %></p>
                     <div class="grid grid-cols-2 gap-4 mb-6">
                         <div>
                             <span class="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Current Bid</span>

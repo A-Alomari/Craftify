@@ -50,13 +50,13 @@
         <article class="group flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden hover:shadow-xl transition-shadow duration-300">
           <div class="relative aspect-[4/5] overflow-hidden <%= inStock ? '' : 'grayscale-[0.4]' %>">
             <a href="/products/<%= item.product_id %>">
-              <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="<%= item.image || '/images/placeholder-product.jpg' %>" alt="<%= item.name %>" onerror="this.src='/images/placeholder-product.jpg'"/>
+              <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="<%= item.image || '/images/placeholder-product.svg' %>" alt="<%= item.name %>" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'"/>
             </a>
 
-            <form action="/user/wishlist/remove" method="POST" class="absolute top-4 right-4">
+            <form action="/user/wishlist/remove" method="POST" class="absolute top-4 right-4 wishlist-remove-form">
               <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
               <input type="hidden" name="productId" value="<%= item.product_id %>">
-              <button type="submit" class="w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-tertiary shadow-sm" aria-label="Remove from wishlist">
+              <button type="submit" class="w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-tertiary shadow-sm hover:text-red-500 transition-colors" aria-label="Remove from wishlist">
                 <span class="material-symbols-outlined filled-icon">favorite</span>
               </button>
             </form>
@@ -124,7 +124,7 @@
             <article class="bg-surface-container-lowest p-4 rounded-xl hover:shadow-lg transition-shadow">
               <a href="/products/<%= item.product_id %>">
                 <div class="aspect-square rounded-lg overflow-hidden mb-4">
-                  <img class="w-full h-full object-cover" src="<%= item.image || '/images/placeholder-product.jpg' %>" alt="<%= item.name %>" onerror="this.src='/images/placeholder-product.jpg'"/>
+                  <img class="w-full h-full object-cover" src="<%= item.image || '/images/placeholder-product.svg' %>" alt="<%= item.name %>" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'"/>
                 </div>
               </a>
               <h4 class="font-bold text-sm mb-1 truncate"><a href="/products/<%= item.product_id %>" class="hover:text-primary transition-colors"><%= item.name %></a></h4>
@@ -150,3 +150,42 @@
 </main>
 
 <%- include('../partials/footer') %>
+
+<script>
+(function() {
+  var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+  var csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : '';
+
+  document.querySelectorAll('.wishlist-remove-form').forEach(function(form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var productInput = form.querySelector('input[name="productId"]');
+      if (!productInput) return;
+      var article = form.closest('article');
+
+      fetch('/user/wishlist/remove', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: '_csrf=' + encodeURIComponent(csrfToken) + '&productId=' + encodeURIComponent(productInput.value)
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data.success) {
+          if (article) {
+            article.style.transition = 'opacity 0.3s';
+            article.style.opacity = '0';
+            setTimeout(function() { article.remove(); }, 300);
+          }
+          if (typeof showToast === 'function') showToast('Removed from wishlist', 'info');
+        } else {
+          form.submit();
+        }
+      })
+      .catch(function() { form.submit(); });
+    });
+  });
+})();
+</script>

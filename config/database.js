@@ -765,6 +765,18 @@ function ensureMessageImageColumn(sqlDb) {
   if (!existing.has('image_url')) sqlDb.run('ALTER TABLE messages ADD COLUMN image_url TEXT;');
 }
 
+function ensureBuildingColumns(sqlDb) {
+  const userCols = new Set(getTableColumns(sqlDb, 'users'));
+  if (!userCols.has('building')) {
+    sqlDb.run('ALTER TABLE users ADD COLUMN building TEXT;');
+  }
+
+  const orderCols = new Set(getTableColumns(sqlDb, 'orders'));
+  if (!orderCols.has('shipping_building')) {
+    sqlDb.run('ALTER TABLE orders ADD COLUMN shipping_building TEXT;');
+  }
+}
+
 async function initDatabase() {
   SQL = await initSqlJs();
   
@@ -800,6 +812,7 @@ async function initDatabase() {
     ensureAuctionImagesColumn(db.sqlDb);
     ensureProductDimensionColumns(db.sqlDb);
     ensureMessageImageColumn(db.sqlDb);
+    ensureBuildingColumns(db.sqlDb);
 
     db.save(true);
     console.log('Database initialized successfully');

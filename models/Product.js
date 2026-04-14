@@ -74,7 +74,8 @@ class Product {
       'price_asc': 'p.price ASC',
       'price_desc': 'p.price DESC',
       'popular': 'p.views DESC',
-      'rating': 'avg_rating DESC'
+      'rating': 'avg_rating DESC',
+      'highest_rated': 'avg_rating DESC, review_count DESC, p.created_at DESC'
     };
     query += ` ORDER BY ${sortOptions[filters.sort] || 'p.created_at DESC'}`;
 

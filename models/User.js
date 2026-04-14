@@ -113,7 +113,7 @@ class User {
 
     const allowedColumns = [
       'name', 'email', 'role', 'status', 'phone', 'avatar',
-      'shipping_address', 'city', 'postal_code', 'country', 'dob'
+      'shipping_address', 'city', 'postal_code', 'country', 'dob', 'building'
     ];
 
     Object.entries(userData).forEach(([key, value]) => {

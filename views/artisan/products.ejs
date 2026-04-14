@@ -88,7 +88,7 @@
                         <% if (img0) { %>
                           <img src="<%= img0 %>" alt="<%= p.name %>"
                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            onerror="this.src='/images/placeholder-product.jpg'">
+                            onerror="this.onerror=null;this.src='/images/placeholder-product.svg'">
                         <% } else { %>
                           <div class="w-full h-full flex items-center justify-center text-secondary/40">
                             <span class="material-symbols-outlined text-2xl">image</span>

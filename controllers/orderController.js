@@ -3,6 +3,7 @@ const Order = require('../models/Order');
 const Product = require('../models/Product');
 const Shipment = require('../models/Shipment');
 const Coupon = require('../models/Coupon');
+const User = require('../models/User');
 const { v4: uuidv4 } = require('uuid');
 const { validateCheckoutInput } = require('../utils/sanitizer');
 const { createOrderFromCheckout, runTransactionCommand } = require('../services/checkoutService');
@@ -57,7 +58,7 @@ exports.checkout = (req, res) => {
       discount,
       appliedCoupon,
       total: totals.total + shipping - discount,
-      user: req.session.user,
+      user: User.findById(userId) || req.session.user,
       checkoutNonce
     });
   } catch (err) {
@@ -158,7 +159,6 @@ exports.confirmation = (req, res) => {
 
     const items = Order.getItems(id);
     const shipment = Shipment.findByOrderId(id);
-    const User = require('../models/User');
     const user = User.findById(req.session.user.id);
 
     items.forEach(item => {

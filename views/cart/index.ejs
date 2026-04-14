@@ -11,7 +11,7 @@
     <% items.forEach(function(item) { %>
         <div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-6 transition-all hover:shadow-md">
             <div class="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container-low">
-                <img alt="<%= item.product_name %>" class="w-full h-full object-cover" src="<%= item.image || '/images/placeholder-product.jpg' %>" onerror="this.src='/images/placeholder-product.jpg'"/>
+                <img alt="<%= item.product_name %>" class="w-full h-full object-cover" src="<%= item.image || '/images/placeholder-product.svg' %>" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'"/>
             </div>
             <div class="flex-grow space-y-1">
                 <h3 class="font-headline text-lg font-bold text-on-surface"><%= item.product_name || item.name %></h3>

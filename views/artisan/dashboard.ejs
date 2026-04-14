@@ -94,10 +94,10 @@
             <% recentOrders.forEach(o => { %>
               <div class="flex items-center gap-4 px-6 py-4 hover:bg-surface-container-low/60 transition-colors border-t border-surface-container-low">
                 <div class="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-surface-container-low">
-                  <img src="<%= o.product_image || '/images/placeholder-product.jpg' %>"
+                  <img src="<%= o.product_image || '/images/placeholder-product.svg' %>"
                     alt="product"
                     class="w-full h-full object-cover"
-                    onerror="this.src='/images/placeholder-product.jpg'">
+                    onerror="this.onerror=null;this.src='/images/placeholder-product.svg'">
                 </div>
                 <div class="flex-grow min-w-0">
                   <p class="font-body font-bold text-on-surface text-sm truncate">

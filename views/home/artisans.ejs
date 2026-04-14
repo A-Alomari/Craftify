@@ -58,7 +58,7 @@
                 src="<%= artisan.profile_image || '/images/default-avatar.png' %>" 
                 alt="<%= artisan.shop_name || artisan.name %>"
                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                onerror="this.src='/images/default-avatar.png'"
+                onerror="this.onerror=null;this.src='/images/default-avatar.png'"
               >
             </div>
           </div>

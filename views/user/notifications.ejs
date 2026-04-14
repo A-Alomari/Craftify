@@ -1,69 +1,181 @@
 <%- include('../partials/header', { title: title }) %>
 
-<main class="flex-grow min-h-screen">
+<%
+const activeTypeVal = typeof activeType !== 'undefined' ? activeType : 'all';
+const unread = typeof unreadCount !== 'undefined' ? unreadCount : 0;
+const csrfVal = typeof csrfToken !== 'undefined' ? csrfToken : '';
 
-<section class="max-w-7xl mx-auto px-6 py-10">
-  <div class="mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-    <div>
-      <span class="font-label text-xs uppercase tracking-[0.2em] text-primary font-semibold">Customer Area</span>
-      <h1 class="font-headline text-3xl text-on-surface mt-2">Notifications</h1>
-      <p class="text-secondary mt-1">Order updates, moderation notes, and account events.</p>
+function notifIcon(type) {
+  if (type === 'order') return { icon: 'package_2', bg: 'bg-blue-50', color: 'text-blue-600' };
+  if (type === 'auction') return { icon: 'gavel', bg: 'bg-amber-50', color: 'text-amber-600' };
+  if (type === 'message') return { icon: 'chat_bubble', bg: 'bg-emerald-50', color: 'text-emerald-600' };
+  if (type === 'review') return { icon: 'star', bg: 'bg-amber-50', color: 'text-amber-600' };
+  if (type === 'system') return { icon: 'sell', bg: 'bg-purple-50', color: 'text-purple-600' };
+  return { icon: 'notifications', bg: 'bg-blue-50', color: 'text-blue-600' };
+}
+
+function timeAgo(dateStr) {
+  const now = new Date();
+  const then = new Date(dateStr);
+  const diff = Math.floor((now - then) / 1000);
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  if (diff < 604800) return Math.floor(diff/86400) + 'd ago';
+  return then.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function actionBtn(n) {
+  if (!n.link) return null;
+  if (n.link.includes('/orders/')) return n.type === 'order' && n.title && n.title.toLowerCase().includes('deliver') ? 'Write Review' : 'Track Order';
+  if (n.link.includes('/auctions/')) return n.title && n.title.toLowerCase().includes('won') ? 'Complete Payment' : 'View Auction';
+  if (n.link.includes('/messages')) return 'Reply';
+  if (n.link.includes('/products/')) return 'View Item';
+  return 'View';
+}
+
+const unreadNotifs = notifications ? notifications.filter(n => !n.is_read) : [];
+const readNotifs = notifications ? notifications.filter(n => n.is_read) : [];
+%>
+
+<main class="flex-grow">
+<div class="max-w-7xl mx-auto w-full px-6 flex flex-col md:flex-row gap-8 pt-10 pb-20">
+
+  <!-- Sidebar -->
+  <aside class="md:w-64 shrink-0">
+    <div class="sticky top-28 space-y-6">
+      <div>
+        <h1 class="font-headline text-3xl font-bold text-on-surface mb-1 tracking-tight">Notifications</h1>
+        <p class="text-[10px] uppercase tracking-widest text-secondary opacity-60"><%= unread %> unread alert<%= unread === 1 ? '' : 's' %></p>
+      </div>
+
+      <nav class="flex flex-col gap-1">
+        <% const tabs = [
+          { id: 'all', label: 'All', icon: 'apps' },
+          { id: 'orders', label: 'Orders', icon: 'package_2' },
+          { id: 'auctions', label: 'Auctions', icon: 'gavel' },
+          { id: 'messages', label: 'Messages', icon: 'chat_bubble' },
+          { id: 'promotions', label: 'Promotions', icon: 'sell' }
+        ]; %>
+        <% tabs.forEach(function(tab) { %>
+          <a href="/user/notifications?type=<%= tab.id %>"
+             class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all w-full <%= activeTypeVal === tab.id ? 'bg-primary-container text-on-primary-container font-semibold shadow-sm' : 'text-secondary hover:bg-surface-container-low' %>">
+            <span class="material-symbols-outlined text-[20px]"><%= tab.icon %></span>
+            <%= tab.label %>
+          </a>
+        <% }); %>
+      </nav>
+
+      <div class="pt-6 border-t border-outline-variant/30 flex flex-col gap-3">
+        <% if (notifications && notifications.length > 0 && unread > 0) { %>
+        <form action="/user/notifications/read-all" method="POST">
+          <input type="hidden" name="_csrf" value="<%= csrfVal %>">
+          <button type="submit" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline transition-all text-left">Mark All as Read</button>
+        </form>
+        <% } %>
+      </div>
     </div>
-    <% if (notifications && notifications.length > 0) { %>
-      <form action="/user/notifications/read-all" method="POST">
-        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-        <button class="bg-surface-container-high text-on-surface px-4 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider">Mark All as Read</button>
-      </form>
-    <% } %>
-  </div>
+  </aside>
 
-  <% if (notifications && notifications.length > 0) { %>
-    <div class="space-y-3">
-      <% notifications.forEach(function(n) { %>
-        <article class="bg-surface-container-lowest rounded-xl p-5 <%= n.is_read ? '' : 'border-l-4 border-primary-container' %>">
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h2 class="text-sm font-semibold text-on-surface"><%= n.title %></h2>
-              <p class="text-sm text-secondary mt-1"><%= n.message %></p>
-              <p class="text-xs text-secondary mt-2"><%= new Date(n.created_at).toLocaleString() %></p>
+  <!-- Main content -->
+  <main class="flex-grow">
+    <% if (!notifications || notifications.length === 0) { %>
+      <div class="bg-surface-container-lowest rounded-2xl py-20 text-center">
+        <span class="material-symbols-outlined text-5xl text-emerald-500 filled-icon">check_circle</span>
+        <p class="text-secondary mt-3 font-medium">You're all caught up!</p>
+        <p class="text-xs text-secondary mt-1">No notifications in this category.</p>
+      </div>
+    <% } else { %>
+    <div class="space-y-8">
+
+      <% if (unreadNotifs.length > 0) { %>
+      <div>
+        <h2 class="text-[10px] font-bold uppercase tracking-widest text-primary mb-3 px-4">New Activity</h2>
+        <div class="space-y-2">
+          <% unreadNotifs.forEach(function(n) { %>
+          <% const ic = notifIcon(n.type); const btn = actionBtn(n); %>
+          <div class="group relative bg-[#FFF7ED] p-4 rounded-xl border-l-4 border-primary transition-all hover:bg-white hover:shadow-md">
+            <div class="flex gap-4 items-start">
+              <div class="w-10 h-10 rounded-full <%= ic.bg %> flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined <%= ic.color %> text-[20px]"><%= ic.icon %></span>
+              </div>
+              <div class="flex-grow min-w-0">
+                <div class="flex justify-between items-center mb-0.5 gap-2">
+                  <h3 class="font-headline text-base font-bold text-on-surface truncate"><%= n.title %></h3>
+                  <span class="text-[10px] font-medium text-secondary whitespace-nowrap shrink-0"><%= timeAgo(n.created_at) %></span>
+                </div>
+                <p class="text-on-surface-variant text-sm mb-3 leading-relaxed"><%= n.message %></p>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <% if (btn && n.link) { %>
+                    <a href="<%= n.link %>" class="px-3 py-1.5 rounded-lg bg-primary-container text-on-primary-container text-[10px] font-bold uppercase tracking-wider hover:brightness-110 transition-all"><%= btn %></a>
+                  <% } %>
+                  <form action="/user/notifications/<%= n.id %>/read" method="POST" class="inline">
+                    <input type="hidden" name="_csrf" value="<%= csrfVal %>">
+                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-surface-container-lowest border border-outline-variant/30 text-[10px] font-bold uppercase tracking-wider text-secondary hover:bg-surface-container transition-all">Dismiss</button>
+                  </form>
+                </div>
+              </div>
             </div>
-            <div class="flex gap-2">
-              <% if (n.link) { %>
-                <a href="<%= n.link %>" class="bg-surface-container-high text-on-surface hover:bg-surface-container-highest px-3 py-2 rounded-lg text-xs font-semibold">View</a>
-              <% } %>
-              <% if (!n.is_read) { %>
-                <form action="/user/notifications/<%= n.id %>/read" method="POST">
-                  <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                  <button class="bg-primary-container text-on-primary-container px-3 py-2 rounded-lg text-xs font-semibold">Mark Read</button>
-                </form>
-              <% } %>
-              <form action="/user/notifications/<%= n.id %>?_method=DELETE" method="POST" data-confirm="Delete this notification?">
-                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                <button class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-2 rounded-lg text-xs font-semibold">Delete</button>
-              </form>
+            <div class="absolute top-4 right-4 w-2 h-2 rounded-full bg-primary-container"></div>
+          </div>
+          <% }); %>
+        </div>
+      </div>
+      <% } %>
+
+      <% if (readNotifs.length > 0) { %>
+      <div>
+        <h2 class="text-[10px] font-bold uppercase tracking-widest text-secondary/50 mb-3 px-4">Earlier</h2>
+        <div class="space-y-2">
+          <% readNotifs.forEach(function(n) { %>
+          <% const ic = notifIcon(n.type); const btn = actionBtn(n); %>
+          <div class="group relative bg-surface-container-lowest p-4 rounded-xl transition-all hover:bg-surface-container-low border border-outline-variant/10">
+            <div class="flex gap-4 items-start">
+              <div class="w-10 h-10 rounded-full <%= ic.bg %> flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined <%= ic.color %> text-[20px]"><%= ic.icon %></span>
+              </div>
+              <div class="flex-grow min-w-0">
+                <div class="flex justify-between items-center mb-0.5 gap-2">
+                  <h3 class="font-headline text-base font-bold text-on-surface opacity-80 truncate"><%= n.title %></h3>
+                  <span class="text-[10px] font-medium text-secondary/40 whitespace-nowrap shrink-0"><%= timeAgo(n.created_at) %></span>
+                </div>
+                <p class="text-on-surface-variant/80 text-sm mb-3 leading-relaxed"><%= n.message %></p>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <% if (btn && n.link) { %>
+                    <a href="<%= n.link %>" class="px-3 py-1.5 rounded-lg bg-surface-container-low text-[10px] font-bold uppercase tracking-wider text-secondary hover:bg-surface-container-high transition-all"><%= btn %></a>
+                  <% } %>
+                  <form action="/user/notifications/<%= n.id %>?_method=DELETE" method="POST" class="inline">
+                    <input type="hidden" name="_csrf" value="<%= csrfVal %>">
+                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-surface-container-low text-[10px] font-bold uppercase tracking-wider text-secondary/60 hover:text-error hover:bg-error-container/20 transition-all">Delete</button>
+                  </form>
+                </div>
+              </div>
             </div>
           </div>
-        </article>
-      <% }); %>
-    </div>
-  <% } else { %>
-    <div class="bg-surface-container-lowest rounded-xl py-14 text-center">
-      <span class="material-symbols-outlined text-5xl text-emerald-600">check_circle</span>
-      <p class="text-secondary mt-3">You're all caught up.</p>
-    </div>
-  <% } %>
+          <% }); %>
+        </div>
+      </div>
+      <% } %>
 
-  <% if (pagination && pagination.totalPages > 1) { %>
-    <div class="mt-8">
-      <%- include('../partials/pagination', { 
-        pagination: pagination, 
-        baseUrl: '/user/notifications', 
-        query: {} 
-      }) %>
     </div>
-  <% } %>
-</section>
 
+    <% if (pagination && pagination.totalPages > 1) { %>
+    <div class="mt-10 text-center">
+      <% if (pagination.currentPage < pagination.totalPages) { %>
+      <a href="/user/notifications?type=<%= activeTypeVal %>&page=<%= pagination.currentPage + 1 %>"
+         class="group inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-surface-container-low font-bold text-sm text-secondary hover:bg-surface-container-high transition-all">
+        <span>Load More</span>
+        <span class="material-symbols-outlined text-[18px] group-hover:translate-y-0.5 transition-transform">expand_more</span>
+      </a>
+      <% } %>
+    </div>
+    <% } %>
+
+    <% } %>
+  </main>
+
+</div>
 </main>
 
 <%- include('../partials/footer') %>
+

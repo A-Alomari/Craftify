@@ -40,7 +40,7 @@
                         <p class="text-xs font-bold text-on-surface"><%= adminName %></p>
                         <p class="text-[10px] text-secondary"><%= displayRole %></p>
                     </div>
-                    <img src="<%= (user && user.avatar) ? user.avatar : '/images/default-avatar.png' %>" alt="Admin Profile" class="w-10 h-10 rounded-full object-cover ring-2 ring-primary-container/20" onerror="this.src='/images/default-avatar.png'">
+                    <img src="<%= (user && user.avatar) ? user.avatar : '/images/default-avatar.png' %>" alt="Admin Profile" class="w-10 h-10 rounded-full object-cover ring-2 ring-primary-container/20" onerror="this.onerror=null;this.src='/images/default-avatar.png'">
                 </div>
             </div>
         </header>

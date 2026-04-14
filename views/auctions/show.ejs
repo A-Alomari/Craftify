@@ -17,14 +17,14 @@
     </div>
 <% } else { %>
     <% var images = []; try { images = JSON.parse(auction.product_images || '[]'); } catch(e) {} %>
-    <% if (images.length === 0) images.push('/images/placeholder-product.jpg'); %>
+    <% if (images.length === 0) images.push('/images/placeholder-product.svg'); %>
 
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
 <!-- Left Column: Product Imagery -->
 <div class="lg:col-span-7 space-y-6">
 <div class="relative group overflow-hidden rounded-2xl aspect-[4/5] bg-surface-container-low shadow-sm">
 <!-- Main Image -->
-<img alt="<%= auction.title || auction.product_name %>" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="<%= images[0] %>" onerror="this.src='/images/placeholder-product.jpg'"/>
+<img alt="<%= auction.title || auction.product_name %>" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="<%= images[0] %>" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'"/>
 <!-- Live Badge -->
 <% if (auction.status === 'active') { %>
 <div class="absolute top-6 left-6 px-4 py-1.5 bg-tertiary text-on-tertiary text-[10px] font-bold tracking-[0.2em] rounded-full flex items-center gap-2 shadow-md">
@@ -45,10 +45,10 @@
 </div>
 <!-- Thumbnails -->
 <% if (images.length > 1) { %>
-<div class="grid grid-cols-4 gap-4">
+<div class="grid grid-cols-4 gap-4" id="auction-thumbnails">
     <% images.forEach(function(img, index) { %>
-        <div class="aspect-square rounded-xl overflow-hidden <%= index === 0 ? 'ring-2 ring-primary' : '' %> bg-surface-container-lowest cursor-pointer">
-        <img class="w-full h-full object-cover" src="<%= img %>" onerror="this.src='/images/placeholder-product.jpg'"/>
+        <div class="aspect-square rounded-xl overflow-hidden auction-thumb <%= index === 0 ? 'ring-2 ring-primary' : '' %> bg-surface-container-lowest cursor-pointer" data-src="<%= img %>">
+        <img class="w-full h-full object-cover" src="<%= img %>" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'"/>
         </div>
     <% }); %>
 </div>
@@ -59,17 +59,26 @@
 <section>
 <span class="inline-block px-3 py-1 bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold tracking-widest rounded-md uppercase mb-4"><%= auction.category_name || 'AUCTION' %></span>
 <h1 class="text-4xl lg:text-5xl font-headline font-black text-on-surface leading-tight mb-4"><%= auction.title || auction.product_name %></h1>
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 rounded-full flex items-center justify-center bg-amber-100 text-amber-700 font-bold ring-2 ring-primary-container/20 overflow-hidden">
+<a href="/user/artisan/<%= auction.artisan_id %>" class="flex items-center gap-4 mt-6 p-4 rounded-2xl bg-surface-container-low hover:bg-surface-container transition-colors group">
+<div class="w-14 h-14 rounded-full flex-shrink-0 flex items-center justify-center bg-amber-100 text-amber-700 font-bold text-xl ring-2 ring-primary-container/40 overflow-hidden">
 <% if (auction.artisan_profile_image || auction.artisan_avatar) { %>
-    <img src="<%= auction.artisan_profile_image || auction.artisan_avatar %>" alt="<%= auction.shop_name || 'Artisan' %>" class="w-full h-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-    <span style="display:none"><%= (auction.shop_name || 'A')[0].toUpperCase() %></span>
+    <img src="<%= auction.artisan_profile_image || auction.artisan_avatar %>" alt="<%= auction.shop_name || 'Artisan' %>" class="w-full h-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <span style="display:none" class="w-full h-full flex items-center justify-center"><%= (auction.shop_name || 'A')[0].toUpperCase() %></span>
 <% } else { %>
     <%= (auction.shop_name || 'A')[0].toUpperCase() %>
 <% } %>
 </div>
-<span class="text-secondary font-medium italic">by <%= auction.shop_name || 'Artisan' %></span>
+<div class="flex-1 min-w-0">
+    <div class="flex items-center gap-2 flex-wrap">
+        <span class="font-serif font-bold text-base text-on-surface group-hover:text-primary transition-colors truncate"><%= auction.shop_name || auction.artisan_name || 'Artisan' %></span>
+        <span class="inline-flex items-center gap-1 bg-primary-fixed/20 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+            <span class="material-symbols-outlined text-[12px] filled-icon">verified</span>
+            Verified
+        </span>
+    </div>
+    <span class="text-xs text-secondary">View Artisan Shop →</span>
 </div>
+</a>
 </section>
 <!-- Status Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -116,11 +125,11 @@
 <div class="absolute left-0 top-0 w-1.5 h-full bg-primary"></div>
 <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-secondary mb-4">Place Your Bid</label>
 
-<% if (locals.error) { %>
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert"><%= error %></div>
+<% if (locals.error && (Array.isArray(locals.error) ? locals.error.length > 0 : String(locals.error).trim())) { %>
+    <script>document.addEventListener('DOMContentLoaded',function(){if(typeof showToast==='function')showToast('<%= String(Array.isArray(locals.error)?locals.error[0]:locals.error).replace(/\\/g,'\\\\').replace(/'/g,"\\'") %>','error');});</script>
 <% } %>
-<% if (locals.success) { %>
-    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert"><%= success %></div>
+<% if (locals.success && (Array.isArray(locals.success) ? locals.success.length > 0 : String(locals.success).trim())) { %>
+    <script>document.addEventListener('DOMContentLoaded',function(){if(typeof showToast==='function')showToast('<%= String(Array.isArray(locals.success)?locals.success[0]:locals.success).replace(/\\/g,'\\\\').replace(/'/g,"\\'") %>','success');});</script>
 <% } %>
 
 <% if (locals.user && locals.user.role === 'customer') { %>
@@ -303,6 +312,9 @@
         }
 
         function showFeedback(message, tone) {
+            if (typeof showToast === 'function' && message) {
+                showToast(message, tone === 'error' ? 'danger' : 'success');
+            }
             if (!feedbackEl || !message) {
                 return;
             }
@@ -474,5 +486,24 @@
     })();
 </script>
 <% } %>
+
+<script>
+(function() {
+  var mainImg = document.querySelector('.group.overflow-hidden.rounded-2xl img');
+  document.querySelectorAll('.auction-thumb').forEach(function(thumb) {
+    thumb.addEventListener('click', function() {
+      var src = thumb.getAttribute('data-src');
+      if (mainImg && src) {
+        mainImg.src = src;
+        mainImg.onerror = function() { this.onerror=null; this.src='/images/placeholder-product.svg'; };
+      }
+      document.querySelectorAll('.auction-thumb').forEach(function(t) {
+        t.classList.remove('ring-2', 'ring-primary');
+      });
+      thumb.classList.add('ring-2', 'ring-primary');
+    });
+  });
+})();
+</script>
 
 <%- include('../partials/footer') %>
