@@ -154,7 +154,7 @@ class Coupon {
     }
 
     const now = new Date();
-    const validFrom = coupon.valid_from || coupon.valid_until;
+    const validFrom = coupon.valid_from;
     const validUntil = coupon.valid_until || coupon.expires_at;
     
     if (validFrom && new Date(validFrom) > now) {
@@ -184,7 +184,7 @@ class Coupon {
     const discountType = coupon.discount_type || coupon.type;
     const discountValue = coupon.discount_value || coupon.value;
     let discount;
-    if (discountType === 'percent') {
+    if (discountType === 'percent' || discountType === 'percentage') {
       discount = eligibleTotal * (discountValue / 100);
       if (coupon.max_discount && discount > coupon.max_discount) {
         discount = coupon.max_discount;

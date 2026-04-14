@@ -80,8 +80,6 @@ exports.login = async (req, res) => {
       req.session.user.artisanProfile = profile;
     }
 
-    req.flash('success_msg', `Welcome back, ${user.name}!`);
-
     // Redirect based on role
     if (user.role === 'admin') {
       return res.redirect('/admin/dashboard');

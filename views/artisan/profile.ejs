@@ -13,7 +13,7 @@
     </section>
 
     <section class="max-w-5xl mx-auto bg-surface-container-lowest rounded-xl p-6 md:p-8">
-      <form action="/artisan/profile" method="POST" enctype="multipart/form-data" class="space-y-5">
+      <form action="/artisan/profile?_csrf=<%= typeof csrfToken !== 'undefined' ? encodeURIComponent(csrfToken) : '' %>" method="POST" enctype="multipart/form-data" class="space-y-5">
         <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">

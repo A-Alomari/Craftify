@@ -33,6 +33,10 @@ Back to Cart
 <label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container">Street Address</label>
 <input name="shipping_address" required class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="123 Main Street" type="text" value="<%= user && user.shipping_address ? user.shipping_address : '' %>"/>
 </div>
+<div class="space-y-2">
+<label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container">Apartment / Suite / Building <span class="normal-case text-on-secondary-container/60 font-normal">(optional)</span></label>
+<input name="shipping_building" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="Apt 4B, Suite 200, Floor 3..." type="text"/>
+</div>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 <div class="space-y-2">
 <label class="text-xs uppercase tracking-widest font-label font-bold text-on-secondary-container">City</label>
@@ -81,7 +85,7 @@ Back to Cart
 </div>
 <!-- Right Column: Summary -->
 <aside class="lg:col-span-4">
-<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm sticky top-32">
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm lg:sticky lg:top-32">
 <h2 class="text-xl font-headline font-bold mb-8">Order Summary</h2>
 <!-- Line Items -->
 <div class="space-y-6 mb-8">

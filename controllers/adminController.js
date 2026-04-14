@@ -756,6 +756,15 @@ exports.createCoupon = (req, res) => {
     const normalizedScope = scope === 'artisan' ? 'artisan' : 'global';
     const parsedArtisanId = artisan_id ? Number.parseInt(artisan_id, 10) : null;
 
+    // FIX: BUG 1 — reject if expiry date is in the past (server-side validation).
+    if (valid_until && new Date(valid_until) <= new Date()) {
+      if (req.xhr) {
+        return res.status(400).json({ success: false, message: 'Coupon expiry date must be in the future' });
+      }
+      req.flash('error_msg', 'Coupon expiry date must be in the future');
+      return res.redirect('/admin/coupons');
+    }
+
     if (!code || !discount_type || !Number.isFinite(parsedDiscountValue) || parsedDiscountValue <= 0) {
       if (req.xhr) {
         return res.status(400).json({ success: false, message: 'Invalid coupon data' });

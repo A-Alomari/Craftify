@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auctionController = require('../controllers/auctionController');
-const { isAuthenticated, isActive } = require('../middleware/auth');
+const { isAuthenticated, isActive, isCustomer } = require('../middleware/auth');
 const rateLimit = require('express-rate-limit');
 
 const isTest = process.env.NODE_ENV === 'test' || process.argv.some(arg => arg.includes('jest'));
@@ -17,9 +17,9 @@ const bidLimiter = isTest
 		});
 
 router.get('/', auctionController.index);
-router.get('/my-bids', isAuthenticated, isActive, auctionController.myBids);
+router.get('/my-bids', isAuthenticated, isActive, isCustomer, auctionController.myBids);
 router.get('/:id', auctionController.show);
-router.post('/:id/bid', isAuthenticated, isActive, bidLimiter, auctionController.placeBid);
+router.post('/:id/bid', isAuthenticated, isActive, isCustomer, bidLimiter, auctionController.placeBid);
 router.get('/:id/data', auctionController.getAuctionData);
 
 module.exports = router;

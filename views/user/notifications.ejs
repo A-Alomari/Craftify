@@ -37,9 +37,9 @@
                   <button class="bg-primary-container text-on-primary-container px-3 py-2 rounded-lg text-xs font-semibold">Mark Read</button>
                 </form>
               <% } %>
-              <form action="/user/notifications/<%= n.id %>?_method=DELETE" method="POST">
+              <form action="/user/notifications/<%= n.id %>?_method=DELETE" method="POST" data-confirm="Delete this notification?">
                 <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                <button class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-2 rounded-lg text-xs font-semibold" onclick="return confirm('Delete this notification?');">Delete</button>
+                <button class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-2 rounded-lg text-xs font-semibold">Delete</button>
               </form>
             </div>
           </div>

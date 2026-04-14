@@ -1,6 +1,6 @@
 <%- include('../partials/header', { title: title }) %>
 
-<main class="flex-grow min-h-screen">
+<main class="flex-grow bg-surface-container-lowest" style="height:calc(100vh - 72px); overflow:hidden;">
 
 <%
   const conversationList = Array.isArray(conversations) ? conversations : [];
@@ -31,8 +31,8 @@
   };
 %>
 
-<section class="flex max-h-[calc(100vh-72px)] overflow-hidden">
-  <aside class="hidden md:flex md:w-[30%] lg:w-[25%] bg-surface-container-lowest border-r border-outline-variant/10 flex-col h-[calc(100vh-72px)]">
+<section class="flex overflow-hidden" style="height:calc(100vh - 72px);">
+  <aside class="hidden md:flex md:w-[30%] lg:w-[25%] bg-surface-container-lowest border-r border-outline-variant/10 flex-col overflow-hidden" style="height:calc(100vh - 72px);">
     <div class="p-6 pb-4">
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold font-headline text-on-surface">Messages</h1>
@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <div class="flex-grow overflow-y-auto px-2 space-y-1 pb-4">
+    <div class="flex-grow overflow-y-auto bg-surface-container-lowest px-2 space-y-1 pb-4">
       <% conversationList.forEach(function(conv) { %>
         <% const isActive = Number(conv.other_user_id) === activeUserId; %>
         <a href="/user/messages/<%= conv.other_user_id %>" class="flex items-start gap-3 p-4 rounded-2xl cursor-pointer group transition-all relative <%= isActive ? 'bg-primary-container/10' : 'hover:bg-surface-container-low' %>">
@@ -84,8 +84,8 @@
     </div>
   </aside>
 
-  <section class="flex flex-col flex-grow bg-surface relative h-[calc(100vh-72px)]">
-    <header class="bg-surface/80 backdrop-blur-xl px-4 md:px-8 py-4 flex items-center justify-between border-b border-outline-variant/5">
+  <section class="flex flex-col flex-1 bg-surface overflow-hidden" style="height:calc(100vh - 72px);">
+    <header class="bg-surface/80 backdrop-blur-xl px-4 md:px-8 py-4 flex items-center justify-between border-b border-outline-variant/5 flex-shrink-0">
       <div class="flex items-center gap-4 min-w-0">
         <a href="/user/messages" class="md:hidden p-2 text-secondary hover:bg-surface-container-high rounded-full transition-all">
           <span class="material-symbols-outlined">arrow_back</span>
@@ -122,7 +122,8 @@
       </div>
     </header>
 
-    <div class="flex-grow overflow-y-auto p-4 md:p-8 space-y-6">
+    <div id="msg-container" class="flex-1 min-h-0 overflow-y-auto p-4 md:p-8">
+      <div class="flex flex-col justify-end min-h-full gap-6">
       <% if (threadMessages.length > 0) { %>
         <% const firstMessageDate = new Date(threadMessages[0].created_at); %>
         <div class="flex justify-center">
@@ -134,7 +135,12 @@
             <div class="flex flex-row-reverse items-start gap-3 max-w-[85%] ml-auto">
               <div class="space-y-1 text-right">
                 <div class="bg-primary text-on-primary p-4 rounded-2xl rounded-tr-none leading-relaxed text-sm shadow-lg shadow-primary/10">
-                  <%= msg.content %>
+                  <% if (msg.image_url) { %>
+                    <a href="<%= msg.image_url %>" target="_blank" class="block">
+                      <img src="<%= msg.image_url %>" alt="Image" class="max-w-[220px] rounded-lg mb-1 cursor-pointer hover:opacity-90 transition-opacity">
+                    </a>
+                  <% } %>
+                  <% if (msg.content) { %><%= msg.content %><% } %>
                 </div>
                 <span class="text-[10px] text-secondary mr-1"><%= formatMessageTime(msg.created_at) %></span>
               </div>
@@ -150,7 +156,12 @@
               <% } %>
               <div class="space-y-1">
                 <div class="bg-surface-container-low text-on-surface p-4 rounded-2xl rounded-tl-none leading-relaxed text-sm">
-                  <%= msg.content %>
+                  <% if (msg.image_url) { %>
+                    <a href="<%= msg.image_url %>" target="_blank" class="block">
+                      <img src="<%= msg.image_url %>" alt="Image" class="max-w-[220px] rounded-lg mb-1 cursor-pointer hover:opacity-90 transition-opacity">
+                    </a>
+                  <% } %>
+                  <% if (msg.content) { %><%= msg.content %><% } %>
                 </div>
                 <span class="text-[10px] text-secondary ml-1"><%= formatMessageTime(msg.created_at) %></span>
               </div>
@@ -158,17 +169,28 @@
           <% } %>
         <% }); %>
       <% } else { %>
-        <div class="h-full flex items-center justify-center">
+        <div class="h-full flex items-center justify-center py-16">
           <p class="text-secondary text-center">No messages yet. Start the conversation.</p>
         </div>
       <% } %>
+      </div>
     </div>
 
-    <form action="/user/messages" method="POST" class="border-t border-outline-variant/10 bg-surface/80 backdrop-blur-xl p-4 md:p-6">
+    <form id="msg-send-form" action="/user/messages" method="POST" enctype="multipart/form-data" class="border-t border-outline-variant/10 bg-surface/80 backdrop-blur-xl p-4 md:p-6 flex-shrink-0">
       <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
       <input type="hidden" name="receiver_id" value="<%= otherUser.id %>">
+      <input type="file" id="msg-img-input" name="message_image" accept="image/jpeg,image/png,image/webp" class="hidden">
+      <div id="msg-img-preview" class="hidden mb-2 flex items-center gap-2 pl-1">
+        <img id="msg-img-thumb" src="" alt="Preview" class="h-16 w-16 object-cover rounded-lg border border-outline-variant/20">
+        <button type="button" id="msg-img-remove" class="p-1 text-secondary hover:text-error transition-colors">
+          <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+      </div>
       <div class="flex items-center gap-2 md:gap-3">
-        <input type="text" name="content" required placeholder="Type a message..." class="flex-1 bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-0"/>
+        <button type="button" id="msg-attach-btn" class="p-2.5 text-secondary hover:text-primary hover:bg-surface-container-low rounded-xl transition-all flex-shrink-0" title="Attach photo">
+          <span class="material-symbols-outlined text-xl">attach_file</span>
+        </button>
+        <input type="text" name="content" placeholder="Type a message…" class="flex-1 bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-0"/>
         <button type="submit" class="px-5 py-3 bg-primary-container text-on-primary-container font-bold rounded-xl hover:bg-primary transition-colors duration-200 inline-flex items-center gap-2">
           <span class="material-symbols-outlined text-base">send</span>
           Send
@@ -180,4 +202,108 @@
 
 </main>
 
-<%- include('../partials/footer') %>
+<script>
+(function() {
+  // Auto-scroll messages to bottom on load
+  var msgContainer = document.getElementById('msg-container');
+  var msgInner = msgContainer ? msgContainer.querySelector('.flex.flex-col.justify-end') : null;
+  if (msgContainer) msgContainer.scrollTop = msgContainer.scrollHeight;
+
+  // Attachment button triggers file input
+  var attachBtn = document.getElementById('msg-attach-btn');
+  var imgInput = document.getElementById('msg-img-input');
+  var imgPreview = document.getElementById('msg-img-preview');
+  var imgThumb = document.getElementById('msg-img-thumb');
+  var imgRemoveBtn = document.getElementById('msg-img-remove');
+
+  if (attachBtn && imgInput) {
+    attachBtn.addEventListener('click', function() { imgInput.click(); });
+  }
+
+  if (imgInput && imgPreview && imgThumb) {
+    imgInput.addEventListener('change', function() {
+      var file = imgInput.files[0];
+      if (file) {
+        imgThumb.src = URL.createObjectURL(file);
+        imgPreview.classList.remove('hidden');
+      }
+    });
+  }
+
+  if (imgRemoveBtn && imgInput && imgPreview) {
+    imgRemoveBtn.addEventListener('click', function() {
+      imgInput.value = '';
+      imgPreview.classList.add('hidden');
+      imgThumb.src = '';
+    });
+  }
+
+  var form = document.getElementById('msg-send-form');
+  if (!form) return;
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    var contentInput = form.querySelector('input[name="content"]');
+    var content = contentInput ? contentInput.value.trim() : '';
+    var file = imgInput ? imgInput.files[0] : null;
+    if (!content && !file) return;
+
+    var csrf = (form.querySelector('input[name="_csrf"]') || {}).value || '';
+    var receiverId = form.querySelector('input[name="receiver_id"]').value;
+    var btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+
+    var formData = new FormData();
+    formData.append('receiver_id', receiverId);
+    formData.append('content', content);
+    formData.append('_csrf', csrf);
+    if (file) formData.append('message_image', file);
+
+    // Optimistic bubble
+    var now = new Date();
+    var timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    var blobUrl = file ? URL.createObjectURL(file) : null;
+
+    var msgEl = document.createElement('div');
+    msgEl.className = 'flex flex-row-reverse items-start gap-3 max-w-[85%] ml-auto';
+    var imgHtml = blobUrl
+      ? '<a href="' + blobUrl + '" target="_blank" class="block"><img src="' + blobUrl + '" alt="Image" class="max-w-[220px] rounded-lg mb-1 cursor-pointer hover:opacity-90 transition-opacity"></a>'
+      : '';
+    var textHtml = content
+      ? content.replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      : '';
+    msgEl.innerHTML =
+      '<div class="space-y-1 text-right">' +
+        '<div class="bg-primary text-on-primary p-4 rounded-2xl rounded-tr-none leading-relaxed text-sm shadow-lg shadow-primary/10">' +
+          imgHtml + textHtml +
+        '</div>' +
+        '<span class="text-[10px] text-secondary mr-1">' + timeStr + '</span>' +
+      '</div>';
+
+    if (msgContainer) {
+      var target = msgInner || msgContainer;
+      target.appendChild(msgEl);
+      msgContainer.scrollTop = msgContainer.scrollHeight;
+    }
+
+    if (contentInput) contentInput.value = '';
+    if (imgInput) {
+      imgInput.value = '';
+      if (imgPreview) imgPreview.classList.add('hidden');
+      if (imgThumb) imgThumb.src = '';
+    }
+
+    fetch('/user/messages', {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest', 'x-csrf-token': csrf },
+      body: formData
+    }).then(function(res) {
+      btn.disabled = false;
+      if (!res.ok && typeof showToast === 'function') showToast('Failed to send message', 'error');
+    }).catch(function() {
+      btn.disabled = false;
+      if (typeof showToast === 'function') showToast('Error sending message', 'error');
+    });
+  }, true);
+})();
+</script>

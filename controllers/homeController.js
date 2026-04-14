@@ -26,7 +26,8 @@ exports.index = (req, res) => {
     
     // Parse auction images
     activeAuctions.forEach(a => {
-      const images = JSON.parse(a.product_images || '[]');
+      // FIX: fall back to a.images for standalone auctions that have no linked product.
+      const images = JSON.parse(a.product_images || a.images || '[]');
       a.image = images[0] || '/images/placeholder-product.jpg';
     });
 
@@ -61,6 +62,27 @@ exports.contact = (req, res) => {
   res.render('home/contact', { title: 'Contact Us - Craftify' });
 };
 
+// Contact form POST
+exports.contactPost = (req, res) => {
+  const { name, email, subject, message } = req.body;
+
+  if (!name || !email || !subject || !message ||
+      typeof name !== 'string' || typeof email !== 'string' ||
+      typeof subject !== 'string' || typeof message !== 'string') {
+    req.flash('error_msg', 'Please fill out all required fields.');
+    return res.redirect('/contact');
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    req.flash('error_msg', 'Please enter a valid email address.');
+    return res.redirect('/contact');
+  }
+
+  // In a real app this would send an email; for now just acknowledge
+  req.flash('success_msg', "Thanks for reaching out, " + name.trim().split(' ')[0] + "! We'll get back to you within one business day.");
+  res.redirect('/contact');
+};
+
 // FAQ page
 exports.faq = (req, res) => {
   res.render('home/faq', { title: 'FAQ - Craftify' });
@@ -82,20 +104,22 @@ exports.artisans = (req, res) => {
     const { getDb } = require('../config/database');
     const db = getDb();
     
+    // FIX: ap.status, ap.is_featured, r.status columns do not exist in the schema.
+    // ap.status → ap.is_approved; ap.is_featured removed; r.status → r.is_approved.
     const artisans = db.prepare(`
-      SELECT 
+      SELECT
         u.id, u.name, u.email,
-        ap.shop_name, ap.bio, ap.profile_image, ap.is_featured,
+        ap.shop_name, ap.bio, ap.profile_image,
         COUNT(DISTINCT p.id) as product_count,
         AVG(r.rating) as avg_rating,
         COUNT(DISTINCT r.id) as review_count
       FROM users u
       INNER JOIN artisan_profiles ap ON u.id = ap.user_id
       LEFT JOIN products p ON u.id = p.artisan_id AND p.status = 'approved'
-      LEFT JOIN reviews r ON p.id = r.product_id AND r.status = 'approved'
-      WHERE u.role = 'artisan' AND u.status = 'active' AND ap.status = 'approved'
-      GROUP BY u.id, u.name, u.email, ap.shop_name, ap.bio, ap.profile_image, ap.is_featured
-      ORDER BY ap.is_featured DESC, review_count DESC, product_count DESC
+      LEFT JOIN reviews r ON p.id = r.product_id AND r.is_approved = 1
+      WHERE u.role = 'artisan' AND u.status = 'active' AND ap.is_approved = 1
+      GROUP BY u.id, u.name, u.email, ap.shop_name, ap.bio, ap.profile_image
+      ORDER BY review_count DESC, product_count DESC
     `).all();
     
     res.render('home/artisans', {

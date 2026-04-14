@@ -17,13 +17,21 @@ exports.dashboard = (req, res) => {
     const stats = ArtisanProfile.getStats(artisanId);
     const recentOrders = Order.getRecentByArtisan(artisanId, 5);
     const activeAuctions = Auction.findAll({ artisan_id: artisanId, status: 'active', limit: 5 });
+    const monthlyRevenue = Order.getMonthlyRevenueByArtisan(artisanId, 6);
+
+    // Parse product image for recent orders
+    recentOrders.forEach(o => {
+      const imgs = JSON.parse(o.product_images || '[]');
+      o.product_image = imgs[0] || '/images/placeholder-product.jpg';
+    });
 
     res.render('artisan/dashboard', {
       title: 'Artisan Dashboard - Craftify',
       profile,
       stats,
       recentOrders,
-      activeAuctions
+      activeAuctions,
+      monthlyRevenue
     });
   } catch (err) {
     console.error('Artisan dashboard error:', err);
@@ -111,15 +119,15 @@ exports.newProduct = (req, res) => {
 
 exports.createProduct = (req, res) => {
   try {
-    const { name, description, price, stock, category_id } = req.body;
-    
+    const { name, description, price, stock, category_id, weight, tags, length_cm, width_cm, height_cm } = req.body;
+
     // Sanitize and validate input
     const { errors, sanitized } = validateProductInput(req.body);
     if (errors.length > 0) {
       req.flash('error_msg', errors.join('. '));
       return res.redirect('/artisan/products/new');
     }
-    
+
     let images = [];
     if (req.files && req.files.length > 0) {
       images = req.files.map(f => `/uploads/${f.filename}`);
@@ -133,7 +141,12 @@ exports.createProduct = (req, res) => {
       stock: parseInt(stock) || 0,
       category_id: category_id || null,
       images: JSON.stringify(images),
-      status: 'pending'
+      status: 'pending',
+      weight: weight ? parseFloat(weight) : null,
+      tags: tags ? tags.trim() : null,
+      length_cm: length_cm ? parseFloat(length_cm) : null,
+      width_cm: width_cm ? parseFloat(width_cm) : null,
+      height_cm: height_cm ? parseFloat(height_cm) : null
     });
 
     req.flash('success_msg', 'Product created! It will be visible after admin approval.');
@@ -179,32 +192,41 @@ exports.updateProduct = (req, res) => {
       return res.redirect('/artisan/products');
     }
 
-    const { name, description, price, stock, category_id } = req.body;
-    
+    const { name, description, price, stock, category_id, weight, tags, length_cm, width_cm, height_cm } = req.body;
+
     // Sanitize and validate input
     const { errors, sanitized } = validateProductInput(req.body);
     if (errors.length > 0) {
       req.flash('error_msg', errors.join('. '));
       return res.redirect(`/artisan/products/${id}/edit`);
     }
-    
+
     let images = JSON.parse(product.images || '[]');
     if (req.files && req.files.length > 0) {
       const newImages = req.files.map(f => `/uploads/${f.filename}`);
       images = [...images, ...newImages];
     }
 
-    Product.update(id, {
+    const updatedProduct = Product.update(id, {
       name: sanitized.name,
       description: sanitized.description,
       price: parseFloat(price),
       stock: parseInt(stock) || 0,
       category_id: category_id || null,
-      images: JSON.stringify(images)
+      images: JSON.stringify(images),
+      weight: weight ? parseFloat(weight) : null,
+      tags: tags ? tags.trim() : null,
+      length_cm: length_cm ? parseFloat(length_cm) : null,
+      width_cm: width_cm ? parseFloat(width_cm) : null,
+      height_cm: height_cm ? parseFloat(height_cm) : null
     });
 
     req.flash('success_msg', 'Product updated successfully');
-    res.redirect('/artisan/products');
+    if (updatedProduct && updatedProduct.status === 'approved') {
+      res.redirect(`/products/${id}`);
+    } else {
+      res.redirect('/artisan/products');
+    }
   } catch (err) {
     console.error('Update product error:', err);
     req.flash('error_msg', 'Error updating product');
@@ -327,7 +349,8 @@ exports.auctions = (req, res) => {
     const auctions = Auction.findAll({ artisan_id: req.session.user.id });
 
     auctions.forEach(a => {
-      const images = JSON.parse(a.product_images || '[]');
+      // FIX: fall back to a.images for standalone auctions that have no linked product.
+      const images = JSON.parse(a.product_images || a.images || '[]');
       a.image = images[0] || '/images/placeholder-product.jpg';
     });
 
@@ -354,17 +377,34 @@ exports.createAuction = (req, res) => {
   try {
     const { product_id, title, description, starting_bid, reserve_price, bid_increment, start_time, end_time } = req.body;
 
-    const product = Product.findById(product_id);
-    if (!product || product.artisan_id !== req.session.user.id) {
-      req.flash('error_msg', 'Invalid product');
+    // Product is optional — if provided, verify ownership
+    let verifiedProductId = null;
+    if (product_id) {
+      const product = Product.findById(product_id);
+      if (!product || product.artisan_id !== req.session.user.id) {
+        req.flash('error_msg', 'Invalid product selected');
+        return res.redirect('/artisan/auctions/new');
+      }
+      verifiedProductId = product_id;
+    }
+
+    if (!title && !verifiedProductId) {
+      req.flash('error_msg', 'Please provide an auction title or select a product');
       return res.redirect('/artisan/auctions/new');
     }
 
-    Auction.create({
-      product_id,
+    // Handle uploaded images for standalone auctions
+    let images = '[]';
+    if (req.files && req.files.length > 0) {
+      images = JSON.stringify(req.files.map(f => `/uploads/${f.filename}`));
+    }
+
+    const newAuction = Auction.create({
+      product_id: verifiedProductId,
       artisan_id: req.session.user.id,
       title,
       description,
+      images,
       starting_bid: parseFloat(starting_bid),
       starting_price: parseFloat(starting_bid),
       reserve_price: reserve_price ? parseFloat(reserve_price) : null,
@@ -374,7 +414,7 @@ exports.createAuction = (req, res) => {
     });
 
     req.flash('success_msg', 'Auction created successfully!');
-    res.redirect('/artisan/auctions');
+    res.redirect(`/auctions/${newAuction.id}`);
   } catch (err) {
     console.error('Create auction error:', err);
     req.flash('error_msg', 'Error creating auction');
@@ -455,6 +495,12 @@ exports.createCoupon = (req, res) => {
     const parsedMinPurchase = min_purchase ? Number.parseFloat(min_purchase) : 0;
     const parsedMaxDiscount = max_discount ? Number.parseFloat(max_discount) : null;
     const parsedUsageLimit = usage_limit ? Number.parseInt(usage_limit, 10) : null;
+
+    // FIX: BUG 1 — reject if expiry date is in the past (server-side validation).
+    if (valid_until && new Date(valid_until) <= new Date()) {
+      req.flash('error_msg', 'Coupon expiry date must be in the future');
+      return res.redirect('/artisan/coupons');
+    }
 
     if (!code || !discount_type || !Number.isFinite(parsedDiscountValue) || parsedDiscountValue <= 0) {
       req.flash('error_msg', 'Invalid promo code data');

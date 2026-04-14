@@ -71,7 +71,7 @@ module.exports = ({ getTestContext, loginAs }) => {
 
     test('Product detail wishlist control targets wishlist route', async () => {
       const res = await request(app).get(`/products/${ids.vaseId}`);
-      expect(res.text).toContain('formaction="/user/wishlist/toggle"');
+      expect(res.text).toContain('action="/user/wishlist/toggle"');
     });
   });
 

@@ -94,13 +94,26 @@ function initCart() {
       removeFromCart(productId);
     });
   });
+
+  // Also intercept form-based Add to Cart (prevents full page reload)
+  document.querySelectorAll('form[action="/cart/add"]').forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const productId = form.querySelector('input[name="productId"]')?.value;
+      const qty = form.querySelector('input[name="quantity"]')?.value || 1;
+      const btn = form.querySelector('button[type="submit"]');
+      if (productId) addToCart(productId, qty, btn);
+    });
+  });
 }
 
 function addToCart(productId, quantity, btn) {
   const parsedQuantity = toIntegerOrDefault(quantity, 1);
-  const originalHtml = btn.innerHTML;
-  btn.innerHTML = '<span class="loading-spinner"></span>';
-  btn.disabled = true;
+  const originalHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.innerHTML = '<span class="loading-spinner"></span>';
+    btn.disabled = true;
+  }
 
   fetch('/cart/add', {
     method: 'POST',
@@ -112,27 +125,31 @@ function addToCart(productId, quantity, btn) {
     if (!data) return;
 
     if (data.success) {
-      btn.innerHTML = '<i class="bi bi-check"></i> Added!';
-      btn.classList.remove('btn-primary', 'btn-outline-primary');
-      btn.classList.add('btn-success');
+      if (btn) {
+        btn.innerHTML = '<span class="material-symbols-outlined text-sm">check_circle</span> Added!';
+      }
       updateCartBadge(data.cartCount);
       showToast('Item added to cart!', 'success');
-      
+
       setTimeout(() => {
-        btn.innerHTML = originalHtml;
-        btn.classList.remove('btn-success');
-        btn.classList.add('btn-primary');
-        btn.disabled = false;
+        if (btn) {
+          btn.innerHTML = originalHtml;
+          btn.disabled = false;
+        }
       }, 2000);
     } else {
-      btn.innerHTML = originalHtml;
-      btn.disabled = false;
+      if (btn) {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+      }
       showToast(data.message || 'Failed to add to cart', 'danger');
     }
   })
   .catch(err => {
-    btn.innerHTML = originalHtml;
-    btn.disabled = false;
+    if (btn) {
+      btn.innerHTML = originalHtml;
+      btn.disabled = false;
+    }
     showToast('Error adding to cart', 'danger');
   });
 }
@@ -189,6 +206,16 @@ function initWishlist() {
       toggleWishlist(productId, this);
     });
   });
+
+  // Also intercept form-based wishlist toggles (prevents full page reload)
+  document.querySelectorAll('form[action="/user/wishlist/toggle"]').forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const productId = form.querySelector('input[name="productId"]')?.value;
+      const btn = form.querySelector('button[type="submit"]');
+      if (productId) toggleWishlistForm(productId, btn);
+    });
+  });
 }
 
 function toggleWishlist(productId, btn) {
@@ -212,6 +239,39 @@ function toggleWishlist(productId, btn) {
       showToast(isNowInWishlist ? 'Added to wishlist' : 'Removed from wishlist', 'success');
     } else {
       showToast(data.message || 'Failed to update wishlist', 'danger');
+    }
+  })
+  .catch(() => {
+    showToast('Error updating wishlist', 'danger');
+  });
+}
+
+function toggleWishlistForm(productId, btn) {
+  const icon = btn ? btn.querySelector('.material-symbols-outlined[data-icon="favorite"]') : null;
+  const currentlyActive = btn ? btn.classList.contains('text-tertiary') : false;
+
+  fetch('/user/wishlist/toggle', {
+    method: 'POST',
+    headers: getRequestHeaders('POST', { 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ productId })
+  })
+  .then(parseJsonResponse)
+  .then(data => {
+    if (!data) return;
+    if (data.success) {
+      const inWishlist = Boolean(data.inWishlist);
+      if (btn) {
+        btn.classList.toggle('text-tertiary', inWishlist);
+        btn.classList.toggle('text-secondary', !inWishlist);
+      }
+      if (icon) {
+        icon.textContent = inWishlist ? 'favorite' : 'favorite_border';
+      }
+      showToast(inWishlist ? 'Added to wishlist!' : 'Removed from wishlist', 'success');
+    } else if (data.redirect) {
+      window.location.href = data.redirect;
+    } else {
+      showToast(data.message || 'Please log in to use wishlist', 'warning');
     }
   })
   .catch(() => {
@@ -578,20 +638,23 @@ document.addEventListener('DOMContentLoaded', function() {
     messageForm.addEventListener('submit', function(e) {
       e.preventDefault();
       const handler = handleFormSubmit(this, { loadingText: 'Sending...' });
-      
+      const receiverId = this.querySelector('input[name="receiver_id"]')?.value;
+      const content = this.querySelector('input[name="content"]')?.value;
+
       fetch(this.action, {
         method: 'POST',
-        body: new FormData(this),
-        headers: getRequestHeaders('POST')
+        headers: getRequestHeaders('POST', { 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ receiver_id: receiverId, content })
       })
       .then(response => {
         if (response.ok) {
           handler.success('Message sent!');
           this.reset();
-          // Reload page after short delay to show new message
           setTimeout(() => window.location.reload(), 1000);
         } else {
-          handler.error('Failed to send message');
+          return response.json().then(data => {
+            handler.error(data.message || 'Failed to send message');
+          }).catch(() => handler.error('Failed to send message'));
         }
       })
       .catch(() => {
@@ -606,11 +669,12 @@ document.addEventListener('DOMContentLoaded', function() {
     couponForm.addEventListener('submit', function(e) {
       e.preventDefault();
       const handler = handleFormSubmit(this, { loadingText: 'Applying...' });
-      
+      const code = this.querySelector('input[name="code"]')?.value;
+
       fetch(this.action, {
         method: 'POST',
-        body: new FormData(this),
-        headers: getRequestHeaders('POST')
+        headers: getRequestHeaders('POST', { 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ code })
       })
       .then(parseJsonResponse)
       .then(data => {
@@ -627,4 +691,44 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
   }
+});
+
+// Styled confirmation dialog (replaces browser confirm())
+function showConfirm(message, onConfirm) {
+  const overlay = document.createElement('div');
+  overlay.className = 'fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm';
+  overlay.innerHTML = `
+    <div class="bg-surface-container-lowest rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 border border-outline-variant/20">
+      <div class="flex items-start gap-4 mb-6">
+        <span class="material-symbols-outlined text-warning text-3xl flex-shrink-0">warning</span>
+        <p class="text-on-surface text-sm leading-relaxed">${String(message || 'Are you sure?')}</p>
+      </div>
+      <div class="flex items-center justify-end gap-3">
+        <button type="button" class="cancel-btn px-5 py-2.5 rounded-xl border border-outline-variant text-secondary text-sm font-semibold hover:bg-surface-container-high transition-colors">Cancel</button>
+        <button type="button" class="confirm-btn px-5 py-2.5 rounded-xl bg-error text-on-error text-sm font-bold hover:opacity-90 transition-opacity">Confirm</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const close = () => overlay.remove();
+  overlay.querySelector('.cancel-btn').addEventListener('click', close);
+  overlay.querySelector('.confirm-btn').addEventListener('click', function() {
+    close();
+    if (typeof onConfirm === 'function') onConfirm();
+  });
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) close();
+  });
+}
+
+// Handle forms with data-confirm attribute
+document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('submit', function(e) {
+    const form = e.target;
+    const msg = form.getAttribute('data-confirm');
+    if (!msg) return;
+    e.preventDefault();
+    showConfirm(msg, function() { form.removeAttribute('data-confirm'); form.submit(); });
+  });
 });

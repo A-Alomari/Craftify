@@ -19,8 +19,8 @@
             navItems.push({ href: '/orders', label: 'Orders' });
             navItems.push({ href: '/auctions/my-bids', label: 'My Bids' });
         }
-        if (user && user.role === 'artisan') navItems.push({ href: '/artisan/dashboard', label: 'Artisan' });
-        if (user && user.role === 'admin') navItems.push({ href: '/admin/dashboard', label: 'Admin' });
+        if (user && user.role === 'artisan') navItems.push({ href: '/artisan/dashboard', label: 'Dashboard' });
+        if (user && user.role === 'admin') navItems.push({ href: '/admin/dashboard', label: 'Dashboard' });
     %>
     <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 w-full z-50 shadow-sm dark:shadow-none bg-surface-container-lowest">
         <nav class="flex justify-between items-center px-6 py-4 max-w-full mx-auto">
@@ -40,12 +40,14 @@
                 <% }) %>
             </div>
             <div class="flex items-center gap-2">
+                <% if (!(typeof user !== 'undefined' && user && (user.role === 'artisan' || user.role === 'admin'))) { %>
                 <a href="/cart" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform text-slate-700 dark:text-slate-300 relative">
                     <span class="material-symbols-outlined">shopping_cart</span>
                     <% if (typeof cartCount !== 'undefined' && cartCount > 0) { %>
                         <span class="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-600 text-[10px] font-bold text-white"><%= cartCount %></span>
                     <% } %>
                 </a>
+                <% } %>
                 <% if (typeof user !== 'undefined' && user) { %>
                     <a href="/user/notifications" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform text-slate-700 dark:text-slate-300 relative">
                         <span class="material-symbols-outlined">notifications</span>

@@ -114,16 +114,18 @@ class ArtisanProfile {
   static getStats(userId) {
     const db = database.getDb();
     const stats = db.prepare(`
-      SELECT 
+      SELECT
         (SELECT COUNT(*) FROM products WHERE artisan_id = ? AND status = 'approved') as total_products,
         (SELECT COUNT(*) FROM products WHERE artisan_id = ?) as all_products,
         (SELECT COUNT(DISTINCT o.id) FROM orders o JOIN order_items oi ON o.id = oi.order_id JOIN products p ON oi.product_id = p.id WHERE p.artisan_id = ?) as total_orders,
         (SELECT COALESCE(SUM(oi.total_price), 0) FROM order_items oi JOIN orders o ON oi.order_id = o.id JOIN products p ON oi.product_id = p.id WHERE p.artisan_id = ? AND o.payment_status = 'paid') as total_revenue,
         (SELECT COUNT(*) FROM auctions WHERE artisan_id = ? AND status = 'active') as active_auctions,
-        (SELECT AVG(r.rating) FROM reviews r JOIN products p ON r.product_id = p.id WHERE p.artisan_id = ?) as avg_rating
-    `).get(userId, userId, userId, userId, userId, userId);
+        (SELECT AVG(r.rating) FROM reviews r JOIN products p ON r.product_id = p.id WHERE p.artisan_id = ?) as avg_rating,
+        (SELECT COUNT(DISTINCT o.id) FROM orders o JOIN order_items oi ON o.id = oi.order_id JOIN products p ON oi.product_id = p.id WHERE p.artisan_id = ? AND o.status IN ('pending','confirmed','processing')) as open_orders,
+        (SELECT COALESCE(SUM(views), 0) FROM products WHERE artisan_id = ? AND status = 'approved') as total_views
+    `).get(userId, userId, userId, userId, userId, userId, userId, userId);
 
-    return stats || { total_products: 0, all_products: 0, total_orders: 0, total_revenue: 0, active_auctions: 0, avg_rating: null };
+    return stats || { total_products: 0, all_products: 0, total_orders: 0, total_revenue: 0, active_auctions: 0, avg_rating: null, open_orders: 0, total_views: 0 };
   }
 
   static getFeatured(limit = 6) {

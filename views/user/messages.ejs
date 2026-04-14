@@ -1,6 +1,6 @@
 <%- include('../partials/header', { title: title }) %>
 
-<main class="flex-grow min-h-screen">
+<main class="flex-grow min-h-screen bg-surface-container-lowest">
 
 <%
   const conversationList = Array.isArray(conversations) ? conversations : [];
@@ -26,8 +26,8 @@
   };
 %>
 
-<section class="flex max-h-[calc(100vh-72px)] overflow-hidden">
-  <aside class="w-full md:w-[30%] lg:w-[25%] bg-surface-container-lowest border-r border-outline-variant/10 flex flex-col h-[calc(100vh-72px)]">
+<section class="flex overflow-hidden" style="height:calc(100vh - 72px);">
+  <aside class="w-full md:w-[30%] lg:w-[25%] bg-surface-container-lowest border-r border-outline-variant/10 flex flex-col overflow-hidden" style="height:calc(100vh - 72px);">
     <div class="p-6 pb-4">
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold font-headline text-on-surface flex items-center gap-2">
@@ -98,7 +98,7 @@
     </div>
   </aside>
 
-  <section class="hidden md:flex flex-col flex-grow bg-surface relative items-center justify-center px-10">
+  <section class="hidden md:flex flex-col flex-1 bg-surface items-center justify-center px-10">
     <div class="text-center max-w-md">
       <span class="material-symbols-outlined text-6xl text-secondary/70">forum</span>
       <h2 class="font-headline text-3xl mt-4">Select a Conversation</h2>

@@ -5,6 +5,7 @@ const homeController = require('../controllers/homeController');
 router.get('/', homeController.index);
 router.get('/about', homeController.about);
 router.get('/contact', homeController.contact);
+router.post('/contact', homeController.contactPost);
 router.get('/faq', homeController.faq);
 router.get('/terms', homeController.terms);
 router.get('/privacy', homeController.privacy);

@@ -11,6 +11,11 @@ exports.index = (req, res) => {
     const limit = 12;
     const offset = (page - 1) * limit;
 
+    // Support multiple category values (checkboxes send array when multiple selected)
+    const categoryIds = category
+      ? (Array.isArray(category) ? category.map(Number).filter(Boolean) : [parseInt(category)].filter(Boolean))
+      : [];
+
     const filters = {
       status: 'approved',
       limit,
@@ -18,7 +23,8 @@ exports.index = (req, res) => {
       sort: sort || 'newest'
     };
 
-    if (category) filters.category_id = parseInt(category);
+    if (categoryIds.length === 1) filters.category_id = categoryIds[0];
+    if (categoryIds.length > 1) filters.category_ids = categoryIds;
     if (search) filters.search = search;
     if (min_price) filters.minPrice = parseFloat(min_price);
     if (max_price) filters.maxPrice = parseFloat(max_price);
@@ -44,7 +50,7 @@ exports.index = (req, res) => {
       title: 'Browse Products - Craftify',
       products,
       categories,
-      filters: { category, search, sort, min_price, max_price, featured },
+      filters: { category: categoryIds, search, sort, min_price, max_price, featured },
       pagination: {
         current: parseInt(page),
         total: totalPages,

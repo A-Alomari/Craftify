@@ -50,9 +50,9 @@
       </div>
 
       <% if (['pending', 'confirmed'].indexOf(order.status) >= 0) { %>
-        <form action="/orders/<%= order.id %>/cancel" method="POST" class="mt-6">
+        <form action="/orders/<%= order.id %>/cancel" method="POST" class="mt-6" data-confirm="Cancel this order?">
           <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-          <button type="submit" class="bg-red-100 text-red-700 hover:bg-red-200 px-4 py-2.5 rounded-xl text-sm font-semibold" onclick="return confirm('Cancel this order?');">Cancel Order</button>
+          <button type="submit" class="bg-red-100 text-red-700 hover:bg-red-200 px-4 py-2.5 rounded-xl text-sm font-semibold">Cancel Order</button>
         </form>
       <% } %>
     </section>

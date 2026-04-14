@@ -15,11 +15,12 @@
         <article class="bg-surface-container-lowest rounded-xl overflow-hidden">
           <div class="grid grid-cols-3">
             <div class="col-span-1">
-              <img src="<%= bid.image || '/images/placeholder-product.jpg' %>" alt="<%= bid.product_name %>" class="w-full h-full min-h-[150px] object-cover" onerror="this.src='/images/placeholder-product.jpg'">
+              <img src="<%= bid.image || '/images/placeholder-product.jpg' %>" alt="<%= bid.product_name || bid.title %>" class="w-full h-full min-h-[150px] object-cover" onerror="this.src='/images/placeholder-product.jpg'">
             </div>
 
             <div class="col-span-2 p-4">
-              <h2 class="text-sm font-semibold text-on-surface"><a href="/auctions/<%= bid.auction_id %>" class="hover:text-primary"><%= bid.product_name %></a></h2>
+              <%# FIX: standalone auctions have no product_name; fall back to auction title %>
+              <h2 class="text-sm font-semibold text-on-surface"><a href="/auctions/<%= bid.auction_id %>" class="hover:text-primary"><%= bid.product_name || bid.title %></a></h2>
               <p class="text-sm text-on-surface mt-2">Your bid: <span class="font-bold">$<%= Number(bid.amount || 0).toFixed(2) %></span></p>
               <p class="text-sm text-secondary mt-1">Current: $<%= Number(bid.current_highest_bid || 0).toFixed(2) %></p>
 

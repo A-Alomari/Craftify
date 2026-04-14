@@ -1,72 +1,157 @@
 <%- include('../partials/header', { title: title }) %>
-<main class="pt-12 pb-20 px-6 max-w-5xl mx-auto">
-  <!-- Header -->
-  <div class="mb-12">
-    <span class="font-label text-xs uppercase tracking-[0.2em] text-secondary font-bold mb-2 block">Get in Touch</span>
-    <h1 class="text-5xl font-headline font-bold text-on-surface leading-tight">Contact Us</h1>
-    <p class="text-secondary mt-4 text-lg font-body leading-relaxed">Have questions? We'd love to hear from you.</p>
+<main class="flex-grow min-h-screen">
+
+  <!-- Hero -->
+  <section class="bg-surface-container-lowest">
+    <div class="max-w-5xl mx-auto px-6 py-10 relative">
+      <span class="font-label text-xs uppercase tracking-[0.2em] text-secondary font-bold mb-2 block">Contact</span>
+      <h1 class="text-3xl md:text-4xl font-headline font-bold text-on-surface leading-tight mb-2">Get in Touch</h1>
+      <p class="text-secondary text-sm font-body max-w-xl leading-relaxed">
+        Have a question about an order or want to say hello? We reply within one business day.
+      </p>
+    </div>
+  </section>
+
+  <!-- Flash Messages -->
+  <div class="max-w-5xl mx-auto px-6 pt-6">
+    <% if (typeof success_msg !== 'undefined' && success_msg) { %>
+      <div class="bg-green-50 text-green-800 px-5 py-4 rounded-xl font-body text-sm mb-4">
+        <%= success_msg %>
+      </div>
+    <% } %>
+    <% if (typeof error_msg !== 'undefined' && error_msg) { %>
+      <div class="bg-red-50 text-error px-5 py-4 rounded-xl font-body text-sm mb-4 flex items-center gap-3">
+        <span class="material-symbols-outlined text-error text-xl">error</span>
+        <%= error_msg %>
+      </div>
+    <% } %>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-    <!-- Contact Info -->
-    <div class="space-y-6">
-      <div class="bg-surface-container-lowest rounded-xl p-8">
-        <h2 class="font-headline text-xl font-bold text-on-surface mb-6">Reach Out</h2>
-        <div class="space-y-6">
+  <!-- Main Content -->
+  <section class="max-w-5xl mx-auto px-6 py-8 pb-16">
+
+    <!-- Section headers — both on same line -->
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-10 mb-6">
+      <div class="lg:col-span-3">
+        <h2 class="font-headline text-2xl font-bold text-on-surface mb-1">Send Us a Message</h2>
+        <p class="text-secondary text-sm font-body">Fill out the form below and our team will get back to you.</p>
+      </div>
+      <div class="lg:col-span-2">
+        <h3 class="font-headline text-2xl font-bold text-on-surface mb-1">Contact Info</h3>
+        <p class="text-secondary text-sm font-body">Reach us directly anytime.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-10">
+
+      <!-- Form (left, 3 cols) -->
+      <div class="lg:col-span-3 bg-surface-container-lowest rounded-2xl p-8">
+
+        <form action="/contact" method="POST" class="space-y-5">
+          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-widest text-secondary mb-2 ml-1">Full Name <span class="text-error">*</span></label>
+              <input type="text" name="name" required placeholder="Aisha Al-Mansoori"
+                class="w-full bg-surface-container-low rounded-xl px-4 py-3 text-on-surface placeholder:text-secondary/40 focus:outline-none focus:ring-2 focus:ring-primary-container transition-all font-body text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-widest text-secondary mb-2 ml-1">Email <span class="text-error">*</span></label>
+              <input type="email" name="email" required placeholder="you@example.com"
+                class="w-full bg-surface-container-low rounded-xl px-4 py-3 text-on-surface placeholder:text-secondary/40 focus:outline-none focus:ring-2 focus:ring-primary-container transition-all font-body text-sm">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-widest text-secondary mb-2 ml-1">Subject <span class="text-error">*</span></label>
+            <select name="subject" required
+              class="w-full bg-surface-container-low rounded-xl px-4 py-3 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container transition-all font-body text-sm appearance-none">
+              <option value="" disabled selected>Select a topic…</option>
+              <option value="Order Issue">Order Issue</option>
+              <option value="Product Question">Product Question</option>
+              <option value="Artisan Inquiry">Artisan Inquiry</option>
+              <option value="Account Help">Account Help</option>
+              <option value="Partnership">Partnership</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-widest text-secondary mb-2 ml-1">Message <span class="text-error">*</span></label>
+            <textarea name="message" rows="6" required placeholder="Tell us how we can help…"
+              class="w-full bg-surface-container-low rounded-xl px-4 py-3 text-on-surface placeholder:text-secondary/40 focus:outline-none focus:ring-2 focus:ring-primary-container transition-all font-body text-sm resize-none"></textarea>
+          </div>
+
+          <button type="submit"
+            class="w-full bg-primary-container text-on-primary-container font-bold py-4 rounded-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 font-body">
+            <span class="material-symbols-outlined text-sm">send</span>
+            Send Message
+          </button>
+        </form>
+      </div>
+
+      <!-- Contact Info (right, 2 cols) -->
+      <div class="lg:col-span-2 space-y-5">
+
+        <!-- Info Cards -->
+        <div class="bg-surface-container-lowest rounded-2xl p-6 space-y-6">
           <div class="flex items-start gap-4">
-            <div class="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center flex-shrink-0">
+            <div class="w-10 h-10 rounded-xl bg-primary-container/20 flex items-center justify-center flex-shrink-0">
               <span class="material-symbols-outlined text-primary text-xl">mail</span>
             </div>
             <div>
               <p class="font-label text-xs uppercase tracking-widest text-secondary font-bold mb-1">Email</p>
-              <p class="text-on-surface font-body">support@craftify.bh</p>
+              <p class="text-on-surface font-body text-sm">support@craftify.bh</p>
+              <p class="text-secondary text-xs mt-0.5">We reply within 24 hours</p>
             </div>
           </div>
+
           <div class="flex items-start gap-4">
-            <div class="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center flex-shrink-0">
+            <div class="w-10 h-10 rounded-xl bg-primary-container/20 flex items-center justify-center flex-shrink-0">
               <span class="material-symbols-outlined text-primary text-xl">phone</span>
             </div>
             <div>
               <p class="font-label text-xs uppercase tracking-widest text-secondary font-bold mb-1">Phone</p>
-              <p class="text-on-surface font-body">+973 1700 0000</p>
+              <p class="text-on-surface font-body text-sm">+973 1700 0000</p>
+              <p class="text-secondary text-xs mt-0.5">Sun – Thu, 9 AM – 5 PM</p>
             </div>
           </div>
+
           <div class="flex items-start gap-4">
-            <div class="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center flex-shrink-0">
+            <div class="w-10 h-10 rounded-xl bg-primary-container/20 flex items-center justify-center flex-shrink-0">
               <span class="material-symbols-outlined text-primary text-xl">location_on</span>
             </div>
             <div>
-              <p class="font-label text-xs uppercase tracking-widest text-secondary font-bold mb-1">Address</p>
-              <p class="text-on-surface font-body">University of Bahrain<br>Sakhir, Kingdom of Bahrain</p>
+              <p class="font-label text-xs uppercase tracking-widest text-secondary font-bold mb-1">Location</p>
+              <p class="text-on-surface font-body text-sm">University of Bahrain<br>Sakhir, Kingdom of Bahrain</p>
             </div>
           </div>
         </div>
+
+        <!-- Hours card -->
+        <div class="bg-surface-container-lowest rounded-2xl p-6">
+          <h3 class="font-headline text-lg font-bold text-on-surface mb-4">Business Hours</h3>
+          <div class="space-y-2 font-body text-sm">
+            <div class="flex justify-between">
+              <span class="text-secondary">Sunday – Thursday</span>
+              <span class="text-on-surface font-bold">9:00 AM – 5:00 PM</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-secondary">Friday</span>
+              <span class="text-on-surface font-bold">Closed</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-secondary">Saturday</span>
+              <span class="text-on-surface font-bold">10:00 AM – 2:00 PM</span>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
+  </section>
 
-    <!-- Contact Form -->
-    <div class="bg-surface-container-lowest rounded-xl p-8">
-      <h2 class="font-headline text-xl font-bold text-on-surface mb-6">Send us a message</h2>
-      <form class="space-y-5" action="mailto:support@craftify.bh" method="GET">
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-widest text-secondary mb-2 ml-1">Your Name</label>
-          <input type="text" name="name" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors text-on-surface placeholder:text-secondary/50" placeholder="John Doe" required/>
-        </div>
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-widest text-secondary mb-2 ml-1">Your Email</label>
-          <input type="email" name="email" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors text-on-surface placeholder:text-secondary/50" placeholder="you@example.com" required/>
-        </div>
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-widest text-secondary mb-2 ml-1">Message</label>
-          <textarea name="body" rows="4" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-highest transition-colors text-on-surface placeholder:text-secondary/50 resize-none" placeholder="How can we help you?" required></textarea>
-        </div>
-        <button type="submit" class="w-full bg-primary-container text-on-primary-container font-bold py-4 rounded-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-          Send Message
-          <span class="material-symbols-outlined text-sm">send</span>
-        </button>
-        <p class="text-xs text-secondary">This opens your email app addressed to support@craftify.bh.</p>
-      </form>
-    </div>
-  </div>
+
 </main>
 <%- include('../partials/footer') %>

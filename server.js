@@ -467,10 +467,12 @@ function startBackgroundTasks() {
       const db = getDb();
       const now = new Date().toISOString();
       
+      // FIX: Changed INNER JOIN to LEFT JOIN so standalone auctions (product_id = NULL)
+      // are also ended. COALESCE selects the product name or falls back to auction title.
       const endedAuctions = db.prepare(`
-        SELECT a.*, p.name as product_name 
+        SELECT a.*, COALESCE(p.name, a.title) as product_name
         FROM auctions a
-        JOIN products p ON a.product_id = p.id
+        LEFT JOIN products p ON a.product_id = p.id
         WHERE a.status = 'active' AND a.end_time <= ?
       `).all(now);
       
@@ -478,20 +480,24 @@ function startBackgroundTasks() {
         if (auction.winner_id) {
           db.prepare("UPDATE auctions SET status = 'sold' WHERE id = ?").run(auction.id);
           
-          // Notify winner
+          // FIX: Use fallback label so standalone auctions still produce a meaningful message.
+          const auctionLabel = auction.product_name || auction.title || 'the item';
           db.prepare(`
             INSERT INTO notifications (user_id, title, message, type, link)
             VALUES (?, ?, ?, 'auction', ?)
           `).run(
             auction.winner_id,
             'Congratulations! You won!',
-            `You won the auction for "${auction.product_name}" with a bid of $${auction.current_highest_bid}`,
+            `You won the auction for "${auctionLabel}" with a bid of $${auction.current_highest_bid}`,
             `/auctions/${auction.id}`
           );
         } else {
           db.prepare("UPDATE auctions SET status = 'ended' WHERE id = ?").run(auction.id);
         }
         
+        // FIX: Use auctionLabel (already safe fallback set above) for artisan notification too.
+        // For auctions with no winner the label is computed here.
+        const artisanAuctionLabel = auction.product_name || auction.title || 'the item';
         // Notify artisan
         db.prepare(`
           INSERT INTO notifications (user_id, title, message, type, link)
@@ -499,9 +505,9 @@ function startBackgroundTasks() {
         `).run(
           auction.artisan_id,
           'Auction Ended',
-          auction.winner_id 
-            ? `Your auction for "${auction.product_name}" ended with winning bid of $${auction.current_highest_bid}`
-            : `Your auction for "${auction.product_name}" ended with no bids`,
+          auction.winner_id
+            ? `Your auction for "${artisanAuctionLabel}" ended with winning bid of $${auction.current_highest_bid}`
+            : `Your auction for "${artisanAuctionLabel}" ended with no bids`,
           `/artisan/auctions`
         );
         

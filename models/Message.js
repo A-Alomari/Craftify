@@ -56,14 +56,14 @@ class Message {
 
   static create(messageData) {
     const db = getDb();
-    const { sender_id, receiver_id, subject = null, content, parent_id = null } = messageData;
+    const { sender_id, receiver_id, subject = null, content, parent_id = null, image_url = null } = messageData;
     const normalizedSubject = subject === null ? null : sanitizeString(subject);
     const normalizedContent = sanitizeText(content);
 
-    if (!normalizedContent) {
+    if (!normalizedContent && !image_url) {
       throw new Error('Message content is required');
     }
-    if (normalizedContent.length > 2000) {
+    if (normalizedContent && normalizedContent.length > 2000) {
       throw new Error('Message must be at most 2000 characters');
     }
     if (normalizedSubject && normalizedSubject.length > 200) {
@@ -71,9 +71,9 @@ class Message {
     }
 
     const result = db.prepare(`
-      INSERT INTO messages (sender_id, receiver_id, subject, content, parent_id)
-      VALUES (?, ?, ?, ?, ?)
-    `).run(sender_id, receiver_id, normalizedSubject, normalizedContent, parent_id);
+      INSERT INTO messages (sender_id, receiver_id, subject, content, parent_id, image_url)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).run(sender_id, receiver_id, normalizedSubject, normalizedContent || '', parent_id, image_url);
 
     return this.findById(result.lastInsertRowid);
   }

@@ -21,7 +21,8 @@ exports.index = (req, res) => {
     const totalPages = Math.ceil(totalAuctions / limit);
 
     auctions.forEach(a => {
-      const images = JSON.parse(a.product_images || '[]');
+      // FIX: fall back to a.images for standalone auctions that have no linked product.
+      const images = JSON.parse(a.product_images || a.images || '[]');
       a.image = images[0] || '/images/placeholder-product.jpg';
     });
 
@@ -59,7 +60,9 @@ exports.show = (req, res) => {
       ? bids.find(b => b.user_id === req.session.user.id) 
       : null;
 
-    const images = JSON.parse(auction.product_images || '[]');
+    // FIX: standalone auctions (no product) have their own `images` field;
+    // fall back to it when product_images is absent.
+    const images = JSON.parse(auction.product_images || auction.images || '[]');
     auction.imageArray = images.length > 0 ? images : ['/images/placeholder-product.jpg'];
 
     const endTime = new Date(auction.end_time);
@@ -148,7 +151,8 @@ exports.myBids = (req, res) => {
     const bids = Auction.getUserBids(req.session.user.id);
 
     bids.forEach(b => {
-      const images = JSON.parse(b.product_images || '[]');
+      // FIX: fall back to b.auction_images for bids on standalone auctions (no product).
+      const images = JSON.parse(b.product_images || b.auction_images || '[]');
       b.image = images[0] || '/images/placeholder-product.jpg';
       b.isWinning = b.winner_id === req.session.user.id;
     });
@@ -189,7 +193,8 @@ exports.getAuctionData = (req, res) => {
       bids: bids.map(b => ({
         amount: b.amount,
         bidder_name: b.bidder_name,
-        bid_time: b.created_at
+        // FIX: bid_time is the canonical timestamp; fall back to created_at for old rows.
+        bid_time: b.bid_time || b.created_at
       }))
     });
   } catch (err) {

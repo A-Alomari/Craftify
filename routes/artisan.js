@@ -4,7 +4,7 @@ const artisanController = require('../controllers/artisanController');
 const { isAuthenticated, isActive, isArtisan, isApprovedArtisan } = require('../middleware/auth');
 const { createImageUpload, validateUploadedImageSignatures } = require('../utils/upload');
 
-const upload = createImageUpload({ maxFileSize: 5 * 1024 * 1024, maxFiles: 5 });
+const upload = createImageUpload({ maxFileSize: 30 * 1024 * 1024, maxFiles: 5 });
 
 // Apply artisan authentication to all routes
 router.use(isAuthenticated, isActive, isArtisan);
@@ -36,7 +36,7 @@ router.post('/orders/:id/status', isApprovedArtisan, artisanController.updateOrd
 // Auctions
 router.get('/auctions', isApprovedArtisan, artisanController.auctions);
 router.get('/auctions/new', isApprovedArtisan, artisanController.newAuction);
-router.post('/auctions', isApprovedArtisan, artisanController.createAuction);
+router.post('/auctions', isApprovedArtisan, upload.array('images', 5), validateUploadedImageSignatures, artisanController.createAuction);
 router.post('/auctions/:id/cancel', isApprovedArtisan, artisanController.cancelAuction);
 
 // Reviews

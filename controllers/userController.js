@@ -393,10 +393,15 @@ exports.conversation = (req, res) => {
 
 exports.sendMessage = (req, res) => {
   try {
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
+    // Run validation but allow empty content if image is provided
     const { errors, sanitized } = validateMessageInput(req.body);
-    if (errors.length > 0) {
-      if (req.xhr) return res.status(400).json({ success: false, message: errors[0] });
-      req.flash('error_msg', errors[0]);
+    const contentErrors = errors.filter(e => e !== 'Message content is required');
+    if (contentErrors.length > 0 || (!sanitized.content && !imageUrl)) {
+      const errMsg = contentErrors[0] || 'Please enter a message or attach a photo';
+      if (req.xhr) return res.status(400).json({ success: false, message: errMsg });
+      req.flash('error_msg', errMsg);
       return res.redirect('/user/messages');
     }
 
@@ -416,22 +421,25 @@ exports.sendMessage = (req, res) => {
       return res.redirect('/user/messages');
     }
 
-    const hasRecentDuplicate = Message.hasRecentDuplicate(
-      req.session.user.id,
-      parsedReceiverId,
-      sanitized.content,
-      10
-    );
-    if (hasRecentDuplicate) {
-      if (req.xhr) return res.status(429).json({ success: false, message: 'Please wait before sending the same message again' });
-      req.flash('error_msg', 'Please wait before sending the same message again');
-      return res.redirect(`/user/messages/${parsedReceiverId}`);
+    if (sanitized.content) {
+      const hasRecentDuplicate = Message.hasRecentDuplicate(
+        req.session.user.id,
+        parsedReceiverId,
+        sanitized.content,
+        10
+      );
+      if (hasRecentDuplicate) {
+        if (req.xhr) return res.status(429).json({ success: false, message: 'Please wait before sending the same message again' });
+        req.flash('error_msg', 'Please wait before sending the same message again');
+        return res.redirect(`/user/messages/${parsedReceiverId}`);
+      }
     }
 
     const message = Message.create({
       sender_id: req.session.user.id,
       receiver_id: parsedReceiverId,
-      content: sanitized.content
+      content: sanitized.content || '',
+      image_url: imageUrl
     });
 
     Notification.newMessage(parsedReceiverId, req.session.user.name);

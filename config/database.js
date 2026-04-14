@@ -164,10 +164,11 @@ const schema = `
 
   CREATE TABLE IF NOT EXISTS auctions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    product_id INTEGER NOT NULL,
+    product_id INTEGER,
     artisan_id INTEGER NOT NULL,
     title TEXT,
     description TEXT,
+    images TEXT DEFAULT '[]',
     starting_price REAL NOT NULL,
     starting_bid REAL,
     reserve_price REAL,
@@ -179,7 +180,7 @@ const schema = `
     end_time DATETIME NOT NULL,
     status TEXT DEFAULT 'pending',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL,
     FOREIGN KEY (artisan_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (winner_id) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (highest_bidder_id) REFERENCES users(id) ON DELETE SET NULL
@@ -675,6 +676,95 @@ function ensureCouponScopeColumns(sqlDb) {
   sqlDb.run('CREATE INDEX IF NOT EXISTS idx_coupons_artisan ON coupons(artisan_id);');
 }
 
+function migrateAuctionsNullableProduct(sqlDb) {
+  console.log('Applying auctions nullable product_id migration...');
+  sqlDb.run('PRAGMA foreign_keys = OFF;');
+  try {
+    sqlDb.run(`
+      CREATE TABLE IF NOT EXISTS auctions__new (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        product_id INTEGER,
+        artisan_id INTEGER NOT NULL,
+        title TEXT,
+        description TEXT,
+        images TEXT DEFAULT '[]',
+        starting_price REAL NOT NULL,
+        starting_bid REAL,
+        reserve_price REAL,
+        current_highest_bid REAL,
+        bid_increment REAL DEFAULT 1,
+        winner_id INTEGER,
+        highest_bidder_id INTEGER,
+        start_time DATETIME NOT NULL,
+        end_time DATETIME NOT NULL,
+        status TEXT DEFAULT 'pending',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL,
+        FOREIGN KEY (artisan_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (winner_id) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY (highest_bidder_id) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `);
+    sqlDb.run(`
+      INSERT INTO auctions__new (id, product_id, artisan_id, title, description, starting_price,
+        starting_bid, reserve_price, current_highest_bid, bid_increment, winner_id, highest_bidder_id,
+        start_time, end_time, status, created_at)
+      SELECT id, product_id, artisan_id, title, description, starting_price,
+        starting_bid, reserve_price, current_highest_bid, bid_increment, winner_id, highest_bidder_id,
+        start_time, end_time, status, created_at
+      FROM auctions
+    `);
+    sqlDb.run('DROP TABLE auctions');
+    sqlDb.run('ALTER TABLE auctions__new RENAME TO auctions');
+  } finally {
+    sqlDb.run('PRAGMA foreign_keys = ON;');
+  }
+}
+
+function needsAuctionsNullableMigration(sqlDb) {
+  const result = sqlDb.exec("PRAGMA table_info(auctions)");
+  if (!result || result.length === 0) return false;
+  const { columns, values } = result[0];
+  const nameIdx = columns.indexOf('name');
+  const notNullIdx = columns.indexOf('notnull');
+  if (nameIdx < 0 || notNullIdx < 0) return false;
+  for (const row of values) {
+    if (String(row[nameIdx]) === 'product_id' && Number(row[notNullIdx]) === 1) return true;
+  }
+  return false;
+}
+
+function ensureAuctionImagesColumn(sqlDb) {
+  const result = sqlDb.exec("PRAGMA table_info(auctions)");
+  if (!result || result.length === 0) return;
+  const { columns, values } = result[0];
+  const nameIdx = columns.indexOf('name');
+  const hasImages = values.some(row => String(row[nameIdx]) === 'images');
+  if (!hasImages) {
+    sqlDb.run("ALTER TABLE auctions ADD COLUMN images TEXT DEFAULT '[]'");
+  }
+}
+
+function ensureProductDimensionColumns(sqlDb) {
+  const result = sqlDb.exec("PRAGMA table_info(products)");
+  if (!result || result.length === 0) return;
+  const { columns, values } = result[0];
+  const nameIdx = columns.indexOf('name');
+  const existing = new Set(values.map(row => String(row[nameIdx])));
+  if (!existing.has('length_cm')) sqlDb.run('ALTER TABLE products ADD COLUMN length_cm REAL;');
+  if (!existing.has('width_cm'))  sqlDb.run('ALTER TABLE products ADD COLUMN width_cm REAL;');
+  if (!existing.has('height_cm')) sqlDb.run('ALTER TABLE products ADD COLUMN height_cm REAL;');
+}
+
+function ensureMessageImageColumn(sqlDb) {
+  const result = sqlDb.exec("PRAGMA table_info(messages)");
+  if (!result || result.length === 0) return;
+  const { columns, values } = result[0];
+  const nameIdx = columns.indexOf('name');
+  const existing = new Set(values.map(row => String(row[nameIdx])));
+  if (!existing.has('image_url')) sqlDb.run('ALTER TABLE messages ADD COLUMN image_url TEXT;');
+}
+
 async function initDatabase() {
   SQL = await initSqlJs();
   
@@ -701,8 +791,15 @@ async function initDatabase() {
       migrateOrderItemsForeignKey(db.sqlDb);
     }
 
+    if (needsAuctionsNullableMigration(db.sqlDb)) {
+      migrateAuctionsNullableProduct(db.sqlDb);
+    }
+
     ensureCartItemUniqueness(db.sqlDb);
     ensureCouponScopeColumns(db.sqlDb);
+    ensureAuctionImagesColumn(db.sqlDb);
+    ensureProductDimensionColumns(db.sqlDb);
+    ensureMessageImageColumn(db.sqlDb);
 
     db.save(true);
     console.log('Database initialized successfully');

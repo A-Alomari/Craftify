@@ -19,9 +19,11 @@
     Shop Now
     <span class="material-symbols-outlined text-sm">arrow_forward</span>
 </a>
+<% if (!(typeof user !== 'undefined' && user)) { %>
 <a href="/auth/artisan-register" class="border-2 border-white/40 text-white backdrop-blur-sm px-8 py-4 rounded-xl font-bold hover:bg-white hover:text-on-surface transition-all">
     Become an Artisan
 </a>
+<% } %>
 </div>
 </div>
 </div>
@@ -67,7 +69,7 @@
                     <a href="/products/<%= product.id %>">
                         <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="<%= product.image || '/images/placeholder-product.jpg' %>" alt="<%= product.name %>" loading="lazy" onerror="this.src='/images/placeholder-product.jpg'"/>
                     </a>
-                    <div class="absolute bottom-4 left-4 bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface px-3 py-1 rounded-lg font-semibold">
+                    <div class="absolute top-4 right-4 bg-primary-container text-on-primary-container px-3 py-1 rounded-lg font-headline font-bold">
                         $<%= Number(product.price).toFixed(2) %>
                     </div>
                 </div>
@@ -76,7 +78,7 @@
                     <h3 class="font-headline text-xl text-on-surface mb-2">
                         <a href="/products/<%= product.id %>" class="hover:text-primary transition-colors"><%= product.name %></a>
                     </h3>
-                    <p class="text-sm text-secondary mb-4">by <a href="/products/artisan/<%= product.artisan_id %>" class="italic hover:text-primary transition-colors"><%= product.shop_name || 'Artisan' %></a></p>
+                    <p class="text-sm text-secondary mb-4">by <a href="/user/artisan/<%= product.artisan_id %>" class="italic hover:text-primary transition-colors"><%= product.shop_name || 'Artisan' %></a></p>
                     <a href="/products/<%= product.id %>" class="inline-flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all">
                         View details
                         <span class="material-symbols-outlined text-base">arrow_forward</span>
@@ -148,19 +150,19 @@
     <% if (featuredArtisans && featuredArtisans.length > 0) { %>
         <% featuredArtisans.forEach(function(artisan) { %>
             <article class="bg-surface-container-low rounded-3xl p-8 text-center shadow-sm hover:shadow-lg transition-all">
-                <a href="/products/artisan/<%= artisan.user_id %>" class="block">
+                <a href="/user/artisan/<%= artisan.user_id %>" class="block">
                     <img class="w-24 h-24 rounded-full object-cover mx-auto mb-5 ring-4 ring-primary-container/20" src="<%= artisan.profile_image || artisan.avatar || '/images/default-avatar.png' %>" alt="<%= artisan.shop_name || artisan.name %>" onerror="this.src='/images/default-avatar.png'"/>
                 </a>
                 <p class="text-xs uppercase tracking-[0.2em] text-secondary mb-2">Featured Shop</p>
                 <h3 class="font-headline text-2xl text-on-surface mb-2">
-                    <a href="/products/artisan/<%= artisan.user_id %>" class="hover:text-primary transition-colors"><%= artisan.shop_name || artisan.name %></a>
+                    <a href="/user/artisan/<%= artisan.user_id %>" class="hover:text-primary transition-colors"><%= artisan.shop_name || artisan.name %></a>
                 </h3>
                 <p class="text-sm text-secondary mb-4"><%= artisan.bio ? artisan.bio.slice(0, 100) : 'Discover handmade work from this Craftify artisan.' %><%= artisan.bio && artisan.bio.length > 100 ? '...' : '' %></p>
                 <div class="flex items-center justify-center gap-4 text-sm text-on-surface mb-5">
                     <span><strong><%= artisan.product_count || 0 %></strong> products</span>
                     <span><strong><%= artisan.avg_rating ? Number(artisan.avg_rating).toFixed(1) : 'New' %></strong> rating</span>
                 </div>
-                <a href="/products/artisan/<%= artisan.user_id %>" class="inline-flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all">
+                <a href="/user/artisan/<%= artisan.user_id %>" class="inline-flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all">
                     Visit shop
                     <span class="material-symbols-outlined text-base">storefront</span>
                 </a>
@@ -219,6 +221,7 @@
 </section>
 
 <!-- Newsletter Banner -->
+<% if (!(typeof user !== 'undefined' && user)) { %>
 <section class="py-20 px-8">
 <div class="max-w-7xl mx-auto rounded-3xl overflow-hidden bg-tertiary text-on-tertiary relative">
 <div class="absolute top-0 right-0 w-1/3 h-full opacity-10">
@@ -239,6 +242,7 @@
 </div>
 </div>
 </section>
+<% } %>
 
 </main>
 

@@ -60,9 +60,9 @@
                   <td class="px-6 py-5 text-sm text-secondary"><%= new Date(a.end_time).toLocaleDateString() %></td>
                   <td class="px-6 py-5 text-right">
                     <% if (a.status === 'active' || a.status === 'pending') { %>
-                      <form action="/artisan/auctions/<%= a.id %>/cancel" method="POST" class="inline-block" onsubmit="return confirm('Cancel this auction?');">
+                      <form action="/artisan/auctions/<%= a.id %>/cancel" method="POST" class="inline-block" data-confirm="Cancel this auction?">
                         <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                        <button class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Cancel</button>
+                        <button class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-2 rounded-lg text-xs font-bold transition-colors">Cancel</button>
                       </form>
                     <% } else { %>
                       <span class="text-xs text-secondary">No action</span>

@@ -98,10 +98,20 @@ const attachUser = (req, res, next) => {
   next();
 };
 
+const isCustomerOrGuest = (req, res, next) => {
+  if (req.session.user && req.session.user.role !== 'customer') {
+    if (req.xhr) return res.status(403).json({ success: false, message: 'This feature is for customers only' });
+    req.flash('error_msg', 'This feature is for customers only');
+    return res.redirect('/');
+  }
+  next();
+};
+
 module.exports = {
   isAuthenticated,
   isGuest,
   isCustomer,
+  isCustomerOrGuest,
   isArtisan,
   isAdmin,
   isApprovedArtisan,

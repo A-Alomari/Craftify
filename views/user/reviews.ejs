@@ -26,7 +26,7 @@
               <% } %>
               <p class="text-sm text-secondary mt-1"><%= r.comment %></p>
             </div>
-            <form action="/user/reviews/<%= r.id %>/delete" method="POST" onsubmit="return confirm('Delete this review?');">
+            <form action="/user/reviews/<%= r.id %>/delete" method="POST" data-confirm="Delete this review?">
               <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
               <button class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-2 rounded-lg text-xs font-semibold">Delete</button>
             </form>

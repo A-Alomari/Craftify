@@ -1,6 +1,7 @@
 module.exports = ({ loadServerHarness }) => {
     test('Production error message and argv jest-mode branches are covered', () => {
       jest.spyOn(console, 'error').mockImplementation(() => {});
+      const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
 
       const productionHarness = loadServerHarness({
         nodeEnv: 'production',
@@ -56,5 +57,7 @@ module.exports = ({ loadServerHarness }) => {
       expect(jestArgvHarness.helmetFactory).toHaveBeenCalledWith(
         expect.objectContaining({ contentSecurityPolicy: false })
       );
+
+      exitSpy.mockRestore();
     });
 };

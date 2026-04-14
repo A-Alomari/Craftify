@@ -42,14 +42,9 @@
 <section class="pb-24 max-w-7xl mx-auto px-4 sm:px-6">
   <% if (hasArtisan) { %>
     <section class="mt-8 relative">
-      <div class="h-64 md:h-80 w-full overflow-hidden rounded-3xl relative">
-        <img class="w-full h-full object-cover" src="<%= artisan.banner_image || '/images/placeholder-product.jpg' %>" alt="<%= artisan.shop_name %> banner" onerror="this.onerror=null; this.src='/images/placeholder-product.jpg';"/>
-        <div class="absolute inset-0 bg-gradient-to-t from-on-surface/40 to-transparent"></div>
-      </div>
-
-      <div class="relative -mt-20 px-8 pb-12">
-        <div class="flex flex-col md:flex-row items-end gap-6">
-          <div class="w-40 h-40 rounded-full border-8 border-surface bg-surface-container-highest overflow-hidden shadow-xl">
+      <div class="px-8 pb-12 pt-6 bg-surface-container-lowest rounded-3xl">
+        <div class="flex flex-col md:flex-row items-start gap-6">
+          <div class="w-24 h-24 rounded-full bg-surface-container overflow-hidden shadow-md flex-shrink-0">
             <img class="w-full h-full object-cover" src="<%= artisan.profile_image || artisan.avatar || '/images/default-avatar.png' %>" alt="<%= artisan.shop_name %>" onerror="this.onerror=null; this.src='/images/default-avatar.png';"/>
           </div>
 
@@ -59,7 +54,6 @@
               <p class="text-secondary font-medium mt-1"><%= artisan.name %><%= artisan.location ? ' - ' + artisan.location : '' %></p>
             </div>
             <div class="flex gap-3">
-              <button type="button" class="bg-primary-container text-on-primary-container font-bold px-8 py-3 rounded-xl hover:shadow-lg transition-all active:scale-95">Follow</button>
               <% if (typeof user !== 'undefined' && user && Number(user.id) !== Number(artisan.user_id)) { %>
                 <a href="/user/messages/<%= artisan.user_id %>" class="border-2 border-outline-variant text-on-surface font-bold px-8 py-3 rounded-xl hover:bg-surface-container transition-all active:scale-95">Message</a>
               <% } %>
@@ -73,7 +67,7 @@
               <%= artisan.bio || 'This artisan has not added a studio bio yet.' %>
             </p>
           </div>
-          <div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm grid grid-cols-2 gap-y-4">
+          <div class="bg-surface-container-low p-6 rounded-2xl grid grid-cols-2 gap-y-4">
             <div>
               <span class="block text-xs font-label uppercase tracking-widest text-outline">Total Products</span>
               <span class="text-xl font-headline font-bold"><%= Number((stats && stats.total_products) || artisanProducts.length || 0) %></span>
@@ -126,6 +120,7 @@
                 <span class="text-secondary text-xs ml-2">(<%= Number(product.review_count || 0) %>)</span>
               </div>
 
+              <% if (!user || user.role === 'customer') { %>
               <form action="/cart/add" method="POST">
                 <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                 <input type="hidden" name="productId" value="<%= product.id %>">
@@ -135,6 +130,12 @@
                   Add to Cart
                 </button>
               </form>
+              <% } else { %>
+              <a href="/products/<%= product.id %>" class="w-full py-3 bg-surface-container-low text-on-surface font-bold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm hover:bg-surface-container-high">
+                <span class="material-symbols-outlined text-lg">open_in_new</span>
+                View Product
+              </a>
+              <% } %>
             </article>
           <% }); %>
         </div>

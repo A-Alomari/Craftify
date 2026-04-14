@@ -3,49 +3,139 @@
 <div class="flex bg-surface min-h-screen">
   <%- include('./partials/sidebar') %>
 
-  <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
-    <%- include('./partials/topbar') %>
+  <main class="flex-1 md:ml-0 pt-4 px-6 md:px-8 pb-12 min-h-screen">
 
-    <section class="max-w-7xl mx-auto mt-8 mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+    <!-- Page Header -->
+    <header class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
       <div>
-        <span class="font-label text-xs tracking-[0.2em] text-primary font-semibold uppercase">Artisan Studio</span>
-        <h1 class="font-headline text-3xl text-on-surface mt-2">My Products</h1>
-        <p class="text-secondary mt-1">Maintain catalog, stock, and moderation status.</p>
+        <span class="font-label uppercase tracking-widest text-xs text-primary mb-2 block">Management Portal</span>
+        <h1 class="text-3xl md:text-4xl font-headline font-bold text-on-surface">Inventory Collection</h1>
+        <p class="text-secondary mt-1 max-w-lg text-sm">Manage your handcrafted listings, update availability, and maintain your shop catalog.</p>
       </div>
-      <a href="/artisan/products/new" class="bg-primary-container text-on-primary-container px-5 py-2.5 rounded-xl font-semibold text-sm inline-flex items-center gap-2">
-        <span class="material-symbols-outlined text-base">add</span>
-        Add Product
-      </a>
+      <div class="flex items-center gap-3">
+        <div class="relative min-w-[220px]">
+          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-sm">search</span>
+          <input id="product-search" type="text" placeholder="Filter products…"
+            class="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-xl py-2.5 pl-9 pr-4 focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none">
+        </div>
+        <a href="/artisan/products/new"
+          class="bg-primary-container text-on-primary-container px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 active:scale-95 transition-transform shadow-sm text-sm whitespace-nowrap">
+          <span class="material-symbols-outlined text-lg">add_circle</span>
+          Add New Product
+        </a>
+      </div>
+    </header>
+
+    <!-- Filter Tabs & Stats -->
+    <section class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div class="flex p-1 bg-surface-container-low rounded-xl gap-0.5">
+        <button class="tab-btn px-5 py-2 rounded-lg text-sm font-medium bg-surface-container-lowest shadow-sm text-primary" data-filter="all">All</button>
+        <button class="tab-btn px-5 py-2 rounded-lg text-sm font-medium text-secondary hover:text-primary transition-colors" data-filter="approved">Active</button>
+        <button class="tab-btn px-5 py-2 rounded-lg text-sm font-medium text-secondary hover:text-primary transition-colors" data-filter="pending">Pending</button>
+        <button class="tab-btn px-5 py-2 rounded-lg text-sm font-medium text-secondary hover:text-primary transition-colors" data-filter="out-of-stock">Out of Stock</button>
+      </div>
+      <div class="flex gap-3">
+        <div class="flex items-center gap-2 px-4 py-2 bg-surface-container-lowest rounded-xl shadow-sm">
+          <span class="material-symbols-outlined text-primary text-lg">inventory</span>
+          <span class="text-sm font-medium"><%= products ? products.length : 0 %> Products</span>
+        </div>
+      </div>
     </section>
 
-    <section class="max-w-7xl mx-auto bg-surface-container-lowest rounded-xl overflow-hidden">
+    <!-- Flash Messages -->
+    <% if (typeof success_msg !== 'undefined' && success_msg) { %>
+      <div class="mb-5 bg-green-50 text-green-800 px-5 py-3 rounded-xl text-sm font-body"><%= success_msg %></div>
+    <% } %>
+    <% if (typeof error_msg !== 'undefined' && error_msg) { %>
+      <div class="mb-5 bg-red-50 text-error px-5 py-3 rounded-xl text-sm font-body flex items-center gap-2">
+        <span class="material-symbols-outlined text-sm">error</span><%= error_msg %>
+      </div>
+    <% } %>
+
+    <!-- Product Table -->
+    <div class="bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden">
       <% if (products && products.length > 0) { %>
         <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
+          <table class="w-full text-left border-collapse" id="products-table">
             <thead>
-              <tr class="text-[10px] font-bold text-secondary uppercase tracking-widest border-b border-surface-container-high">
-                <th class="px-6 py-4">Product</th>
-                <th class="px-6 py-4">Price</th>
-                <th class="px-6 py-4">Stock</th>
-                <th class="px-6 py-4">Status</th>
-                <th class="px-6 py-4 text-right">Action</th>
+              <tr class="bg-surface-container-low/50">
+                <th class="px-6 py-5 text-xs font-label uppercase tracking-widest text-secondary font-bold">Product Details</th>
+                <th class="px-6 py-5 text-xs font-label uppercase tracking-widest text-secondary font-bold">Category</th>
+                <th class="px-6 py-5 text-xs font-label uppercase tracking-widest text-secondary font-bold text-right">Price</th>
+                <th class="px-6 py-5 text-xs font-label uppercase tracking-widest text-secondary font-bold text-center">Stock</th>
+                <th class="px-6 py-5 text-xs font-label uppercase tracking-widest text-secondary font-bold">Status</th>
+                <th class="px-6 py-5 text-xs font-label uppercase tracking-widest text-secondary font-bold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-surface-container-high/50">
-              <% products.forEach(function(p) { %>
-                <tr class="hover:bg-surface-container-low/20 transition-colors">
-                  <td class="px-6 py-5 text-sm font-semibold text-on-surface"><%= p.name %></td>
-                  <td class="px-6 py-5 text-sm text-on-surface">$<%= Number(p.price || 0).toFixed(2) %></td>
-                  <td class="px-6 py-5 text-sm text-on-surface"><%= p.stock %></td>
+            <tbody class="divide-y divide-surface-container">
+              <% products.forEach(function(p) {
+                var imgs = [];
+                try { imgs = JSON.parse(p.images || '[]'); } catch(e) {}
+                var img0 = imgs[0] || null;
+                var isOutOfStock = p.stock <= 0;
+                var statusLabel = p.status === 'approved' ? (isOutOfStock ? 'Out of Stock' : 'Active') : (p.status === 'pending' ? 'Pending' : 'Rejected');
+                var dotClass = p.status === 'approved' && !isOutOfStock ? 'bg-emerald-500' : (p.status === 'pending' ? 'bg-amber-500' : 'bg-slate-400');
+                var textClass = p.status === 'approved' && !isOutOfStock ? 'text-emerald-700' : (p.status === 'pending' ? 'text-amber-700' : 'text-slate-500');
+              %>
+                <tr class="hover:bg-surface-container-low/30 transition-colors group product-row"
+                  data-status="<%= p.status %>"
+                  data-out-of-stock="<%= isOutOfStock ? 'true' : 'false' %>"
+                  data-name="<%= (p.name || '').toLowerCase() %>">
+                  <!-- Product Details -->
                   <td class="px-6 py-5">
-                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest <%= p.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : (p.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700') %>"><%= p.status %></span>
+                    <div class="flex items-center gap-4">
+                      <div class="h-14 w-14 rounded-xl overflow-hidden bg-surface-container flex-shrink-0">
+                        <% if (img0) { %>
+                          <img src="<%= img0 %>" alt="<%= p.name %>"
+                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            onerror="this.src='/images/placeholder-product.jpg'">
+                        <% } else { %>
+                          <div class="w-full h-full flex items-center justify-center text-secondary/40">
+                            <span class="material-symbols-outlined text-2xl">image</span>
+                          </div>
+                        <% } %>
+                      </div>
+                      <div>
+                        <h4 class="font-headline font-bold text-base text-on-surface leading-tight"><%= p.name %></h4>
+                        <p class="text-xs text-secondary font-mono tracking-tight mt-0.5">#<%= String(p.id).padStart(4, '0') %></p>
+                      </div>
+                    </div>
                   </td>
+                  <!-- Category -->
+                  <td class="px-6 py-5">
+                    <% if (p.category_name) { %>
+                      <span class="bg-secondary-container/50 text-on-secondary-container px-3 py-1 rounded-full text-xs font-medium"><%= p.category_name %></span>
+                    <% } else { %>
+                      <span class="text-secondary text-xs">—</span>
+                    <% } %>
+                  </td>
+                  <!-- Price -->
+                  <td class="px-6 py-5 text-right font-headline font-bold text-primary">
+                    $<%= Number(p.price || 0).toFixed(2) %>
+                  </td>
+                  <!-- Stock -->
+                  <td class="px-6 py-5 text-center">
+                    <span class="text-sm font-medium <%= p.stock <= 0 ? 'text-error' : 'text-on-surface' %>"><%= p.stock %></span>
+                  </td>
+                  <!-- Status -->
+                  <td class="px-6 py-5">
+                    <div class="flex items-center gap-2">
+                      <span class="h-2 w-2 rounded-full <%= dotClass %>"></span>
+                      <span class="text-xs font-semibold uppercase tracking-wider <%= textClass %>"><%= statusLabel %></span>
+                    </div>
+                  </td>
+                  <!-- Actions -->
                   <td class="px-6 py-5 text-right">
-                    <div class="inline-flex gap-2">
-                      <a href="/artisan/products/<%= p.id %>/edit" class="bg-surface-container-high text-on-surface hover:bg-surface-container-highest px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Edit</a>
-                      <form action="/artisan/products/<%= p.id %>/delete" method="POST" class="inline-block" onsubmit="return confirm('Delete this product?');">
+                    <div class="flex justify-end gap-1">
+                      <a href="/artisan/products/<%= p.id %>/edit"
+                        class="p-2 text-secondary hover:text-primary transition-colors rounded-lg hover:bg-surface-container-low">
+                        <span class="material-symbols-outlined text-lg">edit</span>
+                      </a>
+                      <form action="/artisan/products/<%= p.id %>/delete" method="POST" class="inline-block" data-confirm="Delete this product?">
                         <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                        <button class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Delete</button>
+                        <button type="submit" class="p-2 text-secondary hover:text-error transition-colors rounded-lg hover:bg-red-50">
+                          <span class="material-symbols-outlined text-lg">delete</span>
+                        </button>
                       </form>
                     </div>
                   </td>
@@ -54,16 +144,99 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Table Footer -->
+        <div class="px-6 py-4 bg-surface-container-low/20 flex items-center justify-between">
+          <span class="text-xs font-medium text-secondary" id="showing-count">Showing <%= products.length %> product<%= products.length !== 1 ? 's' : '' %></span>
+          <div class="flex gap-2">
+            <% if (pagination.hasPrev) { %>
+              <a href="?page=<%= pagination.current - 1 %>" class="p-2 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors">
+                <span class="material-symbols-outlined">chevron_left</span>
+              </a>
+            <% } else { %>
+              <span class="p-2 rounded-lg bg-surface-container text-secondary/40 cursor-not-allowed"><span class="material-symbols-outlined">chevron_left</span></span>
+            <% } %>
+            <% if (pagination.hasNext) { %>
+              <a href="?page=<%= pagination.current + 1 %>" class="p-2 rounded-lg bg-surface-container-lowest text-primary shadow-sm hover:bg-surface-container transition-colors">
+                <span class="material-symbols-outlined">chevron_right</span>
+              </a>
+            <% } else { %>
+              <span class="p-2 rounded-lg bg-surface-container text-secondary/40 cursor-not-allowed"><span class="material-symbols-outlined">chevron_right</span></span>
+            <% } %>
+          </div>
+        </div>
+
       <% } else { %>
-        <div class="py-14 text-center">
-          <span class="material-symbols-outlined text-5xl text-secondary/60">inventory_2</span>
-          <p class="text-secondary mt-3">No products yet. Add your first listing.</p>
+        <div class="py-20 text-center">
+          <span class="material-symbols-outlined text-5xl text-secondary/30 block mb-4">inventory_2</span>
+          <p class="text-secondary font-body">No products yet. Add your first listing.</p>
+          <a href="/artisan/products/new"
+            class="mt-6 inline-flex items-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-medium text-sm hover:opacity-90 transition-opacity">
+            <span class="material-symbols-outlined text-base">add</span>
+            Add Your First Product
+          </a>
         </div>
       <% } %>
-    </section>
+    </div>
 
-    <%- include('../partials/pagination', { pagination: pagination, baseUrl: '/artisan/products', queryString: '' }) %>
+    <!-- Mobile FAB -->
+    <a href="/artisan/products/new"
+      class="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-primary-container text-on-primary-container shadow-lg flex items-center justify-center z-40 active:scale-90 transition-transform">
+      <span class="material-symbols-outlined">add</span>
+    </a>
+
   </main>
 </div>
+
+<script>
+(function() {
+  var tabs = document.querySelectorAll('.tab-btn');
+  var rows = document.querySelectorAll('.product-row');
+  var searchInput = document.getElementById('product-search');
+  var showingCount = document.getElementById('showing-count');
+  var activeFilter = 'all';
+
+  function applyFilters() {
+    var query = searchInput ? searchInput.value.toLowerCase() : '';
+    var visible = 0;
+    rows.forEach(function(row) {
+      var status = row.dataset.status;
+      var outOfStock = row.dataset.outOfStock === 'true';
+      var name = row.dataset.name || '';
+
+      var filterMatch = activeFilter === 'all' ||
+        (activeFilter === 'approved' && status === 'approved' && !outOfStock) ||
+        (activeFilter === 'pending' && status === 'pending') ||
+        (activeFilter === 'out-of-stock' && outOfStock);
+
+      var searchMatch = !query || name.includes(query);
+
+      var show = filterMatch && searchMatch;
+      row.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    if (showingCount) {
+      showingCount.textContent = 'Showing ' + visible + ' product' + (visible !== 1 ? 's' : '');
+    }
+  }
+
+  tabs.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      tabs.forEach(function(b) {
+        b.classList.remove('bg-surface-container-lowest', 'shadow-sm', 'text-primary');
+        b.classList.add('text-secondary');
+      });
+      btn.classList.add('bg-surface-container-lowest', 'shadow-sm', 'text-primary');
+      btn.classList.remove('text-secondary');
+      activeFilter = btn.dataset.filter;
+      applyFilters();
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', applyFilters);
+  }
+})();
+</script>
 
 <%- include('../partials/footer') %>

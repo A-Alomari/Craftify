@@ -23,12 +23,12 @@
 <!-- Left Column: Product Gallery -->
 <div class="space-y-6">
 <div class="bg-surface-container-lowest rounded-xl overflow-hidden aspect-square shadow-sm">
-<img alt="<%= product.name %>" class="w-full h-full object-cover" src="<%= images[0] %>" onerror="this.src='/images/placeholder-product.jpg'"/>
+<img id="mainProductImg" alt="<%= product.name %>" class="w-full h-full object-cover transition-opacity duration-200" src="<%= images[0] %>" onerror="this.src='/images/placeholder-product.jpg'"/>
 </div>
 <% if (images.length > 1) { %>
-<div class="grid grid-cols-4 gap-4">
+<div class="grid grid-cols-4 gap-4" id="productThumbnails">
     <% images.forEach(function(img, index) { %>
-        <button class="aspect-square rounded-lg overflow-hidden border-2 <%= index === 0 ? 'border-primary-container ring-2 ring-primary-container/20' : 'border-transparent hover:border-primary-container/50' %> transition-all">
+        <button class="product-thumb aspect-square rounded-lg overflow-hidden border-2 <%= index === 0 ? 'border-primary-container ring-2 ring-primary-container/20' : 'border-transparent hover:border-primary-container/50' %> transition-all" data-src="<%= img %>">
         <img alt="Thumbnail <%= index + 1 %>" class="w-full h-full object-cover" src="<%= img %>" onerror="this.src='/images/placeholder-product.jpg'"/>
         </button>
     <% }); %>
@@ -57,32 +57,38 @@
 </p>
 
 <!-- Stock check -->
+<% if (!user || user.role === 'customer') { %>
 <% if (product.stock > 0) { %>
     <p class="text-sm font-bold text-green-600 mb-6"><%= product.stock %> in stock</p>
-    
-    <form action="/cart/add" method="POST" class="flex flex-col gap-6 mb-12">
-    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-        <input type="hidden" name="productId" value="<%= product.id %>">
+
+    <div class="flex flex-col gap-6 mb-12">
         <div class="flex items-center gap-4">
-            <div class="flex items-center bg-surface-container-low rounded-xl px-2">
-                <input type="number" name="quantity" value="1" min="1" max="<%= product.stock %>" class="w-20 text-center bg-transparent border-none text-lg font-bold focus:ring-0">
-            </div>
-            
-            <button type="submit" class="flex-1 bg-primary-container text-on-primary-container font-bold py-4 px-8 rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95">
-                <span class="material-symbols-outlined">shopping_bag</span>
-                Add to Cart
-            </button>
-            <button type="submit" formaction="/user/wishlist/toggle" formmethod="POST" class="p-4 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-colors" aria-label="Add to wishlist">
-                <span class="material-symbols-outlined">favorite</span>
-            </button>
+            <form action="/cart/add" method="POST" class="flex items-center gap-4 flex-1">
+                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                <input type="hidden" name="productId" value="<%= product.id %>">
+                <div class="flex items-center bg-surface-container-low rounded-xl px-2">
+                    <input type="number" name="quantity" value="1" min="1" max="<%= product.stock %>" class="w-20 text-center bg-transparent border-none text-lg font-bold focus:ring-0">
+                </div>
+                <button type="submit" class="flex-1 bg-primary-container text-on-primary-container font-bold py-4 px-8 rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95">
+                    <span class="material-symbols-outlined">shopping_bag</span>
+                    Add to Cart
+                </button>
+            </form>
+            <form action="/user/wishlist/toggle" method="POST">
+                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                <input type="hidden" name="productId" value="<%= product.id %>">
+                <button type="submit" class="p-4 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-colors" aria-label="Add to wishlist">
+                    <span class="material-symbols-outlined" data-icon="favorite">favorite_border</span>
+                </button>
+            </form>
         </div>
-        
-    </form>
+    </div>
 <% } else { %>
     <div class="bg-red-100 text-red-700 p-4 rounded-xl font-bold mb-12 inline-block">
         Currently Out of Stock
     </div>
 <% } %>
+<% } /* end customer-only block */ %>
 
 <div class="flex items-start gap-4 p-5 bg-surface-container-low rounded-xl">
     <span class="material-symbols-outlined text-primary-container">local_shipping</span>
@@ -102,7 +108,12 @@
 <div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/10">
 <div class="flex items-center gap-6 mb-6">
 <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-primary-container/20 flex items-center justify-center bg-amber-100 text-amber-700 text-3xl font-bold">
+<% if (artisan && (artisan.profile_image || artisan.avatar)) { %>
+    <img src="<%= artisan.profile_image || artisan.avatar %>" alt="<%= product.shop_name || 'Artisan' %>" class="w-full h-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <span style="display:none" class="w-full h-full flex items-center justify-center"><%= (product.shop_name || 'A')[0].toUpperCase() %></span>
+<% } else { %>
     <%= (product.shop_name || 'A')[0].toUpperCase() %>
+<% } %>
 </div>
 <div>
 <h4 class="font-headline text-xl font-bold"><%= product.shop_name || 'Artisan' %></h4>
@@ -115,7 +126,7 @@
     <%= (artisan && artisan.bio) ? artisan.bio : 'Discover more amazing handcrafted products from this artisan.' %>
 </p>
 <div class="flex gap-4">
-<a class="text-primary font-bold font-headline underline underline-offset-4 hover:opacity-80 transition-opacity" href="/products/artisan/<%= product.artisan_id %>">View Artist Shop</a>
+<a class="text-primary font-bold font-headline underline underline-offset-4 hover:opacity-80 transition-opacity" href="/user/artisan/<%= product.artisan_id %>">View Artist Shop</a>
 <% if (user && user.id !== product.artisan_id) { %>
 <a class="inline-flex items-center gap-2 text-primary font-bold font-headline underline underline-offset-4 hover:opacity-80 transition-opacity" href="/user/messages/<%= product.artisan_id %>">
 <span class="material-symbols-outlined text-sm">chat</span>
@@ -133,6 +144,18 @@ Send Message
 <span class="text-on-secondary-container font-medium">Category</span>
 <span class="text-on-surface font-semibold text-right"><%= product.category_name || 'General' %></span>
 </div>
+<% if (product.weight) { %>
+<div class="flex justify-between py-4 border-b border-outline-variant/20">
+<span class="text-on-secondary-container font-medium">Weight</span>
+<span class="text-on-surface font-semibold text-right"><%= product.weight %>g</span>
+</div>
+<% } %>
+<% if (product.tags) { %>
+<div class="flex justify-between py-4 border-b border-outline-variant/20">
+<span class="text-on-secondary-container font-medium">Materials</span>
+<span class="text-on-surface font-semibold text-right"><%= product.tags.split(',').map(function(t){return t.trim();}).join(', ') %></span>
+</div>
+<% } %>
 <div class="flex justify-between py-4 border-b border-outline-variant/20">
 <span class="text-on-secondary-container font-medium">Listed</span>
 <span class="text-on-surface font-semibold text-right"><%= new Date(product.created_at).toLocaleDateString() %></span>
@@ -274,5 +297,30 @@ const distributionMap = {};
 
 <% } %>
 </main>
+
+<script>
+(function() {
+  var mainImg = document.getElementById('mainProductImg');
+  var thumbs = document.querySelectorAll('.product-thumb');
+
+  thumbs.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var src = this.dataset.src;
+      if (!src || !mainImg) return;
+      mainImg.style.opacity = '0';
+      setTimeout(function() {
+        mainImg.src = src;
+        mainImg.style.opacity = '1';
+      }, 150);
+      thumbs.forEach(function(t) {
+        t.classList.remove('border-primary-container', 'ring-2', 'ring-primary-container/20');
+        t.classList.add('border-transparent');
+      });
+      this.classList.remove('border-transparent');
+      this.classList.add('border-primary-container', 'ring-2', 'ring-primary-container/20');
+    });
+  });
+})();
+</script>
 
 <%- include('../partials/footer') %>

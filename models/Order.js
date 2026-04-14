@@ -291,15 +291,18 @@ class Order {
   static getRecentByArtisan(artisanId, limit = 10) {
     const db = getDb();
     return db.prepare(`
-      SELECT DISTINCT o.*, u.name as customer_name
+      SELECT o.*, u.name as customer_name,
+        (SELECT p2.name FROM order_items oi2 JOIN products p2 ON oi2.product_id = p2.id WHERE oi2.order_id = o.id AND p2.artisan_id = ? LIMIT 1) as product_name,
+        (SELECT p2.images FROM order_items oi2 JOIN products p2 ON oi2.product_id = p2.id WHERE oi2.order_id = o.id AND p2.artisan_id = ? LIMIT 1) as product_images,
+        (SELECT COUNT(*) FROM order_items oi2 JOIN products p2 ON oi2.product_id = p2.id WHERE oi2.order_id = o.id AND p2.artisan_id = ?) as item_count
       FROM orders o
       JOIN users u ON o.user_id = u.id
-      JOIN order_items oi ON o.id = oi.order_id
-      JOIN products p ON oi.product_id = p.id
-      WHERE p.artisan_id = ?
+      WHERE o.id IN (
+        SELECT DISTINCT oi.order_id FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE p.artisan_id = ?
+      )
       ORDER BY o.created_at DESC
       LIMIT ?
-    `).all(artisanId, limit);
+    `).all(artisanId, artisanId, artisanId, artisanId, limit);
   }
 
   static getSalesDataSince(startIso) {

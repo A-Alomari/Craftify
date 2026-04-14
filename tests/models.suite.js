@@ -21,5 +21,16 @@ module.exports = (suiteContext) => {
     require('./models/m16-final-coverage.suite')(suiteContext);
     require('./models/m17-utils.suite')(suiteContext);
     require('./models/m18-newsletter-password-reset.suite')(suiteContext);
+    require('./models/m19-sanitizer-utils.suite')();
+  });
+
+  describe('UTILITY / SERVICE / MIDDLEWARE COVERAGE', () => {
+    require('./models/m20-security-policy.suite')();
+    require('./models/m21-redirect-full.suite')();
+    require('./models/m22-payment-service.suite')();
+    require('./models/m23-auth-middleware.suite')();
+    require('./models/m24-checkout-service.suite')();
+    require('./models/m25-upload-utils.suite')();
+    require('./models/m26-email-service.suite')();
   });
 };

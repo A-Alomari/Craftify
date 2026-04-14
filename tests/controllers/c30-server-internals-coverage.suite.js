@@ -349,7 +349,6 @@ module.exports = () => {
       restoreEnvironment();
       jest.restoreAllMocks();
       jest.clearAllMocks();
-      jest.resetModules();
 
       jest.dontMock('express');
       jest.dontMock('express-session');

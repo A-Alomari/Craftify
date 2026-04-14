@@ -73,7 +73,7 @@
                           <button class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Approve</button>
                         </form>
                       <% } %>
-                      <form action="/admin/reviews/<%= r.id %>/delete" method="POST" class="inline-block" onsubmit="return confirm('Delete this review?');">
+                      <form action="/admin/reviews/<%= r.id %>/delete" method="POST" class="inline-block" data-confirm="Delete this review?">
                         <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                         <button class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Delete</button>
                       </form>

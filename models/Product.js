@@ -39,6 +39,10 @@ class Product {
       query += ' AND p.category_id = ?';
       params.push(filters.category_id);
     }
+    if (filters.category_ids && Array.isArray(filters.category_ids) && filters.category_ids.length > 0) {
+      query += ` AND p.category_id IN (${filters.category_ids.map(() => '?').join(',')})`;
+      params.push(...filters.category_ids);
+    }
     if (filters.artisan_id) {
       query += ' AND p.artisan_id = ?';
       params.push(filters.artisan_id);
@@ -88,12 +92,12 @@ class Product {
 
   static create(productData) {
     const db = getDb();
-    const { artisan_id, category_id, name, description, price, images = '[]', stock = 0, status = 'pending', featured = 0 } = productData;
+    const { artisan_id, category_id, name, description, price, images = '[]', stock = 0, status = 'pending', featured = 0, weight = null, tags = null, length_cm = null, width_cm = null, height_cm = null } = productData;
 
     const result = db.prepare(`
-      INSERT INTO products (artisan_id, category_id, name, description, price, images, stock, status, featured)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(artisan_id, category_id, name, description, price, images, stock, status, featured);
+      INSERT INTO products (artisan_id, category_id, name, description, price, images, stock, status, featured, weight, tags, length_cm, width_cm, height_cm)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(artisan_id, category_id, name, description, price, images, stock, status, featured, weight, tags, length_cm, width_cm, height_cm);
 
     return this.findById(result.lastInsertRowid);
   }
@@ -106,7 +110,8 @@ class Product {
     // Whitelist allowed columns to prevent unintended updates
     const allowedColumns = [
       'name', 'description', 'price', 'images', 'stock',
-      'category_id', 'status', 'featured', 'artisan_id'
+      'category_id', 'status', 'featured', 'artisan_id',
+      'weight', 'tags', 'length_cm', 'width_cm', 'height_cm'
     ];
 
     Object.entries(productData).forEach(([key, value]) => {
@@ -199,6 +204,10 @@ class Product {
     if (filters.category_id) {
       query += ' AND p.category_id = ?';
       params.push(filters.category_id);
+    }
+    if (filters.category_ids && Array.isArray(filters.category_ids) && filters.category_ids.length > 0) {
+      query += ` AND p.category_id IN (${filters.category_ids.map(() => '?').join(',')})`;
+      params.push(...filters.category_ids);
     }
     if (filters.featured) {
       query += ' AND p.featured = 1';

@@ -5,11 +5,11 @@ class Auction {
     const db = getDb();
     return db.prepare(`
       SELECT a.*, p.name as product_name, p.images as product_images, p.description as product_description,
-        c.name as category_name, u.name as artisan_name, ap.shop_name,
+        c.name as category_name, u.name as artisan_name, u.avatar as artisan_avatar, ap.shop_name, ap.profile_image as artisan_profile_image,
         hu.name as highest_bidder_name,
         (SELECT COUNT(*) FROM bids WHERE auction_id = a.id) as bid_count
       FROM auctions a
-      JOIN products p ON a.product_id = p.id
+      LEFT JOIN products p ON a.product_id = p.id
       LEFT JOIN categories c ON p.category_id = c.id
       JOIN users u ON a.artisan_id = u.id
       LEFT JOIN artisan_profiles ap ON u.id = ap.user_id
@@ -25,7 +25,7 @@ class Auction {
         c.name as category_name, u.name as artisan_name, ap.shop_name,
         (SELECT COUNT(*) FROM bids WHERE auction_id = a.id) as bid_count
       FROM auctions a
-      JOIN products p ON a.product_id = p.id
+      LEFT JOIN products p ON a.product_id = p.id
       LEFT JOIN categories c ON p.category_id = c.id
       JOIN users u ON a.artisan_id = u.id
       LEFT JOIN artisan_profiles ap ON u.id = ap.user_id
@@ -48,7 +48,7 @@ class Auction {
       query += " AND a.status = 'active' AND a.end_time <= datetime('now', '+1 hour')";
     }
     if (filters.search) {
-      query += ' AND (p.name LIKE ? OR a.title LIKE ?)';
+      query += ' AND (COALESCE(p.name, a.title) LIKE ? OR a.title LIKE ?)';
       params.push(`%${filters.search}%`, `%${filters.search}%`);
     }
 
@@ -75,28 +75,39 @@ class Auction {
   static create(auctionData) {
     const db = getDb();
     const {
-      product_id, artisan_id, title = '', description = '',
+      product_id, artisan_id, title = '', description = '', images = '[]',
       starting_bid, starting_price, reserve_price = null, bid_increment = 1,
       start_time, end_time
     } = auctionData;
 
     const now = new Date();
-    const startDate = new Date(start_time);
+    // FIX: BUG 3 — normalize datetime-local form values to full ISO strings.
+    // Without this, "2024-03-15T10:00" (no timezone) stores inconsistently and
+    // causes wrong string comparisons in the background end-task query.
+    const normalizeDateTime = (dt) => {
+      if (!dt) return dt;
+      const d = new Date(dt);
+      return Number.isNaN(d.getTime()) ? dt : d.toISOString();
+    };
+    const normalizedStartTime = normalizeDateTime(start_time);
+    const normalizedEndTime = normalizeDateTime(end_time);
+
+    const startDate = new Date(normalizedStartTime || start_time);
     const status = startDate <= now ? 'active' : 'pending';
     const actualStartPrice = starting_price || starting_bid;
-    const product = db.prepare('SELECT name FROM products WHERE id = ?').get(product_id);
+    const product = product_id ? db.prepare('SELECT name FROM products WHERE id = ?').get(product_id) : null;
     const actualTitle = title || (product ? product.name : 'Auction');
 
     const result = db.prepare(`
       INSERT INTO auctions (
-        product_id, artisan_id, title, description,
+        product_id, artisan_id, title, description, images,
         starting_price, starting_bid, reserve_price, bid_increment,
         start_time, end_time, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
-      product_id, artisan_id, actualTitle, description,
+      product_id || null, artisan_id, actualTitle, description, images,
       actualStartPrice, actualStartPrice, reserve_price, bid_increment,
-      start_time, end_time, status
+      normalizedStartTime || start_time, normalizedEndTime || end_time, status
     );
 
     return this.findById(result.lastInsertRowid);
@@ -244,13 +255,16 @@ class Auction {
 
   static getUserBids(userId, limit = null) {
     const db = getDb();
+    // FIX: Changed INNER JOIN to LEFT JOIN so bids on standalone auctions
+    // (product_id = NULL) are included in the user's bid history.
+    // FIX: Also select a.images so standalone auction images can be used as fallback.
     let query = `
-      SELECT b.*, a.title, a.end_time, a.status as auction_status,
+      SELECT b.*, a.title, a.images as auction_images, a.end_time, a.status as auction_status,
         a.current_highest_bid, a.winner_id,
         p.images as product_images, p.name as product_name
       FROM bids b
       JOIN auctions a ON b.auction_id = a.id
-      JOIN products p ON a.product_id = p.id
+      LEFT JOIN products p ON a.product_id = p.id
       WHERE b.user_id = ?
       ORDER BY b.created_at DESC
     `;

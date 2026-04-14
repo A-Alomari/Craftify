@@ -3,72 +3,389 @@
 <div class="flex bg-surface min-h-screen">
   <%- include('./partials/sidebar') %>
 
-  <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
-    <%- include('./partials/topbar') %>
+  <main class="flex-1 min-h-screen">
+    <div class="max-w-6xl mx-auto px-6 py-10 lg:px-10">
 
-    <section class="max-w-5xl mx-auto mt-8 mb-6">
-      <span class="font-label text-xs tracking-[0.2em] text-primary font-semibold uppercase">Artisan Studio</span>
-      <h1 class="font-headline text-3xl text-on-surface mt-2">Create Auction</h1>
-      <p class="text-secondary mt-1">Launch a timed listing and attract competitive bids.</p>
-    </section>
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 mb-8 text-sm text-secondary">
+        <a href="/artisan/dashboard" class="hover:text-primary transition-colors">Dashboard</a>
+        <span class="material-symbols-outlined text-xs">chevron_right</span>
+        <a href="/artisan/auctions" class="hover:text-primary transition-colors">Auctions</a>
+        <span class="material-symbols-outlined text-xs">chevron_right</span>
+        <span class="text-on-surface font-semibold">Create Auction</span>
+      </nav>
 
-    <section class="max-w-5xl mx-auto bg-surface-container-lowest rounded-xl p-6 md:p-8">
-      <form action="/artisan/auctions" method="POST" class="space-y-5">
+      <div class="mb-10">
+        <h1 class="font-headline text-4xl font-bold text-on-surface mb-1">Create New Auction</h1>
+        <p class="text-secondary">List your unique item for bidding by customers.</p>
+      </div>
+
+      <form id="auction-form" action="/artisan/auctions?_csrf=<%= typeof csrfToken !== 'undefined' ? encodeURIComponent(csrfToken) : '' %>" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
 
-        <div>
-          <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Select Product</label>
-          <select name="product_id" required class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
-            <option value="">Choose a product...</option>
-            <% products.forEach(function(p) { %>
-              <option value="<%= p.id %>"><%= p.name %> ($<%= Number(p.price || 0).toFixed(2) %>)</option>
-            <% }); %>
-          </select>
-        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
 
-        <div>
-          <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Auction Title</label>
-          <input type="text" name="title" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
-        </div>
+          <!-- Left: Form Sections -->
+          <div class="lg:col-span-8 space-y-8">
 
-        <div>
-          <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Description</label>
-          <textarea name="description" rows="4" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container"></textarea>
-        </div>
+            <!-- Auction Item -->
+            <section class="bg-surface-container-lowest rounded-xl p-8 shadow-sm">
+              <div class="flex items-center space-x-3 mb-2">
+                <span class="material-symbols-outlined text-primary">inventory_2</span>
+                <h2 class="font-headline text-xl font-bold">Auction Item</h2>
+              </div>
+              <p class="text-xs text-secondary mb-8">Link to an existing approved product <em>or</em> create a standalone auction with a title and images.</p>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Starting Bid</label>
-            <input type="number" name="starting_bid" step="0.01" min="0.01" required class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
-          </div>
-          <div>
-            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Reserve Price</label>
-            <input type="number" name="reserve_price" step="0.01" min="0" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
-          </div>
-          <div>
-            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Bid Increment</label>
-            <input type="number" name="bid_increment" step="0.01" min="0.01" value="1.00" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
-          </div>
-        </div>
+              <div class="space-y-6">
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Start Time</label>
-            <input type="datetime-local" name="start_time" required class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
-          </div>
-          <div>
-            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">End Time</label>
-            <input type="datetime-local" name="end_time" required class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
-          </div>
-        </div>
+                <!-- Auction Title (always visible, required when no product) -->
+                <div>
+                  <label class="block text-sm font-semibold text-secondary mb-2 uppercase tracking-wider" for="auction-title">
+                    Auction Title
+                    <span id="title-required-badge" class="hidden ml-1 text-error font-normal normal-case text-xs">*</span>
+                    <span id="title-optional-badge" class="ml-1 font-normal normal-case text-xs text-secondary/70">— required when no product selected</span>
+                  </label>
+                  <input type="text" name="title" id="auction-title" placeholder="e.g., Vintage Kiln-Fired Vase — Collector's Edition" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-colors">
+                </div>
 
-        <div class="flex justify-end gap-2">
-          <a href="/artisan/auctions" class="bg-surface-container-high text-on-surface px-5 py-2.5 rounded-xl font-semibold text-sm">Cancel</a>
-          <button type="submit" class="bg-primary-container text-on-primary-container px-5 py-2.5 rounded-xl font-semibold text-sm">Create Auction</button>
+                <!-- Optional product link -->
+                <div>
+                  <label class="block text-sm font-semibold text-secondary mb-2 uppercase tracking-wider">
+                    Link to Product
+                    <span class="font-normal normal-case text-xs text-secondary/70 ml-1">— optional</span>
+                  </label>
+                  <select name="product_id" id="product-select" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-colors appearance-none">
+                    <option value="">None — standalone auction</option>
+                    <% products.forEach(function(p) {
+                      var firstImg = '';
+                      try { var arr = JSON.parse(p.images || '[]'); firstImg = arr[0] || ''; } catch(e) {}
+                    %>
+                      <option value="<%= p.id %>"
+                        data-name="<%= p.name %>"
+                        data-price="<%= Number(p.price || 0).toFixed(2) %>"
+                        data-image="<%= firstImg %>">
+                        <%= p.name %> ($<%= Number(p.price || 0).toFixed(2) %>)
+                      </option>
+                    <% }); %>
+                  </select>
+                </div>
+
+                <!-- Images (shown when no product selected) -->
+                <div id="image-upload-section">
+                  <label class="block text-sm font-semibold text-secondary mb-2 uppercase tracking-wider">
+                    Auction Images
+                    <span class="font-normal normal-case text-xs text-secondary/70 ml-1">— JPEG, PNG, WebP · up to 30MB</span>
+                  </label>
+                  <label class="flex flex-col items-center justify-center w-full aspect-[16/5] rounded-xl border-2 border-dashed border-outline-variant hover:border-primary hover:text-primary text-secondary transition-all cursor-pointer bg-surface-container-low gap-3">
+                    <span class="material-symbols-outlined text-4xl">add_a_photo</span>
+                    <span class="text-sm font-semibold">Upload Images</span>
+                    <input type="file" name="images" id="img-input" multiple accept="image/jpeg,image/png,image/webp" class="hidden">
+                  </label>
+                  <div id="img-previews" class="grid grid-cols-4 gap-3 mt-3 hidden"></div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between items-baseline mb-2">
+                    <label class="block text-sm font-semibold text-secondary uppercase tracking-wider">
+                      Description
+                      <span class="font-normal normal-case text-xs text-secondary/70 ml-1">— optional</span>
+                    </label>
+                    <span class="text-xs text-secondary/60" id="desc-counter">0/1000</span>
+                  </div>
+                  <textarea name="description" rows="5" id="auction-desc" maxlength="1000" placeholder="Tell the story of your creation..." class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-colors"></textarea>
+                </div>
+
+                <!-- Dimensions -->
+                <div id="dimensions-section">
+                  <label class="block text-sm font-semibold text-secondary mb-3 uppercase tracking-wider">
+                    Dimensions
+                    <span class="font-normal normal-case text-xs text-secondary/70 ml-1">— optional</span>
+                  </label>
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <label class="block text-xs text-secondary mb-1">Length (cm)</label>
+                      <input type="number" name="length_cm" step="0.1" min="0" placeholder="e.g. 20" class="w-full bg-surface-container-low border-none rounded-xl px-3 py-2.5 focus:ring-0 focus:bg-surface-container-high transition-colors text-sm">
+                    </div>
+                    <div>
+                      <label class="block text-xs text-secondary mb-1">Width (cm)</label>
+                      <input type="number" name="width_cm" step="0.1" min="0" placeholder="e.g. 10" class="w-full bg-surface-container-low border-none rounded-xl px-3 py-2.5 focus:ring-0 focus:bg-surface-container-high transition-colors text-sm">
+                    </div>
+                    <div>
+                      <label class="block text-xs text-secondary mb-1">Height (cm)</label>
+                      <input type="number" name="height_cm" step="0.1" min="0" placeholder="e.g. 15" class="w-full bg-surface-container-low border-none rounded-xl px-3 py-2.5 focus:ring-0 focus:bg-surface-container-high transition-colors text-sm">
+                    </div>
+                    <div>
+                      <label class="block text-xs text-secondary mb-1">Weight (g)</label>
+                      <input type="number" name="weight" step="1" min="0" placeholder="e.g. 350" class="w-full bg-surface-container-low border-none rounded-xl px-3 py-2.5 focus:ring-0 focus:bg-surface-container-high transition-colors text-sm">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Auction Settings -->
+            <section class="bg-surface-container-lowest rounded-xl p-8 shadow-sm">
+              <div class="flex items-center space-x-3 mb-8">
+                <span class="material-symbols-outlined text-primary">gavel</span>
+                <h2 class="font-headline text-xl font-bold">Auction Settings</h2>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div>
+                  <label class="block text-sm font-semibold text-secondary mb-2 uppercase tracking-wider">Starting Bid ($) *</label>
+                  <input type="number" name="starting_bid" id="starting-bid" step="0.01" min="0.01" required placeholder="0.00" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-colors">
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold text-secondary mb-2 uppercase tracking-wider">Bid Increment ($)</label>
+                  <input type="number" name="bid_increment" step="0.01" min="0.01" value="1.00" placeholder="1.00" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-colors">
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold text-secondary mb-2 uppercase tracking-wider">Reserve Price ($)</label>
+                  <input type="number" name="reserve_price" step="0.01" min="0" placeholder="Optional" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-colors">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-semibold text-secondary mb-2 uppercase tracking-wider">Start Date &amp; Time *</label>
+                  <input type="datetime-local" name="start_time" id="start-time" required step="60" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-colors">
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold text-secondary mb-2 uppercase tracking-wider">End Date &amp; Time *</label>
+                  <input type="datetime-local" name="end_time" id="end-time" required step="60" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-colors">
+                </div>
+              </div>
+
+              <div class="mt-6 p-4 bg-primary-fixed/30 rounded-lg flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                  <span class="material-symbols-outlined text-primary text-sm">schedule</span>
+                  <span class="text-sm font-medium text-on-primary-fixed">Calculated Duration:</span>
+                </div>
+                <span class="text-sm font-bold text-primary" id="duration-display">—</span>
+              </div>
+            </section>
+
+            <!-- Actions -->
+            <div class="flex flex-col md:flex-row items-center gap-4 pt-2">
+              <a href="/artisan/auctions" class="w-full md:w-auto px-10 py-4 rounded-xl border-2 border-outline-variant text-secondary font-bold hover:bg-surface-container-low transition-all active:scale-95 text-center">
+                Cancel
+              </a>
+              <button type="submit" class="w-full md:flex-1 py-4 rounded-xl bg-primary-container text-on-primary-container font-bold text-lg shadow-lg shadow-primary-container/20 hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-95">
+                Launch Auction
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Preview Sidebar -->
+          <aside class="lg:col-span-4 sticky top-6">
+            <div class="bg-surface-container-high/50 rounded-2xl p-6 border border-outline-variant/20">
+              <div class="flex justify-between items-center mb-6">
+                <h3 class="font-headline text-lg font-bold">Live Preview</h3>
+                <span class="text-[10px] tracking-widest bg-secondary text-white px-2 py-0.5 rounded font-bold">DRAFT</span>
+              </div>
+
+              <div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-xl border border-outline-variant/10">
+                <div class="aspect-[4/5] relative bg-surface-container-low flex items-center justify-center" id="preview-img-wrap">
+                  <span class="material-symbols-outlined text-5xl text-outline">image</span>
+                </div>
+                <div class="p-5 space-y-4">
+                  <h4 class="font-headline text-xl font-bold leading-tight" id="preview-title">Auction Title</h4>
+                  <div class="flex justify-between items-end">
+                    <div>
+                      <p class="text-[10px] text-secondary font-bold uppercase tracking-tighter">Starting Bid</p>
+                      <p class="font-headline text-2xl font-bold text-primary" id="preview-bid">$—</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-[10px] text-secondary font-bold uppercase tracking-tighter">Duration</p>
+                      <p class="text-sm font-bold text-on-surface" id="preview-duration">—</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 px-4 py-4 rounded-xl bg-primary-container/10 border border-primary-container/20 flex space-x-4">
+              <span class="material-symbols-outlined text-primary flex-shrink-0" style="font-variation-settings:'FILL' 1;">info</span>
+              <p class="text-xs leading-relaxed text-on-primary-fixed-variant">
+                <strong>Pro Tip:</strong> Items with detailed descriptions and clear high-resolution images tend to receive 40% higher bids on Craftify.
+              </p>
+            </div>
+          </aside>
         </div>
       </form>
-    </section>
+    </div>
   </main>
 </div>
+
+<script>
+(function() {
+  // Set default datetime values: start = now (rounded to next 5 min), end = now + 7 days
+  (function initDatetimes() {
+    var startInput = document.getElementById('start-time');
+    var endInput = document.getElementById('end-time');
+    if (!startInput || !endInput) return;
+
+    var now = new Date();
+    // Round up to next 5-minute mark
+    var minutes = now.getMinutes();
+    var roundedMinutes = Math.ceil((minutes + 1) / 5) * 5;
+    now.setMinutes(roundedMinutes, 0, 0);
+
+    function toLocalDatetimeString(d) {
+      var pad = function(n) { return String(n).padStart(2, '0'); };
+      return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
+        'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+
+    startInput.value = toLocalDatetimeString(now);
+    startInput.min = toLocalDatetimeString(new Date(Date.now() - 60000)); // allow 1min in past
+
+    var endDefault = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    endInput.value = toLocalDatetimeString(endDefault);
+    calcDuration();
+  })();
+
+  // Description character counter
+  var desc = document.getElementById('auction-desc');
+  var counter = document.getElementById('desc-counter');
+  if (desc && counter) {
+    desc.addEventListener('input', function() {
+      counter.textContent = desc.value.length + '/1000';
+    });
+  }
+
+  // Duration calculator
+  var startInput = document.getElementById('start-time');
+  var endInput = document.getElementById('end-time');
+  var durationDisplay = document.getElementById('duration-display');
+  var previewDuration = document.getElementById('preview-duration');
+
+  function calcDuration() {
+    if (!startInput || !endInput || !startInput.value || !endInput.value) {
+      if (durationDisplay) durationDisplay.textContent = '—';
+      if (previewDuration) previewDuration.textContent = '—';
+      return;
+    }
+    var diff = new Date(endInput.value) - new Date(startInput.value);
+    if (diff <= 0) {
+      if (durationDisplay) durationDisplay.textContent = 'Invalid range';
+      if (previewDuration) previewDuration.textContent = '—';
+      return;
+    }
+    var days = Math.floor(diff / 86400000);
+    var hours = Math.floor((diff % 86400000) / 3600000);
+    var mins = Math.floor((diff % 3600000) / 60000);
+    var parts = [];
+    if (days > 0) parts.push(days + 'd');
+    if (hours > 0) parts.push(hours + 'h');
+    if (mins > 0) parts.push(mins + 'm');
+    var str = parts.join(' ') || '< 1 min';
+    if (durationDisplay) durationDisplay.textContent = str;
+    if (previewDuration) previewDuration.textContent = str;
+  }
+
+  if (startInput) startInput.addEventListener('change', calcDuration);
+  if (endInput) endInput.addEventListener('change', calcDuration);
+
+  // Title / product interaction
+  var titleInput = document.getElementById('auction-title');
+  var productSelect = document.getElementById('product-select');
+  var previewTitle = document.getElementById('preview-title');
+  var previewImgWrap = document.getElementById('preview-img-wrap');
+  var titleRequiredBadge = document.getElementById('title-required-badge');
+  var titleOptionalBadge = document.getElementById('title-optional-badge');
+  var imgSection = document.getElementById('image-upload-section');
+
+  function syncProductState() {
+    var hasProduct = productSelect && productSelect.value;
+    if (titleRequiredBadge) titleRequiredBadge.classList.toggle('hidden', !!hasProduct);
+    if (titleOptionalBadge) titleOptionalBadge.classList.toggle('hidden', !hasProduct);
+    if (imgSection) imgSection.classList.toggle('hidden', !!hasProduct);
+  }
+  syncProductState();
+
+  if (productSelect) {
+    productSelect.addEventListener('change', function() {
+      syncProductState();
+      var opt = productSelect.options[productSelect.selectedIndex];
+      if (opt && opt.value) {
+        if (previewTitle && !titleInput.value) previewTitle.textContent = opt.dataset.name || 'Auction Title';
+        var img = opt.dataset.image;
+        if (previewImgWrap) {
+          if (img) {
+            previewImgWrap.innerHTML = '<img src="' + img + '" alt="Preview" class="w-full h-full object-cover">';
+          } else {
+            previewImgWrap.innerHTML = '<span class="material-symbols-outlined text-5xl text-outline">image</span>';
+          }
+        }
+      } else {
+        if (previewTitle) previewTitle.textContent = titleInput ? (titleInput.value || 'Auction Title') : 'Auction Title';
+        if (previewImgWrap) previewImgWrap.innerHTML = '<span class="material-symbols-outlined text-5xl text-outline">image</span>';
+      }
+    });
+  }
+
+  if (titleInput && previewTitle) {
+    titleInput.addEventListener('input', function() {
+      var productName = (productSelect && productSelect.value) ? (productSelect.options[productSelect.selectedIndex].dataset.name || '') : '';
+      previewTitle.textContent = titleInput.value || productName || 'Auction Title';
+    });
+  }
+
+  // Image upload preview
+  var imgInput = document.getElementById('img-input');
+  var imgPreviews = document.getElementById('img-previews');
+  if (imgInput && imgPreviews && previewImgWrap) {
+    imgInput.addEventListener('change', function() {
+      imgPreviews.innerHTML = '';
+      var files = Array.from(imgInput.files);
+      if (files.length === 0) {
+        imgPreviews.classList.add('hidden');
+        previewImgWrap.innerHTML = '<span class="material-symbols-outlined text-5xl text-outline">image</span>';
+        return;
+      }
+      imgPreviews.classList.remove('hidden');
+      files.forEach(function(file, idx) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var div = document.createElement('div');
+          div.className = 'aspect-square rounded-lg overflow-hidden bg-surface-container-low';
+          div.innerHTML = '<img src="' + e.target.result + '" class="w-full h-full object-cover">';
+          imgPreviews.appendChild(div);
+          if (idx === 0) {
+            previewImgWrap.innerHTML = '<img src="' + e.target.result + '" alt="Preview" class="w-full h-full object-cover">';
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+  }
+
+  // Starting bid preview
+  var bidInput = document.getElementById('starting-bid');
+  var previewBid = document.getElementById('preview-bid');
+  if (bidInput && previewBid) {
+    bidInput.addEventListener('input', function() {
+      previewBid.textContent = bidInput.value ? '$' + Number(bidInput.value).toFixed(2) : '$—';
+    });
+  }
+
+  // Form submit validation: title required if no product
+  var form = document.getElementById('auction-form');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      var hasProduct = productSelect && productSelect.value;
+      var hasTitle = titleInput && titleInput.value.trim();
+      if (!hasProduct && !hasTitle) {
+        e.preventDefault();
+        if (typeof showToast === 'function') {
+          showToast('Please enter an auction title or select a product.', 'error');
+        }
+        if (titleInput) titleInput.focus();
+      }
+    });
+  }
+})();
+</script>
 
 <%- include('../partials/footer') %>
