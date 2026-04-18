@@ -2,153 +2,108 @@
 
 <main class="flex-grow min-h-screen">
 
-<%
-  const artisanList = Array.isArray(artisans) ? artisans : [];
-  
-  const formatRating = function(value) {
-    return Number(value || 0).toFixed(1);
-  };
-  
-  const renderStars = function(rating) {
-    const safeRating = Number(rating || 0);
-    const stars = [];
-    for (let i = 1; i <= 5; i += 1) {
-      if (safeRating >= i) {
-        stars.push('star');
-      } else if (safeRating >= i - 0.5) {
-        stars.push('star_half');
-      } else {
-        stars.push('star');
-      }
-    }
-    return stars;
-  };
-%>
-
-<section class="max-w-7xl mx-auto px-6 py-12">
-  <!-- Header -->
-  <div class="text-center mb-12">
-    <span class="text-xs uppercase tracking-[0.2em] text-primary font-bold">Artisan Directory</span>
-    <h1 class="font-headline text-4xl md:text-5xl font-bold text-on-surface mt-3 mb-4">
-      Meet Our Artisans
-    </h1>
-    <p class="text-secondary text-lg max-w-2xl mx-auto">
-      Discover talented creators from around the world. Each artisan brings unique skills and passion to their handcrafted creations.
+<!-- Hero Banner -->
+<section class="relative py-20 overflow-hidden bg-gradient-to-br from-surface-container-lowest to-surface-container-low">
+  <div class="absolute inset-0 opacity-5">
+    <span class="material-symbols-outlined text-[400px] absolute -top-20 -right-20 text-primary select-none">draw</span>
+  </div>
+  <div class="relative max-w-7xl mx-auto px-8 text-center">
+    <p class="text-secondary font-label uppercase tracking-[0.2em] text-xs mb-3">Craftify Community</p>
+    <h1 class="font-headline text-5xl md:text-6xl font-bold text-on-surface mb-5 leading-tight">Meet The Makers</h1>
+    <p class="text-secondary text-lg max-w-2xl mx-auto leading-relaxed">
+      Each item tells a story. Discover the talented artisans behind the crafts — their shops, their passions, and their handmade creations.
     </p>
   </div>
+</section>
 
-  <!-- Artisan Grid -->
-  <% if (artisanList.length > 0) { %>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      <% artisanList.forEach(function(artisan) { %>
-        <article class="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all group">
-          <!-- Profile Header -->
-          <div class="relative h-40 bg-gradient-to-br from-primary-container to-secondary-container">
-            <% if (artisan.is_featured) { %>
-              <div class="absolute top-4 right-4 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                Featured
-              </div>
-            <% } %>
-          </div>
-          
-          <!-- Profile Image -->
-          <div class="px-6 -mt-16 relative z-10">
-            <div class="w-28 h-28 rounded-full border-4 border-surface-container-lowest overflow-hidden bg-surface-container-low">
-              <img 
-                src="<%= artisan.profile_image || '/images/default-avatar.png' %>" 
-                alt="<%= artisan.shop_name || artisan.name %>"
-                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                onerror="this.onerror=null;this.src='/images/default-avatar.png'"
-              >
-            </div>
-          </div>
+<!-- Artisan Grid -->
+<section class="py-20 max-w-7xl mx-auto px-8">
 
-          <!-- Profile Info -->
-          <div class="px-6 pb-6 pt-3">
-            <h3 class="font-headline text-xl font-bold text-on-surface mb-1">
-              <%= artisan.shop_name || artisan.name %>
-            </h3>
-            
-            <% if (artisan.avg_rating && artisan.review_count > 0) { %>
-              <div class="flex items-center gap-2 mb-3">
-                <div class="flex items-center">
-                  <% renderStars(artisan.avg_rating).forEach(function(star) { %>
-                    <span class="material-symbols-outlined text-amber-500 text-sm <%= star === 'star' ? '' : 'filled-icon' %>"><%= star %></span>
-                  <% }) %>
-                </div>
-                <span class="text-xs text-secondary">
-                  <%= formatRating(artisan.avg_rating) %> (<%= artisan.review_count %> review<%= artisan.review_count !== 1 ? 's' : '' %>)
-                </span>
-              </div>
-            <% } %>
+<%
+  const artisanList = Array.isArray(artisans) ? artisans : [];
+%>
 
-            <% if (artisan.bio) { %>
-              <p class="text-sm text-secondary line-clamp-3 mb-4">
-                <%= artisan.bio.substring(0, 120) %><%= artisan.bio.length > 120 ? '...' : '' %>
-              </p>
-            <% } %>
+<% if (artisanList.length > 0) { %>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <% artisanList.forEach(function(artisan) { %>
+      <article class="bg-surface-container-low rounded-3xl p-8 text-center shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col">
 
-            <!-- Stats -->
-            <div class="flex items-center gap-4 mb-4 text-xs text-secondary">
-              <div class="flex items-center gap-1">
-                <span class="material-symbols-outlined text-base">inventory_2</span>
-                <span><%= artisan.product_count %> product<%= artisan.product_count !== 1 ? 's' : '' %></span>
-              </div>
-            </div>
+        <!-- Avatar -->
+        <img
+          class="w-24 h-24 rounded-full object-cover mx-auto mb-5 ring-4 ring-primary-container/20 flex-shrink-0"
+          src="<%= artisan.profile_image || '' %>"
+          alt="<%= artisan.shop_name || artisan.name %>"
+          onerror="(function(img){img.onerror=null;var n=(img.alt||'?')[0].toUpperCase();var colors=['%23D97706','%2310B981','%233B82F6','%238B5CF6','%23EF4444'];var c=colors[n.charCodeAt(0)%colors.length];img.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'96\' height=\'96\'><circle cx=\'48\' cy=\'48\' r=\'48\' fill=\''+c+'\'/><text x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\' font-family=\'Arial,sans-serif\' font-size=\'38\' font-weight=\'bold\' fill=\'white\'>'+n+'</text></svg>';})(this)"
+        />
 
-            <!-- Actions -->
-            <div class="flex gap-2">
-              <a 
-                href="/user/artisan/<%= artisan.id %>" 
-                class="flex-1 bg-primary-container text-on-primary-container text-center font-semibold px-4 py-2.5 rounded-xl hover:opacity-90 transition-all text-sm"
-              >
-                View Shop
-              </a>
-              <% if (user) { %>
-                <a 
-                  href="/user/messages/<%= artisan.id %>" 
-                  class="p-2.5 border border-outline-variant text-on-surface rounded-xl hover:bg-surface-container-low transition-all"
-                  aria-label="Message artisan"
-                >
-                  <span class="material-symbols-outlined text-lg">chat</span>
-                </a>
-              <% } %>
-            </div>
-          </div>
-        </article>
-      <% }) %>
+        <p class="text-xs uppercase tracking-[0.2em] text-secondary mb-2">Artisan Shop</p>
+
+        <h3 class="font-headline text-2xl text-on-surface mb-2">
+          <a href="/user/artisan/<%= artisan.id %>" class="hover:text-primary transition-colors">
+            <%= artisan.shop_name || artisan.name %>
+          </a>
+        </h3>
+
+        <p class="text-sm text-secondary mb-4 flex-grow">
+          <%= artisan.bio ? artisan.bio.slice(0, 100) + (artisan.bio.length > 100 ? '...' : '') : 'Discover handmade work from this Craftify artisan.' %>
+        </p>
+
+        <div class="flex items-center justify-center gap-4 text-sm text-on-surface mb-5">
+          <span><strong><%= artisan.product_count || 0 %></strong> products</span>
+          <% if (artisan.avg_rating && artisan.review_count > 0) { %>
+            <span><strong><%= Number(artisan.avg_rating).toFixed(1) %></strong> rating</span>
+          <% } else { %>
+            <span class="text-secondary italic text-xs">New</span>
+          <% } %>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 mt-auto">
+          <a href="/user/artisan/<%= artisan.id %>" class="inline-flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all">
+            Visit shop
+            <span class="material-symbols-outlined text-base">storefront</span>
+          </a>
+          <% if (typeof user !== 'undefined' && user && user.role === 'customer') { %>
+            <a href="/user/messages/<%= artisan.id %>" class="p-1.5 text-secondary hover:text-primary transition-colors" aria-label="Message artisan">
+              <span class="material-symbols-outlined text-lg">chat</span>
+            </a>
+          <% } %>
+        </div>
+      </article>
+    <% }) %>
+  </div>
+
+<% } else { %>
+  <!-- Empty State -->
+  <div class="text-center py-24">
+    <div class="inline-flex items-center justify-center w-20 h-20 bg-surface-container-low rounded-full mb-6">
+      <span class="material-symbols-outlined text-4xl text-secondary">store</span>
     </div>
-  <% } else { %>
-    <!-- Empty State -->
-    <div class="text-center py-20">
-      <div class="inline-flex items-center justify-center w-20 h-20 bg-surface-container-low rounded-full mb-6">
-        <span class="material-symbols-outlined text-4xl text-secondary">store</span>
-      </div>
-      <h3 class="font-headline text-2xl font-bold text-on-surface mb-2">No Artisans Found</h3>
-      <p class="text-secondary mb-6">Check back soon to discover talented creators.</p>
-      <a href="/" class="inline-block bg-primary-container text-on-primary-container font-semibold px-6 py-3 rounded-xl hover:opacity-90 transition-all">
-        Back to Home
-      </a>
-    </div>
-  <% } %>
+    <h3 class="font-headline text-2xl font-bold text-on-surface mb-2">No Shops Yet</h3>
+    <p class="text-secondary mb-6">Check back soon to discover talented creators.</p>
+    <a href="/" class="inline-block bg-primary-container text-on-primary-container font-semibold px-6 py-3 rounded-xl hover:opacity-90 transition-all">
+      Back to Home
+    </a>
+  </div>
+<% } %>
 
-  <!-- Call to Action -->
-  <div class="mt-16 bg-gradient-to-br from-primary-container/20 to-secondary-container/20 rounded-2xl p-10 text-center">
-    <h2 class="font-headline text-2xl font-bold text-on-surface mb-3">
-      Are You an Artisan?
-    </h2>
-    <p class="text-secondary mb-6 max-w-xl mx-auto">
+</section>
+
+<!-- Call to Action -->
+<% if (!(typeof user !== 'undefined' && user)) { %>
+<section class="pb-24 max-w-7xl mx-auto px-8">
+  <div class="bg-gradient-to-br from-primary-container/20 to-secondary-container/20 rounded-3xl p-12 text-center">
+    <h2 class="font-headline text-3xl font-bold text-on-surface mb-3">Are You an Artisan?</h2>
+    <p class="text-secondary mb-8 max-w-xl mx-auto text-lg">
       Join our community of talented creators. Share your handcrafted products with customers who value quality and craftsmanship.
     </p>
-    <a 
-      href="/auth/artisan-register" 
-      class="inline-block bg-primary-container text-on-primary-container font-bold px-8 py-3 rounded-xl hover:opacity-90 transition-all"
-    >
+    <a href="/auth/artisan-register" class="inline-block bg-primary-container text-on-primary-container font-bold px-10 py-4 rounded-xl hover:opacity-90 transition-all text-lg">
       Become an Artisan
     </a>
   </div>
 </section>
+<% } %>
 
 </main>
 
 <%- include('../partials/footer') %>
+

@@ -59,16 +59,16 @@
 <!-- Stock check -->
 <% if (!user || user.role === 'customer') { %>
 <% if (product.stock > 0) { %>
-    <p class="text-sm font-bold text-green-600 mb-6"><%= product.stock %> in stock</p>
+    <p class="text-sm font-bold text-green-600 mb-6"><%= product.stock %> in stock<% if (typeof availableStock !== 'undefined' && availableStock < product.stock) { %> &middot; <span class="text-amber-600"><%= availableStock %> available (you have <%= product.stock - availableStock %> in cart)</span><% } %></p>
 
     <div class="flex flex-col gap-6 mb-12">
         <div class="flex items-center gap-4">
-            <form action="/cart/add" method="POST" class="flex items-center gap-4 flex-1">
+            <form action="/cart/add" method="POST" class="flex items-center gap-4 flex-1" data-no-loading>
                 <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                 <input type="hidden" name="productId" value="<%= product.id %>">
                 <div class="flex items-center bg-surface-container-low rounded-xl px-1 gap-1">
                     <button type="button" class="qty-btn w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high transition-colors font-bold text-lg" data-action="decrease">−</button>
-                    <input type="number" name="quantity" value="1" min="1" max="<%= product.stock %>" class="qty-input w-12 text-center bg-transparent border-none text-lg font-bold focus:ring-0">
+                    <input type="number" name="quantity" value="1" min="1" max="<%= typeof availableStock !== 'undefined' ? availableStock : product.stock %>" class="qty-input w-12 text-center bg-transparent border-none text-lg font-bold focus:ring-0">
                     <button type="button" class="qty-btn w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high transition-colors font-bold text-lg" data-action="increase">+</button>
                 </div>
                 <button type="submit" class="flex-1 bg-primary-container text-on-primary-container font-bold py-4 px-8 rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95">
@@ -76,7 +76,7 @@
                     Add to Cart
                 </button>
             </form>
-            <form action="/user/wishlist/toggle" method="POST">
+            <form action="/user/wishlist/toggle" method="POST" data-no-loading>
                 <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                 <input type="hidden" name="productId" value="<%= product.id %>">
                 <button type="submit" class="p-4 border border-outline-variant rounded-xl hover:bg-surface-container-low transition-colors <%= inWishlist ? 'text-red-500' : 'text-on-surface' %>" aria-label="<%= inWishlist ? 'Remove from wishlist' : 'Add to wishlist' %>">

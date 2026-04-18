@@ -152,18 +152,62 @@ exports.placeBid = (req, res) => {
 // Get user's bids
 exports.myBids = (req, res) => {
   try {
-    const bids = Auction.getUserBids(req.session.user.id);
+    const userId = req.session.user.id;
+    const bids = Auction.getUserBids(userId);
+    const now = new Date();
 
     bids.forEach(b => {
-      // FIX: fall back to b.auction_images for bids on standalone auctions (no product).
       const images = JSON.parse(b.product_images || b.auction_images || '[]');
       b.image = images[0] || '/images/placeholder-product.svg';
-      b.isWinning = b.winner_id === req.session.user.id;
+
+      // Winning if auction's current winner is this user
+      b.isWinning = b.winner_id === userId || b.highest_bidder_id === userId;
+
+      // Time remaining calculation
+      const endTime = new Date(b.end_time);
+      const timeLeftMs = endTime - now;
+      b.timeLeftMs = timeLeftMs;
+
+      if (timeLeftMs <= 0) {
+        b.timeLeftDisplay = 'Ended';
+        b.isEndingSoon = false;
+        b.timeLeftIcon = 'event_busy';
+      } else {
+        const totalHours = Math.floor(timeLeftMs / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeftMs % (1000 * 60 * 60)) / (1000 * 60));
+        const days = Math.floor(timeLeftMs / (1000 * 60 * 60 * 24));
+
+        if (totalHours < 24) {
+          b.timeLeftDisplay = totalHours > 0 ? `${totalHours}h ${minutes}m left` : `${minutes}m left`;
+          b.isEndingSoon = true;
+          b.timeLeftIcon = 'timer';
+        } else if (days === 1) {
+          b.timeLeftDisplay = 'Ends Tomorrow';
+          b.isEndingSoon = false;
+          b.timeLeftIcon = 'calendar_today';
+        } else {
+          b.timeLeftDisplay = `${days} days left`;
+          b.isEndingSoon = false;
+          b.timeLeftIcon = 'calendar_today';
+        }
+      }
     });
+
+    const activeBids = bids.filter(b => b.auction_status === 'active' && b.timeLeftMs > 0);
+    const pastBids = bids.filter(b => b.auction_status !== 'active' || b.timeLeftMs <= 0);
+    const activeBidsCount = activeBids.length;
+    const totalWon = bids.filter(b =>
+      (b.auction_status === 'sold' || b.auction_status === 'ended') &&
+      b.winner_id === userId
+    ).length;
 
     res.render('auctions/my-bids', {
       title: 'My Bids - Craftify',
-      bids
+      bids,
+      activeBids,
+      pastBids,
+      activeBidsCount,
+      totalWon
     });
   } catch (err) {
     console.error('My bids error:', err);

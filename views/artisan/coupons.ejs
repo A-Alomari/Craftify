@@ -12,17 +12,7 @@
       <p class="text-secondary text-sm font-body mt-1">Create and manage discount codes for your shop.</p>
     </div>
 
-    <!-- Flash messages -->
-    <% if (typeof success_msg !== 'undefined' && success_msg) { %>
-      <div class="mb-6 bg-green-50 text-green-800 px-5 py-3 rounded-xl text-sm font-body">
-        <%= success_msg %>
-      </div>
-    <% } %>
-    <% if (typeof error_msg !== 'undefined' && error_msg) { %>
-      <div class="mb-6 bg-red-50 text-error px-5 py-3 rounded-xl text-sm font-body flex items-center gap-3">
-        <span class="material-symbols-outlined text-error text-xl">error</span><%= error_msg %>
-      </div>
-    <% } %>
+
 
     <!-- 12-col Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">

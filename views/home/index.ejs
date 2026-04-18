@@ -64,22 +64,22 @@
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
     <% if (newArrivals && newArrivals.length > 0) { %>
         <% newArrivals.slice(0, 4).forEach(function(product) { %>
-            <div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500">
-                <div class="relative h-72 overflow-hidden">
+            <div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col">
+                <div class="relative h-72 overflow-hidden shrink-0">
                     <a href="/products/<%= product.id %>">
                         <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="<%= product.image || '/images/placeholder-product.svg' %>" alt="<%= product.name %>" loading="lazy" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'"/>
                     </a>
-                    <div class="absolute top-4 right-4 bg-primary-container text-on-primary-container px-3 py-1 rounded-lg font-headline font-bold">
+                    <div class="absolute top-4 left-4 bg-primary-container text-on-primary-container px-3 py-1 rounded-lg font-headline font-bold">
                         $<%= Number(product.price).toFixed(2) %>
                     </div>
                 </div>
-                <div class="p-6">
+                <div class="p-6 flex flex-col flex-grow">
                     <p class="text-xs uppercase tracking-[0.2em] text-secondary mb-2">Just Added</p>
                     <h3 class="font-headline text-xl text-on-surface mb-2">
                         <a href="/products/<%= product.id %>" class="hover:text-primary transition-colors"><%= product.name %></a>
                     </h3>
                     <p class="text-sm text-secondary mb-4">by <a href="/user/artisan/<%= product.artisan_id %>" class="italic hover:text-primary transition-colors"><%= product.shop_name || 'Artisan' %></a></p>
-                    <a href="/products/<%= product.id %>" class="inline-flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all">
+                    <a href="/products/<%= product.id %>" class="mt-auto inline-flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all">
                         View details
                         <span class="material-symbols-outlined text-base">arrow_forward</span>
                     </a>
@@ -101,16 +101,16 @@
     <% if (featuredProducts && featuredProducts.length > 0) { %>
         <% featuredProducts.slice(0, 4).forEach(function(product) { %>
             <% var images = []; try { images = JSON.parse(product.images || '[]'); } catch(e) {} %>
-            <div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500">
-                <div class="relative h-80 overflow-hidden">
+            <div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col">
+                <div class="relative h-80 overflow-hidden shrink-0">
                     <a href="/products/<%= product.id %>">
                         <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="<%= images[0] || '/images/placeholder-product.svg' %>" alt="<%= product.name %>" loading="lazy" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'"/>
                     </a>
-                    <div class="absolute top-4 right-4 bg-primary-container text-on-primary-container px-3 py-1 rounded-lg font-headline font-bold">
+                    <div class="absolute top-4 left-4 bg-primary-container text-on-primary-container px-3 py-1 rounded-lg font-headline font-bold">
                         $<%= product.price.toFixed(2) %>
                     </div>
                 </div>
-                <div class="p-6">
+                <div class="p-6 flex flex-col flex-grow">
                     <h3 class="font-headline text-lg mb-1 whitespace-nowrap overflow-hidden text-ellipsis"><%= product.name %></h3>
                     <p class="text-secondary text-sm mb-3">by <span class="italic"><%= product.shop_name || 'Artisan' %></span></p>
                     <div class="flex items-center gap-1 mb-6 text-primary">
@@ -120,7 +120,8 @@
                         <span class="text-xs text-secondary">(<%= product.review_count %>)</span>
                         <% } %>
                     </div>
-                    <form action="/cart/add" method="POST">
+                    <% if (!user || user.role === 'customer') { %>
+                    <form action="/cart/add" method="POST" class="mt-auto">
                     <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                         <input type="hidden" name="productId" value="<%= product.id %>">
                         <input type="hidden" name="quantity" value="1">
@@ -129,6 +130,9 @@
                             Add to Cart
                         </button>
                     </form>
+                    <% } else { %>
+                    <a href="/products/<%= product.id %>" class="mt-auto w-full bg-surface-container-high text-on-surface py-3 rounded-lg font-bold hover:bg-primary-container hover:text-on-primary-container transition-all flex items-center justify-center gap-2 text-sm">View Details</a>
+                    <% } %>
                 </div>
             </div>
         <% }); %>
@@ -144,28 +148,51 @@
 <p class="text-secondary font-label uppercase tracking-widest text-xs mb-2">Meet The Makers</p>
 <h2 class="font-headline text-3xl text-on-surface">Featured Artisans</h2>
 </div>
-<a class="font-headline italic text-primary hover:underline transition-all" href="/products">Explore Shops</a>
+<a class="font-headline italic text-primary hover:underline transition-all" href="/artisans">Explore Shops</a>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
     <% if (featuredArtisans && featuredArtisans.length > 0) { %>
         <% featuredArtisans.forEach(function(artisan) { %>
-            <article class="bg-surface-container-low rounded-3xl p-8 text-center shadow-sm hover:shadow-lg transition-all">
-                <a href="/user/artisan/<%= artisan.user_id %>" class="block">
-                    <img class="w-24 h-24 rounded-full object-cover mx-auto mb-5 ring-4 ring-primary-container/20" src="<%= artisan.profile_image || artisan.avatar || '' %>" alt="<%= artisan.shop_name || artisan.name %>" onerror="(function(img){img.onerror=null;var n=(img.alt||'?')[0].toUpperCase();var colors=['%23D97706','%2310B981','%233B82F6','%238B5CF6','%23EF4444'];var c=colors[n.charCodeAt(0)%colors.length];img.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'96\' height=\'96\'><circle cx=\'48\' cy=\'48\' r=\'48\' fill=\''+c+'\'/><text x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\' font-family=\'Arial,sans-serif\' font-size=\'38\' font-weight=\'bold\' fill=\'white\'>'+n+'</text></svg>';})(this)"/>
-                </a>
-                <p class="text-xs uppercase tracking-[0.2em] text-secondary mb-2">Featured Shop</p>
+            <article class="bg-surface-container-low rounded-3xl p-8 text-center shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col">
+
+                <!-- Avatar -->
+                <img
+                  class="w-24 h-24 rounded-full object-cover mx-auto mb-5 ring-4 ring-primary-container/20 flex-shrink-0"
+                  src="<%= artisan.profile_image || artisan.avatar || '' %>"
+                  alt="<%= artisan.shop_name || artisan.name %>"
+                  onerror="(function(img){img.onerror=null;var n=(img.alt||'?')[0].toUpperCase();var colors=['%23D97706','%2310B981','%233B82F6','%238B5CF6','%23EF4444'];var c=colors[n.charCodeAt(0)%colors.length];img.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'96\' height=\'96\'><circle cx=\'48\' cy=\'48\' r=\'48\' fill=\''+c+'\'/><text x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\' font-family=\'Arial,sans-serif\' font-size=\'38\' font-weight=\'bold\' fill=\'white\'>'+n+'</text></svg>';})(this)"
+                />
+
+                <p class="text-xs uppercase tracking-[0.2em] text-secondary mb-2">Artisan Shop</p>
+
                 <h3 class="font-headline text-2xl text-on-surface mb-2">
                     <a href="/user/artisan/<%= artisan.user_id %>" class="hover:text-primary transition-colors"><%= artisan.shop_name || artisan.name %></a>
                 </h3>
-                <p class="text-sm text-secondary mb-4"><%= artisan.bio ? artisan.bio.slice(0, 100) : 'Discover handmade work from this Craftify artisan.' %><%= artisan.bio && artisan.bio.length > 100 ? '...' : '' %></p>
+
+                <p class="text-sm text-secondary mb-4 flex-grow">
+                    <%= artisan.bio ? artisan.bio.slice(0, 100) + (artisan.bio.length > 100 ? '...' : '') : 'Discover handmade work from this Craftify artisan.' %>
+                </p>
+
                 <div class="flex items-center justify-center gap-4 text-sm text-on-surface mb-5">
                     <span><strong><%= artisan.product_count || 0 %></strong> products</span>
-                    <span><strong><%= artisan.avg_rating ? Number(artisan.avg_rating).toFixed(1) : 'New' %></strong> rating</span>
+                    <% if (artisan.avg_rating) { %>
+                      <span><strong><%= Number(artisan.avg_rating).toFixed(1) %></strong> rating</span>
+                    <% } else { %>
+                      <span class="text-secondary italic text-xs">New</span>
+                    <% } %>
                 </div>
-                <a href="/user/artisan/<%= artisan.user_id %>" class="inline-flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all">
-                    Visit shop
-                    <span class="material-symbols-outlined text-base">storefront</span>
-                </a>
+
+                <div class="flex items-center justify-center gap-3 mt-auto">
+                    <a href="/user/artisan/<%= artisan.user_id %>" class="inline-flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all">
+                        Visit shop
+                        <span class="material-symbols-outlined text-base">storefront</span>
+                    </a>
+                    <% if (typeof user !== 'undefined' && user && user.role === 'customer') { %>
+                      <a href="/user/messages/<%= artisan.user_id %>" class="p-1.5 text-secondary hover:text-primary transition-colors" aria-label="Message artisan">
+                        <span class="material-symbols-outlined text-lg">chat</span>
+                      </a>
+                    <% } %>
+                </div>
             </article>
         <% }); %>
     <% } %>
@@ -198,20 +225,26 @@
                         <a href="/auctions/<%= auction.id %>" class="hover:text-primary transition-colors"><%= auction.title %></a>
                     </h3>
                     <p class="text-sm text-secondary italic mb-4">by <%= auction.shop_name || 'Artisan' %></p>
-                    <div class="flex items-center justify-between mb-5">
+                    <div class="flex items-center justify-between gap-3 mb-4">
                         <div>
-                            <p class="text-xs uppercase tracking-[0.2em] text-secondary mb-1">Current bid</p>
-                            <p class="font-headline text-2xl text-primary">$<%= Number(auction.current_highest_bid || auction.starting_price || 0).toFixed(2) %></p>
+                            <p class="text-[10px] uppercase tracking-[0.2em] text-secondary mb-0.5">Current bid</p>
+                            <p class="font-headline text-lg text-primary">$<%= Number(auction.current_highest_bid || auction.starting_price || 0).toFixed(2) %></p>
                         </div>
                         <div class="text-right">
-                            <p class="text-xs uppercase tracking-[0.2em] text-secondary mb-1">Ends</p>
-                            <p class="text-sm font-semibold text-on-surface"><%= new Date(auction.end_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %></p>
+                            <p class="text-[10px] uppercase tracking-[0.2em] text-secondary mb-0.5">Ends</p>
+                            <p class="text-xs font-semibold text-on-surface"><%= new Date(auction.end_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %></p>
                         </div>
                     </div>
+                    <% if (!user || user.role === 'customer') { %>
                     <a href="/auctions/<%= auction.id %>" class="mt-auto flex items-center justify-center gap-2 w-full bg-primary-container text-on-primary-container py-3 rounded-xl font-bold text-sm tracking-wide hover:opacity-90 transition-all active:scale-95">
                         <span class="material-symbols-outlined text-base">gavel</span>
                         Place a Bid
                     </a>
+                    <% } else { %>
+                    <a href="/auctions/<%= auction.id %>" class="mt-auto flex items-center justify-center gap-2 w-full bg-surface-container-high text-on-surface py-3 rounded-xl font-bold text-sm tracking-wide hover:opacity-90 transition-all">
+                        View Auction
+                    </a>
+                    <% } %>
                 </div>
             </article>
         <% }); %>

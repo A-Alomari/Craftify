@@ -14,7 +14,7 @@
 
   <% if (typeof user !== 'undefined' && user) { %>
     <button class="wishlist-btn <%= product.inWishlist ? 'active' : '' %> absolute top-3 right-3 w-9 h-9 rounded-full bg-surface-container-low text-on-surface flex items-center justify-center shadow-sm" data-product-id="<%= product.id %>" aria-label="<%= product.inWishlist ? 'Remove from wishlist' : 'Add to wishlist' %>">
-      <span class="material-symbols-outlined text-base <%= product.inWishlist ? 'text-red-600' : '' %>"><%= product.inWishlist ? 'favorite' : 'favorite_border' %></span>
+      <span class="material-symbols-outlined text-base <%= product.inWishlist ? 'filled-icon text-tertiary' : '' %>" data-icon="favorite">favorite</span>
     </button>
   <% } %>
 

@@ -259,20 +259,28 @@ class Auction {
 
   static getUserBids(userId, limit = null) {
     const db = getDb();
-    // FIX: Changed INNER JOIN to LEFT JOIN so bids on standalone auctions
-    // (product_id = NULL) are included in the user's bid history.
-    // FIX: Also select a.images so standalone auction images can be used as fallback.
+    // Returns the user's single highest bid per auction (deduped by auction_id).
+    // Includes category_name, highest_bidder_id, and both image sources.
     let query = `
-      SELECT b.*, a.title, a.images as auction_images, a.end_time, a.status as auction_status,
-        a.current_highest_bid, a.winner_id,
-        p.images as product_images, p.name as product_name
+      SELECT b.id, b.auction_id, b.user_id, b.amount, b.is_winning, b.created_at,
+        a.title, a.images as auction_images, a.end_time, a.status as auction_status,
+        a.current_highest_bid, a.winner_id, a.highest_bidder_id,
+        p.images as product_images, p.name as product_name,
+        cat.name as category_name
       FROM bids b
       JOIN auctions a ON b.auction_id = a.id
       LEFT JOIN products p ON a.product_id = p.id
+      LEFT JOIN categories cat ON p.category_id = cat.id
       WHERE b.user_id = ?
+        AND b.id = (
+          SELECT id FROM bids b2
+          WHERE b2.user_id = ? AND b2.auction_id = b.auction_id
+          ORDER BY b2.amount DESC, b2.id DESC
+          LIMIT 1
+        )
       ORDER BY b.created_at DESC
     `;
-    const params = [userId];
+    const params = [userId, userId];
 
     if (limit) {
       query += ' LIMIT ?';

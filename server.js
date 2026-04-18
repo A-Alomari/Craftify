@@ -102,6 +102,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
+// Serve favicon at /favicon.ico (returns PNG). This ensures browsers requesting /favicon.ico receive the image even if .ico not present.
+app.get('/favicon.ico', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'), err => {
+    if (err) res.status(404).end();
+  });
+});
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 const uploadStaticOptions = {
   dotfiles: 'deny',

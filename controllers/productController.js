@@ -3,6 +3,7 @@ const Category = require('../models/Category');
 const Review = require('../models/Review');
 const Wishlist = require('../models/Wishlist');
 const ArtisanProfile = require('../models/ArtisanProfile');
+const Cart = require('../models/Cart');
 
 // List all products
 exports.index = (req, res) => {
@@ -90,13 +91,16 @@ exports.show = (req, res) => {
     // Get artisan profile
     const artisan = ArtisanProfile.findByUserId(product.artisan_id);
 
-    // Check wishlist status
+    // Check wishlist status and cart quantity
     let inWishlist = false;
     let canReview = { canReview: false };
+    let cartQty = 0;
     if (req.session.user) {
       inWishlist = Wishlist.isInWishlist(req.session.user.id, id);
       canReview = Review.canReview(req.session.user.id, id);
+      cartQty = Cart.getItemQuantity(req.session.user.id, null, id) || 0;
     }
+    const availableStock = Math.max(0, product.stock - cartQty);
 
     // Parse images
     product.imageArray = JSON.parse(product.images || '[]');
@@ -113,7 +117,8 @@ exports.show = (req, res) => {
       ratingDistribution,
       relatedProducts,
       inWishlist,
-      canReview
+      canReview,
+      availableStock
     });
   } catch (err) {
     console.error('Product show error:', err);

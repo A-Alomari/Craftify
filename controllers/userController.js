@@ -450,7 +450,7 @@ exports.sendMessage = (req, res) => {
       image_url: imageUrl
     });
 
-    Notification.newMessage(parsedReceiverId, req.session.user.name);
+    Notification.newMessage(parsedReceiverId, req.session.user.name || 'Someone', req.session.user.id);
 
     if (req.xhr) return res.json({ success: true, message });
 

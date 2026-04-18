@@ -6,6 +6,16 @@
 (function() {
   'use strict';
 
+  function restoreSubmitButton(btn) {
+    btn.disabled = false;
+    btn.style.opacity = '';
+    btn.style.cursor = '';
+    if (btn.dataset.originalText) {
+      if (btn.tagName === 'BUTTON') btn.innerHTML = btn.dataset.originalText;
+      else btn.value = btn.dataset.originalText;
+    }
+  }
+
   function initFormLoadingStates() {
     const forms = document.querySelectorAll('form:not([data-no-loading])');
 
@@ -19,19 +29,10 @@
           submitButton.style.cursor = 'not-allowed';
           submitButton.dataset.originalText = submitButton.innerHTML || submitButton.value;
 
-          // Re-enable after 10 seconds as a fallback
+          // Re-enable after 8 seconds as a fallback (in case JS handler doesn't restore it)
           setTimeout(function() {
-            if (submitButton.disabled) {
-              submitButton.disabled = false;
-              submitButton.style.opacity = '1';
-              submitButton.style.cursor = 'pointer';
-              if (submitButton.tagName === 'BUTTON') {
-                submitButton.innerHTML = submitButton.dataset.originalText;
-              } else {
-                submitButton.value = submitButton.dataset.originalText;
-              }
-            }
-          }, 10000);
+            restoreSubmitButton(submitButton);
+          }, 8000);
         }
       });
     });
@@ -46,19 +47,7 @@
   // Re-initialize on browser back button
   window.addEventListener('pageshow', function(event) {
     if (event.persisted) {
-      const submitButtons = document.querySelectorAll('button[type="submit"][disabled], input[type="submit"][disabled]');
-      submitButtons.forEach(function(button) {
-        button.disabled = false;
-        button.style.opacity = '1';
-        button.style.cursor = 'pointer';
-        if (button.dataset.originalText) {
-          if (button.tagName === 'BUTTON') {
-            button.innerHTML = button.dataset.originalText;
-          } else {
-            button.value = button.dataset.originalText;
-          }
-        }
-      });
+      document.querySelectorAll('button[type="submit"][disabled], input[type="submit"][disabled]').forEach(restoreSubmitButton);
     }
   });
 })();

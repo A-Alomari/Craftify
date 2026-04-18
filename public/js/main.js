@@ -107,6 +107,14 @@ function initCart() {
   });
 }
 
+function restoreBtn(btn, html) {
+  if (!btn) return;
+  btn.innerHTML = html;
+  btn.disabled = false;
+  btn.style.opacity = '';
+  btn.style.cursor = '';
+}
+
 function addToCart(productId, quantity, btn) {
   const parsedQuantity = toIntegerOrDefault(quantity, 1);
   const originalHtml = btn ? btn.innerHTML : '';
@@ -131,25 +139,14 @@ function addToCart(productId, quantity, btn) {
       updateCartBadge(data.cartCount);
       showToast('Item added to cart!', 'success');
 
-      setTimeout(() => {
-        if (btn) {
-          btn.innerHTML = originalHtml;
-          btn.disabled = false;
-        }
-      }, 2000);
+      setTimeout(() => restoreBtn(btn, originalHtml), 2000);
     } else {
-      if (btn) {
-        btn.innerHTML = originalHtml;
-        btn.disabled = false;
-      }
+      restoreBtn(btn, originalHtml);
       showToast(data.message || 'Failed to add to cart', 'danger');
     }
   })
-  .catch(err => {
-    if (btn) {
-      btn.innerHTML = originalHtml;
-      btn.disabled = false;
-    }
+  .catch(() => {
+    restoreBtn(btn, originalHtml);
     showToast('Error adding to cart', 'danger');
   });
 }
@@ -232,10 +229,17 @@ function toggleWishlist(productId, btn) {
     if (data.success) {
       const isNowInWishlist = Boolean(data.inWishlist);
       btn.classList.toggle('active', isNowInWishlist);
+      // Bootstrap Icons (i elements)
       const icon = btn.querySelector('i');
       if (icon) {
         icon.classList.toggle('bi-heart', !isNowInWishlist);
         icon.classList.toggle('bi-heart-fill', isNowInWishlist);
+      }
+      // Material Symbols (span with data-icon)
+      const matIcon = btn.querySelector('[data-icon="favorite"]');
+      if (matIcon) {
+        matIcon.classList.toggle('filled-icon', isNowInWishlist);
+        matIcon.classList.toggle('text-tertiary', isNowInWishlist);
       }
       showToast(isNowInWishlist ? 'Added to wishlist' : 'Removed from wishlist', 'success');
     } else {
@@ -249,6 +253,7 @@ function toggleWishlist(productId, btn) {
 
 function toggleWishlistForm(productId, btn) {
   const icon = btn ? btn.querySelector('.material-symbols-outlined[data-icon="favorite"]') : null;
+  if (btn) { btn.disabled = true; }
 
   fetch('/user/wishlist/toggle', {
     method: 'POST',
@@ -257,11 +262,12 @@ function toggleWishlistForm(productId, btn) {
   })
   .then(parseJsonResponse)
   .then(data => {
+    if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = ''; }
     if (!data) return;
     if (data.success) {
       const inWishlist = Boolean(data.inWishlist);
       if (icon) {
-        icon.textContent = 'favorite'; // always keep 'favorite' text (Material Symbols variable fill)
+        icon.textContent = 'favorite';
         if (inWishlist) {
           icon.classList.add('filled-icon', 'text-red-500');
         } else {
@@ -279,6 +285,7 @@ function toggleWishlistForm(productId, btn) {
     }
   })
   .catch(() => {
+    if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = ''; }
     showToast('Error updating wishlist', 'danger');
   });
 }
@@ -583,6 +590,8 @@ function handleFormSubmit(form, options = {}) {
   
   // Disable submit button and show loading
   submitBtn.disabled = true;
+  submitBtn.style.opacity = '';
+  submitBtn.style.cursor = '';
   submitBtn.innerHTML = `<span class="material-symbols-outlined animate-spin inline-block">progress_activity</span> ${loadingText}`;
   
   // Return cleanup function
@@ -594,17 +603,23 @@ function handleFormSubmit(form, options = {}) {
       setTimeout(() => {
         submitBtn.innerHTML = originalBtnText;
         submitBtn.disabled = false;
+        submitBtn.style.opacity = '';
+        submitBtn.style.cursor = '';
         submitBtn.classList.remove('bg-green-600');
       }, 2000);
     },
     error: (message) => {
       submitBtn.innerHTML = originalBtnText;
       submitBtn.disabled = false;
+      submitBtn.style.opacity = '';
+      submitBtn.style.cursor = '';
       if (message) showToast(message, 'danger');
     },
     reset: () => {
       submitBtn.innerHTML = originalBtnText;
       submitBtn.disabled = false;
+      submitBtn.style.opacity = '';
+      submitBtn.style.cursor = '';
     }
   };
 }
@@ -698,7 +713,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Styled confirmation dialog (replaces browser confirm())
-function showConfirm(message, onConfirm) {
+function showConfirm(message, onConfirm, onCancel) {
   const overlay = document.createElement('div');
   overlay.className = 'fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm';
   overlay.innerHTML = `
@@ -716,13 +731,15 @@ function showConfirm(message, onConfirm) {
   document.body.appendChild(overlay);
 
   const close = () => overlay.remove();
-  overlay.querySelector('.cancel-btn').addEventListener('click', close);
+  const cancel = () => { close(); if (typeof onCancel === 'function') onCancel(); };
+
+  overlay.querySelector('.cancel-btn').addEventListener('click', cancel);
   overlay.querySelector('.confirm-btn').addEventListener('click', function() {
     close();
     if (typeof onConfirm === 'function') onConfirm();
   });
   overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) close();
+    if (e.target === overlay) cancel();
   });
 }
 
@@ -733,6 +750,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const msg = form.getAttribute('data-confirm');
     if (!msg) return;
     e.preventDefault();
-    showConfirm(msg, function() { form.removeAttribute('data-confirm'); form.submit(); });
+    const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
+    showConfirm(
+      msg,
+      function() { form.removeAttribute('data-confirm'); form.submit(); },
+      function() {
+        // Re-enable button that form-loading.js disabled on submit
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.style.opacity = '';
+          submitBtn.style.cursor = '';
+          if (submitBtn.dataset.originalText) {
+            if (submitBtn.tagName === 'BUTTON') submitBtn.innerHTML = submitBtn.dataset.originalText;
+            else submitBtn.value = submitBtn.dataset.originalText;
+          }
+        }
+      }
+    );
   });
 });

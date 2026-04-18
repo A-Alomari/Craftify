@@ -157,12 +157,12 @@ const maxPriceDefault = 1000;
 
                   <!-- Wishlist button -->
                   <% if (!user || user.role === 'customer') { %>
-                  <form action="/user/wishlist/toggle" method="POST" class="absolute top-2 right-2 sm:top-3 sm:right-3 wishlist-form" data-no-loading>
+                  <form action="/user/wishlist/toggle" method="POST" class="absolute top-2 right-2 sm:top-3 sm:right-3 wishlist-form z-10" data-no-loading>
                     <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                     <input type="hidden" name="productId" value="<%= product.id %>">
                     <button
                       type="submit"
-                      class="w-8 h-8 sm:w-9 sm:h-9 bg-white/85 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm transition-all hover:scale-110 <%= product.inWishlist ? 'text-red-500' : 'text-secondary hover:text-red-400' %>"
+                      class="w-8 h-8 sm:w-9 sm:h-9 bg-white/85 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm transition-all hover:scale-110 <%= product.inWishlist ? 'text-tertiary' : 'text-secondary hover:text-tertiary' %>"
                       aria-label="<%= product.inWishlist ? 'Remove from wishlist' : 'Add to wishlist' %>"
                     >
                       <span class="material-symbols-outlined text-base sm:text-lg <%= product.inWishlist ? 'filled-icon' : '' %>" data-icon="favorite">favorite</span>
@@ -178,7 +178,7 @@ const maxPriceDefault = 1000;
                   <% } %>
 
                   <!-- Price badge -->
-                  <div class="absolute top-3 right-3">
+                  <div class="absolute top-3 left-3">
                     <span class="bg-primary-container text-on-primary-container text-sm font-bold px-3 py-1.5 rounded-xl font-headline shadow-md">$<%= Number(product.price || 0).toFixed(2) %></span>
                   </div>
 
@@ -326,14 +326,14 @@ const maxPriceDefault = 1000;
         if (!data.success || !icon || !btn) return;
         if (data.inWishlist) {
           icon.classList.add('filled-icon');
-          btn.classList.remove('text-secondary', 'hover:text-red-400');
-          btn.classList.add('text-red-500');
+          btn.classList.remove('text-secondary', 'hover:text-tertiary');
+          btn.classList.add('text-tertiary');
           btn.setAttribute('aria-label', 'Remove from wishlist');
           if (typeof showToast === 'function') showToast('Added to wishlist!', 'success');
         } else {
           icon.classList.remove('filled-icon');
-          btn.classList.remove('text-red-500');
-          btn.classList.add('text-secondary', 'hover:text-red-400');
+          btn.classList.remove('text-tertiary');
+          btn.classList.add('text-secondary', 'hover:text-tertiary');
           btn.setAttribute('aria-label', 'Add to wishlist');
           if (typeof showToast === 'function') showToast('Removed from wishlist', 'info');
         }

@@ -1,51 +1,313 @@
 <%- include('../partials/header', { title: title }) %>
 
-<main class="flex-grow min-h-screen">
+<style>
+  .bid-card-enter { transition: transform 0.3s ease, opacity 0.3s ease; }
+  .bid-card-enter:hover { transform: translateY(-4px); }
 
-<section class="max-w-7xl mx-auto px-6 py-10">
-  <div class="mb-6">
-    <span class="font-label text-xs uppercase tracking-[0.2em] text-primary font-semibold">Auction Desk</span>
-    <h1 class="font-headline text-3xl text-on-surface mt-2">My Bids</h1>
-    <p class="text-secondary mt-1">Live status of all bids you have placed.</p>
-  </div>
+  /* Card layout: always horizontal row */
+  .bid-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2.5rem;
+    padding: 1rem 2.5rem 1rem 1rem;
+    background: #ffffff;
+    border-radius: 1.5rem;
+  }
+  .bid-card-img {
+    width: 220px;
+    min-width: 220px;
+    height: 160px;
+    border-radius: 1rem;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .bid-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .bid-card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem 0;
+    min-width: 0;
+  }
+  .bid-info-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 3rem;
+    align-items: flex-end;
+    margin-top: auto;
+  }
+  .bid-action-group {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
 
-  <% if (bids && bids.length > 0) { %>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-      <% bids.forEach(function(bid) { %>
-        <article class="bg-surface-container-lowest rounded-xl overflow-hidden">
-          <div class="grid grid-cols-3">
-            <div class="col-span-1">
-              <img src="<%= bid.image || '/images/placeholder-product.svg' %>" alt="<%= bid.product_name || bid.title %>" class="w-full h-full min-h-[150px] object-cover" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'">
-            </div>
+  /* Page header responsive */
+  .page-header-row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 4rem;
+    flex-wrap: wrap;
+  }
+  .stats-row {
+    display: flex;
+    gap: 1rem;
+    flex-shrink: 0;
+  }
+  .stat-card {
+    background: var(--color-surface-container-lowest, #fff);
+    padding: 1.25rem 2rem;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 130px;
+  }
 
-            <div class="col-span-2 p-4">
-              <%# FIX: standalone auctions have no product_name; fall back to auction title %>
-              <h2 class="text-sm font-semibold text-on-surface"><a href="/auctions/<%= bid.auction_id %>" class="hover:text-primary"><%= bid.product_name || bid.title %></a></h2>
-              <p class="text-sm text-on-surface mt-2">Your bid: <span class="font-bold">$<%= Number(bid.amount || 0).toFixed(2) %></span></p>
-              <p class="text-sm text-secondary mt-1">Current: $<%= Number(bid.current_highest_bid || 0).toFixed(2) %></p>
+  @media (max-width: 640px) {
+    .bid-card {
+      flex-direction: column;
+      padding: 1rem;
+      gap: 1rem;
+    }
+    .bid-card-img {
+      width: 100%;
+      min-width: 0;
+      height: 180px;
+    }
+    .bid-action-group {
+      margin-left: 0;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .page-header-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
 
-              <div class="mt-3 flex flex-wrap gap-2">
-                <% if (bid.isWinning) { %>
-                  <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-emerald-100 text-emerald-700">Winning</span>
-                <% } else { %>
-                  <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-amber-100 text-amber-700">Outbid</span>
-                <% } %>
-                <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest <%= bid.auction_status === 'active' ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-high text-on-surface' %>"><%= bid.auction_status %></span>
+<main class="flex-grow min-h-screen pb-32 md:pb-12">
+  <div class="max-w-5xl mx-auto px-6 md:px-12 pt-12 md:pt-16">
+
+    <!-- Page Header -->
+    <div class="page-header-row">
+      <div>
+        <h1 class="font-headline text-on-surface tracking-tight mb-4 flex items-center gap-4" style="font-size:2.8rem">
+          <span class="material-symbols-outlined text-primary" style="font-size:2.2rem;font-variation-settings:'FILL' 1;">gavel</span>
+          My Bids
+        </h1>
+        <p class="font-body text-secondary" style="font-size:1.05rem;max-width:36rem">Track your active auctions and review past acquisitions from our global artisans.</p>
+      </div>
+
+      <!-- Summary Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="font-label text-secondary mb-2" style="font-size:0.65rem;letter-spacing:.1em;text-transform:uppercase">Active Bids</span>
+          <span class="font-headline text-on-surface" style="font-size:2rem"><%= activeBidsCount %></span>
+        </div>
+        <div class="stat-card">
+          <span class="font-label text-secondary mb-2" style="font-size:0.65rem;letter-spacing:.1em;text-transform:uppercase">Total Won</span>
+          <span class="font-headline text-primary" style="font-size:2rem"><%= totalWon %></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-10 mb-10 pl-2 border-b border-outline-variant/20">
+      <button id="tab-active" onclick="showTab('active')"
+        class="font-headline text-xl text-primary border-b-2 border-primary pb-3 pr-4 -mb-px transition-colors">
+        Active Bids
+        <% if (activeBidsCount > 0) { %>
+          <span class="ml-2 inline-flex items-center justify-center w-6 h-6 text-xs font-bold bg-primary text-white rounded-full"><%= activeBidsCount %></span>
+        <% } %>
+      </button>
+      <button id="tab-past" onclick="showTab('past')"
+        class="font-headline text-xl text-secondary hover:text-on-surface transition-colors pb-3 pr-4 -mb-px border-b-2 border-transparent">
+        Past Bids
+      </button>
+    </div>
+
+    <!-- ── Active Bids Panel ── -->
+    <div id="panel-active">
+      <% if (activeBids && activeBids.length > 0) { %>
+        <div class="flex flex-col gap-8">
+          <% activeBids.forEach(function(bid) { %>
+            <article class="bid-card bid-card-enter">
+              <!-- Image -->
+              <div class="bid-card-img">
+                <img src="<%= bid.image %>"
+                  alt="<%= bid.product_name || bid.title %>"
+                  onerror="this.onerror=null;this.src='/images/placeholder-product.svg'">
               </div>
-            </div>
-          </div>
-        </article>
-      <% }); %>
-    </div>
-  <% } else { %>
-    <div class="bg-surface-container-lowest rounded-xl py-14 text-center">
-      <span class="material-symbols-outlined text-5xl text-secondary/60">gavel</span>
-      <p class="text-secondary mt-3">You haven't placed any bids yet.</p>
-      <a href="/auctions" class="inline-block mt-4 bg-primary-container text-on-primary-container px-5 py-2.5 rounded-xl text-sm font-semibold">Browse Auctions</a>
-    </div>
-  <% } %>
-</section>
 
+              <!-- Content -->
+              <div class="bid-card-body">
+                <!-- Top row: badge + timer -->
+                <div class="flex justify-between items-start mb-2">
+                  <% if (bid.isEndingSoon) { %>
+                    <div class="inline-flex items-center gap-1 bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label mb-3" style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;opacity:.85">
+                      <span class="material-symbols-outlined" style="font-size:13px">local_fire_department</span>
+                      Ending Soon
+                    </div>
+                  <% } else { %>
+                    <div class="inline-flex items-center gap-1 bg-surface-container-high text-secondary px-3 py-1 rounded-full font-label mb-3" style="font-size:10px;letter-spacing:.08em;text-transform:uppercase">
+                      <%= bid.category_name || 'Auction' %>
+                    </div>
+                  <% } %>
+                  <div class="font-label flex items-center gap-1" style="font-size:13px;color:<%= bid.isEndingSoon ? 'var(--color-error,#ba1a1a)' : 'inherit' %>">
+                    <span class="material-symbols-outlined" style="font-size:16px"><%= bid.timeLeftIcon %></span>
+                    <%= bid.timeLeftDisplay %>
+                  </div>
+                </div>
+
+                <h3 class="font-headline text-on-surface mb-5" style="font-size:1.35rem">
+                  <a href="/auctions/<%= bid.auction_id %>" class="hover:text-primary transition-colors"><%= bid.product_name || bid.title %></a>
+                </h3>
+
+                <!-- Bid info row -->
+                <div class="bid-info-row">
+                  <div>
+                    <p class="font-label text-secondary mb-1" style="font-size:10px;letter-spacing:.08em;text-transform:uppercase">Current Bid</p>
+                    <p class="font-headline text-on-surface" style="font-size:1.35rem">$<%= Number(bid.current_highest_bid || 0).toFixed(2) %></p>
+                  </div>
+                  <div>
+                    <p class="font-label text-secondary mb-1" style="font-size:10px;letter-spacing:.08em;text-transform:uppercase">Your Bid</p>
+                    <% if (bid.isWinning) { %>
+                      <p class="font-headline text-primary" style="font-size:1.35rem">$<%= Number(bid.amount || 0).toFixed(2) %></p>
+                    <% } else { %>
+                      <p class="font-headline text-secondary" style="font-size:1.35rem;text-decoration:line-through;opacity:.7">$<%= Number(bid.amount || 0).toFixed(2) %></p>
+                    <% } %>
+                  </div>
+                  <div class="bid-action-group">
+                    <% if (bid.isWinning) { %>
+                      <span class="inline-flex items-center gap-2 font-medium px-4 py-2 rounded-xl" style="color:var(--color-primary,#855300);background:rgba(245,158,11,.15);font-size:.92rem">
+                        <span class="material-symbols-outlined" style="font-size:16px">check_circle</span>
+                        Winning
+                      </span>
+                    <% } else { %>
+                      <span class="inline-flex items-center gap-2 font-medium px-3 py-2 rounded-xl" style="color:var(--color-error,#ba1a1a);background:rgba(186,26,26,.12);font-size:.85rem">
+                        <span class="material-symbols-outlined" style="font-size:16px">warning</span>
+                        Outbid
+                      </span>
+                      <a href="/auctions/<%= bid.auction_id %>"
+                        class="font-body font-medium text-center transition-colors duration-200 px-5 py-2.5 rounded-xl"
+                        style="background:var(--color-primary-container,#f59e0b);color:var(--color-on-primary-container,#613b00);font-size:.92rem">
+                        Update Bid
+                      </a>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            </article>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="bg-surface-container-lowest rounded-2xl py-16 text-center">
+          <span class="material-symbols-outlined text-secondary" style="font-size:3rem;opacity:.4">gavel</span>
+          <p class="text-secondary mt-4" style="font-size:1.05rem">You have no active bids at the moment.</p>
+          <a href="/auctions" class="inline-block mt-5 bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-semibold">Browse Auctions</a>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- ── Past Bids Panel ── -->
+    <div id="panel-past" class="hidden">
+      <% if (pastBids && pastBids.length > 0) { %>
+        <div class="flex flex-col gap-8">
+          <% pastBids.forEach(function(bid) { %>
+            <%
+              const isWon = bid.winner_id === user.id;
+              const statusLabel = bid.auction_status === 'sold' ? (isWon ? 'Won' : 'Sold') :
+                                  bid.auction_status === 'ended' ? (isWon ? 'Won' : 'Ended') :
+                                  bid.auction_status === 'cancelled' ? 'Cancelled' : 'Ended';
+            %>
+            <article class="bid-card bid-card-enter" style="opacity:.92">
+              <!-- Image -->
+              <div class="bid-card-img">
+                <img style="filter:grayscale(25%)" src="<%= bid.image %>"
+                  alt="<%= bid.product_name || bid.title %>"
+                  onerror="this.onerror=null;this.src='/images/placeholder-product.svg'">
+              </div>
+
+              <!-- Content -->
+              <div class="bid-card-body">
+                <div class="flex justify-between items-start mb-2">
+                  <div class="inline-flex items-center gap-1 bg-surface-container-high text-secondary px-3 py-1 rounded-full font-label mb-3" style="font-size:10px;letter-spacing:.08em;text-transform:uppercase">
+                    <%= bid.category_name || 'Auction' %>
+                  </div>
+                  <div class="font-label text-secondary flex items-center gap-1" style="font-size:13px">
+                    <span class="material-symbols-outlined" style="font-size:16px">event_busy</span>
+                    Auction Ended
+                  </div>
+                </div>
+
+                <h3 class="font-headline text-on-surface mb-5" style="font-size:1.35rem">
+                  <a href="/auctions/<%= bid.auction_id %>" class="hover:text-primary transition-colors"><%= bid.product_name || bid.title %></a>
+                </h3>
+
+                <div class="bid-info-row">
+                  <div>
+                    <p class="font-label text-secondary mb-1" style="font-size:10px;letter-spacing:.08em;text-transform:uppercase">Final Bid</p>
+                    <p class="font-headline text-on-surface" style="font-size:1.35rem">$<%= Number(bid.current_highest_bid || 0).toFixed(2) %></p>
+                  </div>
+                  <div>
+                    <p class="font-label text-secondary mb-1" style="font-size:10px;letter-spacing:.08em;text-transform:uppercase">Your Bid</p>
+                    <p class="font-headline text-secondary" style="font-size:1.35rem">$<%= Number(bid.amount || 0).toFixed(2) %></p>
+                  </div>
+                  <div class="bid-action-group">
+                    <% if (isWon) { %>
+                      <span class="inline-flex items-center gap-2 font-medium px-4 py-2 rounded-xl" style="color:var(--color-primary,#855300);background:rgba(245,158,11,.15);font-size:.92rem">
+                        <span class="material-symbols-outlined" style="font-size:16px;font-variation-settings:'FILL' 1">emoji_events</span>
+                        Won
+                      </span>
+                    <% } else { %>
+                      <span class="inline-flex items-center gap-2 font-medium px-4 py-2 rounded-xl bg-surface-container-high text-secondary" style="font-size:.88rem">
+                        <%= statusLabel %>
+                      </span>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            </article>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="bg-surface-container-lowest rounded-2xl py-16 text-center">
+          <span class="material-symbols-outlined text-secondary" style="font-size:3rem;opacity:.4">history</span>
+          <p class="text-secondary mt-4" style="font-size:1.05rem">No past bids yet.</p>
+          <a href="/auctions" class="inline-block mt-5 bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-semibold">Browse Auctions</a>
+        </div>
+      <% } %>
+    </div>
+
+    <div class="h-16"></div>
+  </div>
 </main>
 
 <%- include('../partials/footer') %>
+
+<script>
+  function showTab(tab) {
+    const panels = { active: document.getElementById('panel-active'), past: document.getElementById('panel-past') };
+    const tabs   = { active: document.getElementById('tab-active'),  past: document.getElementById('tab-past') };
+
+    Object.keys(panels).forEach(key => {
+      const isActive = key === tab;
+      panels[key].classList.toggle('hidden', !isActive);
+      tabs[key].classList.toggle('text-primary', isActive);
+      tabs[key].classList.toggle('border-primary', isActive);
+      tabs[key].classList.toggle('text-secondary', !isActive);
+      tabs[key].classList.toggle('border-transparent', !isActive);
+    });
+  }
+</script>

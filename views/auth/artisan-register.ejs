@@ -1,124 +1,351 @@
 <%- include('../partials/header', { title: 'Become an Artisan | Craftify' }) %>
 
-<main class="flex-grow flex items-center justify-center px-4 py-12">
-<!-- Auth Card -->
-<div class="w-full max-auto max-w-[480px] bg-surface-container-lowest rounded-xl shadow-[0px_20px_40px_rgba(25,28,30,0.06)] overflow-hidden z-10 relative">
-<div class="pt-10 pb-6 flex flex-col items-center">
-<div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-6">
-<span class="text-on-primary font-serif italic text-3xl select-none">A</span>
-</div>
-</div>
-<!-- Content Area -->
-<div class="px-8 pb-10 pt-4">
-<header class="text-center mb-8">
-<h1 class="font-headline text-3xl font-bold text-on-surface mb-2 tracking-tight">Become an Artisan</h1>
-<p class="text-secondary font-body text-sm">Join our marketplace and share your craft</p>
-</header>
-<form class="space-y-5" action="/auth/artisan-register" method="POST" enctype="multipart/form-data">
-<input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-<input type="hidden" name="role" value="artisan">
+<style>
+  .step-form-section { display: none; }
+  .step-form-section.active { display: block; }
+  input:focus, textarea:focus { outline: none !important; box-shadow: none !important; }
+  .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #d8dadc; border-radius: 10px; }
+</style>
 
-<!-- Full Name -->
-<div class="space-y-1.5">
-<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Full Name</label>
-<div class="relative group">
-<input name="name" required class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-0 focus:bg-surface-container-highest transition-colors placeholder:text-outline/50 text-on-surface" placeholder="John Doe" type="text"/>
-<div class="absolute left-0 top-1/4 bottom-1/4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-</div>
-</div>
-<!-- Email -->
-<div class="space-y-1.5">
-<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Email Address</label>
-<div class="relative group">
-<input name="email" required class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-0 focus:bg-surface-container-highest transition-colors placeholder:text-outline/50 text-on-surface" placeholder="you@example.com" type="email"/>
-<div class="absolute left-0 top-1/4 bottom-1/4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-</div>
-</div>
-<!-- Phone -->
-<div class="space-y-1.5">
-<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Phone Number</label>
-<div class="relative group">
-<input name="phone" class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-0 focus:bg-surface-container-highest transition-colors placeholder:text-outline/50 text-on-surface" placeholder="+973 3000 0000" type="tel"/>
-<div class="absolute left-0 top-1/4 bottom-1/4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-</div>
-</div>
-<!-- Shop Name -->
-<div class="space-y-1.5">
-<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Shop Name</label>
-<div class="relative group">
-<input name="shop_name" required class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-0 focus:bg-surface-container-highest transition-colors placeholder:text-outline/50 text-on-surface" placeholder="Your artisan shop name" type="text"/>
-<div class="absolute left-0 top-1/4 bottom-1/4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-</div>
-</div>
-<!-- Profile Image -->
-<div class="space-y-1.5">
-<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Profile Image</label>
-<div class="relative group">
-<input name="profile_image" accept="image/*" class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl text-sm text-on-surface file:mr-4 file:rounded-lg file:border-0 file:bg-primary-container file:px-3 file:py-2 file:font-semibold file:text-on-primary-container" type="file"/>
-</div>
-</div>
-<!-- Bio -->
-<div class="space-y-1.5">
-<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Artist Bio</label>
-<div class="relative group">
-<textarea name="bio" rows="4" class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-0 focus:bg-surface-container-highest transition-colors placeholder:text-outline/50 text-on-surface resize-none" placeholder="Tell customers about your craft, materials, and story"></textarea>
-<div class="absolute left-0 top-4 bottom-4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-</div>
-</div>
-<!-- Return Policy -->
-<div class="space-y-1.5">
-<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Return Policy</label>
-<div class="relative group">
-<textarea name="return_policy" rows="3" class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-0 focus:bg-surface-container-highest transition-colors placeholder:text-outline/50 text-on-surface resize-none" placeholder="Share any return, exchange, or made-to-order policies"></textarea>
-<div class="absolute left-0 top-4 bottom-4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-</div>
-</div>
-<!-- Password Grid -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-<div class="space-y-1.5">
-<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Password</label>
-<div class="relative group">
-<input name="password" required class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-0 focus:bg-surface-container-highest transition-colors placeholder:text-outline/50 text-on-surface" placeholder="Create a password" type="password"/>
-<div class="absolute left-0 top-1/4 bottom-1/4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-</div>
-</div>
-<div class="space-y-1.5">
-<label class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Confirm Password</label>
-<div class="relative group">
-<input name="confirm_password" required class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-0 focus:bg-surface-container-highest transition-colors placeholder:text-outline/50 text-on-surface" placeholder="Confirm" type="password"/>
-<div class="absolute left-0 top-1/4 bottom-1/4 w-0.5 bg-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-</div>
-</div>
-</div>
-<!-- Terms Checkbox -->
-<div class="flex items-start pt-2">
-<div class="flex items-center h-5">
-<input required class="h-5 w-5 rounded-lg border-outline-variant text-primary focus:ring-primary/20 bg-surface-container-low transition-all" id="terms" name="terms" type="checkbox"/>
-</div>
-<div class="ml-3 text-sm">
-<label class="font-body text-secondary leading-tight" for="terms">
-    I agree to the <a class="text-on-surface underline decoration-primary/30 underline-offset-4 hover:decoration-primary transition-all" href="/terms">Terms of Service</a>
-</label>
-</div>
-</div>
-<!-- Primary Action -->
-<div class="pt-4">
-<button class="w-full bg-primary-container text-on-primary-container font-label font-bold uppercase tracking-widest py-4 rounded-xl shadow-sm hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center space-x-2" type="submit">
-<span>Apply to Sell</span>
-<span class="material-symbols-outlined text-sm">storefront</span>
-</button>
-</div>
-<p class="text-center text-sm font-body text-secondary pt-4">
-    Already an artisan? 
-    <a class="text-primary font-bold hover:underline underline-offset-4 ml-1" href="/auth/login">Sign in</a>
-</p>
-</form>
-</div>
-</div>
+<main class="flex-grow flex items-stretch overflow-hidden">
+  <div class="flex flex-col md:flex-row w-full min-h-[calc(100vh-80px)]">
+
+    <!-- Left: Form Panel -->
+    <div class="w-full md:w-[60%] overflow-y-auto custom-scrollbar bg-white p-8 md:p-16">
+      <div class="max-w-xl mx-auto">
+
+        <!-- Brand Header -->
+        <div class="flex flex-col mb-10">
+          <div class="w-16 h-16 bg-primary-container rounded-full flex items-center justify-center mb-6 shadow-sm">
+            <span class="material-symbols-outlined text-on-primary-container text-4xl">palette</span>
+          </div>
+          <h1 class="font-headline text-4xl font-bold text-on-surface tracking-tight mb-2">Become an Artisan Seller</h1>
+          <p class="text-secondary font-body tracking-wide">Share your craft with a global community of collectors.</p>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="flex items-center justify-between mb-10 px-2 relative" id="step-indicator">
+          <div class="absolute top-4 left-0 w-full h-0.5 bg-surface-variant z-0"></div>
+          <div class="absolute top-4 left-0 h-0.5 bg-primary-container z-0 transition-all duration-500" id="step-progress" style="width:0%"></div>
+          <% [['Account Info', 1], ['Shop Details', 2], ['Confirmation', 3]].forEach(function([label, n]) { %>
+          <div class="relative z-10 flex flex-col items-center gap-2">
+            <div class="step-circle w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ring-4 ring-white transition-all duration-300
+              <%= n === 1 ? 'bg-primary-container text-on-primary-container' : 'bg-surface-variant text-secondary' %>"
+              data-step="<%= n %>">
+              <%= n %>
+            </div>
+            <span class="text-[10px] font-bold uppercase tracking-widest whitespace-nowrap text-secondary step-label" data-step="<%= n %>"><%= label %></span>
+          </div>
+          <% }); %>
+        </div>
+
+        <!-- Single Form (all steps) -->
+        <form id="artisan-form" action="/auth/artisan-register?_csrf=<%= encodeURIComponent(typeof csrfToken !== 'undefined' ? csrfToken : '') %>" method="POST" enctype="multipart/form-data" novalidate>
+          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+          <input type="hidden" name="role" value="artisan">
+
+          <!-- Step 1: Account Info -->
+          <div class="step-form-section active space-y-6" data-section="1">
+            <div class="space-y-2">
+              <label class="text-xs font-bold uppercase tracking-widest text-secondary ml-1">Full Name <span class="text-error">*</span></label>
+              <input name="name" required type="text" placeholder="e.g. Julian Thorne"
+                class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface placeholder:text-secondary/50 focus:bg-surface-container-high transition-all"/>
+            </div>
+            <div class="space-y-2">
+              <label class="text-xs font-bold uppercase tracking-widest text-secondary ml-1">Phone Number</label>
+              <input name="phone" type="tel" placeholder="+973 3000 0000"
+                class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface placeholder:text-secondary/50 focus:bg-surface-container-high transition-all"/>
+            </div>
+            <div class="space-y-2">
+              <label class="text-xs font-bold uppercase tracking-widest text-secondary ml-1">Email Address <span class="text-error">*</span></label>
+              <input name="email" required type="email" placeholder="you@example.com"
+                class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface placeholder:text-secondary/50 focus:bg-surface-container-high transition-all"/>
+            </div>
+            <div class="space-y-2">
+              <label class="text-xs font-bold uppercase tracking-widest text-secondary ml-1">Password <span class="text-error">*</span></label>
+              <input name="password" id="pw-input" required type="password" placeholder="••••••••"
+                class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface placeholder:text-secondary/50 focus:bg-surface-container-high transition-all"/>
+              <div class="pt-2 px-1">
+                <div class="h-1 w-full bg-surface-variant rounded-full overflow-hidden">
+                  <div id="pw-strength-bar" class="h-full rounded-full transition-all duration-300" style="width:0%"></div>
+                </div>
+                <p id="pw-strength-label" class="text-[10px] mt-1 font-medium tracking-tight text-secondary"></p>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <label class="text-xs font-bold uppercase tracking-widest text-secondary ml-1">Confirm Password <span class="text-error">*</span></label>
+              <input name="confirm_password" id="pw-confirm-input" required type="password" placeholder="••••••••"
+                class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface placeholder:text-secondary/50 focus:bg-surface-container-high transition-all"/>
+              <p id="pw-match-label" class="text-[10px] ml-1 mt-1 font-medium hidden"></p>
+            </div>
+            <div class="pt-6">
+              <button type="button" id="next-to-2"
+                class="w-full py-4 bg-primary-container text-on-primary-container font-bold rounded-xl shadow-[0px_4px_0px_#613B00] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-2 group">
+                Next
+                <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+              </button>
+              <p class="text-sm text-secondary mt-4">By clicking next, you agree to our <a href="/terms" class="text-primary font-medium underline underline-offset-4">Maker Guidelines</a>.</p>
+            </div>
+            <div class="mt-10 pt-6 border-t border-surface-variant/30 text-[10px] text-secondary uppercase tracking-widest">Step 1 of 3: Account Creation</div>
+          </div>
+
+          <!-- Step 2: Shop Details -->
+          <div class="step-form-section space-y-6" data-section="2">
+            <div class="space-y-2">
+              <label class="text-xs font-bold uppercase tracking-widest text-secondary ml-1">Shop Name <span class="text-error">*</span></label>
+              <input name="shop_name" required type="text" placeholder="Your artisan shop name"
+                class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface placeholder:text-secondary/50 focus:bg-surface-container-high transition-all"/>
+            </div>
+            <div class="space-y-2">
+              <label class="text-xs font-bold uppercase tracking-widest text-secondary ml-1">Profile Image</label>
+              <input name="profile_image" accept="image/*" type="file"
+                class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm text-on-surface file:mr-4 file:rounded-lg file:border-0 file:bg-primary-container file:px-3 file:py-2 file:font-semibold file:text-on-primary-container"/>
+            </div>
+            <div class="space-y-2">
+              <label class="text-xs font-bold uppercase tracking-widest text-secondary ml-1">Artist Bio</label>
+              <textarea name="bio" rows="4" placeholder="Tell customers about your craft, materials, and story"
+                class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface placeholder:text-secondary/50 focus:bg-surface-container-high transition-all resize-none"></textarea>
+            </div>
+            <div class="space-y-2">
+              <label class="text-xs font-bold uppercase tracking-widest text-secondary ml-1">Return Policy</label>
+              <textarea name="return_policy" rows="3" placeholder="Share any return, exchange, or made-to-order policies"
+                class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface placeholder:text-secondary/50 focus:bg-surface-container-high transition-all resize-none"></textarea>
+            </div>
+            <div class="pt-6 flex flex-col gap-3">
+              <button type="button" id="next-to-3"
+                class="w-full py-4 bg-primary-container text-on-primary-container font-bold rounded-xl shadow-[0px_4px_0px_#613B00] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-2 group">
+                Next
+                <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+              </button>
+              <button type="button" id="back-to-1"
+                class="w-full py-3 bg-surface-container text-secondary font-bold rounded-xl hover:bg-surface-container-high transition-all flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-sm">arrow_back</span>
+                Back
+              </button>
+            </div>
+            <div class="mt-10 pt-6 border-t border-surface-variant/30 text-[10px] text-secondary uppercase tracking-widest">Step 2 of 3: Shop Details</div>
+          </div>
+
+          <!-- Step 3: Confirmation -->
+          <div class="step-form-section space-y-6" data-section="3">
+            <div class="bg-surface-container-low rounded-2xl p-6 space-y-4">
+              <h3 class="font-headline text-lg font-bold text-on-surface mb-4">Review Your Application</h3>
+              <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p class="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Full Name</p>
+                  <p id="review-name" class="text-on-surface font-medium">—</p>
+                </div>
+                <div>
+                  <p class="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Email</p>
+                  <p id="review-email" class="text-on-surface font-medium truncate">—</p>
+                </div>
+                <div>
+                  <p class="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Phone</p>
+                  <p id="review-phone" class="text-on-surface font-medium">—</p>
+                </div>
+                <div>
+                  <p class="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Shop Name</p>
+                  <p id="review-shop" class="text-on-surface font-medium">—</p>
+                </div>
+              </div>
+              <div class="pt-4 border-t border-surface-variant/30">
+                <div class="flex items-start gap-3">
+                  <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-primary text-xl">info</span>
+                  </div>
+                  <p class="text-sm text-secondary leading-relaxed">Your application will be reviewed by our team. You'll be notified once approved and can then start listing products.</p>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 pt-2">
+              <input required type="checkbox" id="terms" name="terms" class="h-5 w-5 rounded-lg mt-0.5 accent-amber-600"/>
+              <label for="terms" class="text-sm text-secondary leading-tight">
+                I agree to the <a href="/terms" class="text-on-surface underline underline-offset-4 hover:text-primary transition-colors">Terms of Service</a> and <a href="/privacy" class="text-on-surface underline underline-offset-4 hover:text-primary transition-colors">Privacy Policy</a>
+              </label>
+            </div>
+            <div class="pt-6 flex flex-col gap-3">
+              <button type="submit"
+                class="w-full py-4 bg-primary-container text-on-primary-container font-bold rounded-xl shadow-[0px_4px_0px_#613B00] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-2">
+                <span>Apply to Sell</span>
+                <span class="material-symbols-outlined text-sm">storefront</span>
+              </button>
+              <button type="button" id="back-to-2"
+                class="w-full py-3 bg-surface-container text-secondary font-bold rounded-xl hover:bg-surface-container-high transition-all flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-sm">arrow_back</span>
+                Back
+              </button>
+            </div>
+            <p class="text-center text-sm text-secondary pt-2">
+              Already an artisan? <a href="/auth/login" class="text-primary font-bold hover:underline underline-offset-4 ml-1">Sign in</a>
+            </p>
+            <div class="mt-10 pt-6 border-t border-surface-variant/30 text-[10px] text-secondary uppercase tracking-widest">Step 3 of 3: Confirmation</div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+    <!-- Right: Benefits Panel -->
+    <div class="hidden md:flex md:w-[40%] bg-surface flex-col justify-center p-12 lg:p-20 border-l border-surface-variant/20">
+      <div class="space-y-10 max-w-sm">
+        <div class="flex items-start gap-5">
+          <div class="flex-shrink-0 w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center">
+            <span class="material-symbols-outlined text-primary text-2xl">verified_user</span>
+          </div>
+          <div>
+            <h4 class="font-bold text-on-surface text-lg mb-1">Secure Merchant Accounts</h4>
+            <p class="text-sm text-secondary leading-relaxed">Industrial-grade encryption for all financial transactions and private data.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-5">
+          <div class="flex-shrink-0 w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center">
+            <span class="material-symbols-outlined text-primary text-2xl">local_shipping</span>
+          </div>
+          <div>
+            <h4 class="font-bold text-on-surface text-lg mb-1">Artisan Logistics</h4>
+            <p class="text-sm text-secondary leading-relaxed">Integrated shipping and discounted rates designed for handcrafted goods.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-5">
+          <div class="flex-shrink-0 w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center">
+            <span class="material-symbols-outlined text-primary text-2xl">groups</span>
+          </div>
+          <div>
+            <h4 class="font-bold text-on-surface text-lg mb-1">Global Community</h4>
+            <p class="text-sm text-secondary leading-relaxed">Connect with active collectors who value high-intent craftsmanship.</p>
+          </div>
+        </div>
+        <div class="p-6 bg-white/60 rounded-xl border border-surface-variant/30">
+          <p class="italic text-secondary text-sm leading-relaxed">"Joining Craftify was the turning point for my studio. The support system allowed me to focus on creating."</p>
+          <p class="mt-4 text-xs font-bold uppercase tracking-widest text-primary">— Elena R., Master Weaver</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </main>
-<!-- Decorative Elements -->
-<div class="fixed top-0 right-0 p-12 mt-16 pointer-events-none opacity-10 hidden md:block">
-<span class="font-serif italic text-[120px] text-primary select-none">Create</span>
-</div>
+
+<script>
+(function() {
+  var currentStep = 1;
+  var totalSteps = 3;
+
+  function goToStep(n) {
+    document.querySelectorAll('.step-form-section').forEach(function(s) {
+      s.classList.remove('active');
+    });
+    var target = document.querySelector('[data-section="' + n + '"]');
+    if (target) target.classList.add('active');
+
+    document.querySelectorAll('.step-circle').forEach(function(c) {
+      var sn = parseInt(c.dataset.step);
+      if (sn < n) {
+        c.classList.remove('bg-surface-variant', 'text-secondary');
+        c.classList.add('bg-primary-container', 'text-on-primary-container');
+        c.innerHTML = '<span class="material-symbols-outlined text-sm">check</span>';
+      } else if (sn === n) {
+        c.classList.remove('bg-surface-variant', 'text-secondary');
+        c.classList.add('bg-primary-container', 'text-on-primary-container');
+        c.textContent = sn;
+      } else {
+        c.classList.remove('bg-primary-container', 'text-on-primary-container');
+        c.classList.add('bg-surface-variant', 'text-secondary');
+        c.textContent = sn;
+      }
+    });
+
+    var pct = ((n - 1) / (totalSteps - 1)) * 100;
+    var bar = document.getElementById('step-progress');
+    if (bar) bar.style.width = pct + '%';
+
+    currentStep = n;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function validateStep1() {
+    var name = document.querySelector('[name="name"]').value.trim();
+    var email = document.querySelector('[name="email"]').value.trim();
+    var pw = document.getElementById('pw-input').value;
+    var pw2 = document.getElementById('pw-confirm-input').value;
+    if (!name) { if(typeof showToast==='function') showToast('Please enter your full name', 'warning'); return false; }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { if(typeof showToast==='function') showToast('Please enter a valid email address', 'warning'); return false; }
+    if (!pw || pw.length < 8) { if(typeof showToast==='function') showToast('Password must be at least 8 characters', 'warning'); return false; }
+    if (pw !== pw2) { if(typeof showToast==='function') showToast('Passwords do not match', 'warning'); return false; }
+    return true;
+  }
+
+  function validateStep2() {
+    var shop = document.querySelector('[name="shop_name"]').value.trim();
+    if (!shop) { if(typeof showToast==='function') showToast('Please enter your shop name', 'warning'); return false; }
+    return true;
+  }
+
+  function updateReview() {
+    var get = function(n) { var el = document.querySelector('[name="'+n+'"]'); return el ? el.value.trim() : ''; };
+    var setR = function(id, val) { var el = document.getElementById(id); if (el) el.textContent = val || '—'; };
+    setR('review-name', get('name'));
+    setR('review-email', get('email'));
+    setR('review-phone', get('phone') || 'Not provided');
+    setR('review-shop', get('shop_name'));
+  }
+
+  document.getElementById('next-to-2').addEventListener('click', function() {
+    if (validateStep1()) goToStep(2);
+  });
+  document.getElementById('back-to-1').addEventListener('click', function() { goToStep(1); });
+  document.getElementById('next-to-3').addEventListener('click', function() {
+    if (validateStep2()) { updateReview(); goToStep(3); }
+  });
+  document.getElementById('back-to-2').addEventListener('click', function() { goToStep(2); });
+
+  // Password strength meter
+  var pwInput = document.getElementById('pw-input');
+  var pwBar = document.getElementById('pw-strength-bar');
+  var pwLabel = document.getElementById('pw-strength-label');
+  if (pwInput && pwBar) {
+    pwInput.addEventListener('input', function() {
+      var pw = this.value;
+      var score = 0;
+      if (pw.length >= 8) score++;
+      if (/[A-Z]/.test(pw)) score++;
+      if (/[0-9]/.test(pw)) score++;
+      if (/[^A-Za-z0-9]/.test(pw)) score++;
+      var levels = [
+        { w: '25%', color: '#ba1a1a', label: 'Weak' },
+        { w: '50%', color: '#f59e0b', label: 'Fair' },
+        { w: '75%', color: '#3b82f6', label: 'Good' },
+        { w: '100%', color: '#16a34a', label: 'Strong' }
+      ];
+      var lvl = levels[Math.max(0, score - 1)] || levels[0];
+      pwBar.style.width = pw.length ? lvl.w : '0%';
+      pwBar.style.backgroundColor = lvl.color;
+      pwLabel.textContent = pw.length ? 'Strength: ' + lvl.label : '';
+      pwLabel.style.color = lvl.color;
+    });
+  }
+
+  // Password match indicator
+  var pw2Input = document.getElementById('pw-confirm-input');
+  var matchLabel = document.getElementById('pw-match-label');
+  if (pw2Input && matchLabel) {
+    pw2Input.addEventListener('input', function() {
+      var pw = document.getElementById('pw-input').value;
+      if (!this.value) { matchLabel.classList.add('hidden'); return; }
+      matchLabel.classList.remove('hidden');
+      if (this.value === pw) {
+        matchLabel.textContent = '✓ Passwords match';
+        matchLabel.style.color = '#16a34a';
+      } else {
+        matchLabel.textContent = '✗ Passwords do not match';
+        matchLabel.style.color = '#ba1a1a';
+      }
+    });
+  }
+
+  goToStep(1);
+})();
+</script>
 
 <%- include('../partials/footer') %>

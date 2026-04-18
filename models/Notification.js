@@ -110,8 +110,9 @@ class Notification {
     return this.create({ user_id: artisanId, title: 'New Review', message: `Your product "${productName}" received a ${rating}-star review`, type: 'review' });
   }
 
-  static newMessage(userId, senderName) {
-    return this.create({ user_id: userId, title: 'New Message', message: `You have a new message from ${senderName}`, type: 'message', link: '/user/messages' });
+  static newMessage(userId, senderName, senderId = null) {
+    const link = senderId ? `/user/messages/${senderId}` : '/user/messages';
+    return this.create({ user_id: userId, title: 'New Message', message: `You have a new message from ${senderName}`, type: 'message', link });
   }
 
   static productApproved(artisanId, productName) {

@@ -15,8 +15,14 @@ function notifIcon(type) {
 }
 
 function timeAgo(dateStr) {
+  if (!dateStr) return '';
   const now = new Date();
-  const then = new Date(dateStr);
+  // Normalize SQLite dates ('YYYY-MM-DD HH:MM:SS') to ISO UTC.
+  // Strip any existing timezone suffix then force Z (UTC).
+  let s = String(dateStr).trim().replace(' ', 'T');
+  s = s.replace(/(\.\d+)?([Zz]|[+-]\d{2}:?\d{2})?$/, '') + 'Z';
+  const then = new Date(s);
+  if (isNaN(then.getTime())) return '';
   const diff = Math.floor((now - then) / 1000);
   if (diff < 60) return 'just now';
   if (diff < 3600) return Math.floor(diff/60) + 'm ago';
@@ -31,6 +37,7 @@ function actionBtn(n) {
   if (n.link.includes('/auctions/')) return n.title && n.title.toLowerCase().includes('won') ? 'Complete Payment' : 'View Auction';
   if (n.link.includes('/messages')) return 'Reply';
   if (n.link.includes('/products/')) return 'View Item';
+  if (n.link.includes('/artisan/')) return 'View';
   return 'View';
 }
 
@@ -66,7 +73,7 @@ const readNotifs = notifications ? notifications.filter(n => n.is_read) : [];
         <% }); %>
       </nav>
 
-      <div class="pt-6 border-t border-outline-variant/30 flex flex-col gap-3">
+      <div class="pt-6 border-t border-outline-variant flex flex-col gap-3">
         <% if (notifications && notifications.length > 0 && unread > 0) { %>
         <form action="/user/notifications/read-all" method="POST">
           <input type="hidden" name="_csrf" value="<%= csrfVal %>">
@@ -78,7 +85,7 @@ const readNotifs = notifications ? notifications.filter(n => n.is_read) : [];
   </aside>
 
   <!-- Main content -->
-  <main class="flex-grow">
+  <div class="flex-grow min-w-0">
     <% if (!notifications || notifications.length === 0) { %>
       <div class="bg-surface-container-lowest rounded-2xl py-20 text-center">
         <span class="material-symbols-outlined text-5xl text-emerald-500 filled-icon">check_circle</span>
@@ -89,12 +96,12 @@ const readNotifs = notifications ? notifications.filter(n => n.is_read) : [];
     <div class="space-y-8">
 
       <% if (unreadNotifs.length > 0) { %>
-      <div>
+      <div id="new-activity-section">
         <h2 class="text-[10px] font-bold uppercase tracking-widest text-primary mb-3 px-4">New Activity</h2>
-        <div class="space-y-2">
+        <div class="space-y-2" id="unread-notifs-list">
           <% unreadNotifs.forEach(function(n) { %>
           <% const ic = notifIcon(n.type); const btn = actionBtn(n); %>
-          <div class="group relative bg-[#FFF7ED] p-4 rounded-xl border-l-4 border-primary transition-all hover:bg-white hover:shadow-md">
+          <div class="notif-card group relative bg-[#FFF7ED] p-4 rounded-xl border-l-4 border-primary transition-all hover:bg-white hover:shadow-md" data-id="<%= n.id %>">
             <div class="flex gap-4 items-start">
               <div class="w-10 h-10 rounded-full <%= ic.bg %> flex items-center justify-center shrink-0">
                 <span class="material-symbols-outlined <%= ic.color %> text-[20px]"><%= ic.icon %></span>
@@ -102,17 +109,18 @@ const readNotifs = notifications ? notifications.filter(n => n.is_read) : [];
               <div class="flex-grow min-w-0">
                 <div class="flex justify-between items-center mb-0.5 gap-2">
                   <h3 class="font-headline text-base font-bold text-on-surface truncate"><%= n.title %></h3>
-                  <span class="text-[10px] font-medium text-secondary whitespace-nowrap shrink-0"><%= timeAgo(n.created_at) %></span>
+                  <span class="text-[10px] font-medium text-secondary whitespace-nowrap shrink-0" style="opacity:0.7"><%= timeAgo(n.created_at) %></span>
                 </div>
                 <p class="text-on-surface-variant text-sm mb-3 leading-relaxed"><%= n.message %></p>
                 <div class="flex items-center gap-2 flex-wrap">
                   <% if (btn && n.link) { %>
-                    <a href="<%= n.link %>" class="px-3 py-1.5 rounded-lg bg-primary-container text-on-primary-container text-[10px] font-bold uppercase tracking-wider hover:brightness-110 transition-all"><%= btn %></a>
+                    <a href="<%= n.link %>" data-notif-id="<%= n.id %>" data-csrf="<%= csrfVal %>" data-action="view"
+                       class="notif-view-link px-3 py-1.5 rounded-lg bg-primary-container text-on-primary-container text-[10px] font-bold uppercase tracking-wider hover:brightness-110 transition-all"><%= btn %></a>
                   <% } %>
-                  <form action="/user/notifications/<%= n.id %>/read" method="POST" class="inline">
-                    <input type="hidden" name="_csrf" value="<%= csrfVal %>">
-                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-surface-container-lowest border border-outline-variant/30 text-[10px] font-bold uppercase tracking-wider text-secondary hover:bg-surface-container transition-all">Dismiss</button>
-                  </form>
+                  <button type="button" data-notif-id="<%= n.id %>" data-csrf="<%= csrfVal %>" data-action="dismiss"
+                    class="notif-action-btn px-3 py-1.5 rounded-lg bg-surface-container-low border border-outline-variant text-[10px] font-bold uppercase tracking-wider text-on-surface hover:bg-surface-container-high transition-all">
+                    Mark as Read
+                  </button>
                 </div>
               </div>
             </div>
@@ -124,30 +132,30 @@ const readNotifs = notifications ? notifications.filter(n => n.is_read) : [];
       <% } %>
 
       <% if (readNotifs.length > 0) { %>
-      <div>
-        <h2 class="text-[10px] font-bold uppercase tracking-widest text-secondary/50 mb-3 px-4">Earlier</h2>
-        <div class="space-y-2">
+      <div id="earlier-section">
+        <h2 class="text-[10px] font-bold uppercase tracking-widest text-secondary mb-3 px-4" style="opacity:0.5">Earlier</h2>
+        <div class="space-y-2" id="read-notifs-list">
           <% readNotifs.forEach(function(n) { %>
           <% const ic = notifIcon(n.type); const btn = actionBtn(n); %>
-          <div class="group relative bg-surface-container-lowest p-4 rounded-xl transition-all hover:bg-surface-container-low border border-outline-variant/10">
+          <div class="notif-card group relative bg-surface-container-lowest p-4 rounded-xl transition-all hover:bg-surface-container-low border border-outline-variant" data-id="<%= n.id %>" style="border-opacity:0.1">
             <div class="flex gap-4 items-start">
               <div class="w-10 h-10 rounded-full <%= ic.bg %> flex items-center justify-center shrink-0">
                 <span class="material-symbols-outlined <%= ic.color %> text-[20px]"><%= ic.icon %></span>
               </div>
               <div class="flex-grow min-w-0">
                 <div class="flex justify-between items-center mb-0.5 gap-2">
-                  <h3 class="font-headline text-base font-bold text-on-surface opacity-80 truncate"><%= n.title %></h3>
-                  <span class="text-[10px] font-medium text-secondary/40 whitespace-nowrap shrink-0"><%= timeAgo(n.created_at) %></span>
+                  <h3 class="font-headline text-base font-bold text-on-surface truncate" style="opacity:0.8"><%= n.title %></h3>
+                  <span class="text-[10px] font-medium text-secondary whitespace-nowrap shrink-0" style="opacity:0.4"><%= timeAgo(n.created_at) %></span>
                 </div>
-                <p class="text-on-surface-variant/80 text-sm mb-3 leading-relaxed"><%= n.message %></p>
+                <p class="text-on-surface-variant text-sm mb-3 leading-relaxed" style="opacity:0.8"><%= n.message %></p>
                 <div class="flex items-center gap-2 flex-wrap">
                   <% if (btn && n.link) { %>
-                    <a href="<%= n.link %>" class="px-3 py-1.5 rounded-lg bg-surface-container-low text-[10px] font-bold uppercase tracking-wider text-secondary hover:bg-surface-container-high transition-all"><%= btn %></a>
+                    <a href="<%= n.link %>" class="px-3 py-1.5 rounded-lg bg-surface-container-low text-[10px] font-bold uppercase tracking-wider text-on-surface hover:bg-surface-container-high transition-all"><%= btn %></a>
                   <% } %>
-                  <form action="/user/notifications/<%= n.id %>?_method=DELETE" method="POST" class="inline">
-                    <input type="hidden" name="_csrf" value="<%= csrfVal %>">
-                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-surface-container-low text-[10px] font-bold uppercase tracking-wider text-secondary/60 hover:text-error hover:bg-error-container/20 transition-all">Delete</button>
-                  </form>
+                  <button type="button" data-notif-id="<%= n.id %>" data-csrf="<%= csrfVal %>" data-action="delete"
+                    class="notif-action-btn px-3 py-1.5 rounded-lg bg-red-50 text-[10px] font-bold uppercase tracking-wider text-red-600 hover:bg-red-100 transition-all">
+                    Delete
+                  </button>
                 </div>
               </div>
             </div>
@@ -172,10 +180,142 @@ const readNotifs = notifications ? notifications.filter(n => n.is_read) : [];
     <% } %>
 
     <% } %>
-  </main>
+  </div>
 
 </div>
 </main>
 
-<%- include('../partials/footer') %>
+<script>
+// Handle Mark as Read / Delete buttons
+function handleNotifAction() {
+  var btn = this;
+  var id = btn.dataset.notifId;
+  var action = btn.dataset.action;
+  var csrf = btn.dataset.csrf;
+  var card = document.querySelector('.notif-card[data-id="' + id + '"]');
 
+  var url = action === 'dismiss'
+    ? '/user/notifications/' + id + '/read'
+    : '/user/notifications/' + id + '?_method=DELETE';
+
+  btn.disabled = true;
+  btn.style.opacity = '0.5';
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: '_csrf=' + encodeURIComponent(csrf)
+    }).then(function(res) {
+      if (res.ok || res.redirected) {
+        if (card) {
+          card.style.transition = 'opacity 0.3s, transform 0.3s';
+          card.style.opacity = '0';
+          card.style.transform = 'translateX(20px)';
+          setTimeout(function() {
+            if (action === 'dismiss') {
+              // Convert to read style
+              card.classList.remove('bg-[#FFF7ED]', 'border-l-4', 'border-primary');
+              card.classList.add('bg-surface-container-lowest', 'border', 'border-outline-variant');
+              // Remove unread dot
+              var dot = card.querySelector('.absolute.top-4.right-4');
+              if (dot) dot.remove();
+              // Replace buttons: remove "Mark as Read" + view link, add Delete only
+              var btnRow = card.querySelector('.flex.items-center.gap-2');
+              if (btnRow) {
+                var viewLink = btnRow.querySelector('.notif-view-link');
+                if (viewLink) {
+                  var href2 = viewLink.getAttribute('href');
+                  var label2 = viewLink.textContent.trim();
+                  var newLink = document.createElement('a');
+                  newLink.href = href2;
+                  newLink.className = 'px-3 py-1.5 rounded-lg bg-surface-container-low text-[10px] font-bold uppercase tracking-wider text-on-surface hover:bg-surface-container-high transition-all';
+                  newLink.textContent = label2;
+                  viewLink.replaceWith(newLink);
+                }
+              }
+              // Replace Mark as Read button with Delete using btn directly
+              var delBtn = document.createElement('button');
+              delBtn.type = 'button';
+              delBtn.dataset.notifId = id;
+              delBtn.dataset.csrf = csrf;
+              delBtn.dataset.action = 'delete';
+              delBtn.className = 'notif-action-btn px-3 py-1.5 rounded-lg bg-red-50 text-[10px] font-bold uppercase tracking-wider text-red-600 hover:bg-red-100 transition-all';
+              delBtn.textContent = 'Delete';
+              delBtn.addEventListener('click', handleNotifAction);
+              btn.replaceWith(delBtn);
+              // Move card to Earlier section
+              var earlierSection = document.getElementById('earlier-section');
+              var readList = document.getElementById('read-notifs-list');
+              if (!earlierSection) {
+                earlierSection = document.createElement('div');
+                earlierSection.id = 'earlier-section';
+                earlierSection.innerHTML = '<h2 class="text-[10px] font-bold uppercase tracking-widest text-secondary mb-3 px-4" style="opacity:0.5">Earlier</h2><div class="space-y-2" id="read-notifs-list"></div>';
+                var mainContent = document.querySelector('.space-y-8');
+                if (mainContent) mainContent.appendChild(earlierSection);
+                readList = earlierSection.querySelector('#read-notifs-list');
+              }
+              card.style.opacity = '0';
+              card.style.transform = 'translateX(0)';
+              if (readList) readList.prepend(card);
+              card.style.transition = 'opacity 0.3s, transform 0.3s';
+              requestAnimationFrame(function() {
+                card.style.opacity = '1';
+                card.style.transform = 'none';
+              });
+              // Clean up New Activity if empty
+              var unreadList = document.getElementById('unread-notifs-list');
+              if (unreadList && !unreadList.querySelector('.notif-card')) {
+                var section = document.getElementById('new-activity-section');
+                if (section) section.remove();
+              }
+            } else {
+              // Delete: remove the card
+              card.remove();
+              var readList2 = document.getElementById('read-notifs-list');
+              if (readList2 && !readList2.querySelector('.notif-card')) {
+                var section2 = document.getElementById('earlier-section');
+                if (section2) section2.remove();
+              }
+            }
+          }, 300);
+        }
+      } else {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
+    }).catch(function() {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    });
+}
+
+document.querySelectorAll('.notif-action-btn').forEach(function(btn) {
+  btn.addEventListener('click', handleNotifAction);
+});
+
+// Handle View links: mark as read via AJAX, then navigate
+document.querySelectorAll('.notif-view-link').forEach(function(link) {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    var href = link.getAttribute('href');
+    var id = link.dataset.notifId;
+    var csrf = link.dataset.csrf;
+
+    fetch('/user/notifications/' + id + '/read', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: '_csrf=' + encodeURIComponent(csrf)
+    }).finally(function() {
+      window.location.href = href;
+    });
+  });
+});
+</script>
+
+<%- include('../partials/footer') %>
