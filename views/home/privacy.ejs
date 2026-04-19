@@ -1,34 +1,292 @@
 <%- include('../partials/header', { title: title }) %>
-<main class="pt-12 pb-20 px-6 max-w-4xl mx-auto">
-  <!-- Header -->
-  <div class="mb-12">
-    <span class="font-label text-xs uppercase tracking-[0.2em] text-secondary font-bold mb-2 block">Legal</span>
-    <h1 class="text-5xl font-headline font-bold text-on-surface leading-tight">Privacy Policy</h1>
-    <p class="text-secondary mt-4 font-body">Last updated: 2024</p>
-  </div>
 
-  <!-- Privacy Content -->
-  <div class="bg-surface-container-lowest rounded-xl p-8 md:p-12 space-y-10">
-    <div>
-      <h2 class="font-headline text-xl font-bold text-on-surface mb-3">1. Information We Collect</h2>
-      <p class="text-secondary font-body leading-relaxed">We collect information you provide when registering, making purchases, or contacting us, including name, email, and shipping address.</p>
+<style>
+  details > summary::-webkit-details-marker { display: none; }
+</style>
+
+<main class="flex-grow py-20 px-4 md:px-8 max-w-4xl mx-auto w-full">
+  <article class="bg-transparent">
+
+    <!-- Page Header -->
+    <header class="mb-12 text-center flex flex-col items-center">
+      <div class="w-16 h-16 rounded-full bg-primary-container/10 flex items-center justify-center text-amber-600 mb-6 shadow-sm border border-primary-container/20">
+        <span class="material-symbols-outlined text-3xl">shield_person</span>
+      </div>
+      <h1 class="font-headline text-4xl md:text-5xl font-bold text-on-surface mb-4 tracking-tight">Privacy Policy</h1>
+      <p class="font-body text-secondary text-lg">Last Updated: October 20, 2024</p>
+    </header>
+
+    <div class="space-y-6 font-body text-base text-on-surface/90 leading-relaxed">
+
+      <!-- Intro Banner -->
+      <section class="bg-surface-container-lowest rounded-2xl p-8 md:p-10 shadow-sm border border-outline-variant/30 text-center relative overflow-hidden mb-8">
+        <div class="absolute inset-0 bg-primary-container/5 pointer-events-none"></div>
+        <span class="material-symbols-outlined text-amber-600 text-4xl mb-4 relative z-10 block">lock</span>
+        <p class="text-lg relative z-10 text-secondary">
+          Your privacy matters to us. This Privacy Policy explains how Craftify collects, uses, and protects your personal information when you use our platform. By using our Services, you agree to the practices described here and our
+          <a class="text-amber-700 hover:text-amber-800 font-medium underline decoration-1 underline-offset-4 transition-colors" href="/terms">Terms of Service</a>.
+        </p>
+      </section>
+
+      <!-- 1. Information We Collect -->
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">database</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">1. Information We Collect</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p class="mb-4">We collect information you provide directly to us as well as data gathered automatically when you use our Services:</p>
+          <ul class="list-none space-y-3 mt-4">
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">person</span>
+              <span><strong class="text-on-surface font-medium">Account Information:</strong> Name, email address, password (stored as a hashed value), and profile details provided at registration.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">local_shipping</span>
+              <span><strong class="text-on-surface font-medium">Transaction Data:</strong> Shipping addresses, order history, bid activity, and purchase records.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">storefront</span>
+              <span><strong class="text-on-surface font-medium">Seller Information:</strong> Business details, product listings, pricing, and bank/payout information for artisan accounts.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">analytics</span>
+              <span><strong class="text-on-surface font-medium">Usage Data:</strong> Pages visited, search queries, browser type, IP address, and interaction logs collected automatically via cookies and server logs.</span>
+            </li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- 2. How We Use Your Information -->
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">settings_suggest</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">2. How We Use Your Information</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p class="mb-4">We use the information we collect to provide, maintain, and improve Craftify. Specifically, we use your data to:</p>
+          <ul class="list-none space-y-3 mt-4">
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span>Process and fulfill orders, auctions, and payment transactions.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span>Create and manage your account, including authentication and notifications.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span>Communicate with you about orders, updates, and platform changes.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span>Detect and prevent fraud, abuse, and violations of our Terms of Service.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span>Analyze usage patterns to improve and personalize the platform experience.</span>
+            </li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- 3. Cookies & Tracking -->
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">cookie</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">3. Cookies &amp; Tracking</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p class="mb-4">Craftify uses cookies and similar technologies to enhance your experience on our platform:</p>
+          <ul class="list-none space-y-3 mt-4">
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">verified_user</span>
+              <span><strong class="text-on-surface font-medium">Session Cookies:</strong> Required to maintain your login state and shopping cart across pages.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">security</span>
+              <span><strong class="text-on-surface font-medium">CSRF Tokens:</strong> Used to protect form submissions from cross-site request forgery attacks.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">insights</span>
+              <span><strong class="text-on-surface font-medium">Analytics:</strong> Anonymized usage data to understand how users interact with Craftify and improve the experience.</span>
+            </li>
+          </ul>
+          <p class="mt-4">You can disable non-essential cookies through your browser settings, though this may affect the functionality of some features.</p>
+        </div>
+      </details>
+
+      <!-- 4. Sharing Your Information -->
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">share</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">4. Sharing Your Information</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p class="mb-4">We do not sell your personal information. We may share your data only in the following circumstances:</p>
+          <ul class="list-none space-y-3 mt-4">
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">handshake</span>
+              <span><strong class="text-on-surface font-medium">With Artisans:</strong> When you purchase a product, your shipping name and address are shared with the artisan solely to fulfill your order.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">payments</span>
+              <span><strong class="text-on-surface font-medium">Payment Processors:</strong> Payment details are handled by third-party processors and are never stored on Craftify servers.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">gavel</span>
+              <span><strong class="text-on-surface font-medium">Legal Obligations:</strong> We may disclose information if required by law, court order, or to protect the rights and safety of our users and the public.</span>
+            </li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- 5. Data Security -->
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">lock</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">5. Data Security</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p class="mb-4">We take the security of your data seriously. Craftify implements a range of technical and organizational measures to protect your information:</p>
+          <ul class="list-none space-y-3 mt-4">
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span>All passwords are hashed using bcrypt before storage — we never store plaintext passwords.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span>CSRF protection is applied to all state-changing requests.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span>Sessions are managed securely with server-side storage and signed cookies.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span>Sensitive data in transit is protected via HTTPS/TLS encryption.</span>
+            </li>
+          </ul>
+          <p class="mt-4">While we strive to protect your data, no system is entirely secure. Please use a strong, unique password and notify us immediately if you suspect unauthorized access to your account.</p>
+        </div>
+      </details>
+
+      <!-- 6. Your Rights -->
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">how_to_reg</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">6. Your Rights</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p class="mb-4">You have the following rights regarding your personal data held by Craftify:</p>
+          <ul class="list-none space-y-3 mt-4">
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">visibility</span>
+              <span><strong class="text-on-surface font-medium">Access:</strong> Request a copy of the personal data we hold about you.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">edit</span>
+              <span><strong class="text-on-surface font-medium">Correction:</strong> Update or correct inaccurate information via your account profile settings.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">delete</span>
+              <span><strong class="text-on-surface font-medium">Deletion:</strong> Request deletion of your account and associated personal data, subject to any legal retention obligations.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">block</span>
+              <span><strong class="text-on-surface font-medium">Objection:</strong> Object to the processing of your data for marketing or profiling purposes.</span>
+            </li>
+          </ul>
+          <p class="mt-4">To exercise any of these rights, please contact us through our support page.</p>
+        </div>
+      </details>
+
+      <!-- 7. Data Retention -->
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">schedule</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">7. Data Retention</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p class="mb-4">We retain your personal data for as long as your account is active or as needed to provide our Services. We may retain certain data beyond account closure to comply with legal obligations, resolve disputes, or enforce our agreements.</p>
+          <p>Transaction records and order histories are retained for a minimum period required by applicable financial and tax regulations. Anonymized, aggregated data may be retained indefinitely for analytics purposes.</p>
+        </div>
+      </details>
+
+      <!-- 8. Changes to This Policy -->
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">update</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">8. Changes to This Policy</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p class="mb-4">We may update this Privacy Policy from time to time to reflect changes in our practices or legal requirements. When we make material changes, we will update the "Last Updated" date at the top of this page.</p>
+          <p>We encourage you to review this policy periodically. Your continued use of Craftify after changes are posted constitutes your acceptance of the updated policy.</p>
+        </div>
+      </details>
+
     </div>
-    <div>
-      <h2 class="font-headline text-xl font-bold text-on-surface mb-3">2. How We Use Information</h2>
-      <p class="text-secondary font-body leading-relaxed">Your information is used to process orders, manage your account, and improve our services.</p>
+
+    <!-- Contact CTA -->
+    <div class="mt-12 p-8 bg-surface-container-low rounded-2xl border border-outline-variant/20 flex flex-col sm:flex-row justify-between items-center gap-6 shadow-sm">
+      <div class="flex items-center gap-4">
+        <span class="material-symbols-outlined text-amber-600 text-3xl">support_agent</span>
+        <p class="font-body text-base font-medium text-on-surface">Questions about your privacy?</p>
+      </div>
+      <a class="inline-flex items-center justify-center px-8 py-3 bg-amber-600 hover:bg-amber-700 text-white font-label text-sm font-semibold rounded-full shadow-sm transition-colors duration-200" href="/contact">
+        Contact Support
+      </a>
     </div>
-    <div>
-      <h2 class="font-headline text-xl font-bold text-on-surface mb-3">3. Data Protection</h2>
-      <p class="text-secondary font-body leading-relaxed">We implement appropriate security measures to protect your data. Passwords are hashed using bcrypt.</p>
-    </div>
-    <div>
-      <h2 class="font-headline text-xl font-bold text-on-surface mb-3">4. Cookies</h2>
-      <p class="text-secondary font-body leading-relaxed">We use session cookies to maintain your login state and shopping cart.</p>
-    </div>
-    <div>
-      <h2 class="font-headline text-xl font-bold text-on-surface mb-3">5. Disclaimer</h2>
-      <p class="text-secondary font-body leading-relaxed">This is a university project demo. No real personal data is processed in production.</p>
-    </div>
-  </div>
+
+  </article>
 </main>
+
 <%- include('../partials/footer') %>

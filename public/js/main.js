@@ -240,6 +240,7 @@ function toggleWishlist(productId, btn) {
       if (matIcon) {
         matIcon.classList.toggle('filled-icon', isNowInWishlist);
         matIcon.classList.toggle('text-tertiary', isNowInWishlist);
+        matIcon.classList.toggle('text-on-surface', !isNowInWishlist);
       }
       showToast(isNowInWishlist ? 'Added to wishlist' : 'Removed from wishlist', 'success');
     } else {

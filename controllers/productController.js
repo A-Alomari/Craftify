@@ -51,6 +51,7 @@ exports.index = (req, res) => {
       title: 'Browse Products - Craftify',
       products,
       categories,
+      totalProducts,
       filters: { category: categoryIds, search, sort, min_price, max_price, featured },
       pagination: {
         current: parseInt(page),

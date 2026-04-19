@@ -121,7 +121,7 @@ const maxPriceDefault = 1000;
         <!-- Results header -->
         <div class="flex items-center justify-between mb-6">
           <p class="text-sm text-secondary">
-            <span class="font-bold text-on-surface"><%= productList.length %></span> products found
+            <span class="font-bold text-on-surface"><%= typeof totalProducts !== 'undefined' ? totalProducts : productList.length %></span> products found
             <% if (activeFilters.search) { %> for "<%= activeFilters.search %>"<% } %>
             <% if (activeCategoryIds.length === 1) { %>
               <% const _cat = categoryList.find(function(c) { return String(c.id) === activeCategoryIds[0]; }); %>
@@ -326,7 +326,7 @@ const maxPriceDefault = 1000;
         if (!data.success || !icon || !btn) return;
         if (data.inWishlist) {
           icon.classList.add('filled-icon');
-          btn.classList.remove('text-secondary', 'hover:text-tertiary');
+          btn.classList.remove('text-secondary', 'hover:text-red-500');
           btn.classList.add('text-tertiary');
           btn.setAttribute('aria-label', 'Remove from wishlist');
           if (typeof showToast === 'function') showToast('Added to wishlist!', 'success');

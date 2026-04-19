@@ -79,8 +79,8 @@
             <form action="/user/wishlist/toggle" method="POST" data-no-loading>
                 <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                 <input type="hidden" name="productId" value="<%= product.id %>">
-                <button type="submit" class="p-4 border border-outline-variant rounded-xl hover:bg-surface-container-low transition-colors <%= inWishlist ? 'text-red-500' : 'text-on-surface' %>" aria-label="<%= inWishlist ? 'Remove from wishlist' : 'Add to wishlist' %>">
-                    <span class="material-symbols-outlined <%= inWishlist ? 'filled-icon' : '' %>" data-icon="favorite">favorite</span>
+                <button type="submit" class="p-4 border border-outline-variant rounded-xl hover:bg-surface-container-low transition-colors" aria-label="<%= inWishlist ? 'Remove from wishlist' : 'Add to wishlist' %>">
+                    <span class="material-symbols-outlined <%= inWishlist ? 'filled-icon text-tertiary' : 'text-on-surface' %>" data-icon="favorite">favorite</span>
                 </button>
             </form>
         </div>

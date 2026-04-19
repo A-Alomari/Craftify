@@ -88,6 +88,16 @@ exports.faq = (req, res) => {
   res.render('home/faq', { title: 'FAQ - Craftify' });
 };
 
+// Shipping & Returns page
+exports.shipping = (req, res) => {
+  res.render('home/shipping', { title: 'Shipping & Returns - Craftify' });
+};
+
+// Artisan Guidelines page
+exports.guidelines = (req, res) => {
+  res.render('home/guidelines', { title: 'Artisan Guidelines - Craftify' });
+};
+
 // Terms of Service
 exports.terms = (req, res) => {
   res.render('home/terms', { title: 'Terms of Service - Craftify' });

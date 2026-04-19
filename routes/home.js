@@ -7,6 +7,8 @@ router.get('/about', homeController.about);
 router.get('/contact', homeController.contact);
 router.post('/contact', homeController.contactPost);
 router.get('/faq', homeController.faq);
+router.get('/shipping', homeController.shipping);
+router.get('/guidelines', homeController.guidelines);
 router.get('/terms', homeController.terms);
 router.get('/privacy', homeController.privacy);
 router.get('/artisans', homeController.artisans);
