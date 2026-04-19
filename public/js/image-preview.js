@@ -532,6 +532,17 @@
       }
     }
 
+    // Update a preview element if specified
+    var previewId = input.dataset.preview;
+    if (previewId && croppedFiles.length) {
+      var previewEl = document.getElementById(previewId);
+      if (previewEl) {
+        var r = new FileReader();
+        r.onload = function (e) { previewEl.src = e.target.result; };
+        r.readAsDataURL(croppedFiles[0]);
+      }
+    }
+
     try {
       var dt = new DataTransfer();
       croppedFiles.forEach(function (f) { dt.items.add(f); });
@@ -553,6 +564,22 @@
     // Generic crop for all other image inputs (e.g. profile photo)
     document.querySelectorAll('input[type="file"][accept*="image"]').forEach(function (input) {
       if (input.id === 'img-slot-input') return; // handled by initImageSlots
+
+      // Inputs with data-no-crop just update a preview element without the crop modal
+      if (input.dataset.noCrop) {
+        var previewId = input.dataset.preview;
+        input.addEventListener('change', function () {
+          var file = input.files[0];
+          if (!file || !previewId) return;
+          var previewEl = document.getElementById(previewId);
+          if (!previewEl) return;
+          var r = new FileReader();
+          r.onload = function (e) { previewEl.src = e.target.result; };
+          r.readAsDataURL(file);
+        });
+        return;
+      }
+
       input.addEventListener('change', function () { handleFileInput(input); });
     });
   }

@@ -49,27 +49,26 @@
     <div class="flex-grow overflow-y-auto bg-surface-container-lowest px-2 space-y-1 pb-4">
       <% conversationList.forEach(function(conv) { %>
         <% const isActive = Number(conv.other_user_id) === activeUserId; %>
+        <% const sidebarDisplayName = (conv.other_user_role === 'artisan' && conv.shop_name) ? conv.shop_name : conv.other_user_name; %>
+        <% const sidebarAvatar = (conv.other_user_role === 'artisan' && conv.shop_image) ? conv.shop_image : conv.other_user_avatar; %>
         <a href="/user/messages/<%= conv.other_user_id %>" class="flex items-start gap-3 p-4 rounded-2xl cursor-pointer group transition-all relative <%= isActive ? 'bg-primary-container/10' : 'hover:bg-surface-container-low' %>">
           <div class="relative flex-shrink-0">
-            <% if (conv.other_user_avatar) { %>
-              <img alt="<%= conv.other_user_name %>" class="w-12 h-12 rounded-full object-cover <%= isActive ? 'border-2 border-primary-container' : '' %>" src="<%= conv.other_user_avatar %>" onerror="this.onerror=null; this.src='/images/default-avatar.png';"/>
+            <% if (sidebarAvatar) { %>
+              <img alt="<%= sidebarDisplayName %>" class="w-12 h-12 rounded-full object-cover <%= isActive ? 'border-2 border-primary-container' : '' %>" src="<%= sidebarAvatar %>" onerror="this.onerror=null; this.src='/images/default-avatar.png';"/>
             <% } else { %>
               <div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold <%= isActive ? 'border-2 border-primary-container' : '' %>">
-                <%= (conv.other_user_name || '?')[0].toUpperCase() %>
+                <%= (sidebarDisplayName || '?')[0].toUpperCase() %>
               </div>
             <% } %>
           </div>
 
           <div class="flex-grow min-w-0">
             <div class="flex justify-between items-baseline mb-0.5">
-              <h3 class="font-semibold text-on-surface truncate"><%= conv.other_user_name %></h3>
+              <h3 class="font-semibold text-on-surface truncate"><%= sidebarDisplayName %></h3>
               <span class="text-[10px] text-secondary uppercase tracking-tighter"><%= formatThreadTime(conv.last_message_time) %></span>
             </div>
             <div class="flex items-center gap-1.5 mb-1">
               <span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-1.5 py-0.5 rounded uppercase"><%= getRoleLabel(conv.other_user_role) %></span>
-              <% if (conv.shop_name) { %>
-                <span class="text-[10px] text-secondary truncate"><%= conv.shop_name %></span>
-              <% } %>
             </div>
             <p class="text-xs text-secondary truncate"><%= conv.last_message || 'No messages yet' %></p>
           </div>
@@ -100,13 +99,9 @@
           <% } %>
         </div>
         <div class="min-w-0">
-          <h2 class="font-bold font-headline text-lg leading-tight truncate"><%= otherUser.name %></h2>
+          <h2 class="font-bold font-headline text-lg leading-tight truncate"><%= (otherUser.role === 'artisan' && artisanProfile && artisanProfile.shop_name) ? artisanProfile.shop_name : otherUser.name %></h2>
           <div class="flex items-center gap-2">
             <span class="text-[10px] text-green-600 font-bold uppercase tracking-widest"><%= getRoleLabel(otherUser.role) %></span>
-            <% if (artisanProfile) { %>
-              <span class="text-xs text-secondary/40">•</span>
-              <a class="text-xs text-primary font-medium hover:underline truncate" href="/user/artisan/<%= otherUser.id %>"><%= artisanProfile.shop_name %></a>
-            <% } %>
           </div>
         </div>
       </div>

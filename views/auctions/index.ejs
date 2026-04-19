@@ -36,11 +36,6 @@ const auctionQueryString = `status=${encodeURIComponent(statusFilter)}&sort=${en
 <a href="/auctions?status=sold&sort=<%= encodeURIComponent(sortFilter) %>" class="<%= statusFilter === 'sold' ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-high text-on-surface hover:bg-surface-container-highest' %> px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 transition-colors">
     Sold
 </a>
-<% if (typeof user !== 'undefined' && user && user.role === 'customer') { %>
-<a href="/auctions/my-bids" class="bg-surface-container-high text-on-surface px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
-    My Bids
-</a>
-<% } %>
 </div>
 <div class="flex flex-col sm:flex-row sm:items-center justify-between md:justify-end gap-4 border-t md:border-t-0 pt-4 md:pt-0">
 <span class="text-sm font-sans text-secondary italic">Showing <%= auctions ? auctions.length : 0 %> auction<%= auctions && auctions.length === 1 ? '' : 's' %> for <%= statusFilter %> status</span>

@@ -4618,6 +4618,10 @@ h3 {
 }
 
 @media (min-width:768px) {
+    .md\:grid {
+        display: grid
+    }
+
     .md\:col-span-1 {
         grid-column: span 1/span 1
     }
