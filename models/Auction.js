@@ -96,8 +96,7 @@ class Auction {
     const normalizedStartTime = normalizeDateTime(start_time);
     const normalizedEndTime = normalizeDateTime(end_time);
 
-    const startDate = new Date(normalizedStartTime || start_time);
-    const status = startDate <= now ? 'active' : 'pending';
+    const status = 'awaiting_approval';
     const actualStartPrice = starting_price || starting_bid;
     const product = product_id ? db.prepare('SELECT name FROM products WHERE id = ?').get(product_id) : null;
     const actualTitle = title || (product ? product.name : 'Auction');
@@ -296,6 +295,17 @@ class Auction {
     return this.findById(id);
   }
 
+  static approve(id) {
+    const db = getDb();
+    const auction = db.prepare('SELECT * FROM auctions WHERE id = ?').get(id);
+    if (!auction) return null;
+    const now = new Date();
+    const startDate = new Date(auction.start_time);
+    const newStatus = startDate <= now ? 'active' : 'pending';
+    db.prepare('UPDATE auctions SET status = ? WHERE id = ?').run(newStatus, id);
+    return this.findById(id);
+  }
+
   static endAuction(id) {
     const db = getDb();
     const auction = this.findById(id);
@@ -335,6 +345,7 @@ class Auction {
   static getStats() {
     return {
       total: this.count(),
+      awaiting_approval: this.count({ status: 'awaiting_approval' }),
       active: this.count({ status: 'active' }),
       pending: this.count({ status: 'pending' }),
       ended: this.count({ status: 'ended' }),

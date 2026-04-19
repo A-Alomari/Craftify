@@ -43,6 +43,8 @@ router.post('/orders/:id/status', adminController.updateOrderStatus);
 
 // Auctions
 router.get('/auctions', adminController.auctions);
+router.post('/auctions/:id/approve', adminController.approveAuction);
+router.post('/auctions/:id/reject', adminController.rejectAuction);
 router.post('/auctions/:id/cancel', adminController.cancelAuction);
 
 // Reviews

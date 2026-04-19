@@ -1,4 +1,5 @@
 const Cart = require('../models/Cart');
+const Review = require('../models/Review');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const Shipment = require('../models/Shipment');
@@ -219,6 +220,11 @@ exports.show = (req, res) => {
     items.forEach(item => {
       const images = JSON.parse(item.images || '[]');
       item.image = images[0] || '/images/placeholder-product.jpg';
+      if (order.status === 'delivered' && item.product_id) {
+        const { canReview, hasReviewed } = Review.canReview(req.session.user.id, item.product_id);
+        item.canReview = canReview;
+        item.hasReviewed = hasReviewed;
+      }
     });
 
     res.render('orders/show', {

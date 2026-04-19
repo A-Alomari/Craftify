@@ -55,6 +55,62 @@
           <button type="submit" class="bg-red-100 text-red-700 hover:bg-red-200 px-4 py-2.5 rounded-xl text-sm font-semibold">Cancel Order</button>
         </form>
       <% } %>
+
+      <% if (order.status === 'delivered') { %>
+        <div class="mt-6 pt-6 border-t border-surface-container-high">
+          <h3 class="font-headline text-lg text-on-surface mb-4">Leave a Review</h3>
+          <div class="space-y-4">
+            <% items.forEach(function(item) { %>
+              <% if (!item.product_id) return; %>
+              <% if (item.hasReviewed) { %>
+                <div class="flex items-center gap-3 p-4 rounded-xl bg-surface-container-low border border-surface-container-high">
+                  <img src="<%= item.image %>" alt="<%= item.product_name %>" class="w-10 h-10 rounded-lg object-cover">
+                  <div>
+                    <p class="text-sm font-semibold text-on-surface"><%= item.product_name %></p>
+                    <p class="text-xs text-secondary flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-sm text-emerald-500">check_circle</span>You have reviewed this item</p>
+                  </div>
+                </div>
+              <% } else if (item.canReview) { %>
+                <details class="rounded-xl border border-outline-variant/25 bg-surface-container-low overflow-hidden">
+                  <summary class="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-surface-container-high transition-colors">
+                    <img src="<%= item.image %>" alt="<%= item.product_name %>" class="w-10 h-10 rounded-lg object-cover">
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-semibold text-on-surface truncate"><%= item.product_name %></p>
+                      <p class="text-xs text-primary">Tap to write a review</p>
+                    </div>
+                    <span class="material-symbols-outlined text-secondary text-lg">expand_more</span>
+                  </summary>
+                  <form action="/user/reviews" method="POST" class="px-4 pb-4 pt-2 space-y-3 border-t border-surface-container-high">
+                    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                    <input type="hidden" name="product_id" value="<%= item.product_id %>">
+                    <input type="hidden" name="order_id" value="<%= order.id %>">
+                    <div>
+                      <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold mb-1">Rating</label>
+                      <div class="flex gap-1" id="stars-<%= item.product_id %>">
+                        <% for (var s = 1; s <= 5; s++) { %>
+                          <label class="cursor-pointer text-2xl select-none">
+                            <input type="radio" name="rating" value="<%= s %>" class="sr-only" required>
+                            <span class="star text-secondary/30 hover:text-amber-400 transition-colors" data-val="<%= s %>">★</span>
+                          </label>
+                        <% } %>
+                      </div>
+                    </div>
+                    <div>
+                      <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold mb-1">Title</label>
+                      <input type="text" name="title" placeholder="Summarize your experience" class="w-full bg-surface-container-lowest border-none rounded-xl px-3 py-2 text-sm text-on-surface focus:ring-0" required maxlength="100">
+                    </div>
+                    <div>
+                      <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold mb-1">Comment</label>
+                      <textarea name="comment" rows="3" placeholder="Tell others about your experience..." class="w-full bg-surface-container-lowest border-none rounded-xl px-3 py-2 text-sm text-on-surface focus:ring-0 resize-none" required maxlength="500"></textarea>
+                    </div>
+                    <button type="submit" class="bg-primary-container text-on-primary-container px-5 py-2 rounded-xl text-sm font-bold hover:opacity-90">Submit Review</button>
+                  </form>
+                </details>
+              <% } %>
+            <% }); %>
+          </div>
+        </div>
+      <% } %>
     </section>
 
     <aside class="space-y-6">
@@ -103,3 +159,24 @@
 </main>
 
 <%- include('../partials/footer') %>
+
+<script>
+// Star rating interactive highlight
+document.querySelectorAll('[id^="stars-"]').forEach(function(container) {
+  var stars = container.querySelectorAll('.star');
+  var inputs = container.querySelectorAll('input[type="radio"]');
+  stars.forEach(function(star, i) {
+    star.addEventListener('mouseenter', function() {
+      stars.forEach(function(s, j) { s.style.color = j <= i ? '#f59e0b' : ''; });
+    });
+    star.addEventListener('mouseleave', function() {
+      var checked = container.querySelector('input:checked');
+      var val = checked ? parseInt(checked.value) - 1 : -1;
+      stars.forEach(function(s, j) { s.style.color = j <= val ? '#f59e0b' : ''; });
+    });
+    inputs[i].addEventListener('change', function() {
+      stars.forEach(function(s, j) { s.style.color = j <= i ? '#f59e0b' : ''; });
+    });
+  });
+});
+</script>

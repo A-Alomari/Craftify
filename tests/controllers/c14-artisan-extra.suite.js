@@ -20,7 +20,9 @@ module.exports = ({ getTestContext, loginAs, makeUnique }) => {
       expect(pendingPage.statusCode).toBe(200);
 
       const profilePage = await agent.get('/artisan/profile');
-      expect(profilePage.statusCode).toBe(200);
+      // /artisan/profile now redirects to /user/profile
+      expect(profilePage.statusCode).toBe(302);
+      expect(profilePage.headers.location).toContain('/user/profile');
 
       const updateProfile = await agent.post('/artisan/profile').send({
         name: 'Artisan',

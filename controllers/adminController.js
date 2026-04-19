@@ -467,10 +467,22 @@ exports.deleteCategory = (req, res) => {
 // Orders management
 exports.orders = (req, res) => {
   try {
-    const { status, payment_status, search, page = 1 } = req.query;
+    const { tab, payment_status, search, page = 1 } = req.query;
     const filters = {};
 
-    if (status) filters.status = status;
+    // Map tab values to actual DB statuses
+    const tabStatusMap = {
+      'new':          ['pending', 'confirmed'],
+      'in_production': ['processing'],
+      'ready':        ['ready'],
+      'shipped':      ['shipped']
+    };
+    let resolvedStatus = '';
+    if (tab && tabStatusMap[tab]) {
+      filters.statuses = tabStatusMap[tab];
+      resolvedStatus = tabStatusMap[tab][0];
+    }
+
     if (payment_status) filters.payment_status = payment_status;
     if (search) filters.search = search;
 
@@ -479,7 +491,7 @@ exports.orders = (req, res) => {
     res.render('admin/orders', {
       title: 'Order Management - Craftify',
       orders,
-      filters: { status, payment_status, search }
+      filters: { status: resolvedStatus, payment_status, search }
     });
   } catch (err) {
     console.error('Admin orders error:', err);
@@ -562,7 +574,7 @@ exports.auctions = (req, res) => {
     const auctions = Auction.findAll(filters);
 
     auctions.forEach(a => {
-      const images = JSON.parse(a.product_images || '[]');
+      const images = JSON.parse(a.product_images || a.images || '[]');
       a.image = images[0] || '/images/placeholder-product.jpg';
     });
 
@@ -600,6 +612,44 @@ exports.cancelAuction = (req, res) => {
     if (req.xhr) {
       return res.status(500).json({ success: false });
     }
+    res.redirect('/admin/auctions');
+  }
+};
+
+exports.approveAuction = (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid auction ID');
+      return res.redirect('/admin/auctions');
+    }
+    const auction = Auction.approve(id);
+    if (!auction) {
+      return respondAdminNotFound(req, res, '/admin/auctions', 'Auction not found');
+    }
+    req.flash('success_msg', 'Auction approved and is now live');
+    res.redirect('/admin/auctions');
+  } catch (err) {
+    console.error('Approve auction error:', err);
+    res.redirect('/admin/auctions');
+  }
+};
+
+exports.rejectAuction = (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid auction ID');
+      return res.redirect('/admin/auctions');
+    }
+    const auction = Auction.cancel(id);
+    if (!auction) {
+      return respondAdminNotFound(req, res, '/admin/auctions', 'Auction not found');
+    }
+    req.flash('success_msg', 'Auction rejected');
+    res.redirect('/admin/auctions');
+  } catch (err) {
+    console.error('Reject auction error:', err);
     res.redirect('/admin/auctions');
   }
 };

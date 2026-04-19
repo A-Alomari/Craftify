@@ -4,7 +4,7 @@ class Order {
   static findById(id) {
     const db = getDb();
     return db.prepare(`
-      SELECT o.*, u.name as customer_name, u.email as customer_email
+      SELECT o.*, u.name as customer_name, u.email as customer_email, u.phone as customer_phone
       FROM orders o
       JOIN users u ON o.user_id = u.id
       WHERE o.id = ?
@@ -21,7 +21,10 @@ class Order {
     `;
     const params = [userId];
 
-    if (filters.status) {
+    if (filters.statuses && filters.statuses.length > 0) {
+      query += ` AND o.status IN (${filters.statuses.map(() => '?').join(', ')})`;
+      params.push(...filters.statuses);
+    } else if (filters.status) {
       query += ' AND o.status = ?';
       params.push(filters.status);
     }
@@ -47,7 +50,10 @@ class Order {
     `;
     const params = [];
 
-    if (filters.status) {
+    if (filters.statuses && filters.statuses.length > 0) {
+      query += ` AND o.status IN (${filters.statuses.map(() => '?').join(', ')})`;
+      params.push(...filters.statuses);
+    } else if (filters.status) {
       query += ' AND o.status = ?';
       params.push(filters.status);
     }
@@ -361,6 +367,100 @@ class Order {
     return row?.total || 0;
   }
 
+  static findAllByArtisan(artisanId, filters = {}) {
+    const db = getDb();
+
+    const statusMap = {
+      new: ['pending', 'confirmed'],
+      in_production: ['processing'],
+      ready: ['ready'],
+      shipped: ['shipped'],
+      delivered: ['delivered'],
+      cancelled: ['cancelled']
+    };
+
+    const conditions = [];
+    const conditionParams = [];
+
+    if (filters.status && statusMap[filters.status]) {
+      const dbStatuses = statusMap[filters.status];
+      conditions.push(`o.status IN (${dbStatuses.map(() => '?').join(', ')})`);
+      conditionParams.push(...dbStatuses);
+    }
+
+    if (filters.search) {
+      conditions.push('(CAST(o.id AS TEXT) = ? OR u.name LIKE ? OR u.email LIKE ?)');
+      conditionParams.push(filters.search, `%${filters.search}%`, `%${filters.search}%`);
+    }
+
+    const whereClause = conditions.length > 0 ? `AND ${conditions.join(' AND ')}` : '';
+    const limit = filters.limit || 10;
+    const offset = filters.offset || 0;
+
+    const query = `
+      SELECT o.*, u.name as customer_name, u.email as customer_email,
+        (SELECT p2.name FROM order_items oi2 JOIN products p2 ON oi2.product_id = p2.id
+         WHERE oi2.order_id = o.id AND p2.artisan_id = ? LIMIT 1) as product_name,
+        (SELECT p2.images FROM order_items oi2 JOIN products p2 ON oi2.product_id = p2.id
+         WHERE oi2.order_id = o.id AND p2.artisan_id = ? LIMIT 1) as product_images
+      FROM orders o
+      JOIN users u ON o.user_id = u.id
+      WHERE o.id IN (
+        SELECT DISTINCT oi.order_id FROM order_items oi
+        JOIN products p ON oi.product_id = p.id
+        WHERE p.artisan_id = ?
+      )
+      ${whereClause}
+      ORDER BY o.created_at DESC
+      LIMIT ? OFFSET ?
+    `;
+
+    return db.prepare(query).all(artisanId, artisanId, artisanId, ...conditionParams, limit, offset);
+  }
+
+  static countAllByArtisan(artisanId, filters = {}) {
+    const db = getDb();
+
+    const statusMap = {
+      new: ['pending', 'confirmed'],
+      in_production: ['processing'],
+      ready: ['ready'],
+      shipped: ['shipped'],
+      delivered: ['delivered'],
+      cancelled: ['cancelled']
+    };
+
+    const conditions = [];
+    const conditionParams = [];
+
+    if (filters.status && statusMap[filters.status]) {
+      const dbStatuses = statusMap[filters.status];
+      conditions.push(`o.status IN (${dbStatuses.map(() => '?').join(', ')})`);
+      conditionParams.push(...dbStatuses);
+    }
+
+    if (filters.search) {
+      conditions.push('(CAST(o.id AS TEXT) = ? OR u.name LIKE ? OR u.email LIKE ?)');
+      conditionParams.push(filters.search, `%${filters.search}%`, `%${filters.search}%`);
+    }
+
+    const whereClause = conditions.length > 0 ? `AND ${conditions.join(' AND ')}` : '';
+
+    const query = `
+      SELECT COUNT(*) as count
+      FROM orders o
+      JOIN users u ON o.user_id = u.id
+      WHERE o.id IN (
+        SELECT DISTINCT oi.order_id FROM order_items oi
+        JOIN products p ON oi.product_id = p.id
+        WHERE p.artisan_id = ?
+      )
+      ${whereClause}
+    `;
+
+    return db.prepare(query).get(artisanId, ...conditionParams)?.count || 0;
+  }
+
   static getMonthlyRevenueByArtisan(artisanId, months = 6) {
     const db = getDb();
     const monthsWindow = Math.max(1, parseInt(months, 10) || 6);
@@ -390,6 +490,162 @@ class Order {
       ORDER BY sold DESC
       LIMIT ?
     `).all(artisanId, limit);
+  }
+
+  static getTopProductsByArtisanWithImages(artisanId, limit = 5) {
+    const db = getDb();
+    return db.prepare(`
+      SELECT p.name, p.images, SUM(oi.quantity) as sold, SUM(oi.total_price) as revenue
+      FROM order_items oi
+      JOIN products p ON oi.product_id = p.id
+      WHERE p.artisan_id = ?
+      GROUP BY p.id
+      ORDER BY sold DESC
+      LIMIT ?
+    `).all(artisanId, limit);
+  }
+
+  static getDailyRevenueByArtisan(artisanId, days = 30) {
+    const db = getDb();
+    return db.prepare(`
+      SELECT strftime('%Y-%m-%d', o.created_at) as day,
+        SUM(oi.total_price) as revenue
+      FROM order_items oi
+      JOIN orders o ON oi.order_id = o.id
+      JOIN products p ON oi.product_id = p.id
+      WHERE p.artisan_id = ?
+        AND o.payment_status = 'paid'
+        AND o.created_at >= datetime('now', ?)
+      GROUP BY day
+      ORDER BY day
+    `).all(artisanId, `-${days} days`);
+  }
+
+  static getSalesByCategoryByArtisan(artisanId, days = 30) {
+    const db = getDb();
+    const rows = db.prepare(`
+      SELECT COALESCE(c.name, 'Uncategorized') as category,
+        COALESCE(SUM(oi.total_price), 0) as revenue
+      FROM order_items oi
+      JOIN orders o ON oi.order_id = o.id
+      JOIN products p ON oi.product_id = p.id
+      LEFT JOIN categories c ON p.category_id = c.id
+      WHERE p.artisan_id = ?
+        AND o.payment_status = 'paid'
+        AND o.created_at >= datetime('now', ?)
+      GROUP BY p.category_id
+      ORDER BY revenue DESC
+      LIMIT 6
+    `).all(artisanId, `-${days} days`);
+
+    const total = rows.reduce((sum, r) => sum + r.revenue, 0);
+    return rows.map(r => ({
+      ...r,
+      pct: total > 0 ? Math.round((r.revenue / total) * 100) : 0
+    }));
+  }
+
+  static getCustomerInsightsByArtisan(artisanId, days = 30) {
+    const db = getDb();
+    const windowStart = `-${days} days`;
+
+    const totalRow = db.prepare(`
+      SELECT COUNT(DISTINCT o.user_id) as total
+      FROM orders o
+      JOIN order_items oi ON o.id = oi.order_id
+      JOIN products p ON oi.product_id = p.id
+      WHERE p.artisan_id = ?
+        AND o.payment_status = 'paid'
+        AND o.created_at >= datetime('now', ?)
+    `).get(artisanId, windowStart);
+
+    const newRow = db.prepare(`
+      SELECT COUNT(DISTINCT o.user_id) as total
+      FROM orders o
+      JOIN order_items oi ON o.id = oi.order_id
+      JOIN products p ON oi.product_id = p.id
+      WHERE p.artisan_id = ?
+        AND o.payment_status = 'paid'
+        AND o.created_at >= datetime('now', ?)
+        AND o.user_id NOT IN (
+          SELECT DISTINCT o2.user_id
+          FROM orders o2
+          JOIN order_items oi2 ON o2.id = oi2.order_id
+          JOIN products p2 ON oi2.product_id = p2.id
+          WHERE p2.artisan_id = ?
+            AND o2.payment_status = 'paid'
+            AND o2.created_at < datetime('now', ?)
+        )
+    `).get(artisanId, windowStart, artisanId, windowStart);
+
+    const total = totalRow?.total || 0;
+    const newCount = newRow?.total || 0;
+    const returningCount = total - newCount;
+
+    return {
+      total,
+      new: newCount,
+      returning: returningCount,
+      newPct: total > 0 ? Math.round((newCount / total) * 100) : 65,
+      returningPct: total > 0 ? Math.round((returningCount / total) * 100) : 35
+    };
+  }
+
+  static getStatsByPeriodForArtisan(artisanId, days = 30) {
+    const db = getDb();
+    const windowStart = `-${days} days`;
+    const prevStart = `-${days * 2} days`;
+
+    const current = db.prepare(`
+      SELECT COALESCE(SUM(oi.total_price), 0) as revenue,
+        COUNT(DISTINCT o.id) as orders
+      FROM order_items oi
+      JOIN orders o ON oi.order_id = o.id
+      JOIN products p ON oi.product_id = p.id
+      WHERE p.artisan_id = ?
+        AND o.payment_status = 'paid'
+        AND o.created_at >= datetime('now', ?)
+    `).get(artisanId, windowStart);
+
+    const previous = db.prepare(`
+      SELECT COALESCE(SUM(oi.total_price), 0) as revenue,
+        COUNT(DISTINCT o.id) as orders
+      FROM order_items oi
+      JOIN orders o ON oi.order_id = o.id
+      JOIN products p ON oi.product_id = p.id
+      WHERE p.artisan_id = ?
+        AND o.payment_status = 'paid'
+        AND o.created_at >= datetime('now', ?)
+        AND o.created_at < datetime('now', ?)
+    `).get(artisanId, prevStart, windowStart);
+
+    const curRevenue = current?.revenue || 0;
+    const prevRevenue = previous?.revenue || 0;
+    const curOrders = current?.orders || 0;
+    const prevOrders = previous?.orders || 0;
+
+    const aov = curOrders > 0 ? curRevenue / curOrders : 0;
+    const prevAov = prevOrders > 0 ? prevRevenue / prevOrders : 0;
+
+    const revChg = prevRevenue > 0 ? Math.round(((curRevenue - prevRevenue) / prevRevenue) * 100) : null;
+    const ordChg = prevOrders > 0 ? Math.round(((curOrders - prevOrders) / prevOrders) * 100) : null;
+    const aovChg = prevAov > 0 ? Math.round(((aov - prevAov) / prevAov) * 100) : null;
+
+    const viewsRow = db.prepare(`
+      SELECT COALESCE(SUM(views), 0) as total
+      FROM products
+      WHERE artisan_id = ? AND status = 'approved'
+    `).get(artisanId);
+
+    return {
+      revenue: curRevenue,
+      orders: curOrders,
+      aov,
+      views: viewsRow?.total || 0,
+      revChg,
+      ordChg,
+      aovChg
+    };
   }
 }
 

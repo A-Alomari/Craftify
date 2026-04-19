@@ -11,22 +11,6 @@
       </p>
     </div>
   </section>
-
-  <!-- Flash Messages -->
-  <div class="max-w-5xl mx-auto px-6 pt-6">
-    <% if (typeof success_msg !== 'undefined' && success_msg) { %>
-      <div class="bg-green-50 text-green-800 px-5 py-4 rounded-xl font-body text-sm mb-4">
-        <%= success_msg %>
-      </div>
-    <% } %>
-    <% if (typeof error_msg !== 'undefined' && error_msg) { %>
-      <div class="bg-red-50 text-error px-5 py-4 rounded-xl font-body text-sm mb-4 flex items-center gap-3">
-        <span class="material-symbols-outlined text-error text-xl">error</span>
-        <%= error_msg %>
-      </div>
-    <% } %>
-  </div>
-
   <!-- Main Content -->
   <section class="max-w-5xl mx-auto px-6 py-8 pb-16">
 

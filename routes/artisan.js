@@ -15,8 +15,8 @@ router.get('/dashboard', isApprovedArtisan, artisanController.dashboard);
 // Pending approval
 router.get('/pending', artisanController.pending);
 
-// Profile
-router.get('/profile', artisanController.profile);
+// Profile — redirect to unified /user/profile page
+router.get('/profile', (req, res) => res.redirect('/user/profile'));
 router.post('/profile', upload.single('profile_image'), validateUploadedImageSignatures, artisanController.updateProfile);
 
 // Products

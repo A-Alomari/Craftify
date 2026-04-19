@@ -22,6 +22,7 @@ const messageLimiter = isTest
 router.get('/profile', isAuthenticated, isActive, userController.profile);
 router.post('/profile', isAuthenticated, isActive, upload.single('avatar'), validateUploadedImageSignatures, userController.updateProfile);
 router.post('/change-password', isAuthenticated, isActive, userController.changePassword);
+router.post('/shop-profile', isAuthenticated, isActive, upload.single('shop_image'), validateUploadedImageSignatures, userController.updateShopProfile);
 
 // Wishlist
 router.get('/wishlist', isAuthenticated, isActive, isCustomer, userController.wishlist);

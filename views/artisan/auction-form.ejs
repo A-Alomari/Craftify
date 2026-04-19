@@ -72,16 +72,31 @@
 
                 <!-- Images (shown when no product selected) -->
                 <div id="image-upload-section">
-                  <label class="block text-sm font-semibold text-secondary mb-2 uppercase tracking-wider">
-                    Auction Images
-                    <span class="font-normal normal-case text-xs text-secondary/70 ml-1">— JPEG, PNG, WebP · up to 30MB</span>
-                  </label>
-                  <label class="flex flex-col items-center justify-center w-full aspect-[16/5] rounded-xl border-2 border-dashed border-outline-variant hover:border-primary hover:text-primary text-secondary transition-all cursor-pointer bg-surface-container-low gap-3">
-                    <span class="material-symbols-outlined text-4xl">add_a_photo</span>
-                    <span class="text-sm font-semibold">Upload Images</span>
-                    <input type="file" name="images" id="img-input" multiple accept="image/jpeg,image/png,image/webp" class="hidden">
-                  </label>
-                  <div id="img-previews" class="grid grid-cols-4 gap-3 mt-3 hidden"></div>
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="block text-sm font-semibold text-secondary uppercase tracking-wider">
+                      Auction Images
+                      <span class="font-normal normal-case text-xs text-secondary/70 ml-1">— up to 5 · JPEG, PNG, WebP · 30MB each</span>
+                    </label>
+                    <span class="text-xs text-secondary tabular-nums" id="img-count-label">0 / 5 images</span>
+                  </div>
+                  <p class="text-xs text-outline mb-4">First image becomes the cover. Click an empty slot to add · hover a filled slot to replace or delete.</p>
+
+                  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3" id="image-slots">
+                    <% for (var _ai = 0; _ai < 5; _ai++) { %>
+                      <div class="image-slot aspect-square rounded-xl border-2 border-dashed border-outline-variant
+                                  flex flex-col items-center justify-center text-secondary
+                                  hover:border-primary hover:text-primary hover:bg-surface-container-low
+                                  transition-all cursor-pointer bg-surface-container-lowest"
+                           data-slot="<%= _ai %>" data-existing="">
+                        <span class="material-symbols-outlined text-2xl">add_photo_alternate</span>
+                        <span class="text-[11px] font-semibold mt-1">Add Image</span>
+                      </div>
+                    <% } %>
+                  </div>
+
+                  <input type="file" name="images" id="img-slot-input"
+                         accept="image/jpeg,image/png,image/webp" class="hidden">
+                  <div id="delete-inputs-container"></div>
                 </div>
 
                 <div>
@@ -332,34 +347,8 @@
     });
   }
 
-  // Image upload preview
-  var imgInput = document.getElementById('img-input');
-  var imgPreviews = document.getElementById('img-previews');
-  if (imgInput && imgPreviews && previewImgWrap) {
-    imgInput.addEventListener('change', function() {
-      imgPreviews.innerHTML = '';
-      var files = Array.from(imgInput.files);
-      if (files.length === 0) {
-        imgPreviews.classList.add('hidden');
-        previewImgWrap.innerHTML = '<span class="material-symbols-outlined text-5xl text-outline">image</span>';
-        return;
-      }
-      imgPreviews.classList.remove('hidden');
-      files.forEach(function(file, idx) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-          var div = document.createElement('div');
-          div.className = 'aspect-square rounded-lg overflow-hidden bg-surface-container-low';
-          div.innerHTML = '<img src="' + e.target.result + '" class="w-full h-full object-cover">';
-          imgPreviews.appendChild(div);
-          if (idx === 0) {
-            previewImgWrap.innerHTML = '<img src="' + e.target.result + '" alt="Preview" class="w-full h-full object-cover">';
-          }
-        };
-        reader.readAsDataURL(file);
-      });
-    });
-  }
+  // Image upload is handled by /js/image-preview.js (slot system).
+  // Live preview of first image is updated automatically by that module.
 
   // Starting bid preview
   var bidInput = document.getElementById('starting-bid');

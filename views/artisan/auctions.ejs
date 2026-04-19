@@ -1,86 +1,307 @@
 <%- include('../partials/header', { title: title }) %>
 
-<%
-  const auctionStatusClass = function(status) {
-    if (status === 'active') return 'bg-emerald-100 text-emerald-700';
-    if (status === 'sold') return 'bg-primary-container text-on-primary-container';
-    if (status === 'cancelled') return 'bg-red-100 text-red-700';
-    return 'bg-amber-100 text-amber-700';
-  };
-%>
-
 <div class="flex bg-surface min-h-screen">
   <%- include('./partials/sidebar') %>
 
-  <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
-    <%- include('./partials/topbar') %>
+  <main class="flex-1 min-h-screen pb-24 md:pb-0 flex flex-col">
+    <div class="p-6 md:p-8 lg:p-10 max-w-7xl mx-auto w-full space-y-8">
 
-    <section class="max-w-7xl mx-auto mt-8 mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-      <div>
-        <span class="font-label text-xs tracking-[0.2em] text-primary font-semibold uppercase">Artisan Studio</span>
-        <h1 class="font-headline text-3xl text-on-surface mt-2">My Auctions</h1>
-        <p class="text-secondary mt-1">Manage active listings and bidding outcomes.</p>
+      <!-- Page Header -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div class="space-y-1">
+          <h1 class="font-headline text-3xl font-semibold text-on-surface tracking-tight">Auction Studio</h1>
+          <p class="font-body text-secondary text-sm">Manage your active listings and bidding outcomes.</p>
+        </div>
+        <a href="/artisan/auctions/new"
+           class="flex items-center gap-2 bg-primary-container text-on-primary-container font-bold px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity text-sm self-start md:self-auto">
+          <span class="material-symbols-outlined text-sm">add</span>
+          New Auction
+        </a>
       </div>
-      <a href="/artisan/auctions/new" class="bg-primary-container text-on-primary-container px-5 py-2.5 rounded-xl font-semibold text-sm inline-flex items-center gap-2">
-        <span class="material-symbols-outlined text-base">add</span>
-        New Auction
-      </a>
-    </section>
 
-    <section class="max-w-7xl mx-auto bg-surface-container-lowest rounded-xl overflow-hidden">
-      <% if (auctions && auctions.length > 0) { %>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="text-[10px] font-bold text-secondary uppercase tracking-widest border-b border-surface-container-high">
-                <th class="px-6 py-4">Product</th>
-                <th class="px-6 py-4">Start Price</th>
-                <th class="px-6 py-4">Current Bid</th>
-                <th class="px-6 py-4">Bids</th>
-                <th class="px-6 py-4">Status</th>
-                <th class="px-6 py-4">Ends</th>
-                <th class="px-6 py-4 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-surface-container-high/50">
-              <% auctions.forEach(function(a) { %>
-                <tr class="hover:bg-surface-container-low/20 transition-colors">
-                  <td class="px-6 py-5">
-                    <div class="flex items-center gap-3">
-                      <img src="<%= a.image || '/images/placeholder-product.svg' %>" alt="<%= a.product_name %>" class="w-11 h-11 rounded-lg object-cover" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'">
-                      <p class="text-sm font-semibold text-on-surface"><%= a.product_name %></p>
-                    </div>
-                  </td>
-                  <td class="px-6 py-5 text-sm text-on-surface">$<%= Number(a.starting_price || 0).toFixed(2) %></td>
-                  <td class="px-6 py-5 text-sm text-on-surface">$<%= Number(a.current_highest_bid || 0).toFixed(2) %></td>
-                  <td class="px-6 py-5 text-sm text-on-surface"><%= a.bid_count || 0 %></td>
-                  <td class="px-6 py-5">
-                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest <%= auctionStatusClass(a.status) %>"><%= a.status %></span>
-                  </td>
-                  <td class="px-6 py-5 text-sm text-secondary"><%= new Date(a.end_time).toLocaleDateString() %></td>
-                  <td class="px-6 py-5 text-right">
-                    <% if (a.status === 'active' || a.status === 'pending') { %>
-                      <form action="/artisan/auctions/<%= a.id %>/cancel" method="POST" class="inline-block" data-confirm="Cancel this auction?">
-                        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                        <button class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-2 rounded-lg text-xs font-bold transition-colors">Cancel</button>
-                      </form>
-                    <% } else { %>
-                      <span class="text-xs text-secondary">No action</span>
-                    <% } %>
-                  </td>
-                </tr>
-              <% }); %>
-            </tbody>
-          </table>
+      <!-- Stat Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Active -->
+        <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20 flex flex-col gap-4" style="box-shadow:0 4px 20px rgba(25,28,30,0.03);">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:rgba(34,197,94,0.12); color:#16a34a;">
+              <span class="material-symbols-outlined">gavel</span>
+            </div>
+            <h3 class="font-label text-sm uppercase tracking-widest text-secondary font-medium">Live Auctions</h3>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="font-headline text-4xl font-semibold text-on-surface"><%= stats.activeCount %></span>
+            <span class="font-body text-sm text-secondary">active</span>
+          </div>
         </div>
-      <% } else { %>
-        <div class="py-14 text-center">
-          <span class="material-symbols-outlined text-5xl text-secondary/60">gavel</span>
-          <p class="text-secondary mt-3">No auctions yet.</p>
+
+        <!-- Pending -->
+        <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20 flex flex-col gap-4" style="box-shadow:0 4px 20px rgba(25,28,30,0.03);">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:rgba(245,158,11,0.15); color:#b45309;">
+              <span class="material-symbols-outlined">schedule</span>
+            </div>
+            <h3 class="font-label text-sm uppercase tracking-widest text-secondary font-medium">Scheduled</h3>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="font-headline text-4xl font-semibold text-on-surface"><%= stats.pendingCount %></span>
+            <span class="font-body text-sm text-secondary">pending</span>
+          </div>
         </div>
-      <% } %>
-    </section>
+
+        <!-- Sold / Ended -->
+        <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20 flex flex-col gap-4" style="box-shadow:0 4px 20px rgba(25,28,30,0.03);">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:rgba(99,102,241,0.12); color:#4f46e5;">
+              <span class="material-symbols-outlined">done_all</span>
+            </div>
+            <h3 class="font-label text-sm uppercase tracking-widest text-secondary font-medium">Sold / Ended</h3>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="font-headline text-4xl font-semibold text-on-surface"><%= stats.soldCount + stats.endedCount %></span>
+            <span class="font-body text-sm text-secondary">completed</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auction Table -->
+      <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 overflow-hidden flex flex-col" style="box-shadow:0 8px 30px rgba(25,28,30,0.04);">
+
+        <!-- Filter Tabs + Search -->
+        <div class="p-5 border-b flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center" style="border-color:rgba(134,116,97,0.08); background:#f7f9fb;">
+          <%
+            const tabs = [
+              { label: 'All',            value: 'all' },
+              { label: 'Awaiting Review', value: 'awaiting_approval' },
+              { label: 'Active',         value: 'active' },
+              { label: 'Scheduled',      value: 'pending' },
+              { label: 'Sold',           value: 'sold' },
+              { label: 'Ended',          value: 'ended' },
+              { label: 'Cancelled',      value: 'cancelled' }
+            ];
+          %>
+          <div class="flex flex-wrap gap-2">
+            <% tabs.forEach(function(tab) {
+                 const sp = filters.search ? '&search=' + encodeURIComponent(filters.search) : '';
+                 const isActive = filters.status === tab.value;
+            %>
+              <a href="/artisan/auctions?status=<%= tab.value %><%= sp %>"
+                 style="<%= isActive ? 'background:#e6e8ea; color:#191c1e; font-weight:600;' : 'color:#545f73;' %> padding:0.5rem 1rem; border-radius:0.5rem; font-size:0.875rem; text-decoration:none; transition:background 0.15s;">
+                <%= tab.label %>
+              </a>
+            <% }); %>
+          </div>
+
+          <form id="searchForm" action="/artisan/auctions" method="GET"
+                class="flex items-center rounded-lg px-3 py-2 w-full lg:w-auto" style="background:#f7f9fb; border:1px solid rgba(134,116,97,0.15);">
+            <% if (filters.status && filters.status !== 'all') { %>
+              <input type="hidden" name="status" value="<%= filters.status %>">
+            <% } %>
+            <span class="material-symbols-outlined text-secondary text-sm mr-2">search</span>
+            <input id="searchInput" class="bg-transparent border-none text-sm font-body text-on-surface placeholder:text-secondary focus:ring-0 w-full lg:w-52 p-0"
+                   name="search" placeholder="Search auctions..." type="text" value="<%= filters.search %>"/>
+          </form>
+        </div>
+
+        <!-- Table -->
+        <div class="flex flex-col">
+          <!-- Column Headers -->
+          <div class="hidden md:grid px-6 py-3 border-b" style="grid-template-columns: 2.4fr 8rem 8rem 5rem 8rem 8rem 10rem; background:rgba(236,238,240,0.5); border-color:rgba(134,116,97,0.08);">
+            <div class="font-label text-xs uppercase tracking-widest text-secondary font-medium">Auction</div>
+            <div class="font-label text-xs uppercase tracking-widest text-secondary font-medium">Start Price</div>
+            <div class="font-label text-xs uppercase tracking-widest text-secondary font-medium">Top Bid</div>
+            <div class="font-label text-xs uppercase tracking-widest text-secondary font-medium">Bids</div>
+            <div class="font-label text-xs uppercase tracking-widest text-secondary font-medium">Status</div>
+            <div class="font-label text-xs uppercase tracking-widest text-secondary font-medium">Ends</div>
+            <div class="font-label text-xs uppercase tracking-widest text-secondary font-medium text-right">Actions</div>
+          </div>
+
+          <% if (auctions && auctions.length > 0) { %>
+            <% auctions.forEach(function(a) {
+                 const aName = a.title || a.product_name || 'Untitled Auction';
+
+                 let statusLabel, badgeBg, badgeColor, dotColor;
+                 if (a.status === 'active') {
+                   statusLabel = 'Active';
+                   badgeBg = '#dcfce7'; badgeColor = '#16a34a'; dotColor = '#22c55e';
+                 } else if (a.status === 'awaiting_approval') {
+                   statusLabel = 'Awaiting Review';
+                   badgeBg = '#fff7ed'; badgeColor = '#c2410c'; dotColor = '#f97316';
+                 } else if (a.status === 'pending') {
+                   statusLabel = 'Scheduled';
+                   badgeBg = '#fef3c7'; badgeColor = '#d97706'; dotColor = '#f59e0b';
+                 } else if (a.status === 'sold') {
+                   statusLabel = 'Sold';
+                   badgeBg = '#ede9fe'; badgeColor = '#7c3aed'; dotColor = '#8b5cf6';
+                 } else if (a.status === 'ended') {
+                   statusLabel = 'Ended';
+                   badgeBg = '#f1f5f9'; badgeColor = '#64748b'; dotColor = '#94a3b8';
+                 } else if (a.status === 'cancelled') {
+                   statusLabel = 'Cancelled';
+                   badgeBg = '#fee2e2'; badgeColor = '#dc2626'; dotColor = '#ef4444';
+                 } else {
+                   statusLabel = a.status.charAt(0).toUpperCase() + a.status.slice(1);
+                   badgeBg = '#f1f5f9'; badgeColor = '#64748b'; dotColor = '#94a3b8';
+                 }
+
+                 const topBid = Number(a.current_highest_bid || 0);
+                 const startPrice = Number(a.starting_price || 0);
+                 const hasBids = topBid > startPrice;
+            %>
+            <!-- Mobile Card -->
+            <div class="md:hidden px-4 py-4 border-b flex gap-3" style="border-color:rgba(134,116,97,0.06);">
+              <div class="w-14 h-14 rounded-xl overflow-hidden shrink-0" style="background:#eceef0;">
+                <img src="<%= a.image %>" alt="<%= aName %>" class="w-full h-full object-cover" onerror="this.src='/images/placeholder-product.jpg'">
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-2">
+                  <a href="/auctions/<%= a.id %>" class="font-body font-semibold text-on-surface text-sm truncate block" style="text-decoration:none;"><%= aName %></a>
+                  <span style="flex-shrink:0; display:inline-flex; align-items:center; padding:3px 8px; border-radius:6px; font-size:10px; font-weight:600; background:<%= badgeBg %>; color:<%= badgeColor %>;"><%= statusLabel %></span>
+                </div>
+                <div class="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-secondary">
+                  <span>Start: BD <%= startPrice.toFixed(2) %></span>
+                  <% if (hasBids) { %><span class="text-on-surface font-semibold">Top Bid: BD <%= topBid.toFixed(2) %></span><% } %>
+                  <span><%= a.bid_count || 0 %> bids</span>
+                </div>
+                <p class="mt-1 text-xs text-secondary">Ends: <%= new Date(a.end_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></p>
+                <div class="mt-2 flex gap-2">
+                  <a href="/auctions/<%= a.id %>" class="px-3 py-1.5 rounded-md text-xs font-medium bg-surface-container-low text-on-surface" style="text-decoration:none;">View</a>
+                  <% if (a.status === 'active' || a.status === 'pending' || a.status === 'awaiting_approval') { %>
+                    <form action="/artisan/auctions/<%= a.id %>/cancel" method="POST" style="margin:0;" data-confirm="Cancel this auction? This action cannot be undone.">
+                      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                      <button type="submit" style="background:#fee2e2; color:#dc2626; border:none; padding:0.375rem 0.75rem; border-radius:0.375rem; font-size:0.75rem; font-weight:500; cursor:pointer;">Cancel</button>
+                    </form>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+
+            <!-- Desktop Row -->
+            <div class="hidden md:grid px-6 py-4 border-b items-center hover:bg-surface-bright transition-colors"
+                 style="grid-template-columns: 2.4fr 8rem 8rem 5rem 8rem 8rem 10rem; border-color:rgba(134,116,97,0.06);">
+
+              <!-- Auction name & date -->
+              <div class="flex items-center gap-3 min-w-0 pr-3">
+                <div class="w-11 h-11 rounded-lg overflow-hidden shrink-0" style="background:#eceef0;">
+                  <img src="<%= a.image %>"
+                       alt="<%= aName %>"
+                       class="w-full h-full object-cover"
+                       onerror="this.src='/images/placeholder-product.jpg'">
+                </div>
+                <div class="min-w-0">
+                  <a href="/auctions/<%= a.id %>" class="font-body font-semibold text-on-surface hover:text-primary transition-colors text-sm block truncate" style="text-decoration:none;">
+                    <%= aName %>
+                  </a>
+                  <span class="font-body text-xs text-secondary">
+                    <%= new Date(a.created_at || a.start_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Start Price -->
+              <div class="font-body text-sm text-on-surface">BD <%= startPrice.toFixed(2) %></div>
+
+              <!-- Top Bid -->
+              <div class="font-body text-sm <%= hasBids ? 'font-semibold text-on-surface' : 'text-secondary' %>">
+                <%= hasBids ? 'BD ' + topBid.toFixed(2) : '—' %>
+              </div>
+
+              <!-- Bid count -->
+              <div class="font-body text-sm text-on-surface"><%= a.bid_count || 0 %></div>
+
+              <!-- Status badge -->
+              <div class="flex items-center">
+                <span style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600; white-space:nowrap; background:<%= badgeBg %>; color:<%= badgeColor %>; letter-spacing:0.02em;">
+                  <span style="width:6px; height:6px; border-radius:50%; background:<%= dotColor %>; margin-right:6px; flex-shrink:0;"></span>
+                  <%= statusLabel %>
+                </span>
+              </div>
+
+              <!-- End time -->
+              <div class="font-body text-sm text-secondary">
+                <%= new Date(a.end_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex justify-end items-center gap-1">
+                <!-- View on public auction page -->
+                <a href="/auctions/<%= a.id %>"
+                   class="p-2 text-secondary hover:text-primary transition-colors rounded-md hover:bg-surface-container"
+                   title="View Auction" style="text-decoration:none;">
+                  <span class="material-symbols-outlined" style="font-size:1.25rem;">visibility</span>
+                </a>
+
+                <% if (a.status === 'active' || a.status === 'pending' || a.status === 'awaiting_approval') { %>
+                  <form action="/artisan/auctions/<%= a.id %>/cancel" method="POST" style="margin:0; display:inline;" data-confirm="Cancel this auction? This action cannot be undone.">
+                    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                    <button type="submit"
+                            class="flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+                            style="background:#fee2e2; color:#dc2626; border:none; cursor:pointer; white-space:nowrap;"
+                            title="Cancel Auction">
+                      <span class="material-symbols-outlined" style="font-size:1rem;">cancel</span>
+                      Cancel
+                    </button>
+                  </form>
+                <% } %>
+              </div>
+
+            </div>
+            <% }); %>
+          <% } else { %>
+            <div class="py-16 text-center">
+              <span class="material-symbols-outlined text-5xl text-secondary/40">gavel</span>
+              <p class="text-secondary mt-3 font-body">No auctions found.</p>
+              <% if (filters.status !== 'all' || filters.search) { %>
+                <a href="/artisan/auctions" class="mt-3 inline-block text-primary text-sm font-medium hover:underline">Clear filters</a>
+              <% } else { %>
+                <a href="/artisan/auctions/new" class="mt-3 inline-block text-primary text-sm font-medium hover:underline">Create your first auction</a>
+              <% } %>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Pagination Footer -->
+        <div class="p-4 border-t flex justify-between items-center" style="border-color:rgba(134,116,97,0.08); background:#f7f9fb;">
+          <span class="font-body text-sm text-secondary">
+            <% if (pagination.totalAuctions === 0) { %>
+              No auctions
+            <% } else { %>
+              Showing <%= pagination.offset + 1 %>–<%= Math.min(pagination.offset + pagination.perPage, pagination.totalAuctions) %> of <%= pagination.totalAuctions %> auctions
+            <% } %>
+          </span>
+
+          <% if (pagination.totalPages > 1) { %>
+            <%
+              const statusParam = filters.status && filters.status !== 'all' ? 'status=' + filters.status + '&' : '';
+              const searchParam = filters.search ? 'search=' + encodeURIComponent(filters.search) + '&' : '';
+              const baseParams  = statusParam + searchParam;
+              const startPage   = Math.max(1, pagination.currentPage - 2);
+              const endPage     = Math.min(pagination.totalPages, pagination.currentPage + 2);
+            %>
+            <div class="flex gap-1 items-center">
+              <a href="/artisan/auctions?<%= baseParams %>page=<%= pagination.currentPage - 1 %>"
+                 class="p-1 rounded text-secondary hover:bg-surface-container <%= pagination.currentPage <= 1 ? 'opacity-40 pointer-events-none' : '' %>" style="text-decoration:none;">
+                <span class="material-symbols-outlined text-sm">chevron_left</span>
+              </a>
+              <% for (let p = startPage; p <= endPage; p++) { %>
+                <a href="/artisan/auctions?<%= baseParams %>page=<%= p %>"
+                   class="w-7 h-7 rounded font-medium text-sm flex items-center justify-center"
+                   style="text-decoration:none; <%= p === pagination.currentPage ? 'background:#e6e8ea; color:#191c1e;' : 'color:#545f73;' %>">
+                  <%= p %>
+                </a>
+              <% } %>
+              <a href="/artisan/auctions?<%= baseParams %>page=<%= pagination.currentPage + 1 %>"
+                 class="p-1 rounded text-secondary hover:bg-surface-container <%= pagination.currentPage >= pagination.totalPages ? 'opacity-40 pointer-events-none' : '' %>" style="text-decoration:none;">
+                <span class="material-symbols-outlined text-sm">chevron_right</span>
+              </a>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+    </div>
   </main>
 </div>
 
 <%- include('../partials/footer') %>
+

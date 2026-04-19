@@ -2,7 +2,7 @@
 
 <main class="flex-grow min-h-screen">
 <%
-  const profileName = userProfile && userProfile.name ? userProfile.name : 'Artisan User';
+  const profileName = userProfile && userProfile.name ? userProfile.name : 'User';
   const profileEmail = userProfile && userProfile.email ? userProfile.email : '';
   const profilePhone = userProfile && userProfile.phone ? userProfile.phone : '';
   const profileAddress = userProfile && userProfile.shipping_address ? userProfile.shipping_address : '';
@@ -17,6 +17,12 @@
 
   const isArtisan = roleSource === 'artisan';
   const isAdmin = roleSource === 'admin';
+
+  // Shop info from artisan profile
+  const shopName = artisanProfile && artisanProfile.shop_name ? artisanProfile.shop_name : '';
+  const shopBio = artisanProfile && artisanProfile.bio ? artisanProfile.bio : '';
+  const shopReturnPolicy = artisanProfile && artisanProfile.return_policy ? artisanProfile.return_policy : '';
+  const shopImage = artisanProfile && artisanProfile.profile_image ? artisanProfile.profile_image : '/images/placeholder-product.jpg';
 
   const accountLinks = [
     { href: '/user/profile', icon: 'account_circle', label: 'Profile' },
@@ -43,7 +49,7 @@
   <div class="flex gap-8 lg:gap-12">
     <aside class="hidden md:flex md:w-72 lg:w-80 flex-col pt-4 pb-8 space-y-4 self-start sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto">
       <div class="px-5 mb-6">
-        <h2 class="text-2xl font-headline font-bold text-on-surface">The Collector's Atelier</h2>
+        <h2 class="text-2xl font-headline font-bold text-on-surface"><%= isArtisan && shopName ? shopName : 'My Account' %></h2>
         <p class="font-label text-[10px] tracking-[0.16em] uppercase text-secondary mt-1">Member since <%= joinedYear %></p>
       </div>
 
@@ -77,6 +83,7 @@
         </div>
       </div>
 
+      <!-- Personal Information Section -->
       <form action="/user/profile?_csrf=<%= typeof csrfToken !== 'undefined' ? encodeURIComponent(csrfToken) : '' %>" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 xl:grid-cols-12 gap-8">
         <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
 
@@ -105,8 +112,8 @@
               >
             </div>
             <div class="rounded-xl bg-surface-container-low p-4 text-left">
-              <p class="text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold mb-1">Profile Focus</p>
-              <p class="text-sm text-on-surface">Personal information, shipping defaults, and account security.</p>
+              <p class="text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold mb-1">Personal Info</p>
+              <p class="text-sm text-on-surface">Name, phone, shipping defaults and account security.</p>
             </div>
           </div>
         </aside>
@@ -143,6 +150,7 @@
                   class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
                 >
               </div>
+              <% if (!isArtisan) { %>
               <div class="md:col-span-2 rounded-2xl border border-outline-variant/25 bg-surface-container-low p-5 space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Shipping Address</label>
@@ -160,36 +168,19 @@
                   </div>
                   <div class="space-y-2">
                     <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Postal Code</label>
-                    <input
-                      type="text"
-                      name="postal_code"
-                      value="<%= profilePostalCode %>"
-                      class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
-                      placeholder="12345"
-                    >
+                    <input type="text" name="postal_code" value="<%= profilePostalCode %>" class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all" placeholder="12345">
                   </div>
                   <div class="space-y-2">
                     <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">City</label>
-                    <input
-                      type="text"
-                      name="city"
-                      value="<%= profileCity %>"
-                      class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
-                      placeholder="Manama"
-                    >
+                    <input type="text" name="city" value="<%= profileCity %>" class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all" placeholder="Manama">
                   </div>
                   <div class="space-y-2">
                     <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Country</label>
-                    <input
-                      type="text"
-                      name="country"
-                      value="<%= profileCountry %>"
-                      class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
-                      placeholder="Bahrain"
-                    >
+                    <input type="text" name="country" value="<%= profileCountry %>" class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all" placeholder="Bahrain">
                   </div>
                 </div>
               </div>
+              <% } %>
             </div>
             <div class="flex justify-end">
               <button type="submit" class="bg-primary-container text-on-primary-container px-8 py-3 rounded-xl font-bold text-sm tracking-wide hover:brightness-105 active:scale-95 transition-all">
@@ -198,6 +189,7 @@
             </div>
           </div>
 
+          <!-- Change Password -->
           <div class="bg-surface-container-lowest rounded-xl p-8 md:p-10">
             <div class="flex items-center gap-3 mb-8">
               <span class="material-symbols-outlined text-primary">lock_reset</span>
@@ -208,32 +200,16 @@
               <div class="space-y-6 mb-8">
                 <div class="space-y-2">
                   <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Current Password</label>
-                  <input
-                    type="password"
-                    name="current_password"
-                    class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
-                    required
-                  >
+                  <input type="password" name="current_password" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all" required>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div class="space-y-2">
                     <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">New Password</label>
-                    <input
-                      type="password"
-                      name="new_password"
-                      minlength="6"
-                      class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
-                      required
-                    >
+                    <input type="password" name="new_password" minlength="6" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all" required>
                   </div>
                   <div class="space-y-2">
                     <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Confirm New Password</label>
-                    <input
-                      type="password"
-                      name="confirm_password"
-                      class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
-                      required
-                    >
+                    <input type="password" name="confirm_password" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all" required>
                   </div>
                 </div>
               </div>
@@ -246,6 +222,98 @@
           </div>
         </div>
       </form>
+
+      <!-- Shop Info Section (Artisans only) -->
+      <% if (isArtisan && artisanProfile) { %>
+      <div class="border-t border-outline-variant/20 pt-10">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="material-symbols-outlined text-primary text-2xl">storefront</span>
+          <div>
+            <h2 class="font-headline text-2xl font-bold text-on-surface">Shop Info</h2>
+            <p class="text-secondary text-sm">Manage your shop's public profile and branding.</p>
+          </div>
+        </div>
+
+        <form action="/user/shop-profile?_csrf=<%= typeof csrfToken !== 'undefined' ? encodeURIComponent(csrfToken) : '' %>" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+
+          <aside class="xl:col-span-4">
+            <div class="bg-surface-container-lowest rounded-xl p-8 text-center space-y-5">
+              <div class="relative mx-auto w-40 h-40 rounded-xl overflow-hidden border-4 border-surface-container-high bg-surface-container-low">
+                <img
+                  src="<%= shopImage %>"
+                  alt="Shop Image"
+                  class="w-full h-full object-cover"
+                  onerror="this.onerror=null;this.src='/images/placeholder-product.jpg'"
+                >
+              </div>
+              <div>
+                <h2 class="font-headline text-xl font-bold text-on-surface"><%= shopName || 'Your Shop' %></h2>
+                <p class="text-secondary text-xs uppercase tracking-widest font-label font-semibold mt-1">Shop Profile</p>
+              </div>
+              <div class="text-left">
+                <label for="shop_image" class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold mb-2">Shop Image</label>
+                <input
+                  id="shop_image"
+                  type="file"
+                  name="shop_image"
+                  accept="image/jpeg,image/png,image/webp"
+                  class="w-full bg-surface-container-low border-none rounded-xl px-3 py-2 text-sm text-on-surface focus:ring-0"
+                >
+              </div>
+              <div class="rounded-xl bg-surface-container-low p-4 text-left">
+                <p class="text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold mb-1">Shown on</p>
+                <p class="text-sm text-on-surface">Your public artisan shop page and product listings.</p>
+              </div>
+            </div>
+          </aside>
+
+          <div class="xl:col-span-8">
+            <div class="bg-surface-container-lowest rounded-xl p-8 md:p-10 space-y-6">
+              <h2 class="font-headline text-2xl font-bold text-on-surface mb-2">Shop Details</h2>
+
+              <div class="space-y-2">
+                <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Shop Name</label>
+                <input
+                  type="text"
+                  name="shop_name"
+                  value="<%= shopName %>"
+                  class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
+                  placeholder="Your shop name"
+                >
+              </div>
+
+              <div class="space-y-2">
+                <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Bio</label>
+                <textarea
+                  name="bio"
+                  rows="4"
+                  class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all resize-none"
+                  placeholder="Tell customers about your craft and story..."
+                ><%= shopBio %></textarea>
+              </div>
+
+              <div class="space-y-2">
+                <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Return Policy</label>
+                <textarea
+                  name="return_policy"
+                  rows="3"
+                  class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all resize-none"
+                  placeholder="Describe your return and refund policy..."
+                ><%= shopReturnPolicy %></textarea>
+              </div>
+
+              <div class="flex justify-end">
+                <button type="submit" class="bg-primary-container text-on-primary-container px-8 py-3 rounded-xl font-bold text-sm tracking-wide hover:brightness-105 active:scale-95 transition-all">
+                  Save Shop Info
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <% } %>
+
     </div>
   </div>
 </section>

@@ -1,74 +1,328 @@
 <%- include('../partials/header', { title: title }) %>
 
-<%
-  const orderStatusClass = function(status) {
-    if (status === 'delivered') return 'bg-emerald-100 text-emerald-700';
-    if (status === 'cancelled' || status === 'refunded') return 'bg-red-100 text-red-700';
-    if (status === 'shipped' || status === 'processing') return 'bg-blue-100 text-blue-700';
-    return 'bg-amber-100 text-amber-700';
-  };
-%>
-
 <div class="flex bg-surface min-h-screen">
   <%- include('./partials/sidebar') %>
 
-  <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
-    <%- include('./partials/topbar') %>
+  <main class="flex-1 min-h-screen pb-24 md:pb-0 flex flex-col">
+    <div class="p-6 md:p-8 lg:p-10 max-w-7xl mx-auto w-full space-y-8">
 
-    <section class="max-w-7xl mx-auto mt-8 mb-6">
-      <span class="font-label text-xs tracking-[0.2em] text-primary font-semibold uppercase">Artisan Studio</span>
-      <h1 class="font-headline text-3xl text-on-surface mt-2">Order Queue</h1>
-      <p class="text-secondary mt-1">Fulfill recent customer orders quickly and accurately.</p>
-    </section>
+      <!-- Page Header -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div class="space-y-1">
+          <h1 class="font-headline text-3xl font-semibold text-on-surface tracking-tight">Order Queue</h1>
+          <p class="font-body text-secondary text-sm">Manage your active production and fulfillment workflow.</p>
+        </div>
+      </div>
 
-    <section class="max-w-7xl mx-auto bg-surface-container-lowest rounded-xl overflow-hidden">
-      <% if (orders && orders.length > 0) { %>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="text-[10px] font-bold text-secondary uppercase tracking-widest border-b border-surface-container-high">
-                <th class="px-6 py-4">Order</th>
-                <th class="px-6 py-4">Customer</th>
-                <th class="px-6 py-4">Total</th>
-                <th class="px-6 py-4">Status</th>
-                <th class="px-6 py-4">Date</th>
-                <th class="px-6 py-4 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-surface-container-high/50">
-              <% orders.forEach(function(o) { %>
-                <tr class="hover:bg-surface-container-low/20 transition-colors">
-                  <td class="px-6 py-5 text-sm font-semibold text-on-surface">#ORD-<%= String(o.id).padStart(4, '0') %></td>
-                  <td class="px-6 py-5 text-sm text-on-surface"><%= o.customer_name %></td>
-                  <td class="px-6 py-5 text-sm text-on-surface">$<%= Number(o.total_amount || 0).toFixed(2) %></td>
-                  <td class="px-6 py-5">
-                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest <%= orderStatusClass(o.status) %>"><%= o.status %></span>
-                  </td>
-                  <td class="px-6 py-5 text-sm text-secondary"><%= new Date(o.created_at).toLocaleDateString() %></td>
-                  <td class="px-6 py-5 text-right">
-                    <div class="inline-flex gap-2">
-                      <a href="/artisan/orders/<%= o.id %>" class="bg-surface-container-high text-on-surface hover:bg-surface-container-highest px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">View</a>
-                      <% if (['confirmed', 'processing'].indexOf(o.status) >= 0) { %>
-                        <form action="/artisan/orders/<%= o.id %>/status" method="POST" class="inline-block">
-                          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                          <input type="hidden" name="status" value="shipped">
-                          <button class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Ship</button>
-                        </form>
-                      <% } %>
-                    </div>
-                  </td>
-                </tr>
-              <% }); %>
-            </tbody>
-          </table>
-        </div>
-      <% } else { %>
-        <div class="py-14 text-center">
-          <span class="material-symbols-outlined text-5xl text-secondary/60">shopping_bag</span>
-          <p class="text-secondary mt-3">No orders yet.</p>
-        </div>
+      <!-- Flash Messages -->
+      <% if (typeof success_msg !== 'undefined' && success_msg && success_msg.length > 0) { %>
+        <div style="background:#f0fdf4; border:1px solid #bbf7d0; color:#15803d; padding:0.75rem 1rem; border-radius:0.5rem; font-size:0.875rem;"><%= success_msg %></div>
       <% } %>
-    </section>
+      <% if (typeof error_msg !== 'undefined' && error_msg && error_msg.length > 0) { %>
+        <div style="background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; padding:0.75rem 1rem; border-radius:0.5rem; font-size:0.875rem;"><%= error_msg %></div>
+      <% } %>
+
+      <!-- Stat Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20 flex flex-col gap-4" style="box-shadow:0 4px 20px rgba(25,28,30,0.03);">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:rgba(188,199,222,0.3); color:#545f73;">
+              <span class="material-symbols-outlined">pending_actions</span>
+            </div>
+            <h3 class="font-label text-sm uppercase tracking-widest text-secondary font-medium">Total Pending</h3>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="font-headline text-4xl font-semibold text-on-surface"><%= stats.totalPending %></span>
+            <span class="font-body text-sm text-secondary">orders</span>
+          </div>
+        </div>
+
+        <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20 flex flex-col gap-4 relative overflow-hidden" style="box-shadow:0 4px 20px rgba(25,28,30,0.03);">
+          <div class="flex items-center gap-3 relative z-10">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:rgba(245,158,11,0.15); color:#855300;">
+              <span class="material-symbols-outlined">precision_manufacturing</span>
+            </div>
+            <h3 class="font-label text-sm uppercase tracking-widest text-secondary font-medium">In Production</h3>
+          </div>
+          <div class="flex items-baseline gap-2 relative z-10">
+            <span class="font-headline text-4xl font-semibold text-on-surface"><%= stats.inProduction %></span>
+            <span class="font-body text-sm text-secondary">orders</span>
+          </div>
+        </div>
+
+        <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20 flex flex-col gap-4" style="box-shadow:0 4px 20px rgba(25,28,30,0.03);">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:rgba(176,45,41,0.1); color:#b02d29;">
+              <span class="material-symbols-outlined">local_shipping</span>
+            </div>
+            <h3 class="font-label text-sm uppercase tracking-widest text-secondary font-medium">Ready to Ship</h3>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="font-headline text-4xl font-semibold text-on-surface"><%= stats.readyToShip %></span>
+            <span class="font-body text-sm text-secondary">orders</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Table -->
+      <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 overflow-hidden flex flex-col" style="box-shadow:0 8px 30px rgba(25,28,30,0.04);">
+
+        <!-- Filter Tabs -->
+        <div class="p-5 border-b flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center" style="border-color:rgba(134,116,97,0.08); background:#f7f9fb;">
+          <%
+            const tabs = [
+              { label: 'All',           value: 'all' },
+              { label: 'New',           value: 'new' },
+              { label: 'In Production', value: 'in_production' },
+              { label: 'Ready',         value: 'ready' },
+              { label: 'Shipped',       value: 'shipped' }
+            ];
+          %>
+          <div class="flex flex-wrap gap-2">
+            <% tabs.forEach(function(tab) {
+                 const sp = filters.search ? '&search=' + encodeURIComponent(filters.search) : '';
+                 const isActive = filters.status === tab.value;
+            %>
+              <a href="/artisan/orders?status=<%= tab.value %><%= sp %>"
+                 style="<%= isActive ? 'background:#e6e8ea; color:#191c1e; font-weight:600;' : 'color:#545f73;' %> padding:0.5rem 1rem; border-radius:0.5rem; font-size:0.875rem; text-decoration:none; transition:background 0.15s;">
+                <%= tab.label %>
+              </a>
+            <% }); %>
+          </div>
+
+          <form id="searchForm" action="/artisan/orders" method="GET"
+                class="flex items-center rounded-lg px-3 py-2 w-full lg:w-auto" style="background:#f7f9fb; border:1px solid rgba(134,116,97,0.15);">
+            <% if (filters.status && filters.status !== 'all') { %>
+              <input type="hidden" name="status" value="<%= filters.status %>">
+            <% } %>
+            <span class="material-symbols-outlined text-secondary text-sm mr-2">search</span>
+            <input id="searchInput" class="bg-transparent border-none text-sm font-body text-on-surface placeholder:text-secondary focus:ring-0 w-full lg:w-52 p-0"
+                   name="search" placeholder="Search ID, Customer..." type="text" value="<%= filters.search %>"/>
+          </form>
+        </div>
+
+        <!-- Table -->
+        <div class="flex flex-col">
+          <!-- Column Headers -->
+          <div class="hidden md:grid px-6 py-3 border-b" style="grid-template-columns: 9rem 1fr 1.8fr 8rem 10rem; background:rgba(236,238,240,0.5); border-color:rgba(134,116,97,0.08);">
+            <div class="font-label text-xs uppercase tracking-widest text-secondary font-medium">Order</div>
+            <div class="font-label text-xs uppercase tracking-widest text-secondary font-medium">Customer</div>
+            <div class="font-label text-xs uppercase tracking-widest text-secondary font-medium">Product</div>
+            <div class="font-label text-xs uppercase tracking-widest text-secondary font-medium">Status</div>
+            <div class="font-label text-xs uppercase tracking-widest text-secondary font-medium text-right">Actions</div>
+          </div>
+
+          <% if (orders && orders.length > 0) { %>
+            <%
+              orders.forEach(function(o, idx) {
+                let statusLabel, badgeBg, badgeColor, dotColor;
+                if (o.status === 'pending' || o.status === 'confirmed') {
+                  statusLabel = 'New';
+                  badgeBg = '#fef3c7'; badgeColor = '#d97706'; dotColor = '#f59e0b';
+                } else if (o.status === 'processing') {
+                  statusLabel = 'In Production';
+                  badgeBg = '#dbeafe'; badgeColor = '#2563eb'; dotColor = '#3b82f6';
+                } else if (o.status === 'ready') {
+                  statusLabel = 'Ready';
+                  badgeBg = '#dcfce7'; badgeColor = '#16a34a'; dotColor = '#22c55e';
+                } else if (o.status === 'shipped') {
+                  statusLabel = 'Shipped';
+                  badgeBg = '#f3e8ff'; badgeColor = '#9333ea'; dotColor = '#a855f7';
+                } else if (o.status === 'delivered') {
+                  statusLabel = 'Delivered';
+                  badgeBg = '#d1fae5'; badgeColor = '#059669'; dotColor = '#10b981';
+                } else if (o.status === 'cancelled') {
+                  statusLabel = 'Cancelled';
+                  badgeBg = '#fee2e2'; badgeColor = '#dc2626'; dotColor = '#ef4444';
+                } else {
+                  statusLabel = o.status.charAt(0).toUpperCase() + o.status.slice(1);
+                  badgeBg = '#f1f5f9'; badgeColor = '#64748b'; dotColor = '#94a3b8';
+                }
+                const initials = o.customer_name
+                  ? o.customer_name.split(' ').map(function(n){ return n[0]; }).join('').toUpperCase().slice(0, 2)
+                  : '??';
+
+                // Determine the next action
+                let nextStatus = null;
+                let nextLabel = '';
+                let nextIcon = '';
+                if (o.status === 'pending' || o.status === 'confirmed') {
+                  nextStatus = 'processing'; nextLabel = 'Start Production'; nextIcon = 'precision_manufacturing';
+                } else if (o.status === 'processing') {
+                  nextStatus = 'ready'; nextLabel = 'Mark Ready'; nextIcon = 'check_circle';
+                }
+            %>
+            <!-- Mobile Card -->
+            <div class="md:hidden px-4 py-4 border-b" style="border-color:rgba(134,116,97,0.06);">
+              <div class="flex items-start justify-between gap-2 mb-2">
+                <div>
+                  <a href="/artisan/orders/<%= o.id %>" class="font-semibold text-sm text-on-surface hover:text-primary" style="text-decoration:none;">#ORD-<%= String(o.id).padStart(4, '0') %></a>
+                  <p class="text-xs text-secondary mt-0.5"><%= new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></p>
+                </div>
+                <span style="display:inline-flex; align-items:center; padding:3px 8px; border-radius:6px; font-size:10px; font-weight:600; white-space:nowrap; background:<%= badgeBg %>; color:<%= badgeColor %>;"><%= statusLabel %></span>
+              </div>
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-11 h-11 rounded-lg overflow-hidden shrink-0" style="background:#eceef0;">
+                  <img src="<%= o.product_image %>" alt="<%= o.product_name || 'Product' %>" class="w-full h-full object-cover" onerror="this.src='/images/placeholder-product.jpg'">
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-on-surface"><%= o.product_name || 'Custom Order' %></p>
+                  <p class="text-xs text-secondary"><%= o.customer_name %></p>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <a href="/user/messages/<%= o.user_id %>" class="p-1.5 text-secondary bg-surface-container-low rounded-lg"><span class="material-symbols-outlined text-base">chat</span></a>
+                <% if (nextStatus) { %>
+                  <form action="/artisan/orders/<%= o.id %>/status" method="POST" style="margin:0;">
+                    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                    <input type="hidden" name="status" value="<%= nextStatus %>">
+                    <button type="submit" style="background:#f59e0b; color:#fff; border:none; padding:0.375rem 0.75rem; border-radius:0.375rem; font-size:0.75rem; font-weight:500; cursor:pointer;"><%= nextLabel %></button>
+                  </form>
+                <% } else if (o.status === 'ready') { %>
+                  <a href="/artisan/orders/<%= o.id %>" style="background:#059669; color:#fff; padding:0.375rem 0.75rem; border-radius:0.375rem; font-size:0.75rem; font-weight:500; text-decoration:none;">Ship Order</a>
+                <% } else { %>
+                  <a href="/artisan/orders/<%= o.id %>" class="p-1.5 text-secondary bg-surface-container-low rounded-lg" style="text-decoration:none;"><span class="material-symbols-outlined text-base">visibility</span></a>
+                <% } %>
+              </div>
+            </div>
+
+            <!-- Desktop Row -->
+            <div class="hidden md:grid px-6 py-4 border-b items-center hover:bg-surface-bright transition-colors"
+                 style="grid-template-columns: 9rem 1fr 1.8fr 8rem 10rem; border-color:rgba(134,116,97,0.06);">
+
+              <!-- Order & Date -->
+              <div class="flex flex-col gap-0.5">
+                <a href="/artisan/orders/<%= o.id %>"
+                   class="font-body font-semibold text-on-surface hover:text-primary transition-colors text-sm" style="text-decoration:none;">
+                  #ORD-<%= String(o.id).padStart(4, '0') %>
+                </a>
+                <span class="font-body text-xs text-secondary">
+                  <%= new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                </span>
+              </div>
+
+              <!-- Customer -->
+              <div class="flex items-center gap-2 min-w-0 pr-3">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0" style="background:#d5e0f8; color:#3c475a;">
+                  <%= initials %>
+                </div>
+                <span class="font-body text-sm font-medium text-on-surface truncate"><%= o.customer_name %></span>
+              </div>
+
+              <!-- Product -->
+              <div class="flex items-center gap-3 min-w-0 pr-3">
+                <div class="w-11 h-11 rounded-lg overflow-hidden shrink-0" style="background:#eceef0;">
+                  <img src="<%= o.product_image %>"
+                       alt="<%= o.product_name || 'Product' %>"
+                       class="w-full h-full object-cover"
+                       onerror="this.src='/images/placeholder-product.jpg'">
+                </div>
+                <div class="min-w-0">
+                  <span class="font-body text-sm text-on-surface leading-snug block truncate"><%= o.product_name || 'Custom Order' %></span>
+                  <span class="font-body text-xs text-secondary"><%= o.customer_name %></span>
+                </div>
+              </div>
+
+              <!-- Status -->
+              <div class="flex items-center">
+                <span style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600; white-space:nowrap; background:<%= badgeBg %>; color:<%= badgeColor %>; letter-spacing:0.02em;">
+                  <span style="width:6px; height:6px; border-radius:50%; background:<%= dotColor %>; margin-right:6px; flex-shrink:0;"></span>
+                  <%= statusLabel %>
+                </span>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex justify-end items-center gap-1">
+                <!-- Message customer -->
+                <a href="/user/messages/<%= o.user_id %>"
+                   class="p-2 text-secondary hover:text-primary transition-colors rounded-md hover:bg-surface-container">
+                        <span class="material-symbols-outlined">chat</span>
+                    </a>
+
+                <% if (nextStatus) { %>
+                  <!-- Direct action: Start Production / Mark Ready -->
+                  <form action="/artisan/orders/<%= o.id %>/status" method="POST" style="margin:0; display:inline;">
+                    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                    <input type="hidden" name="status" value="<%= nextStatus %>">
+                    <button type="submit"
+                            class="flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+                            style="background:#f59e0b; color:#ffffff; border:none; cursor:pointer; white-space:nowrap;"
+                            title="<%= nextLabel %>">
+                      <span class="material-symbols-outlined" style="font-size:1rem;"><%= nextIcon %></span>
+                      <%= nextLabel %>
+                    </button>
+                  </form>
+                <% } else if (o.status === 'ready') { %>
+                  <!-- Ship Order link -->
+                  <a href="/artisan/orders/<%= o.id %>"
+                     class="flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+                     style="background:#059669; color:#ffffff; text-decoration:none; white-space:nowrap;"
+                     title="View details &amp; Ship">
+                    <span class="material-symbols-outlined" style="font-size:1rem;">local_shipping</span>
+                    Ship Order
+                  </a>
+                <% } else { %>
+                  <!-- View details -->
+                  <a href="/artisan/orders/<%= o.id %>"
+                     class="p-2 text-secondary hover:text-primary transition-colors rounded-md hover:bg-surface-container"
+                     title="View Order" style="text-decoration:none;">
+                    <span class="material-symbols-outlined" style="font-size:1.25rem;">visibility</span>
+                  </a>
+                <% } %>
+              </div>
+            </div>
+            <% }); %>
+          <% } else { %>
+            <div class="py-16 text-center">
+              <span class="material-symbols-outlined text-5xl text-secondary/40">inbox</span>
+              <p class="text-secondary mt-3 font-body">No orders found.</p>
+              <% if (filters.status !== 'all' || filters.search) { %>
+                <a href="/artisan/orders" class="mt-3 inline-block text-primary text-sm font-medium hover:underline">Clear filters</a>
+              <% } %>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Pagination Footer -->
+        <div class="p-4 border-t flex justify-between items-center" style="border-color:rgba(134,116,97,0.08); background:#f7f9fb;">
+          <span class="font-body text-sm text-secondary">
+            <% if (pagination.totalOrders === 0) { %>
+              No orders
+            <% } else { %>
+              Showing <%= pagination.offset + 1 %>–<%= Math.min(pagination.offset + pagination.perPage, pagination.totalOrders) %> of <%= pagination.totalOrders %> orders
+            <% } %>
+          </span>
+
+          <% if (pagination.totalPages > 1) { %>
+            <%
+              const statusParam = filters.status && filters.status !== 'all' ? 'status=' + filters.status + '&' : '';
+              const searchParam = filters.search ? 'search=' + encodeURIComponent(filters.search) + '&' : '';
+              const baseParams = statusParam + searchParam;
+              const startPage = Math.max(1, pagination.currentPage - 2);
+              const endPage   = Math.min(pagination.totalPages, pagination.currentPage + 2);
+            %>
+            <div class="flex gap-1 items-center">
+              <a href="/artisan/orders?<%= baseParams %>page=<%= pagination.currentPage - 1 %>"
+                 class="p-1 rounded text-secondary hover:bg-surface-container <%= pagination.currentPage <= 1 ? 'opacity-40 pointer-events-none' : '' %>" style="text-decoration:none;">
+                <span class="material-symbols-outlined text-sm">chevron_left</span>
+              </a>
+              <% for (let p = startPage; p <= endPage; p++) { %>
+                <a href="/artisan/orders?<%= baseParams %>page=<%= p %>"
+                   class="w-7 h-7 rounded font-medium text-sm flex items-center justify-center"
+                   style="text-decoration:none; <%= p === pagination.currentPage ? 'background:#e6e8ea; color:#191c1e;' : 'color:#545f73;' %>">
+                  <%= p %>
+                </a>
+              <% } %>
+              <a href="/artisan/orders?<%= baseParams %>page=<%= pagination.currentPage + 1 %>"
+                 class="p-1 rounded text-secondary hover:bg-surface-container <%= pagination.currentPage >= pagination.totalPages ? 'opacity-40 pointer-events-none' : '' %>" style="text-decoration:none;">
+                <span class="material-symbols-outlined text-sm">chevron_right</span>
+              </a>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+    </div>
   </main>
 </div>
 

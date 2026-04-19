@@ -5,6 +5,7 @@
     if (status === 'active') return 'bg-emerald-100 text-emerald-700';
     if (status === 'sold') return 'bg-primary-container text-on-primary-container';
     if (status === 'cancelled') return 'bg-red-100 text-red-700';
+    if (status === 'awaiting_approval') return 'bg-orange-100 text-orange-700';
     return 'bg-surface-container-high text-on-surface';
   };
 %>
@@ -30,6 +31,7 @@
           <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Status</label>
           <select name="status" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
             <option value="">All</option>
+            <option value="awaiting_approval" <%= statusFilter === 'awaiting_approval' ? 'selected' : '' %>>Awaiting Approval</option>
             <option value="pending" <%= statusFilter === 'pending' ? 'selected' : '' %>>Pending</option>
             <option value="active" <%= statusFilter === 'active' ? 'selected' : '' %>>Active</option>
             <option value="ended" <%= statusFilter === 'ended' ? 'selected' : '' %>>Ended</option>
@@ -76,7 +78,17 @@
                   </td>
                   <td class="px-6 py-5 text-sm text-secondary"><%= new Date(a.end_time).toLocaleString() %></td>
                   <td class="px-6 py-5 text-right">
-                    <% if (a.status === 'active' || a.status === 'pending') { %>
+                    <div class="flex justify-end gap-2">
+                    <% if (a.status === 'awaiting_approval') { %>
+                      <form action="/admin/auctions/<%= a.id %>/approve" method="POST" class="inline-block">
+                        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                        <button class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Approve</button>
+                      </form>
+                      <form action="/admin/auctions/<%= a.id %>/reject" method="POST" class="inline-block" data-confirm="Reject this auction?">
+                        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                        <button class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Reject</button>
+                      </form>
+                    <% } else if (a.status === 'active' || a.status === 'pending') { %>
                       <form action="/admin/auctions/<%= a.id %>/cancel" method="POST" class="inline-block" data-confirm="Cancel this auction?">
                         <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                         <button class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Cancel</button>
@@ -84,6 +96,7 @@
                     <% } else { %>
                       <span class="text-xs text-secondary">No action</span>
                     <% } %>
+                    </div>
                   </td>
                 </tr>
               <% }); %>

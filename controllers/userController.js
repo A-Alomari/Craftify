@@ -12,9 +12,14 @@ const { getSafeRedirect } = require('../utils/redirect');
 // Profile
 exports.profile = (req, res) => {
   const user = User.findById(req.session.user.id);
+  let artisanProfile = null;
+  if (user && user.role === 'artisan') {
+    artisanProfile = ArtisanProfile.findByUserId(req.session.user.id);
+  }
   res.render('user/profile', {
     title: 'My Profile - Craftify',
-    userProfile: user
+    userProfile: user,
+    artisanProfile
   });
 };
 
@@ -39,6 +44,23 @@ exports.updateProfile = async (req, res) => {
   } catch (err) {
     console.error('Update profile error:', err);
     req.flash('error_msg', 'Error updating profile');
+    res.redirect('/user/profile');
+  }
+};
+
+exports.updateShopProfile = async (req, res) => {
+  try {
+    const { shop_name, bio, return_policy } = req.body;
+    const updates = { shop_name, bio, return_policy };
+    if (req.file) {
+      updates.profile_image = `/uploads/${req.file.filename}`;
+    }
+    ArtisanProfile.update(req.session.user.id, updates);
+    req.flash('success_msg', 'Shop info updated successfully');
+    res.redirect('/user/profile');
+  } catch (err) {
+    console.error('Update shop profile error:', err);
+    req.flash('error_msg', 'Error updating shop info');
     res.redirect('/user/profile');
   }
 };

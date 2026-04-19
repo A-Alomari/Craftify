@@ -202,10 +202,21 @@ exports.updateProduct = (req, res) => {
     }
 
     let images = JSON.parse(product.images || '[]');
+
+    // Remove images the user deleted in the form
+    const deleteImages = [].concat(req.body.delete_images || []).filter(Boolean);
+    if (deleteImages.length > 0) {
+      images = images.filter(img => !deleteImages.includes(img));
+    }
+
+    // Append newly uploaded images
     if (req.files && req.files.length > 0) {
       const newImages = req.files.map(f => `/uploads/${f.filename}`);
       images = [...images, ...newImages];
     }
+
+    // Never exceed 5 images
+    images = images.slice(0, 5);
 
     const updatedProduct = Product.update(id, {
       name: sanitized.name,
@@ -260,11 +271,47 @@ exports.deleteProduct = (req, res) => {
 
 exports.orders = (req, res) => {
   try {
-    const orders = Order.findAll({ artisan_id: req.session.user.id });
+    const artisanId = req.session.user.id;
+    const profile = ArtisanProfile.findByUserId(artisanId);
+    const shopName = (profile && profile.shop_name) ? profile.shop_name : (req.session.user.name || 'Artisan Studio');
+    const { status, search, page } = req.query;
+    const perPage = 10;
+    const currentPage = Math.max(1, parseInt(page, 10) || 1);
+    const offset = (currentPage - 1) * perPage;
+
+    const activeStatus = status && status !== 'all' ? status : null;
+    const activeSearch = search ? search.trim() : '';
+
+    const queryFilters = { limit: perPage, offset };
+    if (activeStatus) queryFilters.status = activeStatus;
+    if (activeSearch) queryFilters.search = activeSearch;
+
+    const orders = Order.findAllByArtisan(artisanId, queryFilters);
+    const totalOrders = Order.countAllByArtisan(artisanId, queryFilters);
+
+    orders.forEach(o => {
+      try {
+        const imgs = JSON.parse(o.product_images || '[]');
+        o.product_image = (Array.isArray(imgs) && imgs.length > 0) ? imgs[0] : '/images/placeholder-product.jpg';
+      } catch (e) {
+        o.product_image = '/images/placeholder-product.jpg';
+      }
+    });
+
+    const totalPending = Order.count({ artisan_id: artisanId, status: 'pending' }) +
+                         Order.count({ artisan_id: artisanId, status: 'confirmed' });
+    const inProduction  = Order.count({ artisan_id: artisanId, status: 'processing' });
+    const readyToShip   = Order.count({ artisan_id: artisanId, status: 'ready' });
+
+    const totalPages = Math.max(1, Math.ceil(totalOrders / perPage));
 
     res.render('artisan/orders', {
-      title: 'Orders - Craftify',
-      orders
+      title: 'Order Queue - Craftify',
+      orders,
+      shopName,
+      stats: { totalPending, inProduction, readyToShip },
+      pagination: { currentPage, totalPages, totalOrders, perPage, offset },
+      filters: { status: status || 'all', search: activeSearch }
     });
   } catch (err) {
     console.error('Artisan orders error:', err);
@@ -314,7 +361,7 @@ exports.updateOrderStatus = (req, res) => {
     }
 
     const { status } = req.body;
-    const allowedStatuses = new Set(['processing', 'shipped', 'delivered']);
+    const allowedStatuses = new Set(['processing', 'ready', 'shipped', 'delivered']);
     if (!allowedStatuses.has(status)) {
       if (req.xhr) return res.status(400).json({ success: false, message: 'Invalid status' });
       req.flash('error_msg', 'Invalid status');
@@ -346,7 +393,26 @@ exports.updateOrderStatus = (req, res) => {
 
 exports.auctions = (req, res) => {
   try {
-    const auctions = Auction.findAll({ artisan_id: req.session.user.id });
+    const artisanId = req.session.user.id;
+    const profile = ArtisanProfile.findByUserId(artisanId);
+    const shopName = (profile && profile.shop_name) ? profile.shop_name : (req.session.user.name || 'Artisan Studio');
+
+    const { status, search, page } = req.query;
+    const perPage = 10;
+    const currentPage = Math.max(1, parseInt(page, 10) || 1);
+    const offset = (currentPage - 1) * perPage;
+
+    const activeStatus = status && status !== 'all' ? status : null;
+    const activeSearch = search ? search.trim() : '';
+
+    const queryFilters = { artisan_id: artisanId };
+    if (activeStatus) queryFilters.status = activeStatus;
+    if (activeSearch) queryFilters.search = activeSearch;
+
+    // Count total for pagination without limit/offset
+    const totalAuctions = Auction.findAll(queryFilters).length;
+
+    const auctions = Auction.findAll({ ...queryFilters, limit: perPage, offset });
 
     auctions.forEach(a => {
       // FIX: fall back to a.images for standalone auctions that have no linked product.
@@ -354,9 +420,21 @@ exports.auctions = (req, res) => {
       a.image = images[0] || '/images/placeholder-product.jpg';
     });
 
+    const activeCount    = Auction.count({ artisan_id: artisanId, status: 'active' });
+    const pendingCount   = Auction.count({ artisan_id: artisanId, status: 'pending' });
+    const soldCount      = Auction.count({ artisan_id: artisanId, status: 'sold' });
+    const endedCount     = Auction.count({ artisan_id: artisanId, status: 'ended' });
+    const awaitingCount  = Auction.count({ artisan_id: artisanId, status: 'awaiting_approval' });
+
+    const totalPages = Math.max(1, Math.ceil(totalAuctions / perPage));
+
     res.render('artisan/auctions', {
       title: 'My Auctions - Craftify',
-      auctions
+      auctions,
+      shopName,
+      stats: { activeCount, pendingCount, soldCount, endedCount, awaitingCount },
+      pagination: { currentPage, totalPages, totalAuctions, perPage, offset },
+      filters: { status: status || 'all', search: activeSearch }
     });
   } catch (err) {
     console.error('Artisan auctions error:', err);
@@ -413,8 +491,8 @@ exports.createAuction = (req, res) => {
       end_time
     });
 
-    req.flash('success_msg', 'Auction created successfully!');
-    res.redirect(`/auctions/${newAuction.id}`);
+    req.flash('success_msg', 'Auction submitted for admin review!');
+    res.redirect('/artisan/auctions');
   } catch (err) {
     console.error('Create auction error:', err);
     req.flash('error_msg', 'Error creating auction');
@@ -432,7 +510,7 @@ exports.cancelAuction = (req, res) => {
       return res.redirect('/artisan/auctions');
     }
 
-    if (auction.status !== 'pending' && auction.status !== 'active') {
+    if (auction.status !== 'pending' && auction.status !== 'active' && auction.status !== 'awaiting_approval') {
       req.flash('error_msg', 'Cannot cancel this auction');
       return res.redirect('/artisan/auctions');
     }
@@ -599,15 +677,27 @@ exports.deleteCoupon = (req, res) => {
 exports.analytics = (req, res) => {
   try {
     const artisanId = req.session.user.id;
+    const validPeriods = [7, 30, 90];
+    const days = validPeriods.includes(parseInt(req.query.period, 10))
+      ? parseInt(req.query.period, 10)
+      : 30;
+
     const stats = ArtisanProfile.getStats(artisanId);
-    const monthlyRevenue = Order.getMonthlyRevenueByArtisan(artisanId, 6);
-    const topProducts = Order.getTopProductsByArtisan(artisanId, 5);
+    const periodStats = Order.getStatsByPeriodForArtisan(artisanId, days);
+    const dailyRevenue = Order.getDailyRevenueByArtisan(artisanId, days);
+    const topProducts = Order.getTopProductsByArtisanWithImages(artisanId, 5);
+    const categoryBreakdown = Order.getSalesByCategoryByArtisan(artisanId, days);
+    const customerInsights = Order.getCustomerInsightsByArtisan(artisanId, days);
 
     res.render('artisan/analytics', {
       title: 'Analytics - Craftify',
       stats,
-      monthlyRevenue,
-      topProducts
+      periodStats,
+      dailyRevenue,
+      topProducts,
+      categoryBreakdown,
+      customerInsights,
+      selectedPeriod: days
     });
   } catch (err) {
     console.error('Analytics error:', err);
