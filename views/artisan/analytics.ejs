@@ -375,7 +375,7 @@
 
 <script>
 (function () {
-  const data = <%- JSON.stringify(dailyRevenue || []) %>;
+  const data = <%- JSON.stringify(dailyRevenue || []).replace(/<\//g, '<\\/') %>;
   if (!data.length) return;
 
   const wrapper  = document.getElementById('chart-wrapper');

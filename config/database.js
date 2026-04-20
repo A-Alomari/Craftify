@@ -92,7 +92,8 @@ const schema = `
     quantity INTEGER DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+    CHECK (user_id IS NOT NULL OR session_id IS NOT NULL)
   );
 
   CREATE TABLE IF NOT EXISTS orders (

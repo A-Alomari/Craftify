@@ -114,6 +114,55 @@ class Shipment {
       ORDER BY s.created_at DESC
     `).all(userId);
   }
+
+  // WHY: Background shipment simulation belongs in the model — not in server.js.
+  // io is injected so the method can emit socket events without importing server.js.
+  static advanceAll(io) {
+    const db = getDb();
+    const statusFlow = ['pending', 'processing', 'shipped', 'in_transit', 'delivered'];
+    const locations = [
+      'Manama Sorting Center', 'Riffa Distribution Hub', 'Muharraq Warehouse',
+      'Isa Town Depot', 'Hamad Town Facility', 'Local Delivery Station', 'Out for Delivery'
+    ];
+    const randomLocation = () => locations[Math.floor(Math.random() * locations.length)];
+
+    const shipments = db.prepare(
+      "SELECT * FROM shipments WHERE status NOT IN ('delivered', 'failed')"
+    ).all();
+
+    shipments.forEach(shipment => {
+      const currentIndex = statusFlow.indexOf(shipment.status);
+      if (currentIndex < statusFlow.length - 1 && Math.random() > 0.7) {
+        const newStatus = statusFlow[currentIndex + 1];
+        const history = JSON.parse(shipment.history || '[]');
+        history.push({ status: newStatus, timestamp: new Date().toISOString(), location: randomLocation() });
+
+        db.prepare(
+          'UPDATE shipments SET status = ?, history = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+        ).run(newStatus, JSON.stringify(history), shipment.id);
+
+        if (newStatus === 'shipped' || newStatus === 'delivered') {
+          db.prepare('UPDATE orders SET status = ? WHERE id = ?').run(newStatus, shipment.order_id);
+        }
+
+        const order = db.prepare('SELECT user_id FROM orders WHERE id = ?').get(shipment.order_id);
+        if (order) {
+          // Deduplicate: remove previous Shipment Update notification for same order
+          db.prepare(
+            "DELETE FROM notifications WHERE user_id = ? AND title = 'Shipment Update' AND link LIKE ?"
+          ).run(order.user_id, `/orders/${shipment.order_id}%`);
+          db.prepare(
+            "INSERT INTO notifications (user_id, title, message, type, link) VALUES (?, ?, ?, 'order', ?)"
+          ).run(
+            order.user_id,
+            'Shipment Update',
+            `Your order #${shipment.order_id} is now ${newStatus.replace('_', ' ')}`,
+            `/orders/${shipment.order_id}/track`
+          );
+        }
+      }
+    });
+  }
 }
 
 module.exports = Shipment;

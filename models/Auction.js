@@ -353,6 +353,62 @@ class Auction {
       sold: this.count({ status: 'sold' })
     };
   }
+
+  // WHY: Background auction-end logic belongs in the model, not server.js.
+  // io is injected so socket events can be emitted without coupling to the HTTP server.
+  static endExpiredAndActivatePending(io) {
+    const db = getDb();
+    const now = new Date().toISOString();
+
+    const endedAuctions = db.prepare(`
+      SELECT a.*, COALESCE(p.name, a.title) as product_name
+      FROM auctions a
+      LEFT JOIN products p ON a.product_id = p.id
+      WHERE a.status = 'active' AND a.end_time <= ?
+    `).all(now);
+
+    endedAuctions.forEach(auction => {
+      const auctionLabel = auction.product_name || auction.title || 'the item';
+
+      if (auction.winner_id) {
+        db.prepare("UPDATE auctions SET status = 'sold' WHERE id = ?").run(auction.id);
+        db.prepare(
+          "INSERT INTO notifications (user_id, title, message, type, link) VALUES (?, ?, ?, 'auction', ?)"
+        ).run(
+          auction.winner_id,
+          'Congratulations! You won!',
+          `You won the auction for "${auctionLabel}" with a bid of $${auction.current_highest_bid}`,
+          `/auctions/${auction.id}`
+        );
+      } else {
+        db.prepare("UPDATE auctions SET status = 'ended' WHERE id = ?").run(auction.id);
+      }
+
+      db.prepare(
+        "INSERT INTO notifications (user_id, title, message, type, link) VALUES (?, ?, ?, 'auction', ?)"
+      ).run(
+        auction.artisan_id,
+        'Auction Ended',
+        auction.winner_id
+          ? `Your auction for "${auctionLabel}" ended with winning bid of $${auction.current_highest_bid}`
+          : `Your auction for "${auctionLabel}" ended with no bids`,
+        `/artisan/auctions`
+      );
+
+      if (io) {
+        io.to(`auction-${auction.id}`).emit('auctionEnded', {
+          auctionId: auction.id,
+          winnerId: auction.winner_id,
+          winningBid: auction.current_highest_bid
+        });
+      }
+    });
+
+    // Activate pending auctions whose start_time has arrived
+    db.prepare(
+      "UPDATE auctions SET status = 'active' WHERE status = 'pending' AND start_time <= ? AND end_time > ?"
+    ).run(now, now);
+  }
 }
 
 module.exports = Auction;

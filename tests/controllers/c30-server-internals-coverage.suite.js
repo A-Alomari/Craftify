@@ -79,7 +79,7 @@ module.exports = () => {
               if (source.includes("req.path.startsWith('/api/')")) harness.csrfGateMiddleware = handler;
               if (source.includes('res.locals.csrfToken')) harness.csrfTokenMiddleware = handler;
               if (source.includes('res.locals.success_msg')) harness.globalLocalsMiddleware = handler;
-              if (source.includes('cart_items WHERE user_id')) harness.cartCountMiddleware = handler;
+              if (source.includes('Cart.getCount')) harness.cartCountMiddleware = handler;
               if (handler.length === 2 && source.includes("errors/404")) harness.notFoundMiddleware = handler;
               if (handler.length === 4 && source.includes('EBADCSRFTOKEN')) harness.errorMiddleware = handler;
             }

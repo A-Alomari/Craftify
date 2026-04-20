@@ -126,10 +126,10 @@
 <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-secondary mb-4">Place Your Bid</label>
 
 <% if (locals.error && (Array.isArray(locals.error) ? locals.error.length > 0 : String(locals.error).trim())) { %>
-    <div id="__flash_error" data-msg="<%- JSON.stringify(String(Array.isArray(locals.error)?locals.error[0]:locals.error)) %>" hidden></div>
+    <div id="__flash_error" data-msg="<%- JSON.stringify(String(Array.isArray(locals.error)?locals.error[0]:locals.error)).replace(/"/g,'&quot;') %>" hidden></div>
 <% } %>
 <% if (locals.success && (Array.isArray(locals.success) ? locals.success.length > 0 : String(locals.success).trim())) { %>
-    <div id="__flash_success" data-msg="<%- JSON.stringify(String(Array.isArray(locals.success)?locals.success[0]:locals.success)) %>" hidden></div>
+    <div id="__flash_success" data-msg="<%- JSON.stringify(String(Array.isArray(locals.success)?locals.success[0]:locals.success)).replace(/"/g,'&quot;') %>" hidden></div>
 <% } %>
 <script>
 document.addEventListener('DOMContentLoaded', function() {

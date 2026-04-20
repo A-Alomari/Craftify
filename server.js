@@ -197,20 +197,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// Cart count middleware
+// Cart count middleware — delegates to model methods (no raw SQL in server.js)
 app.use(async (req, res, next) => {
   try {
-    const db = getDb();
     if (req.session.user) {
-      const count = db.prepare('SELECT SUM(quantity) as count FROM cart_items WHERE user_id = ?').get(req.session.user.id);
-      res.locals.cartCount = count?.count || 0;
-      
-      // Notification count
-      const notifCount = db.prepare('SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = 0').get(req.session.user.id);
-      res.locals.notificationCount = notifCount?.count || 0;
+      res.locals.cartCount = Cart.getCount(req.session.user.id, null);
+      res.locals.notificationCount = Notification.getUnreadCount(req.session.user.id);
     } else if (req.sessionID) {
-      const count = db.prepare('SELECT SUM(quantity) as count FROM cart_items WHERE session_id = ?').get(req.sessionID);
-      res.locals.cartCount = count?.count || 0;
+      res.locals.cartCount = Cart.getCount(null, req.sessionID);
     }
   } catch (err) {
     if (!cartCountWarningLogged && !isTest) {
@@ -234,6 +228,8 @@ const userRoutes = require('./routes/user');
 const apiRoutes = require('./routes/api');
 const Auction = require('./models/Auction');
 const Notification = require('./models/Notification');
+const Cart = require('./models/Cart');
+const Shipment = require('./models/Shipment');
 
 app.use('/', homeRoutes);
 app.use('/auth', authRoutes);
@@ -351,7 +347,9 @@ io.on('connection', (socket) => {
       }
 
       const parsedAmount = Number.parseFloat(amount);
-      if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+      // WHY: Upper bound prevents absurdly large bid injection (e.g. Infinity or 999999999)
+      // that would lock out all real bidders and corrupt auction state.
+      if (!Number.isFinite(parsedAmount) || parsedAmount <= 0 || parsedAmount > 1_000_000) {
         socket.emit('bidError', { message: 'Invalid bid amount' });
         return;
       }
@@ -420,57 +418,11 @@ io.on('connection', (socket) => {
 
 // Background tasks
 function startBackgroundTasks() {
+  // WHY: SQL is now in the model layer. Server.js only orchestrates the interval timing.
   // Shipment status update simulation (runs every minute)
   setInterval(() => {
     try {
-      const db = getDb();
-      const shipments = db.prepare(`
-        SELECT * FROM shipments 
-        WHERE status NOT IN ('delivered', 'failed')
-      `).all();
-      
-      const statusFlow = ['pending', 'processing', 'shipped', 'in_transit', 'delivered'];
-      
-      shipments.forEach(shipment => {
-        const currentIndex = statusFlow.indexOf(shipment.status);
-        if (currentIndex < statusFlow.length - 1 && Math.random() > 0.7) {
-          const newStatus = statusFlow[currentIndex + 1];
-          const history = JSON.parse(shipment.history || '[]');
-          history.push({
-            status: newStatus,
-            timestamp: new Date().toISOString(),
-            location: getRandomLocation()
-          });
-          
-          db.prepare(`
-            UPDATE shipments 
-            SET status = ?, history = ?, updated_at = CURRENT_TIMESTAMP
-            WHERE id = ?
-          `).run(newStatus, JSON.stringify(history), shipment.id);
-          
-          // Update order status if shipped or delivered
-          if (newStatus === 'shipped' || newStatus === 'delivered') {
-            db.prepare('UPDATE orders SET status = ? WHERE id = ?').run(newStatus, shipment.order_id);
-          }
-          
-          // Create notification for customer
-          const order = db.prepare('SELECT user_id FROM orders WHERE id = ?').get(shipment.order_id);
-          if (order) {
-            // Deduplicate: remove previous Shipment Update for same order
-            db.prepare(`DELETE FROM notifications WHERE user_id = ? AND title = 'Shipment Update' AND link LIKE ?`)
-              .run(order.user_id, `/orders/${shipment.order_id}%`);
-            db.prepare(`
-              INSERT INTO notifications (user_id, title, message, type, link)
-              VALUES (?, ?, ?, 'order', ?)
-            `).run(
-              order.user_id,
-              'Shipment Update',
-              `Your order #${shipment.order_id} is now ${newStatus.replace('_', ' ')}`,
-              `/orders/${shipment.order_id}/track`
-            );
-          }
-        }
-      });
+      Shipment.advanceAll(io);
     } catch (err) {
       console.error('Shipment update error:', err);
     }
@@ -479,84 +431,11 @@ function startBackgroundTasks() {
   // Auction end check (runs every 30 seconds)
   setInterval(() => {
     try {
-      const db = getDb();
-      const now = new Date().toISOString();
-      
-      // FIX: Changed INNER JOIN to LEFT JOIN so standalone auctions (product_id = NULL)
-      // are also ended. COALESCE selects the product name or falls back to auction title.
-      const endedAuctions = db.prepare(`
-        SELECT a.*, COALESCE(p.name, a.title) as product_name
-        FROM auctions a
-        LEFT JOIN products p ON a.product_id = p.id
-        WHERE a.status = 'active' AND a.end_time <= ?
-      `).all(now);
-      
-      endedAuctions.forEach(auction => {
-        if (auction.winner_id) {
-          db.prepare("UPDATE auctions SET status = 'sold' WHERE id = ?").run(auction.id);
-          
-          // FIX: Use fallback label so standalone auctions still produce a meaningful message.
-          const auctionLabel = auction.product_name || auction.title || 'the item';
-          db.prepare(`
-            INSERT INTO notifications (user_id, title, message, type, link)
-            VALUES (?, ?, ?, 'auction', ?)
-          `).run(
-            auction.winner_id,
-            'Congratulations! You won!',
-            `You won the auction for "${auctionLabel}" with a bid of $${auction.current_highest_bid}`,
-            `/auctions/${auction.id}`
-          );
-        } else {
-          db.prepare("UPDATE auctions SET status = 'ended' WHERE id = ?").run(auction.id);
-        }
-        
-        // FIX: Use auctionLabel (already safe fallback set above) for artisan notification too.
-        // For auctions with no winner the label is computed here.
-        const artisanAuctionLabel = auction.product_name || auction.title || 'the item';
-        // Notify artisan
-        db.prepare(`
-          INSERT INTO notifications (user_id, title, message, type, link)
-          VALUES (?, ?, ?, 'auction', ?)
-        `).run(
-          auction.artisan_id,
-          'Auction Ended',
-          auction.winner_id
-            ? `Your auction for "${artisanAuctionLabel}" ended with winning bid of $${auction.current_highest_bid}`
-            : `Your auction for "${artisanAuctionLabel}" ended with no bids`,
-          `/artisan/auctions`
-        );
-        
-        // Emit socket event
-        io.to(`auction-${auction.id}`).emit('auctionEnded', {
-          auctionId: auction.id,
-          winnerId: auction.winner_id,
-          winningBid: auction.current_highest_bid
-        });
-      });
-      
-      // Activate pending auctions
-      db.prepare(`
-        UPDATE auctions SET status = 'active'
-        WHERE status = 'pending' AND start_time <= ? AND end_time > ?
-      `).run(now, now);
-      
+      Auction.endExpiredAndActivatePending(io);
     } catch (err) {
       console.error('Auction check error:', err);
     }
   }, 30000);
-}
-
-function getRandomLocation() {
-  const locations = [
-    'Manama Sorting Center',
-    'Riffa Distribution Hub',
-    'Muharraq Warehouse',
-    'Isa Town Depot',
-    'Hamad Town Facility',
-    'Local Delivery Station',
-    'Out for Delivery'
-  ];
-  return locations[Math.floor(Math.random() * locations.length)];
 }
 
 // Error handling

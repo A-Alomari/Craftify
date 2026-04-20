@@ -55,6 +55,8 @@ module.exports = ({ loadServerHarness, createSocket, createCartDb, createBidDb, 
       expect(globalsRes.locals.user).toEqual({ id: 9 });
       expect(globalsRes.locals.currentPath).toBe('/products');
 
+      // Logged-in user: two getDb() calls happen (Cart.getCount + Notification.getUnreadCount)
+      harness.dbQueue.push(createCartDb({ cartCount: 3, notificationCount: 5 }));
       harness.dbQueue.push(createCartDb({ cartCount: 3, notificationCount: 5 }));
       const userCartReq = { session: { user: { id: 77 } }, sessionID: 'session-1' };
       const userCartRes = { locals: {} };
