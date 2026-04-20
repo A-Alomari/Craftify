@@ -104,12 +104,42 @@
                   Notify Me
                 </button>
               <% } %>
+              <form action="/user/wishlist/remove" method="POST" class="mt-2 wishlist-remove-form">
+                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                <input type="hidden" name="productId" value="<%= item.product_id %>">
+                <button type="submit" class="w-full py-2 inline-flex items-center justify-center gap-1.5 rounded-lg bg-red-100 text-error hover:bg-red-500 hover:text-white transition-colors text-xs font-bold uppercase tracking-wider">
+                  <span class="material-symbols-outlined text-sm">delete</span>Remove
+                </button>
+              </form>
             </div>
           </div>
         </article>
       <% }); %>
     </div>
 
+    <!-- Pagination -->
+    <% if (pagination && pagination.totalPages > 1) { %>
+    <nav class="flex justify-center items-center gap-2 mt-12">
+      <% if (pagination.currentPage > 1) { %>
+        <a href="/user/wishlist?page=<%= pagination.currentPage - 1 %>"
+           class="px-3 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant/20 hover:bg-surface-container text-on-surface text-sm font-medium transition-colors">
+          <span class="material-symbols-outlined text-sm align-middle">chevron_left</span>
+        </a>
+      <% } %>
+      <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+        <a href="/user/wishlist?page=<%= i %>"
+           class="px-3.5 py-2 rounded-lg text-sm font-bold transition-colors <%= i === pagination.currentPage ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container-lowest border border-outline-variant/20 text-on-surface hover:bg-surface-container' %>">
+          <%= i %>
+        </a>
+      <% } %>
+      <% if (pagination.currentPage < pagination.totalPages) { %>
+        <a href="/user/wishlist?page=<%= pagination.currentPage + 1 %>"
+           class="px-3 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant/20 hover:bg-surface-container text-on-surface text-sm font-medium transition-colors">
+          <span class="material-symbols-outlined text-sm align-middle">chevron_right</span>
+        </a>
+      <% } %>
+    </nav>
+    <% } %>
     <% const recommendations = wishlistItems.slice(0, 4); %>
     <% if (recommendations.length > 0) { %>
       <section class="mt-32">

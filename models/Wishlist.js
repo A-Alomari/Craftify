@@ -1,9 +1,9 @@
 const { getDb } = require('../config/database');
 
 class Wishlist {
-  static findByUserId(userId) {
+  static findByUserId(userId, limit = null, offset = 0) {
     const db = getDb();
-    return db.prepare(`
+    let sql = `
       SELECT w.*, p.name, p.price, p.images, p.stock, p.artisan_id,
         ap.shop_name,
         (SELECT AVG(rating) FROM reviews WHERE product_id = p.id AND is_approved = 1) as avg_rating
@@ -12,7 +12,17 @@ class Wishlist {
       LEFT JOIN artisan_profiles ap ON p.artisan_id = ap.user_id
       WHERE w.user_id = ? AND p.status = 'approved'
       ORDER BY w.created_at DESC
-    `).all(userId);
+    `;
+    const params = [userId];
+    if (limit) {
+      sql += ' LIMIT ?';
+      params.push(limit);
+      if (offset) {
+        sql += ' OFFSET ?';
+        params.push(offset);
+      }
+    }
+    return db.prepare(sql).all(...params);
   }
 
   static isInWishlist(userId, productId) {

@@ -108,3 +108,43 @@
 </main>
 
 <%- include('../partials/footer') %>
+
+<script>
+(function() {
+  if (!window.io) return;
+  var socket = window.io();
+  socket.emit('joinUser');
+
+  socket.on('newConversation', function(data) {
+    var sidebar = document.querySelector('.flex-grow.overflow-y-auto');
+    if (!sidebar) return;
+    var otherId = String(data.other_user_id);
+    var existing = sidebar.querySelector('a[href="/user/messages/' + otherId + '"]');
+    if (existing) {
+      var preview = existing.querySelector('p.text-xs.text-secondary');
+      if (preview) preview.textContent = data.last_message || '';
+      sidebar.prepend(existing);
+    } else {
+      var initials = (data.other_user_name || '?')[0].toUpperCase();
+      var html = '<a href="/user/messages/' + otherId + '" class="flex items-start gap-3 p-4 hover:bg-surface-container-low rounded-2xl cursor-pointer group transition-all relative">' +
+        '<div class="relative flex-shrink-0">' +
+        (data.other_user_avatar
+          ? '<img alt="' + (data.other_user_name || '') + '" class="w-12 h-12 rounded-full object-cover" src="' + data.other_user_avatar + '" onerror="this.onerror=null;this.src=\'/images/default-avatar.png\'"/>'
+          : '<div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold">' + initials + '</div>'
+        ) +
+        '</div>' +
+        '<div class="flex-grow min-w-0">' +
+          '<div class="flex justify-between items-baseline mb-0.5">' +
+            '<h3 class="font-semibold text-on-surface truncate">' + (data.other_user_name || '') + '</h3>' +
+            '<span class="text-[10px] text-secondary uppercase tracking-tighter">now</span>' +
+          '</div>' +
+          '<div class="flex items-center gap-1.5 mb-1"><span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">' + (data.other_user_role || '') + '</span></div>' +
+          '<p class="text-xs text-secondary truncate">' + (data.last_message || '') + '</p>' +
+        '</div>' +
+        '<div class="absolute right-4 bottom-4 min-w-5 h-5 px-1.5 bg-primary text-on-primary rounded-full text-[10px] font-bold flex items-center justify-center">1</div>' +
+        '</a>';
+      sidebar.insertAdjacentHTML('afterbegin', html);
+    }
+  });
+})();
+</script>

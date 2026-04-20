@@ -38,13 +38,13 @@
                 <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2" for="identifier">Email or Phone Number</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2" for="identifier">Email Address</label>
                     <input
                         class="w-full px-4 py-3 rounded-xl bg-surface-container-low border-none focus:ring-2 focus:ring-primary-container/50 text-on-surface placeholder:text-on-surface-variant/50 transition-all outline-none"
                         id="identifier"
                         name="identifier"
-                        placeholder="you@example.com or +973 3XXX XXXX"
-                        type="text"
+                        placeholder="you@example.com"
+                        type="email"
                         data-validate="required"
                         required
                     />

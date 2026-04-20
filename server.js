@@ -320,6 +320,12 @@ function consumeSocketBidAllowance(userId, auctionId) {
 }
 
 io.on('connection', (socket) => {
+  socket.on('joinUser', () => {
+    if (socket.data.authenticated && socket.data.user) {
+      socket.join(`user-${socket.data.user.id}`);
+    }
+  });
+
   socket.on('joinAuction', (auctionId) => {
     const parsedAuctionId = Number.parseInt(auctionId, 10);
     if (!Number.isInteger(parsedAuctionId) || parsedAuctionId <= 0) {
@@ -450,6 +456,9 @@ function startBackgroundTasks() {
           // Create notification for customer
           const order = db.prepare('SELECT user_id FROM orders WHERE id = ?').get(shipment.order_id);
           if (order) {
+            // Deduplicate: remove previous Shipment Update for same order
+            db.prepare(`DELETE FROM notifications WHERE user_id = ? AND title = 'Shipment Update' AND link LIKE ?`)
+              .run(order.user_id, `/orders/${shipment.order_id}%`);
             db.prepare(`
               INSERT INTO notifications (user_id, title, message, type, link)
               VALUES (?, ?, ?, 'order', ?)
@@ -457,7 +466,7 @@ function startBackgroundTasks() {
               order.user_id,
               'Shipment Update',
               `Your order #${shipment.order_id} is now ${newStatus.replace('_', ' ')}`,
-              `/orders/${shipment.order_id}`
+              `/orders/${shipment.order_id}/track`
             );
           }
         }

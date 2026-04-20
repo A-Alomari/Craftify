@@ -16,10 +16,29 @@ exports.profile = (req, res) => {
   if (user && user.role === 'artisan') {
     artisanProfile = ArtisanProfile.findByUserId(req.session.user.id);
   }
+  const activeTab = req.query.tab || 'profile';
+  let wishlistItems = [];
+  let reviewItems = [];
+  if (activeTab === 'wishlist') {
+    wishlistItems = Wishlist.findByUserId(req.session.user.id) || [];
+    wishlistItems.forEach(item => {
+      const images = JSON.parse(item.images || '[]');
+      item.image = images[0] || '/images/placeholder-product.jpg';
+    });
+  } else if (activeTab === 'reviews') {
+    reviewItems = Review.findByUserId(req.session.user.id, { limit: 50, offset: 0 }) || [];
+    reviewItems.forEach(r => {
+      const images = JSON.parse(r.images || '[]');
+      r.image = images[0] || '/images/placeholder-product.jpg';
+    });
+  }
   res.render('user/profile', {
     title: 'My Profile - Craftify',
     userProfile: user,
-    artisanProfile
+    artisanProfile,
+    activeTab,
+    wishlistItems,
+    reviewItems
   });
 };
 
@@ -98,7 +117,13 @@ exports.changePassword = async (req, res) => {
 // Wishlist
 exports.wishlist = (req, res) => {
   try {
-    const items = Wishlist.findByUserId(req.session.user.id);
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const perPage = 6;
+    const offset = (page - 1) * perPage;
+
+    const totalItems = Wishlist.count(req.session.user.id);
+    const items = Wishlist.findByUserId(req.session.user.id, perPage, offset);
+    const totalPages = Math.ceil(totalItems / perPage);
 
     items.forEach(item => {
       const images = JSON.parse(item.images || '[]');
@@ -107,7 +132,8 @@ exports.wishlist = (req, res) => {
 
     res.render('user/wishlist', {
       title: 'My Wishlist - Craftify',
-      items
+      items,
+      pagination: { currentPage: page, totalPages, totalItems }
     });
   } catch (err) {
     console.error('Wishlist error:', err);
@@ -180,7 +206,18 @@ exports.moveToCart = (req, res) => {
 // Reviews
 exports.reviews = (req, res) => {
   try {
-    const reviews = Review.findByUserId(req.session.user.id);
+    const rating = req.query.rating ? parseInt(req.query.rating) : null;
+    const sort = ['asc', 'highest', 'lowest'].includes(req.query.sort) ? req.query.sort : 'desc';
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const perPage = 5;
+    const offset = (page - 1) * perPage;
+
+    const filters = { sort, limit: perPage, offset };
+    if (rating) filters.rating = rating;
+
+    const reviews = Review.findByUserId(req.session.user.id, filters);
+    const totalReviews = Review.countByUserId(req.session.user.id, { rating });
+    const totalPages = Math.ceil(totalReviews / perPage);
 
     reviews.forEach(review => {
       const images = JSON.parse(review.images || '[]');
@@ -189,7 +226,9 @@ exports.reviews = (req, res) => {
 
     res.render('user/reviews', {
       title: 'My Reviews - Craftify',
-      reviews
+      reviews,
+      filters: { rating, sort },
+      pagination: { currentPage: page, totalPages, totalReviews }
     });
   } catch (err) {
     console.error('Reviews error:', err);
@@ -473,6 +512,20 @@ exports.sendMessage = (req, res) => {
     });
 
     Notification.newMessage(parsedReceiverId, req.session.user.name || 'Someone', req.session.user.id);
+
+    // Notify receiver via socket so their sidebar updates without reload
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`user-${parsedReceiverId}`).emit('newConversation', {
+        other_user_id: req.session.user.id,
+        other_user_name: req.session.user.name || '',
+        other_user_role: req.session.user.role || 'customer',
+        other_user_avatar: req.session.user.avatar || null,
+        last_message: sanitized.content || '📷 Photo',
+        last_message_time: new Date().toISOString(),
+        unread_count: 1
+      });
+    }
 
     if (req.xhr) return res.json({ success: true, message });
 

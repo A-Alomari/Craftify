@@ -29,14 +29,51 @@ class Order {
       params.push(filters.status);
     }
 
-    query += ' ORDER BY o.created_at DESC';
+    if (filters.search) {
+      query += ` AND (CAST(o.id AS TEXT) LIKE ? OR EXISTS (
+        SELECT 1 FROM order_items oi JOIN products p ON oi.product_id = p.id
+        WHERE oi.order_id = o.id AND p.name LIKE ?
+      ))`;
+      params.push(`%${filters.search}%`, `%${filters.search}%`);
+    }
+
+    query += filters.sort === 'asc' ? ' ORDER BY o.created_at ASC' : ' ORDER BY o.created_at DESC';
 
     if (filters.limit) {
       query += ' LIMIT ?';
       params.push(filters.limit);
     }
 
+    if (filters.offset) {
+      query += ' OFFSET ?';
+      params.push(filters.offset);
+    }
+
     return db.prepare(query).all(...params);
+  }
+
+  static countByUserId(userId, filters = {}) {
+    const db = getDb();
+    let query = 'SELECT COUNT(*) as count FROM orders o WHERE o.user_id = ?';
+    const params = [userId];
+
+    if (filters.statuses && filters.statuses.length > 0) {
+      query += ` AND o.status IN (${filters.statuses.map(() => '?').join(', ')})`;
+      params.push(...filters.statuses);
+    } else if (filters.status) {
+      query += ' AND o.status = ?';
+      params.push(filters.status);
+    }
+
+    if (filters.search) {
+      query += ` AND (CAST(o.id AS TEXT) LIKE ? OR EXISTS (
+        SELECT 1 FROM order_items oi JOIN products p ON oi.product_id = p.id
+        WHERE oi.order_id = o.id AND p.name LIKE ?
+      ))`;
+      params.push(`%${filters.search}%`, `%${filters.search}%`);
+    }
+
+    return db.prepare(query).get(...params)?.count || 0;
   }
 
   static findAll(filters = {}) {
@@ -151,9 +188,10 @@ class Order {
     const db = getDb();
     const placeholders = orderIds.map(() => '?').join(', ');
     const rows = db.prepare(`
-      SELECT oi.order_id, p.name as product_name, p.images
+      SELECT oi.order_id, oi.product_id, p.name as product_name, p.images, u.name as artisan_name
       FROM order_items oi
       JOIN products p ON oi.product_id = p.id
+      LEFT JOIN users u ON p.artisan_id = u.id
       WHERE oi.order_id IN (${placeholders})
       ORDER BY oi.order_id ASC, oi.id ASC
     `).all(...orderIds);
@@ -179,7 +217,9 @@ class Order {
       }
 
       previewsByOrder[row.order_id].push({
+        product_id: row.product_id,
         product_name: row.product_name,
+        artisan_name: row.artisan_name || '',
         image
       });
     });

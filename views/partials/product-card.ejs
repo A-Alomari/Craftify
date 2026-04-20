@@ -41,7 +41,10 @@
     <div class="mt-auto pt-3 flex items-center justify-between gap-3">
       <span class="font-headline text-xl text-on-surface">$<%= Number(product.price || 0).toFixed(2) %></span>
       <% if (product.stock > 0) { %>
-        <button class="add-to-cart-btn bg-primary-container text-on-primary-container px-3 py-2 rounded-lg text-xs font-semibold" data-product-id="<%= product.id %>">Add</button>
+        <button class="add-to-cart-btn bg-primary-container text-on-primary-container sm:px-3 sm:py-2 p-2 rounded-lg text-xs font-semibold flex items-center gap-1" data-product-id="<%= product.id %>">
+          <span class="sm:hidden text-lg leading-none">🛒</span>
+          <span class="hidden sm:inline">Add to Cart</span>
+        </button>
       <% } else { %>
         <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-surface-container-high text-secondary">Out of Stock</span>
       <% } %>

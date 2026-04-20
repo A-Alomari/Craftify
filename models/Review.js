@@ -37,23 +37,57 @@ class Review {
     return db.prepare(query).all(...params);
   }
 
-  static findByUserId(userId, limit = null) {
+  static findByUserId(userId, filtersOrLimit = {}) {
+    const filters = typeof filtersOrLimit === 'number'
+      ? { limit: filtersOrLimit }
+      : (filtersOrLimit || {});
+
     const db = getDb();
     let query = `
-      SELECT r.*, p.name as product_name, p.images
+      SELECT r.*, p.name as product_name, p.images, ap.shop_name as artisan_name
       FROM reviews r
       JOIN products p ON r.product_id = p.id
+      LEFT JOIN artisan_profiles ap ON p.artisan_id = ap.user_id
       WHERE r.user_id = ?
-      ORDER BY r.created_at DESC
     `;
     const params = [userId];
 
-    if (limit) {
+    if (filters.rating) {
+      query += ' AND r.rating = ?';
+      params.push(filters.rating);
+    }
+
+    if (filters.sort === 'highest') {
+      query += ' ORDER BY r.rating DESC';
+    } else if (filters.sort === 'lowest') {
+      query += ' ORDER BY r.rating ASC';
+    } else if (filters.sort === 'asc') {
+      query += ' ORDER BY r.created_at ASC';
+    } else {
+      query += ' ORDER BY r.created_at DESC';
+    }
+
+    if (filters.limit) {
       query += ' LIMIT ?';
-      params.push(limit);
+      params.push(filters.limit);
+      if (filters.offset) {
+        query += ' OFFSET ?';
+        params.push(filters.offset);
+      }
     }
 
     return db.prepare(query).all(...params);
+  }
+
+  static countByUserId(userId, filters = {}) {
+    const db = getDb();
+    let query = 'SELECT COUNT(*) as count FROM reviews r JOIN products p ON r.product_id = p.id WHERE r.user_id = ?';
+    const params = [userId];
+    if (filters.rating) {
+      query += ' AND r.rating = ?';
+      params.push(filters.rating);
+    }
+    return db.prepare(query).get(...params)?.count || 0;
   }
 
   static findAll(filters = {}) {

@@ -183,7 +183,25 @@ exports.confirmation = (req, res) => {
 // Order history
 exports.index = (req, res) => {
   try {
-    const orders = Order.findByUserId(req.session.user.id);
+    const PAGE_SIZE = 10;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const status = req.query.status || '';
+    const sort = req.query.sort === 'asc' ? 'asc' : 'desc';
+    const search = (req.query.search || '').trim();
+
+    const filters = { sort };
+    if (status && status !== 'all') filters.status = status;
+    if (search) filters.search = search;
+
+    const totalCount = Order.countByUserId(req.session.user.id, filters);
+    const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+    const currentPage = Math.min(page, totalPages);
+
+    const orders = Order.findByUserId(req.session.user.id, {
+      ...filters,
+      limit: PAGE_SIZE,
+      offset: (currentPage - 1) * PAGE_SIZE
+    });
 
     const orderIds = orders.map(order => order.id);
     const previewItemsByOrder = Order.getPreviewItemsForOrders(orderIds, 3);
@@ -191,9 +209,22 @@ exports.index = (req, res) => {
       order.previewItems = previewItemsByOrder[order.id] || [];
     });
 
+    const queryParts = [];
+    if (status) queryParts.push(`status=${encodeURIComponent(status)}`);
+    if (sort !== 'desc') queryParts.push(`sort=${sort}`);
+    if (search) queryParts.push(`search=${encodeURIComponent(search)}`);
+
     res.render('orders/index', {
       title: 'My Orders - Craftify',
-      orders
+      orders,
+      filters: { status, sort, search },
+      pagination: {
+        current: currentPage,
+        total: totalPages,
+        hasPrev: currentPage > 1,
+        hasNext: currentPage < totalPages
+      },
+      queryString: queryParts.join('&')
     });
   } catch (err) {
     console.error('Orders index error:', err);
@@ -318,5 +349,73 @@ exports.cancel = (req, res) => {
     console.error('Cancel order error:', err);
     req.flash('error_msg', 'Error cancelling order');
     res.redirect('/orders');
+  }
+};
+
+// Get order items with canReview info (AJAX)
+exports.getItems = (req, res) => {
+  try {
+    const { id } = req.params;
+    const order = Order.findById(id);
+    if (!order || order.user_id !== req.session.user.id) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+    const items = Order.getItems(id);
+    items.forEach(item => {
+      const images = JSON.parse(item.images || '[]');
+      item.image = images[0] || '/images/placeholder-product.jpg';
+      const { canReview, hasReviewed } = Review.canReview(req.session.user.id, item.product_id);
+      item.canReview = canReview;
+      item.hasReviewed = hasReviewed;
+    });
+    return res.json({ success: true, items, order });
+  } catch (err) {
+    console.error('Get order items error:', err);
+    return res.status(500).json({ success: false });
+  }
+};
+
+// Reorder: add previous order items back to cart
+exports.reorder = (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.session.user.id;
+    const order = Order.findById(id);
+    if (!order || order.user_id !== userId) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+    const items = Order.getItems(id);
+    const added = [];
+    const outOfStock = [];
+
+    items.forEach(item => {
+      const product = Product.findById(item.product_id);
+      if (!product || product.status !== 'approved') {
+        outOfStock.push({ name: item.product_name, reason: 'unavailable' });
+        return;
+      }
+      if (product.stock <= 0) {
+        outOfStock.push({ name: item.product_name, reason: 'out_of_stock' });
+        return;
+      }
+      const existingQty = Cart.getItemQuantity(userId, null, item.product_id) || 0;
+      const canAdd = product.stock - existingQty;
+      if (canAdd <= 0) {
+        outOfStock.push({ name: item.product_name, reason: 'already_max' });
+        return;
+      }
+      const qtyToAdd = Math.min(item.quantity, canAdd);
+      Cart.addItem(userId, null, item.product_id, qtyToAdd);
+      added.push({ name: item.product_name, quantity: qtyToAdd });
+      if (qtyToAdd < item.quantity) {
+        outOfStock.push({ name: item.product_name, reason: 'partial', available: qtyToAdd, wanted: item.quantity });
+      }
+    });
+
+    const cartCount = Cart.getCount(userId, null);
+    return res.json({ success: true, added, outOfStock, cartCount });
+  } catch (err) {
+    console.error('Reorder error:', err);
+    return res.status(500).json({ success: false, message: 'Error reordering' });
   }
 };

@@ -33,7 +33,11 @@ function timeAgo(dateStr) {
 
 function actionBtn(n) {
   if (!n.link) return null;
-  if (n.link.includes('/orders/')) return n.type === 'order' && n.title && n.title.toLowerCase().includes('deliver') ? 'Write Review' : 'Track Order';
+  // Ensure order links always point to track page
+  if (n.link.match(/\/orders\/\d+$/) && !n.link.includes('/track')) {
+    n.link = n.link + '/track';
+  }
+  if (n.link.includes('/orders/')) return 'Track Order';
   if (n.link.includes('/auctions/')) return n.title && n.title.toLowerCase().includes('won') ? 'Complete Payment' : 'View Auction';
   if (n.link.includes('/messages')) return 'Reply';
   if (n.link.includes('/products/')) return 'View Item';

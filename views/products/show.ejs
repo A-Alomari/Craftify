@@ -128,11 +128,11 @@
     <%= (artisan && artisan.bio) ? artisan.bio : 'Discover more amazing handcrafted products from this artisan.' %>
 </p>
 <div class="flex gap-4">
-<a class="text-primary font-bold font-headline underline underline-offset-4 hover:opacity-80 transition-opacity" href="/user/artisan/<%= product.artisan_id %>">View Artist Shop</a>
+<a class="text-primary font-bold font-headline underline underline-offset-4 hover:opacity-80 transition-opacity" href="/user/artisan/<%= product.artisan_id %>">View Shop</a>
 <% if (user && user.id !== product.artisan_id) { %>
 <a class="inline-flex items-center gap-2 text-primary font-bold font-headline underline underline-offset-4 hover:opacity-80 transition-opacity" href="/user/messages/<%= product.artisan_id %>">
 <span class="material-symbols-outlined text-sm">chat</span>
-Send Message
+Message
 </a>
 <% } %>
 </div>

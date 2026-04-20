@@ -34,7 +34,14 @@
             </div>
             <div class="hidden md:flex items-center gap-8">
                 <% navItems.forEach(function(item) { 
-                    const isActive = item.href === '/' ? currentPathValue === '/' : currentPathValue.startsWith(item.href);
+                    let isActive;
+                    if (item.href === '/') {
+                      isActive = currentPathValue === '/';
+                    } else if (item.href === '/auctions') {
+                      isActive = currentPathValue === '/auctions' || (currentPathValue.startsWith('/auctions/') && !currentPathValue.startsWith('/auctions/my-bids'));
+                    } else {
+                      isActive = currentPathValue.startsWith(item.href);
+                    }
                 %>
                     <a class="text-sm font-medium Inter <%= isActive ? 'text-amber-600 dark:text-amber-500 border-b-2 border-amber-600 dark:border-amber-500 pb-1' : 'text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors' %>" href="<%= item.href %>"><%= item.label %></a>
                 <% }) %>

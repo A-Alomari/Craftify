@@ -37,7 +37,7 @@ exports.showLogin = (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { identifier, email, phone, password } = req.body;
-    const loginIdentifier = sanitizeString(identifier || email || phone || '');
+    const loginIdentifier = sanitizeString(identifier || email || '');
     const previousSessionId = req.sessionID;
     const previousAppliedCoupon = req.session.appliedCoupon || null;
 
@@ -46,8 +46,15 @@ exports.login = async (req, res) => {
       return res.redirect('/auth/login');
     }
 
-    const user = await User.verifyPassword(loginIdentifier, password);
+    const user = await User.findByEmail(loginIdentifier);
     if (!user) {
+      req.flash('error_msg', 'Invalid email or password');
+      return res.redirect('/auth/login');
+    }
+
+    const bcrypt = require('bcryptjs');
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) {
       req.flash('error_msg', 'Invalid email or password');
       return res.redirect('/auth/login');
     }

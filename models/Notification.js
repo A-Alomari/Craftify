@@ -83,11 +83,16 @@ class Notification {
 
   // Helper methods
   static orderPlaced(userId, orderId) {
-    return this.create({ user_id: userId, title: 'Order Placed', message: `Your order #${orderId} has been placed successfully!`, type: 'order', link: `/orders/${orderId}` });
+    return this.create({ user_id: userId, title: 'Order Confirmed!', message: `Your order #${orderId} has been placed successfully!`, type: 'order', link: `/orders/${orderId}/track` });
   }
 
   static orderStatusChanged(userId, orderId, status) {
-    return this.create({ user_id: userId, title: 'Order Update', message: `Your order #${orderId} status has been updated to ${status}`, type: 'order', link: `/orders/${orderId}` });
+    // Remove previous Order Update notification for same order to avoid clutter
+    try {
+      const db = require('../config/database').getDb();
+      db.prepare(`DELETE FROM notifications WHERE user_id = ? AND type = 'order' AND title = 'Order Update' AND link LIKE ?`).run(userId, `/orders/${orderId}%`);
+    } catch (e) { /* non-fatal */ }
+    return this.create({ user_id: userId, title: 'Order Update', message: `Your order #${orderId} status has been updated to ${status}`, type: 'order', link: `/orders/${orderId}/track` });
   }
 
   static newOrderForArtisan(artisanId, orderId) {

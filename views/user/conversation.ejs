@@ -294,10 +294,81 @@
     }).then(function(res) {
       btn.disabled = false;
       if (!res.ok && typeof showToast === 'function') showToast('Failed to send message', 'error');
+      else updateSenderSidebar(content || '📷 Photo');
     }).catch(function() {
       btn.disabled = false;
       if (typeof showToast === 'function') showToast('Error sending message', 'error');
     });
   }, true);
+})();
+
+(function() {
+  // Data about the person we're talking to (server-rendered)
+  var OTHER_ID   = '<%= otherUser.id %>';
+  var OTHER_NAME = '<%= (otherUser.role === "artisan" && artisanProfile && artisanProfile.shop_name) ? (artisanProfile.shop_name).replace(/'/g, "\\'") : (otherUser.name || "").replace(/'/g, "\\'") %>';
+  var OTHER_ROLE = '<%= otherUser.role || "" %>';
+  var OTHER_AVT  = '<%= otherUser.avatar ? otherUser.avatar.replace(/'/g, "\\'") : "" %>';
+
+  window.updateSenderSidebar = function(preview) {
+    var sidebar = document.querySelector('.flex-grow.overflow-y-auto.bg-surface-container-lowest');
+    if (!sidebar) return;
+    var existing = sidebar.querySelector('a[href="/user/messages/' + OTHER_ID + '"]');
+    if (existing) {
+      var previewEl = existing.querySelector('p.text-xs');
+      if (previewEl) previewEl.textContent = preview;
+      sidebar.prepend(existing);
+    } else {
+      var initials = (OTHER_NAME || '?')[0].toUpperCase();
+      var avatarHtml = OTHER_AVT
+        ? '<img alt="' + OTHER_NAME + '" class="w-12 h-12 rounded-full object-cover" src="' + OTHER_AVT + '" onerror="this.onerror=null;this.src=\'/images/default-avatar.png\'"/>'
+        : '<div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold">' + initials + '</div>';
+      var html = '<a href="/user/messages/' + OTHER_ID + '" class="flex items-start gap-3 p-4 rounded-2xl cursor-pointer group transition-all relative bg-primary-container/10">' +
+        '<div class="relative flex-shrink-0">' + avatarHtml + '</div>' +
+        '<div class="flex-grow min-w-0">' +
+          '<div class="flex justify-between items-baseline mb-0.5">' +
+            '<h3 class="font-semibold text-on-surface truncate">' + OTHER_NAME + '</h3>' +
+            '<span class="text-[10px] text-secondary uppercase tracking-tighter">now</span>' +
+          '</div>' +
+          '<div class="flex items-center gap-1.5 mb-1"><span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">' + OTHER_ROLE + '</span></div>' +
+          '<p class="text-xs text-secondary truncate">' + preview + '</p>' +
+        '</div></a>';
+      sidebar.insertAdjacentHTML('afterbegin', html);
+    }
+  };
+
+  // Socket: keep receiver's sidebar in sync when someone messages US
+  if (!window.io) return;
+  var socket = window.io();
+  socket.emit('joinUser');
+
+  socket.on('newConversation', function(data) {
+    var sidebar = document.querySelector('.flex-grow.overflow-y-auto.bg-surface-container-lowest');
+    if (!sidebar) return;
+    var otherId = String(data.other_user_id);
+    var existing = sidebar.querySelector('a[href="/user/messages/' + otherId + '"]');
+    if (existing) {
+      var preview = existing.querySelector('p.text-xs');
+      if (preview) preview.textContent = data.last_message || '';
+      sidebar.prepend(existing);
+    } else {
+      var initials = (data.other_user_name || '?')[0].toUpperCase();
+      var avatarHtml = data.other_user_avatar
+        ? '<img alt="' + (data.other_user_name || '') + '" class="w-12 h-12 rounded-full object-cover" src="' + data.other_user_avatar + '" onerror="this.onerror=null;this.src=\'/images/default-avatar.png\'"/>'
+        : '<div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold">' + initials + '</div>';
+      var html = '<a href="/user/messages/' + otherId + '" class="flex items-start gap-3 p-4 rounded-2xl cursor-pointer group transition-all relative hover:bg-surface-container-low">' +
+        '<div class="relative flex-shrink-0">' + avatarHtml + '</div>' +
+        '<div class="flex-grow min-w-0">' +
+          '<div class="flex justify-between items-baseline mb-0.5">' +
+            '<h3 class="font-semibold text-on-surface truncate">' + (data.other_user_name || '') + '</h3>' +
+            '<span class="text-[10px] text-secondary uppercase tracking-tighter">now</span>' +
+          '</div>' +
+          '<div class="flex items-center gap-1.5 mb-1"><span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">' + (data.other_user_role || '') + '</span></div>' +
+          '<p class="text-xs text-secondary truncate">' + (data.last_message || '') + '</p>' +
+        '</div>' +
+        '<div class="absolute right-4 bottom-4 min-w-5 h-5 px-1.5 bg-primary text-on-primary rounded-full text-[10px] font-bold flex items-center justify-center">1</div>' +
+        '</a>';
+      sidebar.insertAdjacentHTML('afterbegin', html);
+    }
+  });
 })();
 </script>
