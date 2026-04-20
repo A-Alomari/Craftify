@@ -260,6 +260,36 @@ class Order {
     return this.findById(id);
   }
 
+  // WHY: Cancelling an order must atomically restore product stock and mark the order
+  // as cancelled. Doing this in a transaction prevents partial state if the server crashes
+  // mid-operation. The controller must NOT import getDb directly — all DB logic stays here.
+  static cancelWithRestock(id) {
+    const db = getDb();
+    // WHY: sql.js uses db.exec() for DDL/transaction commands; better-sqlite3 uses prepare().run()
+    const runTxCmd = (sql) => (typeof db.exec === 'function' ? db.exec(sql) : db.prepare(sql).run());
+
+    let inTransaction = false;
+    try {
+      runTxCmd('BEGIN TRANSACTION');
+      inTransaction = true;
+
+      const items = this.getItems(id);
+      items.forEach(item => {
+        db.prepare('UPDATE products SET stock = stock + ? WHERE id = ?').run(item.quantity, item.product_id);
+      });
+
+      this.cancel(id);
+      runTxCmd('COMMIT');
+      inTransaction = false;
+    } catch (err) {
+      if (inTransaction) {
+        try { runTxCmd('ROLLBACK'); } catch (_) { /* no-op */ }
+      }
+      throw err;
+    }
+    return this.findById(id);
+  }
+
   static refund(id) {
     const db = getDb();
     db.prepare(`

@@ -8,9 +8,7 @@ router.get('/checkout', isAuthenticated, isActive, isCustomer, orderController.c
 router.post('/checkout', isAuthenticated, isActive, isCustomer, orderController.placeOrder);
 router.get('/:id/items', isAuthenticated, isActive, isCustomer, orderController.getItems);
 router.post('/:id/reorder', isAuthenticated, isActive, isCustomer, orderController.reorder);
-router.get('/:id', isAuthenticated, isActive, isCustomer, (req, res) => {
-  res.redirect(`/orders/${req.params.id}/track`);
-});
+router.get('/:id', isAuthenticated, isActive, isCustomer, orderController.track);
 router.get('/:id/confirmation', isAuthenticated, isActive, isCustomer, orderController.confirmation);
 router.get('/:id/track', isAuthenticated, isActive, isCustomer, orderController.track);
 router.post('/:id/cancel', isAuthenticated, isActive, isCustomer, orderController.cancel);

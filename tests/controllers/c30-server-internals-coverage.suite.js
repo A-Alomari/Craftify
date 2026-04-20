@@ -67,6 +67,10 @@ module.exports = () => {
             app.settings[key] = value;
             return app;
           }),
+          get: jest.fn((...args) => {
+            app.useCalls.push(args);
+            return app;
+          }),
           use: jest.fn((...args) => {
             app.useCalls.push(args);
             const handler = typeof args[0] === 'function' ? args[0] : args[1];
@@ -334,7 +338,7 @@ module.exports = () => {
 
     const createAuctionTaskDb = ({ endedAuctions }) => ({
       prepare: jest.fn((sql) => {
-        if (sql.includes('SELECT a.*, p.name as product_name')) {
+        if (sql.includes('FROM auctions') && sql.includes('product_name')) {
           return { all: jest.fn(() => endedAuctions) };
         }
         return {

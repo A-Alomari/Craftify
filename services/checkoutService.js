@@ -47,9 +47,7 @@ function createOrderFromCheckout({ userId, checkoutData, cartItems, totals, appl
   }
 
   const totalAmount = totals.total + shipping - discount;
-  // FIX: Changed <= 0 to < 0 to allow fully-discounted ($0) orders.
-  // A coupon that covers the entire cart produces a valid $0 total.
-  if (!Number.isFinite(totalAmount) || totalAmount < 0) {
+  if (!Number.isFinite(totalAmount) || totalAmount <= 0) {
     throwCheckoutError('Order total is invalid', 'CHECKOUT_VALIDATION');
   }
 

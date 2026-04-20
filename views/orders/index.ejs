@@ -159,7 +159,7 @@
     <!-- Review form (hidden until product selected) -->
     <form id="review-form" class="hidden">
       <input type="hidden" id="review-product-id" name="product_id"/>
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>"/>
+      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"/>
 
       <!-- Star Rating -->
       <div class="mb-8">
@@ -204,7 +204,7 @@
 
 <script>
 (function() {
-  const CSRF = '<%= csrfToken %>';
+  const CSRF = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
   const starLabels = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
 
   // --- Review Modal ---

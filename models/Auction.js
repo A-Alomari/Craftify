@@ -96,7 +96,8 @@ class Auction {
     const normalizedStartTime = normalizeDateTime(start_time);
     const normalizedEndTime = normalizeDateTime(end_time);
 
-    const status = 'awaiting_approval';
+    const startDate = new Date(normalizedStartTime || start_time);
+    const status = startDate <= now ? 'active' : 'pending';
     const actualStartPrice = starting_price || starting_bid;
     const product = product_id ? db.prepare('SELECT name FROM products WHERE id = ?').get(product_id) : null;
     const actualTitle = title || (product ? product.name : 'Auction');

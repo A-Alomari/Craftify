@@ -606,4 +606,21 @@ if (require.main === module) {
   });
 }
 
+// WHY: sql.js keeps the database in-memory and flushes to disk on a timer.
+// Without explicit shutdown handlers, a SIGTERM/SIGINT (e.g. from Ctrl+C or a cloud
+// process manager) would kill the process before the pending flush fires, causing data loss.
+/* istanbul ignore next */
+function gracefulShutdown(signal) {
+  console.log(`${signal} received — flushing DB and shutting down.`);
+  try {
+    const db = getDb();
+    db.save(true); // synchronous flush
+  } catch (_) { /* DB may not be initialized if server failed to start */ }
+  process.exit(0);
+}
+/* istanbul ignore next */
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+/* istanbul ignore next */
+process.on('SIGINT',  () => gracefulShutdown('SIGINT'));
+
 module.exports = { app, io, server, startServer };

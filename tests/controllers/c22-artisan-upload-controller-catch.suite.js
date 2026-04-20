@@ -136,7 +136,7 @@ module.exports = ({ getTestContext, loginAs, makeUnique }) => {
       expect(deleteProductCatch.headers.location).toContain('/artisan/products');
       deleteProductSpy.mockRestore();
 
-      const ordersSpy = jest.spyOn(Order, 'findAll').mockImplementation(() => {
+      const ordersSpy = jest.spyOn(Order, 'findAllByArtisan').mockImplementation(() => {
         throw new Error('Forced artisan orders catch');
       });
       const ordersCatch = await agent.get('/artisan/orders');

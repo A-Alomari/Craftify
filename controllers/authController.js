@@ -46,15 +46,8 @@ exports.login = async (req, res) => {
       return res.redirect('/auth/login');
     }
 
-    const user = await User.findByEmail(loginIdentifier);
+    const user = await User.verifyPassword(loginIdentifier, password);
     if (!user) {
-      req.flash('error_msg', 'Invalid email or password');
-      return res.redirect('/auth/login');
-    }
-
-    const bcrypt = require('bcryptjs');
-    const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid) {
       req.flash('error_msg', 'Invalid email or password');
       return res.redirect('/auth/login');
     }

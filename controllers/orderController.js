@@ -7,7 +7,7 @@ const Coupon = require('../models/Coupon');
 const User = require('../models/User');
 const { v4: uuidv4 } = require('uuid');
 const { validateCheckoutInput } = require('../utils/sanitizer');
-const { createOrderFromCheckout, runTransactionCommand } = require('../services/checkoutService');
+const { createOrderFromCheckout } = require('../services/checkoutService');
 
 // Show checkout page
 exports.checkout = (req, res) => {
@@ -103,6 +103,12 @@ exports.placeOrder = (req, res) => {
     }
 
     const sessionCheckoutNonce = req.session.checkoutNonce;
+    // WHY: Reject the order if the session has a nonce but the form omits it entirely —
+    // this closes a double-submit / replay window where an attacker submits without the nonce.
+    if (sessionCheckoutNonce && !checkout_nonce) {
+      req.flash('error_msg', 'Checkout session expired. Please review your cart and try again.');
+      return res.redirect('/orders/checkout');
+    }
     if (sessionCheckoutNonce && checkout_nonce && checkout_nonce !== sessionCheckoutNonce) {
       req.flash('error_msg', 'Checkout session expired. Please review your cart and try again.');
       return res.redirect('/orders/checkout');
@@ -320,28 +326,8 @@ exports.cancel = (req, res) => {
       return res.redirect(`/orders/${id}`);
     }
 
-    const { getDb } = require('../config/database');
-    const db = getDb();
-    let inTransaction = false;
-
-    try {
-      runTransactionCommand(db, 'BEGIN TRANSACTION');
-      inTransaction = true;
-
-      const items = Order.getItems(id);
-      items.forEach(item => {
-        Product.updateStock(item.product_id, item.quantity);
-      });
-
-      Order.cancel(id);
-      runTransactionCommand(db, 'COMMIT');
-      inTransaction = false;
-    } catch (txErr) {
-      if (inTransaction) {
-        try { runTransactionCommand(db, 'ROLLBACK'); } catch (rollbackErr) { /* no-op */ }
-      }
-      throw txErr;
-    }
+    // WHY: cancelWithRestock handles the transaction internally, keeping all DB logic in the model
+    Order.cancelWithRestock(id);
 
     req.flash('success_msg', 'Order cancelled successfully');
     res.redirect('/orders');

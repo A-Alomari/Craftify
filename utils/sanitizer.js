@@ -70,8 +70,8 @@ function validateCheckoutInput(body = {}) {
   const payment_method = sanitizeString(body.payment_method);
   const notes = sanitizeText(body.notes) || '';
 
-  if (!shipping_address || !shipping_building || !shipping_city) {
-    errors.push('Shipping address, building, and city are required');
+  if (!shipping_address || !shipping_city) {
+    errors.push('Shipping address and city are required');
   }
 
   const allowedPaymentMethods = new Set(['card', 'cash']);

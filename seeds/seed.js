@@ -82,6 +82,12 @@ function clearExistingData(db) {
 }
 
 async function seed() {
+  // WHY: Running this script against a production DB would wipe all real data.
+  // Guard here is a final safety net in case the script is invoked accidentally.
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('seed.js must not run in production (NODE_ENV=production).');
+  }
+
   console.log('🌱 Starting database seeding...');
 
   await initDatabase();
