@@ -185,13 +185,15 @@ class Cart {
   static mergeGuestCart(userId, sessionId) {
     const db = getDb();
     const guestItems = db.prepare('SELECT * FROM cart_items WHERE session_id = ?').all(sessionId);
-    
+
+    // WHY: Delete guest rows BEFORE merging. A concurrent second login with the same
+    // previousSessionId would then find 0 guest items, making the merge idempotent
+    // and preventing quantity doubling on rapid or duplicate login requests.
+    db.prepare('DELETE FROM cart_items WHERE session_id = ?').run(sessionId);
+
     guestItems.forEach(item => {
       this.addItem(userId, null, item.product_id, item.quantity);
     });
-    
-    // Clean up remaining guest items
-    db.prepare('DELETE FROM cart_items WHERE session_id = ?').run(sessionId);
   }
 
   static validateItems(userId = null, sessionId = null) {

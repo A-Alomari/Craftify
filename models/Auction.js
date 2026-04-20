@@ -1,4 +1,5 @@
 const { getDb } = require('../config/database');
+const Notification = require('./Notification');
 
 class Auction {
   static findById(id) {
@@ -372,27 +373,15 @@ class Auction {
 
       if (auction.winner_id) {
         db.prepare("UPDATE auctions SET status = 'sold' WHERE id = ?").run(auction.id);
-        db.prepare(
-          "INSERT INTO notifications (user_id, title, message, type, link) VALUES (?, ?, ?, 'auction', ?)"
-        ).run(
-          auction.winner_id,
-          'Congratulations! You won!',
-          `You won the auction for "${auctionLabel}" with a bid of $${auction.current_highest_bid}`,
-          `/auctions/${auction.id}`
-        );
+        Notification.auctionWon(auction.winner_id, auction.id, auctionLabel, auction.current_highest_bid);
       } else {
         db.prepare("UPDATE auctions SET status = 'ended' WHERE id = ?").run(auction.id);
       }
 
-      db.prepare(
-        "INSERT INTO notifications (user_id, title, message, type, link) VALUES (?, ?, ?, 'auction', ?)"
-      ).run(
-        auction.artisan_id,
-        'Auction Ended',
-        auction.winner_id
-          ? `Your auction for "${auctionLabel}" ended with winning bid of $${auction.current_highest_bid}`
-          : `Your auction for "${auctionLabel}" ended with no bids`,
-        `/artisan/auctions`
+      Notification.auctionEnded(
+        auction.artisan_id, auction.id, auctionLabel,
+        !!auction.winner_id,
+        auction.winner_id ? auction.current_highest_bid : null
       );
 
       if (io) {

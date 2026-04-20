@@ -389,3 +389,80 @@ describe('BUG 3 — Auction lifecycle and end_time normalization', () => {
     await a.post(`/auctions/${activeAuc.id}/bid`).send({ amount: minBid + 10 }).expect(302);
   });
 });
+
+// =============================================================================
+// BUG 4 — CHECKOUT NONCE ENFORCEMENT (SEC-01)
+// =============================================================================
+describe('BUG 4 — Checkout nonce enforcement', () => {
+  test('POST /orders/checkout without nonce when session has nonce is rejected', async () => {
+    const a = await loginAs('cust@bugs.com', 'cust123');
+
+    // GET checkout — sets checkoutNonce in session
+    const checkoutPage = await a.get('/orders/checkout').expect(200);
+    expect(checkoutPage.text).toContain('checkout_nonce');
+
+    // POST without checkout_nonce — should redirect back with error, NOT create an order
+    const ordersBefore = db.prepare("SELECT COUNT(*) as c FROM orders WHERE user_id=?").get(ids().custId).c;
+    const res = await a.post('/orders/checkout').send({
+      shipping_address: '123 Test St',
+      shipping_city: 'Manama',
+      shipping_country: 'Bahrain',
+      payment_method: 'card',
+      card_number: '4242424242424242',
+      card_expiry: '12/25',
+      card_cvc: '123'
+      // checkout_nonce intentionally omitted
+    }).expect(302);
+    expect(res.header.location).toContain('/orders/checkout');
+    const ordersAfter = db.prepare("SELECT COUNT(*) as c FROM orders WHERE user_id=?").get(ids().custId).c;
+    expect(ordersAfter).toBe(ordersBefore); // no new order was created
+  });
+
+  test('POST /orders/checkout with wrong nonce is rejected', async () => {
+    const a = await loginAs('cust@bugs.com', 'cust123');
+    await a.get('/orders/checkout');
+
+    const res = await a.post('/orders/checkout').send({
+      shipping_address: '123 Test St',
+      shipping_city: 'Manama',
+      shipping_country: 'Bahrain',
+      payment_method: 'card',
+      card_number: '4242424242424242',
+      card_expiry: '12/25',
+      card_cvc: '123',
+      checkout_nonce: 'wrong-nonce-value'
+    }).expect(302);
+    expect(res.header.location).toContain('/orders/checkout');
+  });
+});
+
+// =============================================================================
+// BUG 5 — SEED PRODUCTION GUARD (SEC-04)
+// =============================================================================
+describe('BUG 5 — Seed production guard', () => {
+  test('seed.js throws when NODE_ENV=production', () => {
+    const { execSync } = require('child_process');
+    expect(() => {
+      execSync('node seeds/seed.js', {
+        cwd: require('path').join(__dirname, '..'),
+        env: { ...process.env, NODE_ENV: 'production' },
+        stdio: 'pipe'
+      });
+    }).toThrow();
+  });
+
+  test('seed.js error output mentions production when run in production', () => {
+    const { execSync } = require('child_process');
+    let stderr = '';
+    try {
+      execSync('node seeds/seed.js', {
+        cwd: require('path').join(__dirname, '..'),
+        env: { ...process.env, NODE_ENV: 'production' },
+        stdio: 'pipe'
+      });
+    } catch (err) {
+      stderr = (err.stderr || err.stdout || Buffer.alloc(0)).toString();
+    }
+    expect(stderr.toLowerCase()).toMatch(/production/);
+  });
+});

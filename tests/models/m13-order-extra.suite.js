@@ -78,6 +78,33 @@ module.exports = ({ getTestContext }) => {
       const recent = Order.getRecentByArtisan(ids.artId, 5);
       expect(Array.isArray(recent)).toBe(true);
     });
+
+    test('Order.cancelWithRestock restores stock atomically', () => {
+      // Create a fresh order with 2 items
+      const order = Order.create({
+        user_id: ids.custId,
+        shipping_address: 'Restock Rd',
+        shipping_city: 'Manama',
+        shipping_postal: '321',
+        shipping_country: 'Bahrain',
+        total_amount: 90,
+        subtotal: 90,
+        shipping_cost: 0,
+        discount_amount: 0,
+        coupon_code: null,
+        payment_method: 'card',
+        notes: 'cancelWithRestock test'
+      });
+      Order.addItem(order.id, { product_id: ids.vaseId, artisan_id: ids.artId, quantity: 3, unit_price: 45 });
+
+      const stockBefore = db.prepare('SELECT stock FROM products WHERE id=?').get(ids.vaseId).stock;
+
+      const cancelled = Order.cancelWithRestock(order.id);
+      expect(cancelled.status).toBe('cancelled');
+
+      const stockAfter = db.prepare('SELECT stock FROM products WHERE id=?').get(ids.vaseId).stock;
+      expect(stockAfter).toBe(stockBefore + 3); // stock restored by quantity ordered
+    });
   });
 
 };

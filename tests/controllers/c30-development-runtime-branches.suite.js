@@ -243,4 +243,38 @@ module.exports = ({ loadServerHarness, createSocket, createCartDb, createBidDb, 
       harness.forceListenError = true;
       await expect(harness.module.startServer(5011)).rejects.toThrow('listen failed');
     }, 25000);
+
+    test('SIGTERM handler calls db.save(true) and then exits', () => {
+      const saveMock = jest.fn();
+      const sigDb = {
+        save: saveMock,
+        exec: jest.fn(),
+        prepare: jest.fn(() => ({
+          run: jest.fn(),
+          get: jest.fn(() => ({ count: 0 })),
+          all: jest.fn(() => [])
+        }))
+      };
+      // Load a fresh server instance with our saveMock db as the default db
+      loadServerHarness({
+        nodeEnv: 'development',
+        sessionSecret: 'shutdown-test-secret',
+        argv: ['node', 'server.js'],
+        defaultDb: sigDb
+      });
+
+      const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+      // Emit SIGTERM — triggers gracefulShutdown in this server instance.
+      // Other registered handlers from prior loadServerHarness calls will fire too,
+      // but their defaultDb has no .save() method so the catch block silently swallows errors.
+      process.emit('SIGTERM');
+
+      expect(saveMock).toHaveBeenCalledWith(true);
+      expect(exitSpy).toHaveBeenCalledWith(0);
+
+      exitSpy.mockRestore();
+      consoleSpy.mockRestore();
+    });
 };

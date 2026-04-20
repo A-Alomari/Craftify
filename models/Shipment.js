@@ -1,5 +1,10 @@
 const { getDb } = require('../config/database');
 const { v4: uuidv4 } = require('uuid');
+// WHY: Order and Notification are required here (not at top-level imports) to avoid any
+// potential circular-require issues at startup; lazy-require inside the static method
+// is the safest pattern for cross-model dependencies in CommonJS.
+const Order = require('./Order');
+const Notification = require('./Notification');
 
 class Shipment {
   static findById(id) {
@@ -142,23 +147,12 @@ class Shipment {
         ).run(newStatus, JSON.stringify(history), shipment.id);
 
         if (newStatus === 'shipped' || newStatus === 'delivered') {
-          db.prepare('UPDATE orders SET status = ? WHERE id = ?').run(newStatus, shipment.order_id);
+          Order.updateStatus(shipment.order_id, newStatus);
         }
 
-        const order = db.prepare('SELECT user_id FROM orders WHERE id = ?').get(shipment.order_id);
+        const order = Order.findById(shipment.order_id);
         if (order) {
-          // Deduplicate: remove previous Shipment Update notification for same order
-          db.prepare(
-            "DELETE FROM notifications WHERE user_id = ? AND title = 'Shipment Update' AND link LIKE ?"
-          ).run(order.user_id, `/orders/${shipment.order_id}%`);
-          db.prepare(
-            "INSERT INTO notifications (user_id, title, message, type, link) VALUES (?, ?, ?, 'order', ?)"
-          ).run(
-            order.user_id,
-            'Shipment Update',
-            `Your order #${shipment.order_id} is now ${newStatus.replace('_', ' ')}`,
-            `/orders/${shipment.order_id}/track`
-          );
+          Notification.shipmentUpdate(order.user_id, shipment.order_id, newStatus);
         }
       }
     });

@@ -107,8 +107,13 @@ class Notification {
     return this.create({ user_id: userId, title: 'Congratulations! You won!', message: `You won the auction for "${auctionTitle}" with a bid of $${amount}`, type: 'auction', link: `/auctions/${auctionId}` });
   }
 
-  static auctionEnded(artisanId, auctionId, auctionTitle, hasBids) {
-    return this.create({ user_id: artisanId, title: 'Auction Ended', message: hasBids ? `Your auction "${auctionTitle}" has ended with a winning bid` : `Your auction "${auctionTitle}" ended with no bids`, type: 'auction', link: `/artisan/auctions/${auctionId}` });
+  static auctionEnded(artisanId, auctionId, auctionTitle, hasBids, amount = null) {
+    const message = hasBids && amount != null
+      ? `Your auction for "${auctionTitle}" ended with winning bid of $${amount}`
+      : hasBids
+      ? `Your auction "${auctionTitle}" has ended with a winning bid`
+      : `Your auction for "${auctionTitle}" ended with no bids`;
+    return this.create({ user_id: artisanId, title: 'Auction Ended', message, type: 'auction', link: `/artisan/auctions/${auctionId}` });
   }
 
   static newReview(artisanId, productName, rating) {
@@ -118,6 +123,22 @@ class Notification {
   static newMessage(userId, senderName, senderId = null) {
     const link = senderId ? `/user/messages/${senderId}` : '/user/messages';
     return this.create({ user_id: userId, title: 'New Message', message: `You have a new message from ${senderName}`, type: 'message', link });
+  }
+
+  // WHY: Shipment updates are deduplicated — only the latest status notification is kept
+  // to avoid inbox clutter when multiple states fire in quick succession.
+  static shipmentUpdate(userId, orderId, newStatus) {
+    const db = getDb();
+    db.prepare(
+      "DELETE FROM notifications WHERE user_id = ? AND title = 'Shipment Update' AND link LIKE ?"
+    ).run(userId, `/orders/${orderId}%`);
+    return this.create({
+      user_id: userId,
+      title: 'Shipment Update',
+      message: `Your order #${orderId} is now ${newStatus.replace(/_/g, ' ')}`,
+      type: 'order',
+      link: `/orders/${orderId}/track`
+    });
   }
 
   static productApproved(artisanId, productName) {
