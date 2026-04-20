@@ -124,21 +124,21 @@
 
     <!-- Tabs -->
     <div class="flex gap-10 mb-10 pl-2 border-b border-outline-variant/20">
-      <button id="tab-active" onclick="showTab('active')"
-        class="font-headline text-xl text-primary border-b-2 border-primary pb-3 pr-4 -mb-px transition-colors">
+      <a href="/auctions/my-bids?tab=active" id="tab-active"
+        class="font-headline text-xl <%= activeTab !== 'past' ? 'text-primary border-b-2 border-primary' : 'text-secondary border-b-2 border-transparent hover:text-on-surface' %> pb-3 pr-4 -mb-px transition-colors">
         Active Bids
         <% if (activeBidsCount > 0) { %>
           <span class="ml-2 inline-flex items-center justify-center w-6 h-6 text-xs font-bold bg-primary text-white rounded-full"><%= activeBidsCount %></span>
         <% } %>
-      </button>
-      <button id="tab-past" onclick="showTab('past')"
-        class="font-headline text-xl text-secondary hover:text-on-surface transition-colors pb-3 pr-4 -mb-px border-b-2 border-transparent">
+      </a>
+      <a href="/auctions/my-bids?tab=past" id="tab-past"
+        class="font-headline text-xl <%= activeTab === 'past' ? 'text-primary border-b-2 border-primary' : 'text-secondary border-b-2 border-transparent hover:text-on-surface' %> pb-3 pr-4 -mb-px transition-colors">
         Past Bids
-      </button>
+      </a>
     </div>
 
     <!-- ── Active Bids Panel ── -->
-    <div id="panel-active">
+    <div id="panel-active" class="<%= activeTab === 'past' ? 'hidden' : '' %>">
       <% if (activeBids && activeBids.length > 0) { %>
         <div class="flex flex-col gap-8">
           <% activeBids.forEach(function(bid) { %>
@@ -221,7 +221,7 @@
     </div>
 
     <!-- ── Past Bids Panel ── -->
-    <div id="panel-past" class="hidden">
+    <div id="panel-past" class="<%= activeTab === 'past' ? '' : 'hidden' %>">
       <% if (pastBids && pastBids.length > 0) { %>
         <div class="flex flex-col gap-8">
           <% pastBids.forEach(function(bid) { %>
@@ -290,24 +290,10 @@
       <% } %>
     </div>
 
+    <%- include('../partials/pagination', { pagination: pagination, queryString: 'tab=' + activeTab }) %>
+
     <div class="h-16"></div>
   </div>
 </main>
 
 <%- include('../partials/footer') %>
-
-<script>
-  function showTab(tab) {
-    const panels = { active: document.getElementById('panel-active'), past: document.getElementById('panel-past') };
-    const tabs   = { active: document.getElementById('tab-active'),  past: document.getElementById('tab-past') };
-
-    Object.keys(panels).forEach(key => {
-      const isActive = key === tab;
-      panels[key].classList.toggle('hidden', !isActive);
-      tabs[key].classList.toggle('text-primary', isActive);
-      tabs[key].classList.toggle('border-primary', isActive);
-      tabs[key].classList.toggle('text-secondary', !isActive);
-      tabs[key].classList.toggle('border-transparent', !isActive);
-    });
-  }
-</script>

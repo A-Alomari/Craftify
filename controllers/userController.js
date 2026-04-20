@@ -454,6 +454,12 @@ exports.conversation = (req, res) => {
       return res.redirect('/user/messages');
     }
 
+    // Prevent customer-to-customer conversations
+    if (req.session.user.role === 'customer' && otherUser.role === 'customer') {
+      req.flash('error_msg', 'You can only message artisans');
+      return res.redirect('/user/messages');
+    }
+
     Message.markThreadAsRead(req.session.user.id, userId);
 
     const conversations = Message.getConversations(req.session.user.id);
@@ -500,6 +506,13 @@ exports.sendMessage = (req, res) => {
     if (!receiver || receiver.status !== 'active') {
       if (req.xhr) return res.status(400).json({ success: false, message: 'Invalid recipient' });
       req.flash('error_msg', 'Invalid recipient');
+      return res.redirect('/user/messages');
+    }
+
+    // Prevent customer-to-customer messaging
+    if (req.session.user.role === 'customer' && receiver.role === 'customer') {
+      if (req.xhr) return res.status(403).json({ success: false, message: 'You can only message artisans' });
+      req.flash('error_msg', 'You can only message artisans');
       return res.redirect('/user/messages');
     }
 

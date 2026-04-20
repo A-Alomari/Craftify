@@ -73,7 +73,7 @@
                 </div>
                 <button type="submit" class="flex-1 bg-primary-container text-on-primary-container font-bold py-4 px-8 rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95">
                     <span class="material-symbols-outlined">shopping_bag</span>
-                    Add to Cart
+                    <span class="hidden sm:inline">Add to Cart</span>
                 </button>
             </form>
             <form action="/user/wishlist/toggle" method="POST" data-no-loading>
@@ -202,7 +202,7 @@ const distributionMap = {};
                     <div class="grid grid-cols-[auto_1fr_auto] items-center gap-3 text-sm">
                         <span class="font-semibold text-on-surface"><%= rating %>★</span>
                         <div class="h-2.5 rounded-full bg-surface-container-low overflow-hidden">
-                            <div class="h-full rounded-full bg-primary" style="width: <%= width %>%;"></div>
+                            <div class="h-full rounded-full bg-primary rating-bar" data-pct="<%= width %>"></div>
                         </div>
                         <span class="text-secondary"><%= count %></span>
                     </div>
@@ -321,6 +321,11 @@ const distributionMap = {};
       this.classList.remove('border-transparent');
       this.classList.add('border-primary-container', 'ring-2', 'ring-primary-container/20');
     });
+  });
+
+  // Set rating bar widths from data attributes
+  document.querySelectorAll('.rating-bar[data-pct]').forEach(function(el) {
+    el.style.width = el.getAttribute('data-pct') + '%';
   });
 })();
 </script>

@@ -37,8 +37,8 @@ exports.index = (req, res) => {
       pagination: {
         current: parseInt(page),
         total: totalPages,
-        hasNext: page < totalPages,
-        hasPrev: page > 1
+        hasNext: parseInt(page) < totalPages,
+        hasPrev: parseInt(page) > 1
       }
     });
   } catch (err) {
@@ -193,13 +193,31 @@ exports.myBids = (req, res) => {
       }
     });
 
-    const activeBids = bids.filter(b => b.auction_status === 'active' && b.timeLeftMs > 0);
-    const pastBids = bids.filter(b => b.auction_status !== 'active' || b.timeLeftMs <= 0);
-    const activeBidsCount = activeBids.length;
+    const allActiveBids = bids.filter(b => b.auction_status === 'active' && b.timeLeftMs > 0);
+    const allPastBids = bids.filter(b => b.auction_status !== 'active' || b.timeLeftMs <= 0);
+    const activeBidsCount = allActiveBids.length;
     const totalWon = bids.filter(b =>
       (b.auction_status === 'sold' || b.auction_status === 'ended') &&
       b.winner_id === userId
     ).length;
+
+    const tab = req.query.tab || 'active';
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const perPage = 8;
+
+    const sourceBids = tab === 'past' ? allPastBids : allActiveBids;
+    const totalItems = sourceBids.length;
+    const totalPages = Math.ceil(totalItems / perPage) || 1;
+    const offset = (page - 1) * perPage;
+    const activeBids = tab === 'past' ? allActiveBids : sourceBids.slice(offset, offset + perPage);
+    const pastBids = tab === 'past' ? sourceBids.slice(offset, offset + perPage) : allPastBids;
+
+    const pagination = {
+      current: page,
+      total: totalPages,
+      hasNext: page < totalPages,
+      hasPrev: page > 1
+    };
 
     res.render('auctions/my-bids', {
       title: 'My Bids - Craftify',
@@ -207,7 +225,9 @@ exports.myBids = (req, res) => {
       activeBids,
       pastBids,
       activeBidsCount,
-      totalWon
+      totalWon,
+      activeTab: tab,
+      pagination
     });
   } catch (err) {
     console.error('My bids error:', err);

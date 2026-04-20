@@ -126,11 +126,19 @@
 <label class="block text-[11px] font-label font-bold uppercase tracking-wider text-secondary mb-4">Place Your Bid</label>
 
 <% if (locals.error && (Array.isArray(locals.error) ? locals.error.length > 0 : String(locals.error).trim())) { %>
-    <script>document.addEventListener('DOMContentLoaded',function(){if(typeof showToast==='function')showToast('<%= String(Array.isArray(locals.error)?locals.error[0]:locals.error).replace(/\\/g,'\\\\').replace(/'/g,"\\'") %>','error');});</script>
+    <div id="__flash_error" data-msg="<%- JSON.stringify(String(Array.isArray(locals.error)?locals.error[0]:locals.error)) %>" hidden></div>
 <% } %>
 <% if (locals.success && (Array.isArray(locals.success) ? locals.success.length > 0 : String(locals.success).trim())) { %>
-    <script>document.addEventListener('DOMContentLoaded',function(){if(typeof showToast==='function')showToast('<%= String(Array.isArray(locals.success)?locals.success[0]:locals.success).replace(/\\/g,'\\\\').replace(/'/g,"\\'") %>','success');});</script>
+    <div id="__flash_success" data-msg="<%- JSON.stringify(String(Array.isArray(locals.success)?locals.success[0]:locals.success)) %>" hidden></div>
 <% } %>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var errEl = document.getElementById('__flash_error');
+    var sucEl = document.getElementById('__flash_success');
+    if (errEl && typeof showToast === 'function') showToast(JSON.parse(errEl.dataset.msg), 'error');
+    if (sucEl && typeof showToast === 'function') showToast(JSON.parse(sucEl.dataset.msg), 'success');
+});
+</script>
 
 <% if (locals.user && locals.user.role === 'customer') { %>
     <div id="auction-live-feedback" class="hidden mb-4 text-sm rounded-xl px-4 py-3" style="display:none!important"></div>
@@ -265,13 +273,19 @@
 })();
 </script>
 <script src="/socket.io/socket.io.js"></script>
+<div id="__auction_rt_data"
+     data-auction-id="<%= Number(auction.id) %>"
+     data-user-id="<%= locals.user ? Number(locals.user.id) : '' %>"
+     data-bid-increment="<%= Number(auction.bid_increment || 1) %>"
+     hidden></div>
 <script>
     (function() {
         if (typeof window.io !== 'function') {
             return;
         }
 
-        var auctionId = <%= Number(auction.id) %>;
+        var __rtData = document.getElementById('__auction_rt_data');
+        var auctionId = Number(__rtData.dataset.auctionId);
         var socket = window.io();
         var currentBidEl = document.getElementById('current-bid-value');
         var bidCountEl = document.getElementById('bid-count-value');
@@ -281,8 +295,8 @@
         var bidAmountInput = document.getElementById('auction-bid-amount');
         var minimumBidEl = document.getElementById('minimum-bid-value');
         var bidSubmitButton = document.getElementById('auction-bid-submit');
-        var currentUserId = <%= locals.user ? Number(locals.user.id) : 'null' %>;
-        var defaultBidIncrement = <%= Number(auction.bid_increment || 1) %>;
+        var currentUserId = __rtData.dataset.userId ? Number(__rtData.dataset.userId) : null;
+        var defaultBidIncrement = Number(__rtData.dataset.bidIncrement);
         var pendingBidAmount = null;
         var pendingBidTimer = null;
 

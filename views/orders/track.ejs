@@ -69,41 +69,41 @@
         </div>
       </section>
 
-      <section class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/20">
-        <div class="flex items-center justify-between">
+      <section class="bg-surface-container-lowest p-6 md:p-8 rounded-xl shadow-sm border border-outline-variant/20">
+        <div class="flex items-start justify-between gap-1 overflow-x-auto pb-1">
           <!-- Step 1: Order Placed -->
-          <div class="flex flex-col items-center flex-1">
-            <div class="w-10 h-10 rounded-full <%= orderPlacedDone ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white' %> flex items-center justify-center mb-3">
+          <div class="flex flex-col items-center min-w-0 flex-1">
+            <div class="w-10 h-10 rounded-full <%= orderPlacedDone ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white' %> flex items-center justify-center mb-2 flex-shrink-0">
               <span class="material-symbols-outlined text-xl"><%= orderPlacedDone ? 'check_circle' : 'receipt_long' %></span>
             </div>
-            <p class="text-xs font-bold uppercase tracking-widest <%= orderPlacedDone ? 'text-emerald-600' : 'text-amber-600' %>">Order Placed</p>
+            <p class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-center <%= orderPlacedDone ? 'text-emerald-600' : 'text-amber-600' %>">Placed</p>
           </div>
-          <div class="tracking-stepper-line <%= processingReached ? 'completed' : '' %> mx-2 md:mx-4"></div>
+          <div class="tracking-stepper-line <%= processingReached ? 'completed' : '' %> mx-1 md:mx-4 mt-5 flex-shrink-0"></div>
 
           <!-- Step 2: Processing -->
-          <div class="flex flex-col items-center flex-1">
-            <div class="w-10 h-10 rounded-full <%= processingDone ? 'bg-emerald-500 text-white' : processingCurrent ? 'bg-amber-500 text-white' : 'bg-surface-container-high text-on-surface-variant' %> flex items-center justify-center mb-3">
+          <div class="flex flex-col items-center min-w-0 flex-1">
+            <div class="w-10 h-10 rounded-full <%= processingDone ? 'bg-emerald-500 text-white' : processingCurrent ? 'bg-amber-500 text-white' : 'bg-surface-container-high text-on-surface-variant' %> flex items-center justify-center mb-2 flex-shrink-0">
               <span class="material-symbols-outlined text-xl"><%= processingDone ? 'sync_saved_locally' : processingCurrent ? 'sync_saved_locally' : 'schedule' %></span>
             </div>
-            <p class="text-xs font-bold uppercase tracking-widest <%= processingDone ? 'text-emerald-600' : processingCurrent ? 'text-amber-600' : 'text-on-surface-variant' %>">Processing</p>
+            <p class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-center <%= processingDone ? 'text-emerald-600' : processingCurrent ? 'text-amber-600' : 'text-on-surface-variant' %>">Processing</p>
           </div>
-          <div class="tracking-stepper-line <%= shippedReached ? 'completed' : '' %> mx-2 md:mx-4"></div>
+          <div class="tracking-stepper-line <%= shippedReached ? 'completed' : '' %> mx-1 md:mx-4 mt-5 flex-shrink-0"></div>
 
           <!-- Step 3: Shipped -->
-          <div class="flex flex-col items-center flex-1">
-            <div class="w-10 h-10 rounded-full <%= shippedDone ? 'bg-emerald-500 text-white' : shippedCurrent ? 'bg-amber-500 text-white' : 'bg-surface-container-high text-on-surface-variant' %> flex items-center justify-center mb-3">
+          <div class="flex flex-col items-center min-w-0 flex-1">
+            <div class="w-10 h-10 rounded-full <%= shippedDone ? 'bg-emerald-500 text-white' : shippedCurrent ? 'bg-amber-500 text-white' : 'bg-surface-container-high text-on-surface-variant' %> flex items-center justify-center mb-2 flex-shrink-0">
               <span class="material-symbols-outlined text-xl">local_shipping</span>
             </div>
-            <p class="text-xs font-bold uppercase tracking-widest <%= shippedDone ? 'text-emerald-600' : shippedCurrent ? 'text-amber-600' : 'text-on-surface-variant' %>">Shipped</p>
+            <p class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-center <%= shippedDone ? 'text-emerald-600' : shippedCurrent ? 'text-amber-600' : 'text-on-surface-variant' %>">Shipped</p>
           </div>
-          <div class="tracking-stepper-line <%= deliveredReached ? 'completed' : '' %> mx-2 md:mx-4"></div>
+          <div class="tracking-stepper-line <%= deliveredReached ? 'completed' : '' %> mx-1 md:mx-4 mt-5 flex-shrink-0"></div>
 
           <!-- Step 4: Delivered -->
-          <div class="flex flex-col items-center flex-1">
-            <div class="w-10 h-10 rounded-full <%= deliveredDone ? 'bg-emerald-500 text-white' : 'bg-surface-container-high text-on-surface-variant' %> flex items-center justify-center mb-3">
+          <div class="flex flex-col items-center min-w-0 flex-1">
+            <div class="w-10 h-10 rounded-full <%= deliveredDone ? 'bg-emerald-500 text-white' : 'bg-surface-container-high text-on-surface-variant' %> flex items-center justify-center mb-2 flex-shrink-0">
               <span class="material-symbols-outlined text-xl">inventory_2</span>
             </div>
-            <p class="text-xs font-bold uppercase tracking-widest <%= deliveredDone ? 'text-emerald-600' : 'text-on-surface-variant' %>">Delivered</p>
+            <p class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-center <%= deliveredDone ? 'text-emerald-600' : 'text-on-surface-variant' %>">Delivered</p>
           </div>
         </div>
       </section>
