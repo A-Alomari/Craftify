@@ -177,7 +177,8 @@
   <div class="flex gap-8 lg:gap-12 min-h-screen">
 
     <!-- Sidebar — desktop -->
-    <aside class="hidden md:flex md:w-64 lg:w-72 flex-col pt-4 pb-8 space-y-1 sticky top-24" style="align-self: flex-start; position: sticky; top: 96px; max-height: calc(100vh - 96px); overflow-y: auto;">
+    <aside class="hidden md:block md:w-64 lg:w-72 shrink-0">
+      <nav class="sticky top-24 flex flex-col pt-4 pb-8 space-y-1" style="max-height: calc(100vh - 96px); overflow-y: auto;">
       <div class="px-5 mb-6">
         <h2 class="text-2xl font-headline font-bold text-on-surface">My Account</h2>
         <p class="font-label text-[10px] tracking-[0.16em] uppercase text-secondary mt-1">Member since <%= joinedYear %></p>
@@ -188,6 +189,7 @@
           <span><%= link.label %></span>
         </a>
       <% }); %>
+      </nav>
     </aside>
 
     <!-- Main content -->
@@ -360,7 +362,7 @@
             <span class="material-symbols-outlined text-tertiary text-2xl" style="font-variation-settings:'FILL' 1">favorite</span>
             <h2 class="font-headline text-3xl font-bold">My Wishlist</h2>
           </div>
-          <p class="text-on-surface-variant font-medium ml-10"><%= wItems.length %> item<%= wItems.length === 1 ? '' : 's' %> saved</p>
+          <p class="text-on-surface-variant font-medium ml-10"><%= (typeof pagination !== 'undefined' && pagination) ? pagination.totalItems : wItems.length %> item<%= ((typeof pagination !== 'undefined' && pagination) ? pagination.totalItems : wItems.length) === 1 ? '' : 's' %> saved</p>
         </div>
         <a href="/products" class="px-5 py-2.5 rounded-lg border border-outline text-on-surface font-semibold hover:bg-surface-container-low transition-colors flex items-center gap-2 self-start">
           <span class="material-symbols-outlined text-xl">add_shopping_cart</span>
@@ -424,10 +426,31 @@
             </article>
           <% }); %>
         </div>
+
+        <!-- Wishlist Pagination -->
+        <% if (typeof pagination !== 'undefined' && pagination && pagination.totalPages > 1) { %>
+        <nav class="flex justify-center items-center gap-2 mt-10">
+          <% if (pagination.currentPage > 1) { %>
+            <a href="/user/profile?tab=wishlist&page=<%= pagination.currentPage - 1 %>"
+               class="px-3 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant/20 hover:bg-surface-container text-on-surface text-sm font-medium transition-colors">
+              <span class="material-symbols-outlined text-sm" style="vertical-align:middle">chevron_left</span>
+            </a>
+          <% } %>
+          <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+            <a href="/user/profile?tab=wishlist&page=<%= i %>"
+               class="px-3 py-2 rounded-lg text-sm font-bold transition-colors <%= i === pagination.currentPage ? 'bg-primary text-on-primary' : 'bg-surface-container-lowest border border-outline-variant/20 text-on-surface hover:bg-surface-container' %>">
+              <%= i %>
+            </a>
+          <% } %>
+          <% if (pagination.currentPage < pagination.totalPages) { %>
+            <a href="/user/profile?tab=wishlist&page=<%= pagination.currentPage + 1 %>"
+               class="px-3 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant/20 hover:bg-surface-container text-on-surface text-sm font-medium transition-colors">
+              <span class="material-symbols-outlined text-sm" style="vertical-align:middle">chevron_right</span>
+            </a>
+          <% } %>
+        </nav>
+        <% } %>
       <% } else { %>
-        <div class="bg-surface-container-lowest rounded-2xl py-16 text-center">
-          <span class="material-symbols-outlined text-6xl text-secondary/70">favorite</span>
-          <h3 class="font-headline text-2xl mt-4">Your wishlist is empty</h3>
           <p class="text-secondary mt-2">Browse handmade pieces and save your favorites here.</p>
           <a href="/products" class="inline-flex mt-6 items-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-semibold">
             <span class="material-symbols-outlined text-lg">storefront</span>
@@ -484,9 +507,31 @@
             </article>
           <% }); %>
         </div>
+
+        <!-- Reviews Pagination -->
+        <% if (typeof pagination !== 'undefined' && pagination && pagination.totalPages > 1) { %>
+        <nav class="flex justify-center items-center gap-2 mt-10">
+          <% if (pagination.currentPage > 1) { %>
+            <a href="/user/profile?tab=reviews&page=<%= pagination.currentPage - 1 %>"
+               class="px-3 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant/20 hover:bg-surface-container text-on-surface text-sm font-medium transition-colors">
+              <span class="material-symbols-outlined text-sm" style="vertical-align:middle">chevron_left</span>
+            </a>
+          <% } %>
+          <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+            <a href="/user/profile?tab=reviews&page=<%= i %>"
+               class="px-3 py-2 rounded-lg text-sm font-bold transition-colors <%= i === pagination.currentPage ? 'bg-primary text-on-primary' : 'bg-surface-container-lowest border border-outline-variant/20 text-on-surface hover:bg-surface-container' %>">
+              <%= i %>
+            </a>
+          <% } %>
+          <% if (pagination.currentPage < pagination.totalPages) { %>
+            <a href="/user/profile?tab=reviews&page=<%= pagination.currentPage + 1 %>"
+               class="px-3 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant/20 hover:bg-surface-container text-on-surface text-sm font-medium transition-colors">
+              <span class="material-symbols-outlined text-sm" style="vertical-align:middle">chevron_right</span>
+            </a>
+          <% } %>
+        </nav>
+        <% } %>
       <% } else { %>
-        <div class="bg-surface-container-lowest rounded-xl py-16 text-center border border-outline-variant/10 mt-6">
-          <span class="material-symbols-outlined text-5xl text-secondary/50">rate_review</span>
           <p class="font-headline text-xl text-on-surface mt-4 mb-2">No reviews yet</p>
           <p class="text-secondary text-sm">Purchase a product and share your experience.</p>
           <a href="/products" class="inline-block mt-6 bg-primary-container text-on-primary-container px-6 py-2.5 rounded-lg text-sm font-bold hover:opacity-90">Browse Products</a>

@@ -19,18 +19,30 @@ exports.profile = (req, res) => {
   const activeTab = req.query.tab || 'profile';
   let wishlistItems = [];
   let reviewItems = [];
+  let pagination = null;
+
   if (activeTab === 'wishlist') {
-    wishlistItems = Wishlist.findByUserId(req.session.user.id) || [];
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const perPage = 6;
+    const offset = (page - 1) * perPage;
+    const totalItems = Wishlist.count(req.session.user.id);
+    wishlistItems = Wishlist.findByUserId(req.session.user.id, perPage, offset) || [];
     wishlistItems.forEach(item => {
       const images = JSON.parse(item.images || '[]');
       item.image = images[0] || '/images/placeholder-product.jpg';
     });
+    pagination = { currentPage: page, totalPages: Math.ceil(totalItems / perPage), totalItems };
   } else if (activeTab === 'reviews') {
-    reviewItems = Review.findByUserId(req.session.user.id, { limit: 50, offset: 0 }) || [];
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const perPage = 5;
+    const offset = (page - 1) * perPage;
+    const totalReviews = Review.countByUserId(req.session.user.id);
+    reviewItems = Review.findByUserId(req.session.user.id, { limit: perPage, offset }) || [];
     reviewItems.forEach(r => {
       const images = JSON.parse(r.images || '[]');
       r.image = images[0] || '/images/placeholder-product.jpg';
     });
+    pagination = { currentPage: page, totalPages: Math.ceil(totalReviews / perPage), totalReviews };
   }
   res.render('user/profile', {
     title: 'My Profile - Craftify',
@@ -38,7 +50,8 @@ exports.profile = (req, res) => {
     artisanProfile,
     activeTab,
     wishlistItems,
-    reviewItems
+    reviewItems,
+    pagination
   });
 };
 
