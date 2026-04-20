@@ -111,27 +111,7 @@ exports.privacy = (req, res) => {
 // Artisans directory
 exports.artisans = (req, res) => {
   try {
-    const { getDb } = require('../config/database');
-    const db = getDb();
-    
-    // FIX: ap.status, ap.is_featured, r.status columns do not exist in the schema.
-    // ap.status → ap.is_approved; ap.is_featured removed; r.status → r.is_approved.
-    const artisans = db.prepare(`
-      SELECT
-        u.id, u.name, u.email,
-        ap.shop_name, ap.bio, ap.profile_image,
-        COUNT(DISTINCT p.id) as product_count,
-        AVG(r.rating) as avg_rating,
-        COUNT(DISTINCT r.id) as review_count
-      FROM users u
-      INNER JOIN artisan_profiles ap ON u.id = ap.user_id
-      LEFT JOIN products p ON u.id = p.artisan_id AND p.status = 'approved'
-      LEFT JOIN reviews r ON p.id = r.product_id AND r.is_approved = 1
-      WHERE u.role = 'artisan' AND u.status = 'active' AND ap.is_approved = 1
-      GROUP BY u.id, u.name, u.email, ap.shop_name, ap.bio, ap.profile_image
-      ORDER BY review_count DESC, product_count DESC
-    `).all();
-    
+    const artisans = ArtisanProfile.findApprovedWithStats();
     res.render('home/artisans', {
       title: 'Discover Artisans - Craftify',
       artisans

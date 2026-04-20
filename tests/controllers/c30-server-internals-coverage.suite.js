@@ -165,7 +165,10 @@ module.exports = () => {
           return defaultDb || {
             exec: jest.fn(),
             prepare: jest.fn(() => ({
-              run: jest.fn(),
+              // WHY: run() must return { lastInsertRowid } so Notification.create() (and any
+              // other model that reads lastInsertRowid after an INSERT) doesn't crash when
+              // the queue is empty and the fallback mock handles the call.
+              run: jest.fn(() => ({ lastInsertRowid: 0 })),
               get: jest.fn(() => ({ count: 0 })),
               all: jest.fn(() => [])
             }))

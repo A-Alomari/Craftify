@@ -67,6 +67,19 @@ module.exports = ({ getTestContext }) => {
       expect(stats).toHaveProperty('total_products');
       expect(stats).toHaveProperty('total_orders');
     });
+
+    test('findApprovedWithStats returns array with expected shape', () => {
+      const result = ArtisanProfile.findApprovedWithStats();
+      expect(Array.isArray(result)).toBe(true);
+      if (result.length > 0) {
+        const artisan = result[0];
+        expect(artisan).toHaveProperty('id');
+        expect(artisan).toHaveProperty('shop_name');
+        expect(artisan).toHaveProperty('product_count');
+        expect(artisan).toHaveProperty('avg_rating');
+        expect(artisan).toHaveProperty('review_count');
+      }
+    });
   });
 
 };

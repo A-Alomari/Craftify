@@ -154,6 +154,27 @@ class ArtisanProfile {
 
     return db.prepare(query).get(...params)?.count || 0;
   }
+
+  // WHY: The artisans-directory page needs a join across users + profiles + products + reviews.
+  // Keeping this SQL in the model preserves the MVC contract — controllers must not call getDb().
+  static findApprovedWithStats() {
+    const db = database.getDb();
+    return db.prepare(`
+      SELECT
+        u.id, u.name, u.email,
+        ap.shop_name, ap.bio, ap.profile_image,
+        COUNT(DISTINCT p.id) as product_count,
+        AVG(r.rating) as avg_rating,
+        COUNT(DISTINCT r.id) as review_count
+      FROM users u
+      INNER JOIN artisan_profiles ap ON u.id = ap.user_id
+      LEFT JOIN products p ON u.id = p.artisan_id AND p.status = 'approved'
+      LEFT JOIN reviews r ON p.id = r.product_id AND r.is_approved = 1
+      WHERE u.role = 'artisan' AND u.status = 'active' AND ap.is_approved = 1
+      GROUP BY u.id, u.name, u.email, ap.shop_name, ap.bio, ap.profile_image
+      ORDER BY review_count DESC, product_count DESC
+    `).all();
+  }
 }
 
 module.exports = ArtisanProfile;

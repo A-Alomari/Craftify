@@ -1,8 +1,7 @@
 const { getDb } = require('../config/database');
 const { v4: uuidv4 } = require('uuid');
-// WHY: Order and Notification are required here (not at top-level imports) to avoid any
-// potential circular-require issues at startup; lazy-require inside the static method
-// is the safest pattern for cross-model dependencies in CommonJS.
+// WHY: Order and Notification are required at module level. No circular dependency exists:
+// Order.js → config/database only; Notification.js → config/database only.
 const Order = require('./Order');
 const Notification = require('./Notification');
 
