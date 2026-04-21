@@ -68,12 +68,12 @@ describe('OrdersController (e2e)', () => {
         .post('/orders/checkout')
         .send({
           _csrf: csrfToken,
-          shipping_name: 'Test User',
+          checkoutNonce: 'a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d',
           shipping_address: '123 Main St',
-          shipping_city: 'Manama',
-          shipping_country: 'Bahrain',
+          city: 'Manama',
+          postal_code: '12345',
+          country: 'Bahrain',
           payment_method: 'cash',
-          nonce: 'test-nonce-checkout-001',
         });
       // Should redirect (either to cart with error or to confirmation)
       expect([200, 302]).toContain(res.status);

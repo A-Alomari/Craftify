@@ -405,7 +405,7 @@ export class ArtisanService {
   async getAuctionsList(
     artisanId: number,
     filters: { page?: number; limit?: number; status?: string },
-  ): Promise<{ auctions: Auction[]; pagination: PaginationMeta }> {
+  ): Promise<{ auctions: Auction[]; pagination: PaginationMeta; stats: { activeCount: number; pendingCount: number; soldCount: number; endedCount: number } }> {
     const page = Math.max(1, filters.page ?? 1);
     const limit = Math.min(50, filters.limit ?? 20);
 
@@ -424,7 +424,26 @@ export class ArtisanService {
       .take(limit)
       .getManyAndCount();
 
-    return { auctions, pagination: buildPagination(page, limit, total) };
+    // Count auctions by status for stats cards
+    const statRows: { status: string; cnt: string }[] = await this.auctionRepo
+      .createQueryBuilder('a')
+      .select('a.status', 'status')
+      .addSelect('COUNT(*)', 'cnt')
+      .where('a.artisan_id = :aid', { aid: artisanId })
+      .groupBy('a.status')
+      .getRawMany();
+
+    const statMap: Record<string, number> = {};
+    for (const r of statRows) statMap[r.status] = parseInt(r.cnt, 10);
+
+    const stats = {
+      activeCount: statMap['active'] ?? 0,
+      pendingCount: statMap['pending'] ?? 0,
+      soldCount: statMap['sold'] ?? 0,
+      endedCount: statMap['ended'] ?? 0,
+    };
+
+    return { auctions, pagination: buildPagination(page, limit, total), stats };
   }
 
   async createAuction(

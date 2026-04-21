@@ -86,6 +86,7 @@ export class MessagesController {
       title: 'Messages - Craftify',
       user: req.session.user,
       conversations,
+      pagination: null,
       csrfToken: this.csrf(req),
       flashError: this.flash(req, 'error_msg'),
       flashSuccess: this.flash(req, 'success_msg'),

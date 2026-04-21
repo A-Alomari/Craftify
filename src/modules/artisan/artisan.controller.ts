@@ -359,10 +359,13 @@ export class ArtisanController {
     const user = this.getUser(req);
     const page = parseInt((req.query.page as string) ?? '1', 10);
     const status = (req.query.status as string) || undefined;
+    const search = (req.query.search as string) || '';
+    const filters = { status: status || 'all', search };
 
     const { orders, pagination } = await this.artisanService.getOrdersList(user.id, {
       page,
       status,
+      search,
     });
 
     // Build quick stats from all orders for this artisan
@@ -380,6 +383,7 @@ export class ArtisanController {
       orders,
       pagination,
       stats,
+      filters,
       currentStatus: status,
       flashSuccess: this.flash(req, 'success_msg'),
       flashError: this.flash(req, 'error_msg'),
@@ -441,8 +445,10 @@ export class ArtisanController {
     const user = this.getUser(req);
     const page = parseInt((req.query.page as string) ?? '1', 10);
     const status = (req.query.status as string) || undefined;
+    const search = (req.query.search as string) || '';
+    const filters = { status: status || 'all', search };
 
-    const { auctions, pagination } = await this.artisanService.getAuctionsList(user.id, {
+    const { auctions, pagination, stats } = await this.artisanService.getAuctionsList(user.id, {
       page,
       status,
     });
@@ -453,6 +459,8 @@ export class ArtisanController {
       csrfToken: this.csrf(req),
       auctions,
       pagination,
+      stats,
+      filters,
       currentStatus: status,
       flashSuccess: this.flash(req, 'success_msg'),
       flashError: this.flash(req, 'error_msg'),

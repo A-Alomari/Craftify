@@ -301,6 +301,11 @@ export class UsersController {
         reviews: data.reviews,
         avgRating: data.avgRating,
         reviewCount: data.reviewCount,
+        stats: {
+          avg_rating: data.avgRating,
+          total_products: data.products?.length ?? 0,
+          total_orders: 0,
+        },
         user: req.session?.user ?? null,
         csrfToken: this.csrf(req),
         flashError: this.flash(req, 'error_msg'),

@@ -69,6 +69,10 @@ export class ReviewsController {
       reviews: result.reviews,
       pagination: result.pagination,
       sort: sort || 'newest',
+      filters: {
+        sort: sort || 'newest',
+        rating: req.query.rating ? parseInt(req.query.rating as string, 10) : null,
+      },
       csrfToken: this.csrf(req),
       flashError: this.flash(req, 'error_msg'),
       flashSuccess: this.flash(req, 'success_msg'),

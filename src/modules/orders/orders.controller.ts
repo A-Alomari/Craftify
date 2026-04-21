@@ -96,8 +96,9 @@ export class OrdersController {
     @Res() res: Response,
   ): Promise<void> {
     const userId = req.session.user!.id;
+    const statusParam = (req.query.status as string) || 'all';
     const filters = {
-      status: (req.query.status as string) || 'all',
+      status: statusParam === 'all' ? undefined : statusParam,
       page: parseInt((req.query.page as string) || '1', 10),
     };
 
@@ -110,7 +111,7 @@ export class OrdersController {
       title: 'My Orders - Craftify',
       orders,
       pagination,
-      filters,
+      filters: { status: statusParam },
       user: req.session.user,
       csrfToken: this.csrf(req),
     });
