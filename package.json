@@ -21,7 +21,6 @@
     "testEnvironment": "node",
     "testMatch": [
       "**/tests/**/*.test.js",
-      "**/tests/**/*.suite.js",
       "**/tests/craftify.test.js",
       "**/tests/bug-fixes.test.js",
       "**/tests/full-audit.test.js"

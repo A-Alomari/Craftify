@@ -54,7 +54,8 @@ exports.index = (req, res) => {
 // Add item to cart
 exports.addItem = (req, res) => {
   try {
-    const { productId, quantity = 1 } = req.body;
+    const productId = req.body.productId || req.body.product_id;
+    const quantity = req.body.quantity !== undefined ? req.body.quantity : 1;
     const parsedQuantity = Number.parseInt(quantity, 10);
 
     if (!Number.isInteger(parsedQuantity) || parsedQuantity <= 0) {

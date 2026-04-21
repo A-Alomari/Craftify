@@ -399,9 +399,15 @@ exports.reorder = (req, res) => {
     });
 
     const cartCount = Cart.getCount(userId, null);
-    return res.json({ success: true, added, outOfStock, cartCount });
+    if (req.xhr) {
+      return res.json({ success: true, added, outOfStock, cartCount });
+    }
+    req.flash('success_msg', outOfStock.length > 0 ? 'Some items were added to your cart' : 'Items added to cart');
+    return res.redirect('/cart');
   } catch (err) {
     console.error('Reorder error:', err);
-    return res.status(500).json({ success: false, message: 'Error reordering' });
+    if (req.xhr) return res.status(500).json({ success: false, message: 'Error reordering' });
+    req.flash('error_msg', 'Error reordering');
+    return res.redirect('/orders');
   }
 };
