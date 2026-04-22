@@ -21,6 +21,7 @@ type CraftifyRequest = Request & {
   session: Record<string, any> & {
     user?: { id: number; role: string };
   };
+  user?: { id: number; role: string };
   flash?: (type: string, message?: string) => string[];
   csrfToken?: () => string;
 };
@@ -37,6 +38,18 @@ export class WishlistController {
 
   private csrf(req: CraftifyRequest): string {
     return typeof req.csrfToken === 'function' ? req.csrfToken() : '';
+  }
+
+  private currentUserId(req: CraftifyRequest): number {
+    const id = req.session?.user?.id ?? req.user?.id;
+    if (!req.session?.user && req.user && req.session) {
+      req.session.user = req.user;
+    }
+    return Number(id);
+  }
+
+  private parseProductId(rawA?: string, rawB?: string): number {
+    return parseInt(String(rawA ?? rawB ?? ''), 10);
   }
 
   private isXhr(req: Request): boolean {
@@ -57,14 +70,14 @@ export class WishlistController {
     @Res() res: Response,
     @Query('page') pageStr?: string,
   ): Promise<void> {
-    const userId = req.session.user!.id;
+    const userId = this.currentUserId(req);
     const page = parseInt(pageStr || '1', 10) || 1;
 
     const result = await this.wishlistService.findByUserId(userId, page, 12);
 
     res.render('user/wishlist', {
       title: 'My Wishlist - Craftify',
-      user: req.session.user,
+      user: req.session.user ?? req.user,
       items: result.items,
       total: result.total,
       pagination: result.pagination,
@@ -84,9 +97,10 @@ export class WishlistController {
     @Req() req: CraftifyRequest,
     @Res() res: Response,
     @Body('product_id') productIdStr: string,
+    @Body('productId') productIdAlt: string,
   ): Promise<void> {
-    const userId = req.session.user!.id;
-    const productId = parseInt(productIdStr, 10);
+    const userId = this.currentUserId(req);
+    const productId = this.parseProductId(productIdStr, productIdAlt);
 
     try {
       await this.wishlistService.add(userId, productId);
@@ -96,7 +110,7 @@ export class WishlistController {
       req.flash?.('success_msg', 'Added to wishlist');
     } catch (err: any) {
       if (this.isXhr(req)) {
-        return void res.status(400).json({ success: false, error: err.message });
+        return void res.status(400).json({ success: false, error: err.message, message: err.message });
       }
       req.flash?.('error_msg', err.message || 'Could not add to wishlist');
     }
@@ -115,9 +129,10 @@ export class WishlistController {
     @Req() req: CraftifyRequest,
     @Res() res: Response,
     @Body('product_id') productIdStr: string,
+    @Body('productId') productIdAlt: string,
   ): Promise<void> {
-    const userId = req.session.user!.id;
-    const productId = parseInt(productIdStr, 10);
+    const userId = this.currentUserId(req);
+    const productId = this.parseProductId(productIdStr, productIdAlt);
 
     try {
       await this.wishlistService.remove(userId, productId);
@@ -127,7 +142,7 @@ export class WishlistController {
       req.flash?.('success_msg', 'Removed from wishlist');
     } catch (err: any) {
       if (this.isXhr(req)) {
-        return void res.status(400).json({ success: false, error: err.message });
+        return void res.status(400).json({ success: false, error: err.message, message: err.message });
       }
       req.flash?.('error_msg', 'Could not remove from wishlist');
     }
@@ -146,9 +161,10 @@ export class WishlistController {
     @Req() req: CraftifyRequest,
     @Res() res: Response,
     @Body('product_id') productIdStr: string,
+    @Body('productId') productIdAlt: string,
   ): Promise<void> {
-    const userId = req.session.user!.id;
-    const productId = parseInt(productIdStr, 10);
+    const userId = this.currentUserId(req);
+    const productId = this.parseProductId(productIdStr, productIdAlt);
 
     try {
       const inWishlist = await this.wishlistService.toggle(userId, productId);
@@ -165,7 +181,7 @@ export class WishlistController {
       if (this.isXhr(req)) {
         return void res
           .status(400)
-          .json({ success: false, error: err.message });
+          .json({ success: false, error: err.message, message: err.message });
       }
       req.flash?.('error_msg', err.message || 'Could not update wishlist');
     }
@@ -184,9 +200,10 @@ export class WishlistController {
     @Req() req: CraftifyRequest,
     @Res() res: Response,
     @Body('product_id') productIdStr: string,
+    @Body('productId') productIdAlt: string,
   ): Promise<void> {
-    const userId = req.session.user!.id;
-    const productId = parseInt(productIdStr, 10);
+    const userId = this.currentUserId(req);
+    const productId = this.parseProductId(productIdStr, productIdAlt);
 
     try {
       await this.wishlistService.moveToCart(userId, productId);

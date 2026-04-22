@@ -7,12 +7,19 @@ export class AuthGuard implements CanActivate {
     const req = context.switchToHttp().getRequest<Request & {
       isAuthenticated?: () => boolean;
       session: Record<string, any>;
+      user?: Record<string, any>;
       flash?: (type: string, message: string) => void;
       xhr?: boolean;
     }>();
     const res = context.switchToHttp().getResponse<Response>();
 
-    if (req.isAuthenticated && req.isAuthenticated()) {
+    const sessionUser = req.session?.user;
+    const passportUser = req.user;
+
+    if (sessionUser || passportUser || (req.isAuthenticated && req.isAuthenticated())) {
+      if (!sessionUser && passportUser && req.session) {
+        req.session.user = passportUser;
+      }
       return true;
     }
 

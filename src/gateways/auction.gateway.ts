@@ -124,7 +124,7 @@ export class AuctionGateway
 
   @SubscribeMessage('joinUser')
   handleJoinUser(@ConnectedSocket() client: Socket): void {
-    const session = (client.handshake as any).session;
+    const session = (client.handshake as any).session ?? (client.request as any)?.session;
     const userId  = session?.user?.id ?? session?.passport?.user;
     if (!userId) return;
     const room = `user-${userId}`;
@@ -142,7 +142,7 @@ export class AuctionGateway
     @MessageBody()    data: { auctionId: number; amount: number },
   ): Promise<void> {
     // ---- 1. Validate authentication ----
-    const session = (client.handshake as any).session;
+    const session = (client.handshake as any).session ?? (client.request as any)?.session;
     const user =
       session?.user ??
       (session?.passport?.user
