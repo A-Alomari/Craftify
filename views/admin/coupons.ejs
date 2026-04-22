@@ -79,12 +79,12 @@
 
         <div>
           <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Valid From</label>
-          <input type="datetime-local" name="valid_from" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+          <input type="text" name="valid_from" placeholder="DD/MM/YYYY" pattern="\d{2}/\d{2}/\d{4}" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
         </div>
 
         <div>
           <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Valid Until</label>
-          <input type="datetime-local" name="valid_until" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
+          <input type="text" name="valid_until" placeholder="DD/MM/YYYY" pattern="\d{2}/\d{2}/\d{4}" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
         </div>
 
         <div class="md:col-span-2 flex justify-end">

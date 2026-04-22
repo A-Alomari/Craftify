@@ -1,0 +1,24 @@
+<%
+  const _tabPath = typeof currentPath === 'string' ? currentPath : '';
+  const _artisanTabs = [
+    { href: '/artisan/products',   icon: 'inventory_2',  label: 'Products'  },
+    { href: '/artisan/auctions',   icon: 'gavel',        label: 'Auctions'  },
+    { href: '/artisan/coupons',    icon: 'local_offer',  label: 'Promo'     },
+    { href: '/artisan/analytics',  icon: 'leaderboard',  label: 'Analytics' },
+  ];
+%>
+<!-- Mobile horizontal tab nav (only on small screens, shown inside page content) -->
+<div class="md:hidden mb-4 overflow-x-auto scrollbar-none">
+  <div class="flex gap-2 min-w-max pb-1">
+    <% _artisanTabs.forEach(function(tab) {
+      const _tabActive = _tabPath === tab.href || _tabPath.startsWith(tab.href + '/');
+    %>
+    <a href="<%= tab.href %>"
+      class="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider whitespace-nowrap transition-colors
+        <%= _tabActive ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-low text-on-surface hover:bg-surface-container-high' %>">
+      <span class="material-symbols-outlined text-sm"><%= tab.icon %></span>
+      <span><%= tab.label %></span>
+    </a>
+    <% }); %>
+  </div>
+</div>

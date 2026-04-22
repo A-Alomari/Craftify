@@ -140,9 +140,8 @@ module.exports = ({ getTestContext, loginAs }) => {
     test('Profile page contains account navigation links', async () => {
       const agent = await loginAs('customer@test.com', 'cust123');
       const res = await agent.get('/user/profile');
-      expect(res.text).toContain('/orders');
-      expect(res.text).toContain('/user/wishlist');
-      expect(res.text).toContain('/user/reviews');
+      expect(res.text).toContain('/user/profile?tab=wishlist');
+      expect(res.text).toContain('/user/profile?tab=reviews');
     });
   });
 

@@ -317,12 +317,16 @@ describe('Admin coupon management', () => {
   it('creates a global coupon on POST /admin/coupons and redirects', async () => {
     const code = `ADMINCOUP${Date.now()}`;
     const now  = new Date();
+    const futureDate = new Date(now.getTime() + 30 * 86400000);
+    const dd = String(futureDate.getDate()).padStart(2, '0');
+    const mm = String(futureDate.getMonth() + 1).padStart(2, '0');
+    const yyyy = futureDate.getFullYear();
     const res  = await adminAgent.post('/admin/coupons').send({
       code,
       discount_type:  'fixed',
       discount_value: 5,
       min_purchase:   20,
-      valid_until:    new Date(now.getTime() + 30 * 86400000).toISOString().split('T')[0],
+      valid_until:    `${dd}/${mm}/${yyyy}`,
     });
 
     expect(res.statusCode).toBe(302);

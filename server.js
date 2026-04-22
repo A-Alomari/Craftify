@@ -236,6 +236,9 @@ app.use('/auth', authRoutes);
 app.use('/products', productRoutes);
 app.use('/cart', cartRoutes);
 app.use('/orders', orderRoutes);
+app.get('/auction', (req, res) => {
+  res.redirect('/auctions');
+});
 app.use('/auctions', auctionRoutes);
 app.use('/artisan', artisanRoutes);
 app.use('/admin', adminRoutes);

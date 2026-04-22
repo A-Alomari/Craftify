@@ -52,12 +52,14 @@
     const mobileInactiveClass = 'flex flex-col items-center justify-center text-slate-500 px-5 py-2';
     const isShopActive = mobileNav.startsWith('/products');
     const isAuctionActive = mobileNav.startsWith('/auctions') && !mobileNav.startsWith('/auctions/my-bids');
-    const isOrderActive = mobileNav.startsWith('/orders');
+    const isOrderActive = mobileNav.startsWith('/orders') || mobileNav.startsWith('/artisan/orders');
+    const isDashboardActive = mobileNav.startsWith('/artisan/dashboard');
     const isBidActive = mobileNav.startsWith('/auctions/my-bids');
     const isCartActive = mobileNav.startsWith('/cart');
     const isProfileActive = mobileNav.startsWith('/user') || mobileNav.startsWith('/auth');
     const isCustomer = typeof user !== 'undefined' && user && user.role === 'customer';
     const isArtisanOrAdmin = typeof user !== 'undefined' && user && (user.role === 'artisan' || user.role === 'admin');
+    const isArtisanPublicNavContext = isArtisanOrAdmin && !mobileNav.startsWith('/artisan');
 %>
 <% if (isCustomer) { %>
 <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-[0px_-10px_40px_rgba(25,28,30,0.04)] ">
@@ -76,6 +78,25 @@
     <a class="<%= isBidActive ? mobileActiveClass : mobileInactiveClass %>" href="/auctions/my-bids">
         <span class="material-symbols-outlined <%= isBidActive ? 'filled-icon' : '' %>">bid_landscape</span>
         <span class="font-['Inter'] text-[10px] uppercase tracking-widest font-bold mt-1">My Bids</span>
+    </a>
+</nav>
+<% } else if (isArtisanPublicNavContext) { %>
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-[0px_-10px_40px_rgba(25,28,30,0.04)] ">
+    <a class="<%= isShopActive ? mobileActiveClass : mobileInactiveClass %>" href="/products">
+        <span class="material-symbols-outlined <%= isShopActive ? 'filled-icon' : '' %>">storefront</span>
+        <span class="font-['Inter'] text-[10px] uppercase tracking-widest font-bold mt-1">Shop</span>
+    </a>
+    <a class="<%= isAuctionActive ? mobileActiveClass : mobileInactiveClass %>" href="/auctions">
+        <span class="material-symbols-outlined <%= isAuctionActive ? 'filled-icon' : '' %>">gavel</span>
+        <span class="font-['Inter'] text-[10px] uppercase tracking-widest font-bold mt-1">Auction</span>
+    </a>
+    <a class="<%= isOrderActive ? mobileActiveClass : mobileInactiveClass %>" href="/artisan/orders">
+        <span class="material-symbols-outlined <%= isOrderActive ? 'filled-icon' : '' %>">package_2</span>
+        <span class="font-['Inter'] text-[10px] uppercase tracking-widest font-bold mt-1">Orders</span>
+    </a>
+    <a class="<%= isDashboardActive ? mobileActiveClass : mobileInactiveClass %>" href="/artisan/dashboard">
+        <span class="material-symbols-outlined <%= isDashboardActive ? 'filled-icon' : '' %>">dashboard</span>
+        <span class="font-['Inter'] text-[10px] uppercase tracking-widest font-bold mt-1">Dashboard</span>
     </a>
 </nav>
 <% } else if (!isArtisanOrAdmin) { %>

@@ -1,41 +1,44 @@
 <%- include('../partials/header', { title: title }) %>
 
-<div class="flex bg-surface min-h-screen">
+<div class="flex bg-surface min-h-screen w-full overflow-x-hidden">
   <%- include('./partials/sidebar') %>
 
-  <main class="flex-1 md:ml-0 pt-4 px-6 md:px-8 pb-12 min-h-screen">
+  <main class="flex-1 md:ml-0 pt-4 px-4 sm:px-6 md:px-8 pb-24 md:pb-12 min-h-screen w-full overflow-x-hidden">
+    <%- include('./partials/tabs') %>
 
     <!-- Page Header -->
-    <header class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
-      <div>
-        <span class="font-label uppercase tracking-widest text-xs text-primary mb-2 block">Management Portal</span>
-        <h1 class="text-3xl md:text-4xl font-headline font-bold text-on-surface">Inventory Collection</h1>
-        <p class="text-secondary mt-1 max-w-lg text-sm">Manage your handcrafted listings, update availability, and maintain your shop catalog.</p>
-      </div>
-      <div class="flex items-center gap-3">
-        <div class="relative min-w-[220px]">
-          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-sm">search</span>
-          <input id="product-search" type="text" placeholder="Filter products…"
-            class="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-xl py-2.5 pl-9 pr-4 focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none">
+    <header class="mb-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-4">
+        <div>
+          <span class="font-label uppercase tracking-widest text-xs text-primary mb-2 block">Management Portal</span>
+          <h1 class="text-2xl sm:text-3xl md:text-4xl font-headline font-bold text-on-surface">Inventory Collection</h1>
+          <p class="text-secondary mt-1 max-w-lg text-sm">Manage your handcrafted listings, update availability, and maintain your shop catalog.</p>
         </div>
         <a href="/artisan/products/new"
-          class="bg-primary-container text-on-primary-container px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 active:scale-95 transition-transform shadow-sm text-sm whitespace-nowrap">
+          class="self-start md:self-auto bg-primary-container text-on-primary-container px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 active:scale-95 transition-transform shadow-sm text-sm whitespace-nowrap">
           <span class="material-symbols-outlined text-lg">add_circle</span>
           Add New Product
         </a>
+      </div>
+      <div class="relative w-full">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-sm">search</span>
+        <input id="product-search" type="text" placeholder="Filter products…"
+          class="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-xl py-2.5 pl-9 pr-4 focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none">
       </div>
     </header>
 
     <!-- Filter Tabs & Stats -->
     <section class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-      <div class="flex p-1 bg-surface-container-low rounded-xl gap-0.5">
-        <button class="tab-btn px-5 py-2 rounded-lg text-sm font-medium bg-surface-container-lowest shadow-sm text-primary" data-filter="all">All</button>
-        <button class="tab-btn px-5 py-2 rounded-lg text-sm font-medium text-secondary hover:text-primary transition-colors" data-filter="approved">Active</button>
-        <button class="tab-btn px-5 py-2 rounded-lg text-sm font-medium text-secondary hover:text-primary transition-colors" data-filter="pending">Pending</button>
-        <button class="tab-btn px-5 py-2 rounded-lg text-sm font-medium text-secondary hover:text-primary transition-colors" data-filter="out-of-stock">Out of Stock</button>
+      <div class="w-full md:w-auto overflow-x-auto scrollbar-none -mx-1 px-1">
+        <div class="flex p-1 bg-surface-container-low rounded-xl gap-0.5 min-w-max">
+          <button class="tab-btn px-5 py-2 rounded-lg text-sm font-medium bg-surface-container-lowest shadow-sm text-primary" data-filter="all">All</button>
+          <button class="tab-btn px-5 py-2 rounded-lg text-sm font-medium text-secondary hover:text-primary transition-colors" data-filter="approved">Active</button>
+          <button class="tab-btn px-5 py-2 rounded-lg text-sm font-medium text-secondary hover:text-primary transition-colors" data-filter="pending">Pending</button>
+          <button class="tab-btn px-5 py-2 rounded-lg text-sm font-medium text-secondary hover:text-primary transition-colors" data-filter="out-of-stock">Out of Stock</button>
+        </div>
       </div>
-      <div class="flex gap-3">
-        <div class="flex items-center gap-2 px-4 py-2 bg-surface-container-lowest rounded-xl shadow-sm">
+      <div class="w-full md:w-auto flex gap-3 shrink-0">
+        <div class="w-full md:w-auto flex items-center justify-center md:justify-start gap-2 px-4 py-2 bg-surface-container-lowest rounded-xl shadow-sm">
           <span class="material-symbols-outlined text-primary text-lg">inventory</span>
           <span class="text-sm font-medium"><%= products ? products.length : 0 %> Products</span>
         </div>
@@ -57,7 +60,7 @@
             var badgeBg2 = p.status === 'approved' && !isOutOfStock ? '#dcfce7' : (p.status === 'pending' ? '#fef3c7' : '#f1f5f9');
             var badgeColor2 = p.status === 'approved' && !isOutOfStock ? '#16a34a' : (p.status === 'pending' ? '#d97706' : '#64748b');
           %>
-          <div class="flex items-center gap-3 px-4 py-3 product-row"
+          <div class="flex items-start gap-3 px-4 py-3 product-row"
             data-status="<%= p.status %>"
             data-out-of-stock="<%= isOutOfStock ? 'true' : 'false' %>"
             data-name="<%= (p.name || '').toLowerCase() %>">
@@ -76,7 +79,7 @@
               <p class="text-xs text-secondary mt-0.5"><%= p.category_name || 'No category' %> &bull; Stock: <%= p.stock %></p>
               <p class="text-sm font-bold text-primary mt-0.5">$<%= Number(p.price || 0).toFixed(2) %></p>
             </div>
-            <div class="flex gap-1 shrink-0">
+            <div class="flex flex-col gap-1 shrink-0">
               <a href="/artisan/products/<%= p.id %>/edit" class="p-2 text-secondary hover:text-primary rounded-lg hover:bg-surface-container-low">
                 <span class="material-symbols-outlined text-lg">edit</span>
               </a>
@@ -184,7 +187,7 @@
         <!-- end desktop table -->
 
         <!-- Table Footer -->
-        <div class="px-6 py-4 bg-surface-container-low/20 flex items-center justify-between">
+        <div class="px-6 py-4 bg-surface-container-low/20 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <span class="text-xs font-medium text-secondary" id="showing-count">Showing <%= products.length %> product<%= products.length !== 1 ? 's' : '' %></span>
           <div class="flex gap-2">
             <% if (pagination.hasPrev) { %>
@@ -216,12 +219,6 @@
         </div>
       <% } %>
     </div>
-
-    <!-- Mobile FAB -->
-    <a href="/artisan/products/new"
-      class="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-primary-container text-on-primary-container shadow-lg flex items-center justify-center z-40 active:scale-90 transition-transform">
-      <span class="material-symbols-outlined">add</span>
-    </a>
 
   </main>
 </div>

@@ -11,11 +11,13 @@
         { href: '/artisan/analytics', icon: 'leaderboard', label: 'Analytics' },
     ];
     const mobileNavItems = [
-        { href: '/artisan/dashboard', icon: 'dashboard',   label: 'Home',     exact: true  },
-        { href: '/artisan/products',  icon: 'inventory_2', label: 'Products', exact: false },
+        { href: '/products',          icon: 'storefront',  label: 'Shop',     exact: false },
+        { href: '/auctions',          icon: 'gavel',       label: 'Auctions', exact: false },
         { href: '/artisan/orders',    icon: 'shopping_bag',label: 'Orders',   exact: false },
-        { href: '/artisan/auctions',  icon: 'gavel',       label: 'Auctions', exact: false },
+        { href: '/artisan/dashboard', icon: 'dashboard',   label: 'Dashboard',exact: true  },
     ];
+    const mobileActiveClass = 'flex flex-col items-center justify-center bg-amber-100 text-amber-900 rounded-2xl px-3 py-2';
+    const mobileInactiveClass = 'flex flex-col items-center justify-center text-slate-500 px-3 py-2';
 %>
 
 <aside class="hidden md:block w-64 flex-shrink-0 bg-surface-container-low">
@@ -65,13 +67,13 @@
 </aside>
 
 <!-- Mobile bottom navigation (shown instead of sidebar on small screens) -->
-<nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-xl border-t border-outline-variant/10 flex justify-around items-center px-1 py-2">
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-[0px_-10px_40px_rgba(25,28,30,0.04)]">
   <% mobileNavItems.forEach(function(n) {
     const _a = n.exact ? currentPathValue === n.href : currentPathValue.startsWith(n.href);
   %>
-  <a href="<%= n.href %>" class="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl <%= _a ? 'text-primary' : 'text-secondary' %>">
-    <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' <%= _a ? 1 : 0 %>"><%= n.icon %></span>
-    <span class="text-[9px] font-label font-bold uppercase tracking-wide"><%= n.label %></span>
+  <a href="<%= n.href %>" class="<%= _a ? mobileActiveClass : mobileInactiveClass %>">
+    <span class="material-symbols-outlined <%= _a ? 'filled-icon' : '' %>"><%= n.icon %></span>
+    <span class="font-['Inter'] text-[10px] uppercase tracking-widest font-bold mt-1"><%= n.label %></span>
   </a>
   <% }); %>
 </nav>

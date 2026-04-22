@@ -569,13 +569,50 @@ exports.createCoupon = (req, res) => {
       usage_limit
     } = req.body;
 
+    const parseCouponDateInput = (rawValue, isEndOfDay = false) => {
+      if (!rawValue) return { value: null };
+      const value = String(rawValue).trim();
+      const ddmmyyyyMatch = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+
+      if (ddmmyyyyMatch) {
+        const day = Number.parseInt(ddmmyyyyMatch[1], 10);
+        const month = Number.parseInt(ddmmyyyyMatch[2], 10);
+        const year = Number.parseInt(ddmmyyyyMatch[3], 10);
+        const date = new Date(year, month - 1, day);
+
+        if (
+          date.getFullYear() !== year
+          || date.getMonth() !== month - 1
+          || date.getDate() !== day
+        ) {
+          return { error: 'Invalid date. Use DD/MM/YYYY.' };
+        }
+
+        const hh = isEndOfDay ? '23' : '00';
+        const mm = isEndOfDay ? '59' : '00';
+        const ss = isEndOfDay ? '59' : '00';
+        const normalized = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} ${hh}:${mm}:${ss}`;
+        return { value: normalized };
+      }
+
+      return { error: 'Invalid date. Use DD/MM/YYYY.' };
+    };
+
+    const parsedValidFrom = parseCouponDateInput(valid_from, false);
+    const parsedValidUntil = parseCouponDateInput(valid_until, true);
+
+    if (parsedValidFrom.error || parsedValidUntil.error) {
+      req.flash('error_msg', parsedValidFrom.error || parsedValidUntil.error);
+      return res.redirect('/artisan/coupons');
+    }
+
     const parsedDiscountValue = Number.parseFloat(discount_value);
     const parsedMinPurchase = min_purchase ? Number.parseFloat(min_purchase) : 0;
     const parsedMaxDiscount = max_discount ? Number.parseFloat(max_discount) : null;
     const parsedUsageLimit = usage_limit ? Number.parseInt(usage_limit, 10) : null;
 
     // FIX: BUG 1 — reject if expiry date is in the past (server-side validation).
-    if (valid_until && new Date(valid_until) <= new Date()) {
+    if (parsedValidUntil.value && new Date(parsedValidUntil.value) <= new Date()) {
       req.flash('error_msg', 'Coupon expiry date must be in the future');
       return res.redirect('/artisan/coupons');
     }
@@ -607,8 +644,8 @@ exports.createCoupon = (req, res) => {
       discount_value: parsedDiscountValue,
       min_purchase: parsedMinPurchase,
       max_discount: parsedMaxDiscount,
-      valid_from: valid_from || null,
-      valid_until: valid_until || null,
+      valid_from: parsedValidFrom.value,
+      valid_until: parsedValidUntil.value,
       usage_limit: parsedUsageLimit,
       scope: 'artisan',
       artisan_id: artisanId,
