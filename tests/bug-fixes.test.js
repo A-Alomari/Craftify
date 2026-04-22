@@ -94,6 +94,13 @@ afterAll(() => {
 // ─────────────────────────────────────────────────────────────────────────────
 function ids() { return global.__bugIds; }
 
+function toDdMmYyyy(date) {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
 // =============================================================================
 // BUG 1 — COUPON DATE VALIDATION
 // =============================================================================
@@ -102,7 +109,7 @@ describe('BUG 1 — Coupon date validation (expiry must be future)', () => {
   // ── Artisan route ──────────────────────────────────────────────────────────
   test('Artisan: creating coupon with past expiry redirects with error', async () => {
     const a = await loginAs('art@bugs.com', 'art123');
-    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    const yesterday = toDdMmYyyy(new Date(Date.now() - 86400000));
     const res = await a.post('/artisan/coupons').send({
       code: `PASTCODE_${Date.now()}`,
       discount_type: 'percent',
@@ -118,7 +125,7 @@ describe('BUG 1 — Coupon date validation (expiry must be future)', () => {
 
   test('Artisan: creating coupon with future expiry succeeds', async () => {
     const a = await loginAs('art@bugs.com', 'art123');
-    const future = new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+    const future = toDdMmYyyy(new Date(Date.now() + 30 * 86400000));
     const code = `NEWCODE_${Date.now()}`;
     await a.post('/artisan/coupons').send({
       code,
@@ -134,7 +141,7 @@ describe('BUG 1 — Coupon date validation (expiry must be future)', () => {
   // ── Admin route ────────────────────────────────────────────────────────────
   test('Admin: creating coupon with past expiry redirects with error', async () => {
     const a = await loginAs('admin@bugs.com', 'admin123');
-    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    const yesterday = toDdMmYyyy(new Date(Date.now() - 86400000));
     const res = await a.post('/admin/coupons').send({
       code: `ADMINPAST_${Date.now()}`,
       discount_type: 'fixed',
