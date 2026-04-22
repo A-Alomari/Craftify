@@ -125,7 +125,7 @@ export class AuctionGateway
   @SubscribeMessage('joinUser')
   handleJoinUser(@ConnectedSocket() client: Socket): void {
     const session = (client.handshake as any).session;
-    const userId  = session?.user?.id;
+    const userId  = session?.user?.id ?? session?.passport?.user;
     if (!userId) return;
     const room = `user-${userId}`;
     void client.join(room);
@@ -143,7 +143,11 @@ export class AuctionGateway
   ): Promise<void> {
     // ---- 1. Validate authentication ----
     const session = (client.handshake as any).session;
-    const user    = session?.user;
+    const user =
+      session?.user ??
+      (session?.passport?.user
+        ? { id: session.passport.user, status: 'active', name: 'User' }
+        : null);
 
     if (!user?.id) {
       client.emit('bidError', { message: 'You must be logged in to place a bid' });

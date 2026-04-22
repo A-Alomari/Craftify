@@ -1,5 +1,4 @@
 import { MailerOptions } from '@nestjs-modules/mailer';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { join } from 'path';
 
 /**
@@ -86,6 +85,11 @@ export function getMailerConfig(): MailerOptions {
       );
     }
   }
+
+  // Lazy-load to avoid pulling css-inline (and its CustomGC handle) during tests.
+  // This keeps jest --detectOpenHandles output clean.
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { HandlebarsAdapter } = require('@nestjs-modules/mailer/dist/adapters/handlebars.adapter');
 
   return {
     transport: {

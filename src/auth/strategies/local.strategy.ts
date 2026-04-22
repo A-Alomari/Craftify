@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   ExecutionContext,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { PassportStrategy } from '@nestjs/passport';
 import { AuthGuard } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
@@ -17,17 +18,19 @@ import { AuthService } from '../auth.service';
  *
  * Called for POST /auth/login by LocalAuthGuard.
  *
- * usernameField is mapped to 'email' so the EJS form's <input name="email">
- * is picked up automatically. The strategy calls AuthService.validateUser which
- * accepts email OR phone (same as the legacy Express app via User.findByIdentifier).
+ * Supports identifier/email/phone form fields. The strategy calls
+ * AuthService.validateUser which accepts email OR phone (same as the legacy
+ * Express app via User.findByIdentifier).
  */
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
   constructor(private readonly authService: AuthService) {
     super({
-      usernameField: 'email',  // maps to req.body.email
+      // Must match the login form field name. passport-local rejects requests
+      // before validate() if this field is missing.
+      usernameField: 'identifier',
       passwordField: 'password',
-      passReqToCallback: false,
+      passReqToCallback: true,
     });
   }
 
@@ -37,10 +40,18 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
    * req.user.  Throwing UnauthorizedException causes Passport to respond with
    * 401 / redirect the guard's canActivate to return false.
    */
-  async validate(email: string, password: string): Promise<any> {
+  async validate(req: Request, _email: string, password: string): Promise<any> {
+    const body = (req?.body ?? {}) as {
+      identifier?: string;
+      email?: string;
+      phone?: string;
+    };
+    const loginIdentifier =
+      body.identifier || body.email || body.phone || _email || '';
+
     let user: any;
     try {
-      user = await this.authService.validateUser(email, password);
+      user = await this.authService.validateUser(loginIdentifier, password);
     } catch (err: any) {
       // validateUser throws UnauthorizedException when account is suspended
       throw err instanceof UnauthorizedException
@@ -76,6 +87,12 @@ export class LocalAuthGuard extends AuthGuard('local') {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
+
+    // Backward compatibility with older clients/tests that still post `email`
+    // or `phone` instead of `identifier`.
+    request.body = request.body || {};
+    request.body.identifier =
+      request.body.identifier || request.body.email || request.body.phone || '';
 
     try {
       const valid = (await super.canActivate(context)) as boolean;

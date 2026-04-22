@@ -37,6 +37,7 @@ type CraftifyRequest = Request & {
   flash?: (type: string, message?: string) => string[];
   csrfToken?: () => string;
   xhr?: boolean;
+    user?: Record<string, any>;
 };
 
 // ---------------------------------------------------------------------------
@@ -66,12 +67,12 @@ export class CartController {
   // -------------------------------------------------------------------------
 
   private getUserId(req: CraftifyRequest): number | null {
-    return req.session?.user?.id ?? null;
+    return req.session?.user?.id ?? (req.user as any)?.id ?? null;
   }
 
   private getSessionId(req: CraftifyRequest): string | null {
     // Use the numeric user id if logged in (avoids mixing carts on login)
-    if (req.session?.user?.id) return null;
+    if (req.session?.user?.id || (req.user as any)?.id) return null;
     return (req as any).sessionID ?? null;
   }
 
@@ -125,7 +126,7 @@ export class CartController {
       discount,
       total,
       appliedCoupon,
-      user: req.session.user ?? null,
+      user: req.session.user ?? req.user ?? null,
       csrfToken: this.csrf(req),
     });
   }

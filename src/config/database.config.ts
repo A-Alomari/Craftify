@@ -12,17 +12,6 @@ import { existsSync, readFileSync } from 'fs';
  *
  * Provides TypeORM connection options using the **sqljs** driver (sql.js).
  *
- * sql.js is a pure-JavaScript port of SQLite compiled to WebAssembly.
- * It requires no native compilation (no node-gyp / Visual Studio needed)
- * and is already part of the project's dependency tree (originally used
- * by the Express app).
- *
- * How it works in Node.js:
- *   - TypeORM reads the .sqlite file into memory as a Uint8Array on connect.
- *   - All queries run against the in-memory copy.
- *   - autoSave: true writes the database back to disk on every change.
- *   - location: the file path used for reads and writes.
- *
  * Synchronization policy:
  *   - Development / test: synchronize=true (auto-creates/alters tables)
  *   - Production: synchronize=false (use migrations instead)
@@ -36,7 +25,10 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
     const isProduction = nodeEnv === 'production';
     const isTest = nodeEnv === 'test' || Boolean(process.env.JEST_WORKER_ID);
 
-    const dbPath = this.configService.get<string>('CRAFTIFY_DB_PATH')
+    // Prefer DB_PATH per migration target. Keep CRAFTIFY_DB_PATH as a
+    // backward-compatible alias so existing environments keep working.
+    const dbPath = this.configService.get<string>('DB_PATH')
+      ?? this.configService.get<string>('CRAFTIFY_DB_PATH')
       ?? (isTest ? ':memory:' : join(process.cwd(), 'craftify.db'));
 
     const inMemory = dbPath === ':memory:';

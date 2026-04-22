@@ -14,13 +14,14 @@
 <body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
     <%
         const currentPathValue = typeof currentPath === 'string' ? currentPath : '/';
+        const currentUser = typeof user !== 'undefined' ? user : null;
         const navItems = [{ href: '/', label: 'Home' }, { href: '/products', label: 'Shop' }, { href: '/auctions', label: 'Auctions' }];
-        if (user && user.role === 'customer') {
+        if (currentUser && currentUser.role === 'customer') {
             navItems.push({ href: '/orders', label: 'Orders' });
             navItems.push({ href: '/auctions/my-bids', label: 'My Bids' });
         }
-        if (user && user.role === 'artisan') navItems.push({ href: '/artisan/dashboard', label: 'Dashboard' });
-        if (user && user.role === 'admin') navItems.push({ href: '/admin/dashboard', label: 'Dashboard' });
+        if (currentUser && currentUser.role === 'artisan') navItems.push({ href: '/artisan/dashboard', label: 'Dashboard' });
+        if (currentUser && currentUser.role === 'admin') navItems.push({ href: '/admin/dashboard', label: 'Dashboard' });
     %>
     <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 w-full z-50 shadow-sm dark:shadow-none bg-surface-container-lowest">
         <nav class="flex justify-between items-center px-6 py-4 max-w-full mx-auto">

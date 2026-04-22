@@ -12,13 +12,21 @@ import { Request, Response } from 'express';
 export class GuestGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const req = context.switchToHttp().getRequest<
-      Request & { session: Record<string, any> }
+      Request & { session: Record<string, any>; user?: Record<string, any> }
     >();
     const res = context.switchToHttp().getResponse<Response>();
 
-    const user = req.session?.user as
+    const sessionUser = req.session?.user as
       | { role: 'customer' | 'artisan' | 'admin' }
       | undefined;
+    const passportUser = req.user as
+      | { role: 'customer' | 'artisan' | 'admin' }
+      | undefined;
+    const user = sessionUser ?? passportUser;
+
+    if (!sessionUser && passportUser && req.session) {
+      req.session.user = passportUser;
+    }
 
     if (!user) {
       // Not logged in — allow access to the guest page

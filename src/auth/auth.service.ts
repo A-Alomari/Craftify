@@ -135,6 +135,16 @@ export class AuthService {
     if (previousAppliedCoupon) {
       req.session.appliedCoupon = previousAppliedCoupon;
     }
+
+    // Persist the updated session before redirecting so subsequent HTTP and
+    // websocket requests consistently see session.user.
+    await new Promise<void>((resolve, reject) => {
+      if (!req.session || typeof req.session.save !== 'function') {
+        resolve();
+        return;
+      }
+      req.session.save((err: Error | null) => (err ? reject(err) : resolve()));
+    });
   }
 
   // -------------------------------------------------------------------------

@@ -16,8 +16,20 @@ interface SessionUser {
 
 type CraftifyRequest = Request & {
   session: Record<string, any> & { user?: SessionUser };
+  user?: SessionUser;
   flash?: (type: string, message: string) => void;
 };
+
+function getCurrentUser(req: CraftifyRequest): SessionUser | undefined {
+  const sessionUser = req.session?.user as SessionUser | undefined;
+  if (sessionUser) return sessionUser;
+
+  const passportUser = req.user as SessionUser | undefined;
+  if (passportUser && req.session) {
+    req.session.user = passportUser;
+  }
+  return passportUser;
+}
 
 // ---------------------------------------------------------------------------
 // Shared redirect helper
@@ -57,7 +69,7 @@ export class RolesGuard implements CanActivate {
 
     const req = context.switchToHttp().getRequest<CraftifyRequest>();
     const res = context.switchToHttp().getResponse<Response>();
-    const user = req.session?.user;
+    const user = getCurrentUser(req);
 
     if (!user) {
       return denyAccess(req, res, 'Please log in to access this page', '/auth/login');
@@ -80,7 +92,7 @@ export class CustomerGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const req = context.switchToHttp().getRequest<CraftifyRequest>();
     const res = context.switchToHttp().getResponse<Response>();
-    const user = req.session?.user;
+    const user = getCurrentUser(req);
 
     if (!user) {
       return denyAccess(req, res, 'Please log in to access this page', '/auth/login');
@@ -103,7 +115,7 @@ export class ArtisanGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const req = context.switchToHttp().getRequest<CraftifyRequest>();
     const res = context.switchToHttp().getResponse<Response>();
-    const user = req.session?.user;
+    const user = getCurrentUser(req);
 
     if (!user) {
       return denyAccess(req, res, 'Please log in to access this page', '/auth/login');
@@ -126,7 +138,7 @@ export class AdminGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const req = context.switchToHttp().getRequest<CraftifyRequest>();
     const res = context.switchToHttp().getResponse<Response>();
-    const user = req.session?.user;
+    const user = getCurrentUser(req);
 
     if (!user) {
       return denyAccess(req, res, 'Please log in to access this page', '/auth/login');
@@ -150,7 +162,7 @@ export class CustomerOrGuestGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const req = context.switchToHttp().getRequest<CraftifyRequest>();
     const res = context.switchToHttp().getResponse<Response>();
-    const user = req.session?.user;
+    const user = getCurrentUser(req);
 
     if (user && (user.role === 'artisan' || user.role === 'admin')) {
       return denyAccess(req, res, 'This area is not available for your account type', '/');
@@ -169,7 +181,7 @@ export class ActiveGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const req = context.switchToHttp().getRequest<CraftifyRequest>();
     const res = context.switchToHttp().getResponse<Response>();
-    const user = req.session?.user;
+    const user = getCurrentUser(req);
 
     if (!user) {
       return denyAccess(req, res, 'Please log in to access this page', '/auth/login');
@@ -192,7 +204,7 @@ export class ApprovedArtisanGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const req = context.switchToHttp().getRequest<CraftifyRequest>();
     const res = context.switchToHttp().getResponse<Response>();
-    const user = req.session?.user;
+    const user = getCurrentUser(req);
 
     if (!user) {
       return denyAccess(req, res, 'Please log in to access this page', '/auth/login');

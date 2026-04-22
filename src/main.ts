@@ -213,7 +213,6 @@ async function bootstrap(): Promise<void> {
   // server-side and cannot be read or forged by client-side JS.
   //
   // Skipped for:
-  //   - GET, HEAD, OPTIONS (safe, idempotent methods)
   //   - All /api/* paths (API clients authenticate via session/JWT; they
   //     send their own CSRF headers where required)
   //   - Test environment (simplifies integration test setup)
@@ -227,11 +226,11 @@ async function bootstrap(): Promise<void> {
         res: express.Response,
         next: express.NextFunction,
       ): void => {
-        // Safe HTTP methods and API routes bypass CSRF verification
-        const isSafeMethod = ['GET', 'HEAD', 'OPTIONS'].includes(req.method);
+        // Skip API routes; apply csurf to all other routes so GET renders
+        // can call req.csrfToken() and embed fresh tokens in forms.
         const isApiRoute = req.path.startsWith('/api/');
 
-        if (isSafeMethod || isApiRoute) {
+        if (isApiRoute) {
           return next();
         }
 
@@ -374,6 +373,7 @@ async function bootstrap(): Promise<void> {
         session: session.Session & Partial<session.SessionData> & {
           user?: Record<string, unknown>;
         };
+        user?: Record<string, unknown>;
         csrfToken?: () => string;
       },
       res: express.Response,
@@ -395,7 +395,10 @@ async function bootstrap(): Promise<void> {
       }
 
       // Current authenticated user
-      const sessionUser = req.session?.user ?? null;
+      const sessionUser = req.session?.user ?? req.user ?? null;
+      if (!req.session?.user && req.user) {
+        req.session.user = req.user;
+      }
       res.locals.user = sessionUser;
 
       // Current request path (used by nav to highlight active links)
