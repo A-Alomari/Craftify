@@ -95,7 +95,7 @@ describe('GET /orders/checkout', () => {
   it('returns 200 for an authenticated customer with items in cart', async () => {
     const agent = request.agent(app);
     await agent.post('/auth/login').send({ email: 'customer@test.com', password: 'cust123' });
-    await agent.post('/cart/add').send({ product_id: ids.vaseId, quantity: 1 });
+    await agent.post('/cart/add').send({ productId: ids.vaseId, quantity: 1 });
     const res = await agent.get('/orders/checkout');
     expect(res.statusCode).toBe(200);
   });
@@ -118,7 +118,7 @@ describe('POST /orders/checkout – order placement', () => {
     const agent = request.agent(app);
     await agent.post('/auth/login').send({ email: 'customer@test.com', password: 'cust123' });
     await agent.post('/cart/clear');
-    await agent.post('/cart/add').send({ product_id: ids.vaseId, quantity: 1 });
+    await agent.post('/cart/add').send({ productId: ids.vaseId, quantity: 1 });
 
     const checkoutPage = await agent.get('/orders/checkout');
     // Extract checkout_nonce from the form
@@ -149,7 +149,7 @@ describe('POST /orders/checkout – order placement', () => {
     await agent.post('/auth/login').send({ email: 'customer@test.com', password: 'cust123' });
     await agent.post('/cart/clear');
     // Add out-of-stock product
-    await agent.post('/cart/add').send({ product_id: ids.outOfStockId, quantity: 1 });
+    await agent.post('/cart/add').send({ productId: ids.outOfStockId, quantity: 1 });
     // Manually set stock to 0 to simulate out-of-stock
     db.prepare('UPDATE products SET stock = 0 WHERE id = ?').run(ids.outOfStockId);
 
@@ -172,7 +172,7 @@ describe('POST /orders/checkout – order placement', () => {
   it('rejects checkout when required shipping fields are missing', async () => {
     const agent = request.agent(app);
     await agent.post('/auth/login').send({ email: 'customer@test.com', password: 'cust123' });
-    await agent.post('/cart/add').send({ product_id: ids.vaseId, quantity: 1 });
+    await agent.post('/cart/add').send({ productId: ids.vaseId, quantity: 1 });
 
     const res = await agent.post('/orders/checkout').send({
       shipping_address: '',
@@ -261,10 +261,11 @@ describe('POST /orders/:id/cancel', () => {
 // ── POST /orders/:id/reorder ──────────────────────────────────────────────────
 
 describe('POST /orders/:id/reorder', () => {
-  it('adds items from a past order back to the cart and redirects', async () => {
+  it('adds items from a past order back to the cart and returns JSON success', async () => {
     const agent = request.agent(app);
     await agent.post('/auth/login').send({ email: 'customer@test.com', password: 'cust123' });
     const res = await agent.post(`/orders/${ids.orderId}/reorder`);
-    expect(res.statusCode).toBe(302);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
   });
 });
