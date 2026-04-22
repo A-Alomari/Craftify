@@ -164,7 +164,7 @@ function createOrderFromCheckout({ userId, checkoutData, cartItems, totals, appl
     if (inTransaction) {
       try {
         runTransactionCommand(db, 'ROLLBACK');
-      } catch (rollbackErr) {
+      } catch {
         // Ignore rollback failures and rethrow original checkout error.
       }
     }

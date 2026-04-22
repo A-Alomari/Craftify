@@ -40,7 +40,7 @@ class Wishlist {
         INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)
       `).run(userId, productId);
       return true;
-    } catch (err) {
+    } catch {
       return false;
     }
   }

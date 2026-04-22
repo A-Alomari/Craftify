@@ -131,7 +131,7 @@ if (!isTest) {
       retries: 1,
       logFn: () => {}
     });
-  } catch (err) {
+  } catch {
     if (isProduction && !process.env.JEST_WORKER_ID) {
       console.error('FATAL: Session file store is required in production.');
       process.exit(1);
@@ -494,7 +494,7 @@ function gracefulShutdown(signal) {
   try {
     const db = getDb();
     db.save(true); // synchronous flush
-  } catch (_) { /* DB may not be initialized if server failed to start */ }
+  } catch { /* DB may not be initialized if server failed to start */ }
   process.exit(0);
 }
 /* istanbul ignore next */

@@ -29,7 +29,7 @@ function getSafeRedirect(req, fallback = '/') {
 
     const candidate = `${parsed.pathname}${parsed.search}${parsed.hash}`;
     return isSafeRelativePath(candidate) ? candidate : fallback;
-  } catch (err) {
+  } catch {
     return fallback;
   }
 }

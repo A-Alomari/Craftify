@@ -90,7 +90,7 @@ function hasValidImageSignature(filePath, mimetype) {
     }
 
     return false;
-  } catch (err) {
+  } catch {
     return false;
   }
 }
@@ -122,7 +122,7 @@ function validateUploadedImageSignatures(req, res, next) {
     if (!hasValidImageSignature(file.path, file.mimetype)) {
       try {
         fs.unlinkSync(file.path);
-      } catch (unlinkErr) {
+      } catch {
         // best-effort cleanup
       }
 

@@ -212,7 +212,7 @@ class Order {
         if (Array.isArray(images) && images.length > 0) {
           image = images[0];
         }
-      } catch (e) {
+      } catch {
         image = '/images/placeholder-product.jpg';
       }
 
@@ -283,7 +283,7 @@ class Order {
       inTransaction = false;
     } catch (err) {
       if (inTransaction) {
-        try { runTxCmd('ROLLBACK'); } catch (_) { /* no-op */ }
+        try { runTxCmd('ROLLBACK'); } catch { /* no-op */ }
       }
       throw err;
     }

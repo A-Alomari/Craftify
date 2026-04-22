@@ -47,7 +47,7 @@ const isApprovedArtisan = (req, res, next) => {
       if (profile && profile.is_approved) {
         return next();
       }
-    } catch (e) {
+    } catch {
       // DB not ready
     }
     req.flash('error_msg', 'Your artisan account is pending approval.');

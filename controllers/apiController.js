@@ -18,7 +18,7 @@ exports.products = (req, res) => {
     }));
 
     return res.json(products);
-  } catch (err) {
+  } catch {
     return res.status(500).json({ error: 'Unable to load products' });
   }
 };
@@ -33,7 +33,7 @@ exports.cartCount = (req, res) => {
     }
 
     return res.json({ count });
-  } catch (err) {
+  } catch {
     return res.status(500).json({ count: 0, error: 'Unable to load cart count' });
   }
 };
@@ -47,7 +47,7 @@ exports.notifications = (req, res) => {
     const notifications = Notification.findByUserId(req.user.id, { unread: true, limit: 5 });
     const count = Notification.getUnreadCount(req.user.id);
     return res.json({ notifications, count });
-  } catch (err) {
+  } catch {
     return res.status(500).json({ notifications: [], count: 0, error: 'Unable to load notifications' });
   }
 };
@@ -76,7 +76,7 @@ exports.auctionUpdates = (req, res) => {
       status: auction.status,
       recentBids: bids
     });
-  } catch (err) {
+  } catch {
     return res.status(500).json({ error: 'Server error' });
   }
 };
@@ -96,7 +96,7 @@ exports.validateCoupon = (req, res) => {
   try {
     const validation = Coupon.validate(code, parsedTotal);
     return res.json(validation);
-  } catch (err) {
+  } catch {
     return res.status(500).json({ valid: false, error: 'Error validating coupon' });
   }
 };
@@ -120,7 +120,7 @@ exports.searchSuggestions = (req, res) => {
       try {
         const images = JSON.parse(product.images || '[]');
         image = images[0] || image;
-      } catch (e) {
+      } catch {
         image = '/images/placeholder-product.jpg';
       }
 
@@ -155,7 +155,7 @@ exports.searchSuggestions = (req, res) => {
         ...artisanSuggestions
       ]
     });
-  } catch (err) {
+  } catch {
     return res.status(500).json({ suggestions: [], error: 'Unable to load suggestions' });
   }
 };

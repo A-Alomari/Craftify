@@ -136,7 +136,7 @@ exports.subscribe = (req, res) => {
     
     NewsletterSubscription.subscribe(email.trim().toLowerCase());
     req.flash('success_msg', 'Thank you for subscribing to our newsletter!');
-  } catch (err) {
+  } catch {
     req.flash('error_msg', 'Could not subscribe. Please try again.');
   }
 

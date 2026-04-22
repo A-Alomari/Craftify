@@ -91,7 +91,7 @@ class Notification {
     try {
       const db = require('../config/database').getDb();
       db.prepare(`DELETE FROM notifications WHERE user_id = ? AND type = 'order' AND title = 'Order Update' AND link LIKE ?`).run(userId, `/orders/${orderId}%`);
-    } catch (e) { /* non-fatal */ }
+    } catch { /* non-fatal */ }
     return this.create({ user_id: userId, title: 'Order Update', message: `Your order #${orderId} status has been updated to ${status}`, type: 'order', link: `/orders/${orderId}/track` });
   }
 

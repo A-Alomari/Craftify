@@ -119,7 +119,7 @@ exports.newProduct = (req, res) => {
 
 exports.createProduct = (req, res) => {
   try {
-    const { name, description, price, stock, category_id, weight, tags, length_cm, width_cm, height_cm } = req.body;
+    const { price, stock, category_id, weight, tags, length_cm, width_cm, height_cm } = req.body;
 
     // Sanitize and validate input
     const { errors, sanitized } = validateProductInput(req.body);
@@ -192,7 +192,7 @@ exports.updateProduct = (req, res) => {
       return res.redirect('/artisan/products');
     }
 
-    const { name, description, price, stock, category_id, weight, tags, length_cm, width_cm, height_cm } = req.body;
+    const { price, stock, category_id, weight, tags, length_cm, width_cm, height_cm } = req.body;
 
     // Sanitize and validate input
     const { errors, sanitized } = validateProductInput(req.body);
@@ -293,7 +293,7 @@ exports.orders = (req, res) => {
       try {
         const imgs = JSON.parse(o.product_images || '[]');
         o.product_image = (Array.isArray(imgs) && imgs.length > 0) ? imgs[0] : '/images/placeholder-product.jpg';
-      } catch (e) {
+      } catch {
         o.product_image = '/images/placeholder-product.jpg';
       }
     });
@@ -477,7 +477,7 @@ exports.createAuction = (req, res) => {
       images = JSON.stringify(req.files.map(f => `/uploads/${f.filename}`));
     }
 
-    const newAuction = Auction.create({
+    Auction.create({
       product_id: verifiedProductId,
       artisan_id: req.session.user.id,
       title,

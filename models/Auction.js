@@ -233,7 +233,7 @@ class Auction {
       };
     } catch (err) {
       if (inTransaction) {
-        try { db.exec('ROLLBACK'); } catch (rollbackErr) { /* noop */ }
+        try { db.exec('ROLLBACK'); } catch { /* noop */ }
       }
       throw err;
     }

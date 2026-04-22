@@ -3,9 +3,8 @@ const Wishlist = require('../models/Wishlist');
 const Review = require('../models/Review');
 const Notification = require('../models/Notification');
 const Message = require('../models/Message');
-const Order = require('../models/Order');
 const ArtisanProfile = require('../models/ArtisanProfile');
-const { validateReviewInput, validateMessageInput, sanitizeString } = require('../utils/sanitizer');
+const { validateReviewInput, validateMessageInput } = require('../utils/sanitizer');
 const { getMinPasswordLength, getPasswordValidationMessage } = require('../utils/securityPolicy');
 const { getSafeRedirect } = require('../utils/redirect');
 
@@ -251,7 +250,7 @@ exports.reviews = (req, res) => {
 
 exports.createReview = (req, res) => {
   try {
-    const { product_id, order_id, rating, title, comment } = req.body;
+    const { product_id, order_id, rating } = req.body;
 
     const canReviewResult = Review.canReview(req.session.user.id, product_id);
     if (!canReviewResult.canReview) {

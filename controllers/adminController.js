@@ -467,7 +467,7 @@ exports.deleteCategory = (req, res) => {
 // Orders management
 exports.orders = (req, res) => {
   try {
-    const { tab, payment_status, search, page = 1 } = req.query;
+    const { tab, payment_status, search } = req.query;
     const filters = {};
 
     // Map tab values to actual DB statuses

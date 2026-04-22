@@ -1,5 +1,4 @@
 const Auction = require('../models/Auction');
-const Product = require('../models/Product');
 const Category = require('../models/Category');
 const Notification = require('../models/Notification');
 

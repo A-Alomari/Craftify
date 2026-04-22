@@ -36,7 +36,7 @@ exports.showLogin = (req, res) => {
 // Process login
 exports.login = async (req, res) => {
   try {
-    const { identifier, email, phone, password } = req.body;
+    const { identifier, email, password } = req.body;
     const loginIdentifier = sanitizeString(identifier || email || '');
     const previousSessionId = req.sessionID;
     const previousAppliedCoupon = req.session.appliedCoupon || null;
@@ -135,7 +135,7 @@ exports.register = async (req, res) => {
     }
 
     // Create user
-    const user = await User.create({
+    await User.create({
       name: sanitizedName,
       email: sanitizedEmail,
       password,
