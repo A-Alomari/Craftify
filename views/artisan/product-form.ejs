@@ -1,0 +1,275 @@
+<%- include('../partials/header', { title: title }) %>
+
+<div class="flex bg-surface min-h-screen">
+  <%- include('./partials/sidebar') %>
+
+  <main class="flex-1 min-h-screen">
+    <div class="max-w-6xl mx-auto px-6 py-10 lg:px-10">
+
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 mb-8 text-sm text-secondary">
+        <a href="/artisan/dashboard" class="hover:text-primary transition-colors">Dashboard</a>
+        <span class="material-symbols-outlined text-xs">chevron_right</span>
+        <a href="/artisan/products" class="hover:text-primary transition-colors">Products</a>
+        <span class="material-symbols-outlined text-xs">chevron_right</span>
+        <span class="text-on-surface font-semibold"><%= product ? 'Edit "' + product.name + '"' : 'Add New Product' %></span>
+      </nav>
+
+      <div class="mb-10">
+        <h1 class="font-headline text-4xl font-bold text-on-surface mb-1"><%= product ? 'Edit Product' : 'Add New Product' %></h1>
+        <p class="text-secondary italic"><%= product ? 'Update the details and listing for your handcrafted piece.' : 'List your unique creation for the marketplace.' %></p>
+      </div>
+
+      <form id="product-form" action="<%= product ? '/artisan/products/' + product.id : '/artisan/products' %>?_csrf=<%= typeof csrfToken !== 'undefined' ? encodeURIComponent(csrfToken) : '' %>" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+
+          <!-- Left: Form Sections -->
+          <div class="lg:col-span-8 space-y-8">
+
+            <!-- Product Media -->
+            <section class="bg-surface-container-lowest rounded-xl p-8 shadow-sm">
+              <div class="flex items-center justify-between mb-1">
+                <h3 class="font-label text-xs font-bold uppercase tracking-widest text-secondary">Product Media</h3>
+                <span class="text-xs text-secondary tabular-nums" id="img-count-label">
+                  <%= (product && product.imageArray) ? product.imageArray.length : 0 %> / 5 images
+                </span>
+              </div>
+              <p class="text-xs text-outline mb-5">First image is the cover. Click an empty slot to add · hover a filled slot to replace or delete.</p>
+
+              <!-- Collects delete_images[] values as user deletes existing images -->
+              <div id="delete-inputs-container"></div>
+
+              <!-- 5-slot grid -->
+              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3" id="image-slots">
+                <% var _imgs = (product && product.imageArray) ? product.imageArray : [];
+                   for (var _i = 0; _i < 5; _i++) {
+                     var _url = _imgs[_i] || null; %>
+                  <% if (_url) { %>
+                    <div class="image-slot aspect-square rounded-xl overflow-hidden relative group cursor-pointer"
+                         data-slot="<%= _i %>" data-existing="<%= _url %>">
+                      <img src="<%= _url %>" alt="Product image <%= _i + 1 %>"
+                           class="w-full h-full object-cover pointer-events-none"
+                           onerror="this.onerror=null;this.src='/images/placeholder-product.svg'">
+                      <% if (_i === 0) { %>
+                        <div class="cover-badge absolute top-2 left-2 pointer-events-none">
+                          <span class="bg-primary-container text-on-primary-container text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">COVER</span>
+                        </div>
+                      <% } %>
+                      <div class="slot-overlay absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center gap-2">
+                        <button type="button" data-action="replace" data-slot="<%= _i %>"
+                                class="flex items-center gap-1 px-3 py-1.5 bg-white/90 text-slate-800 rounded-lg text-xs font-semibold hover:bg-white transition-colors">
+                          <span class="material-symbols-outlined text-sm">swap_horiz</span> Replace
+                        </button>
+                        <button type="button" data-action="delete" data-slot="<%= _i %>"
+                                class="flex items-center gap-1 px-3 py-1.5 bg-red-500/90 text-white rounded-lg text-xs font-semibold hover:bg-red-500 transition-colors">
+                          <span class="material-symbols-outlined text-sm">delete</span> Delete
+                        </button>
+                      </div>
+                    </div>
+                  <% } else { %>
+                    <div class="image-slot aspect-square rounded-xl border-2 border-dashed border-outline-variant
+                                flex flex-col items-center justify-center text-secondary
+                                hover:border-primary hover:text-primary hover:bg-surface-container-low
+                                transition-all cursor-pointer bg-surface-container-lowest"
+                         data-slot="<%= _i %>" data-existing="">
+                      <span class="material-symbols-outlined text-2xl">add_photo_alternate</span>
+                      <span class="text-[11px] font-semibold mt-1">Add Image</span>
+                    </div>
+                  <% } %>
+                <% } %>
+              </div>
+
+              <!-- Single hidden file input managed by image-preview.js slot logic -->
+              <input type="file" name="images" id="img-slot-input"
+                     accept="image/jpeg,image/png,image/webp" class="hidden">
+            </section>
+
+            <!-- General Information -->
+            <section class="space-y-6">
+              <h3 class="font-label text-xs font-bold uppercase tracking-widest text-secondary">General Information</h3>
+
+              <div>
+                <label class="block text-xs font-bold text-on-surface-variant mb-2 font-label uppercase tracking-tighter">Product Name *</label>
+                <input type="text" name="name" id="input-name" required value="<%= product ? product.name : '' %>" placeholder="e.g. Hand-Thrown Stoneware Vase" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-all font-headline text-lg text-primary">
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-xs font-bold text-on-surface-variant mb-2 font-label uppercase tracking-tighter">Category</label>
+                  <select name="category_id" id="input-category" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-all appearance-none">
+                    <option value="">Select Category</option>
+                    <% categories.forEach(function(cat) { %>
+                      <option value="<%= cat.id %>" <%= product && product.category_id == cat.id ? 'selected' : '' %>><%= cat.name %></option>
+                    <% }); %>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-on-surface-variant mb-2 font-label uppercase tracking-tighter">Base Price (USD) *</label>
+                  <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-secondary font-headline">$</span>
+                    <input type="number" name="price" id="input-price" step="0.01" min="0" required value="<%= product ? product.price : '' %>" placeholder="0.00" class="w-full bg-surface-container-low border-none rounded-xl pl-8 pr-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-all font-headline text-lg">
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-on-surface-variant mb-2 font-label uppercase tracking-tighter">Product Description *</label>
+                <textarea name="description" rows="6" required placeholder="Tell the story of your creation — materials, process, dimensions, care instructions..." class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-all font-body leading-relaxed text-on-surface-variant"><%= product ? product.description : '' %></textarea>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-xs font-bold text-on-surface-variant mb-2 font-label uppercase tracking-tighter">Weight (grams)</label>
+                  <input type="number" name="weight" step="1" min="0" value="<%= product && product.weight ? product.weight : '' %>" placeholder="e.g. 350" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-all">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-on-surface-variant mb-2 font-label uppercase tracking-tighter">Materials / Tags</label>
+                  <input type="text" name="tags" value="<%= product && product.tags ? product.tags : '' %>" placeholder="e.g. clay, kiln-fired, glaze" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-all">
+                  <p class="mt-1 text-[11px] text-secondary">Comma-separated (clay, wood, silver…)</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-3 gap-6">
+                <div>
+                  <label class="block text-xs font-bold text-on-surface-variant mb-2 font-label uppercase tracking-tighter">Length (cm)</label>
+                  <input type="number" name="length_cm" step="0.1" min="0" value="<%= product && product.length_cm ? product.length_cm : '' %>" placeholder="e.g. 20" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-all">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-on-surface-variant mb-2 font-label uppercase tracking-tighter">Width (cm)</label>
+                  <input type="number" name="width_cm" step="0.1" min="0" value="<%= product && product.width_cm ? product.width_cm : '' %>" placeholder="e.g. 10" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-all">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-on-surface-variant mb-2 font-label uppercase tracking-tighter">Height (cm)</label>
+                  <input type="number" name="height_cm" step="0.1" min="0" value="<%= product && product.height_cm ? product.height_cm : '' %>" placeholder="e.g. 15" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-all">
+                </div>
+              </div>
+            </section>
+
+            <!-- Inventory -->
+            <section class="space-y-6">
+              <h3 class="font-label text-xs font-bold uppercase tracking-widest text-secondary">Inventory &amp; Logistics</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-xs font-bold text-on-surface-variant mb-2 font-label uppercase tracking-tighter">Stock Quantity *</label>
+                  <input type="number" name="stock" id="input-stock" min="0" required value="<%= product ? product.stock : '0' %>" placeholder="10" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-0 focus:bg-surface-container-high transition-all">
+                </div>
+              </div>
+            </section>
+
+            <!-- Delete (edit mode only) -->
+            <% if (product) { %>
+              <footer class="pt-6 border-t border-surface-container flex justify-between items-center">
+                <form action="/artisan/products/<%= product.id %>/delete?_csrf=<%= typeof csrfToken !== 'undefined' ? encodeURIComponent(csrfToken) : '' %>" method="POST" data-confirm="Are you sure you want to delete this product? This action cannot be undone.">
+                  <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                  <button type="submit" class="text-error font-semibold flex items-center gap-2 hover:opacity-70 transition-opacity">
+                    <span class="material-symbols-outlined text-lg">delete_forever</span>
+                    Delete Product
+                  </button>
+                </form>
+                <button type="button" class="font-headline italic text-on-surface hover:text-primary transition-all text-sm">Save as Draft</button>
+              </footer>
+            <% } %>
+          </div>
+
+          <!-- Right: Sticky Sidebar -->
+          <aside class="lg:col-span-4 sticky top-6">
+            <div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm ring-1 ring-on-surface/5">
+              <h3 class="font-label text-xs font-bold uppercase tracking-widest text-secondary mb-6">Live Preview</h3>
+
+              <div class="group relative mb-6">
+                <div class="aspect-[4/5] rounded-lg overflow-hidden mb-4 bg-surface-container-low flex items-center justify-center" id="preview-img-wrap">
+                  <% if (product && product.imageArray && product.imageArray.length > 0) { %>
+                    <img src="<%= product.imageArray[0] %>" alt="Preview" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'" id="preview-img">
+                  <% } else { %>
+                    <span class="material-symbols-outlined text-4xl text-outline">image</span>
+                  <% } %>
+                </div>
+                <div class="inline-block px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold uppercase tracking-wider mb-2" id="preview-category">
+                  <%= (product && categories.find(function(c){ return c.id == product.category_id; })) ? categories.find(function(c){ return c.id == product.category_id; }).name : 'Category' %>
+                </div>
+                <h4 class="font-headline text-2xl font-bold text-on-surface mb-1" id="preview-name"><%= product ? product.name : 'Product Name' %></h4>
+                <p class="font-headline text-xl text-primary" id="preview-price"><%= product ? '$' + Number(product.price).toFixed(2) : '$0.00' %></p>
+              </div>
+
+              <div class="space-y-3 pt-4 border-t border-surface-container">
+                <div class="flex justify-between text-xs font-medium">
+                  <span class="text-secondary">Status</span>
+                  <span class="text-on-surface flex items-center gap-1">
+                    <span class="w-2 h-2 rounded-full <%= product && product.status === 'approved' ? 'bg-green-500' : 'bg-yellow-500' %>"></span>
+                    <%= product ? (product.status === 'approved' ? 'Approved' : product.status) : 'Pending Review' %>
+                  </span>
+                </div>
+                <div class="flex justify-between text-xs font-medium">
+                  <span class="text-secondary">Stock</span>
+                  <span class="text-on-surface" id="preview-stock"><%= product ? product.stock + ' units' : '0 units' %></span>
+                </div>
+              </div>
+
+              <div class="mt-6 flex flex-col gap-3">
+                <button type="submit" class="w-full bg-primary-container text-on-primary-container font-bold py-4 rounded-xl shadow-sm hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2">
+                  <span class="material-symbols-outlined text-xl">check_circle</span>
+                  <%= product ? 'Save Changes' : 'Publish Product' %>
+                </button>
+                <a href="/artisan/products" class="w-full bg-surface-container text-on-surface-variant font-semibold py-4 rounded-xl hover:bg-surface-container-high active:scale-95 transition-all flex items-center justify-center gap-2 text-center">
+                  <span class="material-symbols-outlined text-xl">arrow_back</span>
+                  Back to Products
+                </a>
+              </div>
+            </div>
+
+            <div class="mt-6 bg-surface-container-low rounded-xl p-6 border border-outline-variant/20">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1;">auto_awesome</span>
+                <h4 class="font-headline text-sm font-bold">Maker Insight</h4>
+              </div>
+              <p class="text-xs text-secondary leading-relaxed italic">Items with descriptions over 200 characters and 3+ clear images see 40% more engagement. Tell your crafting story.</p>
+            </div>
+          </aside>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script>
+(function() {
+  // Live preview: name
+  var nameInput = document.getElementById('input-name');
+  var previewName = document.getElementById('preview-name');
+  if (nameInput && previewName) {
+    nameInput.addEventListener('input', function() {
+      previewName.textContent = nameInput.value || 'Product Name';
+    });
+  }
+  // Live preview: price
+  var priceInput = document.getElementById('input-price');
+  var previewPrice = document.getElementById('preview-price');
+  if (priceInput && previewPrice) {
+    priceInput.addEventListener('input', function() {
+      previewPrice.textContent = priceInput.value ? '$' + Number(priceInput.value).toFixed(2) : '$0.00';
+    });
+  }
+  // Live preview: stock
+  var stockInput = document.getElementById('input-stock');
+  var previewStock = document.getElementById('preview-stock');
+  if (stockInput && previewStock) {
+    stockInput.addEventListener('input', function() {
+      previewStock.textContent = stockInput.value + ' units';
+    });
+  }
+  // Live preview: category
+  var categorySelect = document.getElementById('input-category');
+  var previewCategory = document.getElementById('preview-category');
+  if (categorySelect && previewCategory) {
+    categorySelect.addEventListener('change', function() {
+      var opt = categorySelect.options[categorySelect.selectedIndex];
+      previewCategory.textContent = opt && opt.value ? opt.text : 'Category';
+    });
+  }
+  // Live preview: image is handled by /js/image-preview.js (crop modal)
+})();
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,271 @@
+const Auction = require('../models/Auction');
+const Category = require('../models/Category');
+const Notification = require('../models/Notification');
+
+// List auctions
+exports.index = (req, res) => {
+  try {
+    const { status = 'active', sort = 'ending_soon', page = 1, category } = req.query;
+    const limit = 12;
+    const offset = (page - 1) * limit;
+
+    const filters = { limit, offset, sort };
+    if (status === 'active') {
+      filters.active = true;
+    } else if (status !== 'all') {
+      filters.status = status;
+    }
+    if (category) filters.category_id = parseInt(category);
+
+    const auctions = Auction.findAll(filters);
+    const totalAuctions = Auction.count(status === 'active' ? { status: 'active' } : {});
+    const totalPages = Math.ceil(totalAuctions / limit);
+    const categories = Category.findAll();
+
+    auctions.forEach(a => {
+      // FIX: fall back to a.images for standalone auctions that have no linked product.
+      const images = JSON.parse(a.product_images || a.images || '[]');
+      a.image = images[0] || '/images/placeholder-product.svg';
+    });
+
+    res.render('auctions/index', {
+      title: 'Live Auctions - Craftify',
+      auctions,
+      categories,
+      filters: { status, sort, category: category ? parseInt(category) : null },
+      pagination: {
+        current: parseInt(page),
+        total: totalPages,
+        hasNext: parseInt(page) < totalPages,
+        hasPrev: parseInt(page) > 1
+      }
+    });
+  } catch (err) {
+    console.error('Auctions index error:', err);
+    req.flash('error_msg', 'Error loading auctions');
+    res.redirect('/');
+  }
+};
+
+// Show single auction
+exports.show = (req, res) => {
+  try {
+    const { id } = req.params;
+    const auction = Auction.findById(id);
+
+    if (!auction) {
+      req.flash('error_msg', 'Auction not found');
+      return res.redirect('/auctions');
+    }
+
+    const bids = Auction.getBids(id, 20);
+    const userBid = req.session.user 
+      ? bids.find(b => b.user_id === req.session.user.id) 
+      : null;
+
+    // FIX: standalone auctions (no product) have their own `images` field;
+    // fall back to it when product_images is absent.
+    const images = JSON.parse(auction.product_images || auction.images || '[]');
+    auction.imageArray = images.length > 0 ? images : ['/images/placeholder-product.svg'];
+
+    const endTime = new Date(auction.end_time);
+    const now = new Date();
+    const timeRemaining = Math.max(0, endTime - now);
+
+    res.render('auctions/show', {
+      title: `${auction.title || auction.product_name} - Craftify`,
+      auction,
+      bids,
+      userBid,
+      timeRemaining,
+      isActive: auction.status === 'active' && timeRemaining > 0
+    });
+  } catch (err) {
+    console.error('Auction show error:', err);
+    res.redirect('/auctions');
+  }
+};
+
+// Place bid
+exports.placeBid = (req, res) => {
+  try {
+    const { id } = req.params;
+    const { amount } = req.body;
+    const io = req.app.get('io');
+
+    const result = Auction.placeBid(id, req.session.user.id, parseFloat(amount));
+
+    if (result.previousBidderId && result.previousBidderId !== req.session.user.id) {
+      Notification.auctionOutbid(
+        result.previousBidderId,
+        id,
+        result.auction.title || result.auction.product_name
+      );
+    }
+
+    const normalizedAuctionId = Number.parseInt(id, 10) || id;
+    const bidUpdatePayload = {
+      auctionId: normalizedAuctionId,
+      amount: result.bid.amount,
+      currentBid: result.auction.current_highest_bid,
+      bidCount: result.auction.bid_count,
+      bidderId: req.session.user.id,
+      bidderName: req.session.user.name,
+      bidIncrement: result.auction.bid_increment,
+      bidTime: result.bid.bid_time || result.bid.created_at
+    };
+
+    io.to(`auction-${id}`).emit('bidUpdate', bidUpdatePayload);
+
+    // Keep legacy event for compatibility with any existing clients.
+    io.to(`auction-${id}`).emit('new-bid', {
+      auctionId: normalizedAuctionId,
+      amount: result.bid.amount,
+      bidderId: req.session.user.id,
+      bidderName: req.session.user.name,
+      bidTime: result.bid.bid_time || result.bid.created_at,
+      totalBids: result.auction.bid_count
+    });
+
+    if (req.xhr) {
+      return res.json({
+        success: true,
+        message: 'Bid placed successfully!',
+        bid: result.bid,
+        auction: result.auction
+      });
+    }
+
+    req.flash('success_msg', 'Bid placed successfully!');
+    res.redirect(`/auctions/${id}`);
+  } catch (err) {
+    console.error('Place bid error:', err);
+    if (req.xhr) {
+      return res.status(400).json({ success: false, message: err.message });
+    }
+    req.flash('error_msg', err.message);
+    res.redirect(`/auctions/${req.params.id}`);
+  }
+};
+
+// Get user's bids
+exports.myBids = (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const bids = Auction.getUserBids(userId);
+    const now = new Date();
+
+    bids.forEach(b => {
+      const images = JSON.parse(b.product_images || b.auction_images || '[]');
+      b.image = images[0] || '/images/placeholder-product.svg';
+
+      // Winning if auction's current winner is this user
+      b.isWinning = b.winner_id === userId || b.highest_bidder_id === userId;
+
+      // Time remaining calculation
+      const endTime = new Date(b.end_time);
+      const timeLeftMs = endTime - now;
+      b.timeLeftMs = timeLeftMs;
+
+      if (timeLeftMs <= 0) {
+        b.timeLeftDisplay = 'Ended';
+        b.isEndingSoon = false;
+        b.timeLeftIcon = 'event_busy';
+      } else {
+        const totalHours = Math.floor(timeLeftMs / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeftMs % (1000 * 60 * 60)) / (1000 * 60));
+        const days = Math.floor(timeLeftMs / (1000 * 60 * 60 * 24));
+
+        if (totalHours < 24) {
+          b.timeLeftDisplay = totalHours > 0 ? `${totalHours}h ${minutes}m left` : `${minutes}m left`;
+          b.isEndingSoon = true;
+          b.timeLeftIcon = 'timer';
+        } else if (days === 1) {
+          b.timeLeftDisplay = 'Ends Tomorrow';
+          b.isEndingSoon = false;
+          b.timeLeftIcon = 'calendar_today';
+        } else {
+          b.timeLeftDisplay = `${days} days left`;
+          b.isEndingSoon = false;
+          b.timeLeftIcon = 'calendar_today';
+        }
+      }
+    });
+
+    const allActiveBids = bids.filter(b => b.auction_status === 'active' && b.timeLeftMs > 0);
+    const allPastBids = bids.filter(b => b.auction_status !== 'active' || b.timeLeftMs <= 0);
+    const activeBidsCount = allActiveBids.length;
+    const totalWon = bids.filter(b =>
+      (b.auction_status === 'sold' || b.auction_status === 'ended') &&
+      b.winner_id === userId
+    ).length;
+
+    const tab = req.query.tab || 'active';
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const perPage = 8;
+
+    const sourceBids = tab === 'past' ? allPastBids : allActiveBids;
+    const totalItems = sourceBids.length;
+    const totalPages = Math.ceil(totalItems / perPage) || 1;
+    const offset = (page - 1) * perPage;
+    const activeBids = tab === 'past' ? allActiveBids : sourceBids.slice(offset, offset + perPage);
+    const pastBids = tab === 'past' ? sourceBids.slice(offset, offset + perPage) : allPastBids;
+
+    const pagination = {
+      current: page,
+      total: totalPages,
+      hasNext: page < totalPages,
+      hasPrev: page > 1
+    };
+
+    res.render('auctions/my-bids', {
+      title: 'My Bids - Craftify',
+      bids,
+      activeBids,
+      pastBids,
+      activeBidsCount,
+      totalWon,
+      activeTab: tab,
+      pagination
+    });
+  } catch (err) {
+    console.error('My bids error:', err);
+    req.flash('error_msg', 'Error loading bids');
+    res.redirect('/');
+  }
+};
+
+// Get auction data for API
+exports.getAuctionData = (req, res) => {
+  try {
+    const { id } = req.params;
+    const auction = Auction.findById(id);
+
+    if (!auction) {
+      return res.status(404).json({ error: 'Auction not found' });
+    }
+
+    const bids = Auction.getBids(id, 10);
+
+    res.json({
+      auction: {
+        id: auction.id,
+        current_highest_bid: auction.current_highest_bid,
+        winner_id: auction.winner_id,
+        highest_bidder_name: auction.highest_bidder_name,
+        end_time: auction.end_time,
+        status: auction.status,
+        bid_count: auction.bid_count
+      },
+      bids: bids.map(b => ({
+        amount: b.amount,
+        bidder_name: b.bidder_name,
+        // FIX: bid_time is the canonical timestamp; fall back to created_at for old rows.
+        bid_time: b.bid_time || b.created_at
+      }))
+    });
+  } catch (err) {
+    console.error('Get auction data error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};

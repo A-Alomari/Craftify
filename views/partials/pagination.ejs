@@ -1,0 +1,39 @@
+<% if (typeof pagination !== 'undefined' && pagination.total > 1) { %>
+  <% 
+    let startPage = Math.max(1, pagination.current - 2);
+    let endPage = Math.min(pagination.total, pagination.current + 2);
+    const querySuffix = typeof queryString !== 'undefined' && queryString ? '&' + queryString : '';
+  %>
+
+  <nav aria-label="Pagination" class="mt-6 flex items-center justify-center gap-2">
+    <% if (pagination.hasPrev) { %>
+      <a class="px-3 py-2 rounded-lg text-sm bg-surface-container-low text-on-surface hover:bg-surface-container-high transition-colors" href="?page=<%= pagination.current - 1 %><%= querySuffix %>">Prev</a>
+    <% } else { %>
+      <span class="px-3 py-2 rounded-lg text-sm bg-surface-container-low text-secondary/50">Prev</span>
+    <% } %>
+
+    <% if (startPage > 1) { %>
+      <a class="px-3 py-2 rounded-lg text-sm bg-surface-container-low text-on-surface hover:bg-surface-container-high transition-colors" href="?page=1<%= querySuffix %>">1</a>
+      <% if (startPage > 2) { %>
+        <span class="px-2 text-secondary">...</span>
+      <% } %>
+    <% } %>
+
+    <% for (let i = startPage; i <= endPage; i++) { %>
+      <a class="px-3 py-2 rounded-lg text-sm <%= i === pagination.current ? 'bg-primary-container text-on-primary-container font-bold' : 'bg-surface-container-low text-on-surface hover:bg-surface-container-high transition-colors' %>" href="?page=<%= i %><%= querySuffix %>"><%= i %></a>
+    <% } %>
+
+    <% if (endPage < pagination.total) { %>
+      <% if (endPage < pagination.total - 1) { %>
+        <span class="px-2 text-secondary">...</span>
+      <% } %>
+      <a class="px-3 py-2 rounded-lg text-sm bg-surface-container-low text-on-surface hover:bg-surface-container-high transition-colors" href="?page=<%= pagination.total %><%= querySuffix %>"><%= pagination.total %></a>
+    <% } %>
+
+    <% if (pagination.hasNext) { %>
+      <a class="px-3 py-2 rounded-lg text-sm bg-surface-container-low text-on-surface hover:bg-surface-container-high transition-colors" href="?page=<%= pagination.current + 1 %><%= querySuffix %>">Next</a>
+    <% } else { %>
+      <span class="px-3 py-2 rounded-lg text-sm bg-surface-container-low text-secondary/50">Next</span>
+    <% } %>
+  </nav>
+<% } %>

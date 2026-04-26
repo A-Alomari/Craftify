@@ -1,0 +1,210 @@
+<%- include('../partials/header', { title: title }) %>
+
+<style>
+  details > summary::-webkit-details-marker { display: none; }
+</style>
+
+<main class="flex-grow py-20 px-4 md:px-8 max-w-4xl mx-auto w-full">
+  <article class="bg-transparent">
+
+    <!-- Page Header -->
+    <header class="mb-12 text-center flex flex-col items-center">
+      <div class="w-16 h-16 rounded-full bg-primary-container/10 flex items-center justify-center text-amber-600 mb-6 shadow-sm border border-primary-container/20">
+        <span class="material-symbols-outlined text-3xl">help</span>
+      </div>
+      <h1 class="font-headline text-4xl md:text-5xl font-bold text-on-surface mb-4 tracking-tight">Frequently Asked Questions</h1>
+      <p class="font-body text-secondary text-lg">Everything you need to know about shopping on Craftify.</p>
+    </header>
+
+    <div class="space-y-6 font-body text-base text-on-surface/90 leading-relaxed">
+
+      <!-- Section: Shopping -->
+      <p class="font-headline text-sm font-bold uppercase tracking-widest text-amber-600 px-1">Shopping</p>
+
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">shopping_cart</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">How do I place an order?</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p>Browse products by category or use the search bar to find what you're looking for. Add items to your cart and proceed to checkout. You'll need a Craftify account to complete your purchase — creating one is free and only takes a minute.</p>
+        </div>
+      </details>
+
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">payments</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">What payment methods do you accept?</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p>We accept credit and debit cards (Visa, Mastercard, American Express) as well as cash on delivery where available. All online payments are processed securely through our payment partners — Craftify never stores your full card details.</p>
+        </div>
+      </details>
+
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">local_shipping</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">How do I track my order?</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p>Once your order is shipped, you'll receive a notification with tracking details. You can also visit <strong class="text-on-surface font-medium">My Orders</strong> in your account dashboard and click <strong class="text-on-surface font-medium">Track</strong> next to any order to view real-time shipment updates.</p>
+        </div>
+      </details>
+
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">package_2</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">Can I cancel or modify my order?</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p>You may cancel an order within 24 hours of placing it, provided it has not yet been shipped. To cancel, go to <strong class="text-on-surface font-medium">My Orders</strong> and click <strong class="text-on-surface font-medium">Cancel Order</strong>. Once an item has been dispatched, it must be returned following our <a href="/shipping" class="text-amber-700 hover:text-amber-800 underline underline-offset-4">Shipping &amp; Returns policy</a>.</p>
+        </div>
+      </details>
+
+      <!-- Section: Auctions -->
+      <p class="font-headline text-sm font-bold uppercase tracking-widest text-amber-600 px-1 pt-4">Auctions</p>
+
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">gavel</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">How do auctions work?</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p class="mb-4">Craftify auctions allow you to bid on exclusive, one-of-a-kind artisan pieces. Each auction runs for a set period. You can place bids in real time, and the highest bidder when the timer expires wins the item.</p>
+          <p>All bids are binding. If you win, you are committed to completing the purchase. Shill bidding and auction manipulation are strictly prohibited and result in permanent account suspension.</p>
+        </div>
+      </details>
+
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">emoji_events</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">What happens if I win an auction?</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p>When you win an auction you'll receive a notification and an invoice. You'll then be taken through checkout to pay. If payment is not completed within 48 hours of winning, the item may be offered to the next highest bidder and your account may be flagged.</p>
+        </div>
+      </details>
+
+      <!-- Section: Selling -->
+      <p class="font-headline text-sm font-bold uppercase tracking-widest text-amber-600 px-1 pt-4">Selling on Craftify</p>
+
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">storefront</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">How do I become a seller?</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p>Click <strong class="text-on-surface font-medium">Sell on Craftify</strong> in the navigation and complete the artisan registration form. Provide your shop name, a bio, and details about the handmade products you create. Our team reviews applications and will notify you once your shop is approved, typically within 2–3 business days.</p>
+        </div>
+      </details>
+
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">account_balance_wallet</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">How and when do I get paid?</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p>Earnings are credited to your Craftify seller balance after a buyer confirms receipt of their order (or after 7 days with no dispute). Payouts are processed weekly to your registered bank account, minus Craftify's commission fee.</p>
+        </div>
+      </details>
+
+      <!-- Section: Account -->
+      <p class="font-headline text-sm font-bold uppercase tracking-widest text-amber-600 px-1 pt-4">Account & Security</p>
+
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">lock_reset</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">I forgot my password. What do I do?</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p>On the Sign In page, click <strong class="text-on-surface font-medium">Forgot Password</strong> and enter your email address. We'll send you a 6-digit verification code to reset your password. The code expires after 15 minutes, so be sure to use it promptly.</p>
+        </div>
+      </details>
+
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">delete_forever</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">How do I delete my account?</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p>To delete your account, contact our support team. Please ensure there are no pending orders, active auctions, or outstanding seller balances before requesting deletion. Account data is retained for a period required by applicable law after deletion.</p>
+        </div>
+      </details>
+
+    </div>
+
+    <!-- Contact CTA -->
+    <div class="mt-12 p-8 bg-surface-container-low rounded-2xl border border-outline-variant/20 flex flex-col sm:flex-row justify-between items-center gap-6 shadow-sm">
+      <div class="flex items-center gap-4">
+        <span class="material-symbols-outlined text-amber-600 text-3xl">support_agent</span>
+        <p class="font-body text-base font-medium text-on-surface">Still have questions?</p>
+      </div>
+      <a class="inline-flex items-center justify-center px-8 py-3 bg-amber-600 hover:bg-amber-700 text-white font-label text-sm font-semibold rounded-full shadow-sm transition-colors duration-200" href="/contact">
+        Contact Support
+      </a>
+    </div>
+
+  </article>
+</main>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,53 @@
+<div class="product-card bg-surface-container-lowest rounded-xl overflow-hidden relative h-full">
+  <% 
+    const images = JSON.parse(product.images || '[]');
+    const mainImage = images[0] || '/images/placeholder-product.svg';
+  %>
+
+  <a href="/products/<%= product.id %>" class="block">
+    <img src="<%= mainImage %>" class="product-image w-full h-56 object-cover" alt="<%= product.name %>" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'">
+  </a>
+
+  <% if (product.featured) { %>
+    <span class="absolute top-3 left-3 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-amber-100 text-amber-700">Featured</span>
+  <% } %>
+
+  <% if (typeof user !== 'undefined' && user) { %>
+    <button class="wishlist-btn <%= product.inWishlist ? 'active' : '' %> absolute top-3 right-3 w-9 h-9 rounded-full bg-surface-container-low text-on-surface flex items-center justify-center shadow-sm" data-product-id="<%= product.id %>" aria-label="<%= product.inWishlist ? 'Remove from wishlist' : 'Add to wishlist' %>">
+      <span class="material-symbols-outlined text-base <%= product.inWishlist ? 'filled-icon text-tertiary' : '' %>" data-icon="favorite">favorite</span>
+    </button>
+  <% } %>
+
+  <div class="p-4 flex flex-col h-[calc(100%-14rem)]">
+    <h3 class="text-sm font-semibold text-on-surface line-clamp-2 min-h-[40px]">
+      <a href="/products/<%= product.id %>" class="hover:text-primary"><%= product.name %></a>
+    </h3>
+
+    <% if (product.shop_name) { %>
+      <p class="text-xs text-secondary mt-1">
+        <a href="/user/artisan/<%= product.artisan_id %>" class="hover:text-primary"><%= product.shop_name %></a>
+      </p>
+    <% } %>
+
+    <% if (product.avg_rating) { %>
+      <div class="mt-2 flex items-center gap-1 text-amber-500">
+        <% for (let i = 1; i <= 5; i++) { %>
+          <span class="material-symbols-outlined text-sm"><%= i <= Math.round(product.avg_rating) ? 'star' : 'star_outline' %></span>
+        <% } %>
+        <span class="text-xs text-secondary ml-1">(<%= product.review_count || 0 %>)</span>
+      </div>
+    <% } %>
+
+    <div class="mt-auto pt-3 flex items-center justify-between gap-3">
+      <span class="font-headline text-xl text-on-surface">$<%= Number(product.price || 0).toFixed(2) %></span>
+      <% if (product.stock > 0) { %>
+        <button class="add-to-cart-btn bg-primary-container text-on-primary-container sm:px-3 sm:py-2 p-2 rounded-lg text-xs font-semibold flex items-center gap-1" data-product-id="<%= product.id %>">
+          <span class="sm:hidden text-lg leading-none">🛒</span>
+          <span class="hidden sm:inline">Add to Cart</span>
+        </button>
+      <% } else { %>
+        <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-surface-container-high text-secondary">Out of Stock</span>
+      <% } %>
+    </div>
+  </div>
+</div>

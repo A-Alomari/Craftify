@@ -1,0 +1,54 @@
+const express = require('express');
+const router = express.Router();
+const artisanController = require('../controllers/artisanController');
+const { isAuthenticated, isActive, isArtisan, isApprovedArtisan } = require('../middleware/auth');
+const { createImageUpload, validateUploadedImageSignatures } = require('../utils/upload');
+
+const upload = createImageUpload({ maxFileSize: 30 * 1024 * 1024, maxFiles: 5 });
+
+// Apply artisan authentication to all routes
+router.use(isAuthenticated, isActive, isArtisan);
+
+// Dashboard
+router.get('/dashboard', isApprovedArtisan, artisanController.dashboard);
+
+// Pending approval
+router.get('/pending', artisanController.pending);
+
+// Profile — redirect to unified /user/profile page
+router.get('/profile', (req, res) => res.redirect('/user/profile'));
+router.post('/profile', upload.single('profile_image'), validateUploadedImageSignatures, artisanController.updateProfile);
+
+// Products
+router.get('/products', isApprovedArtisan, artisanController.products);
+router.get('/products/new', isApprovedArtisan, artisanController.newProduct);
+router.post('/products', isApprovedArtisan, upload.array('images', 5), validateUploadedImageSignatures, artisanController.createProduct);
+router.get('/products/:id/edit', isApprovedArtisan, artisanController.editProduct);
+router.post('/products/:id', isApprovedArtisan, upload.array('images', 5), validateUploadedImageSignatures, artisanController.updateProduct);
+router.delete('/products/:id', isApprovedArtisan, artisanController.deleteProduct);
+router.post('/products/:id/delete', isApprovedArtisan, artisanController.deleteProduct);
+
+// Orders
+router.get('/orders', isApprovedArtisan, artisanController.orders);
+router.get('/orders/:id', isApprovedArtisan, artisanController.orderDetail);
+router.post('/orders/:id/status', isApprovedArtisan, artisanController.updateOrderStatus);
+
+// Auctions
+router.get('/auctions', isApprovedArtisan, artisanController.auctions);
+router.get('/auctions/new', isApprovedArtisan, artisanController.newAuction);
+router.post('/auctions', isApprovedArtisan, upload.array('images', 5), validateUploadedImageSignatures, artisanController.createAuction);
+router.post('/auctions/:id/cancel', isApprovedArtisan, artisanController.cancelAuction);
+
+// Reviews
+router.get('/reviews', isApprovedArtisan, artisanController.reviews);
+
+// Coupons
+router.get('/coupons', isApprovedArtisan, artisanController.coupons);
+router.post('/coupons', isApprovedArtisan, artisanController.createCoupon);
+router.post('/coupons/:id/toggle', isApprovedArtisan, artisanController.toggleCoupon);
+router.post('/coupons/:id/delete', isApprovedArtisan, artisanController.deleteCoupon);
+
+// Analytics
+router.get('/analytics', isApprovedArtisan, artisanController.analytics);
+
+module.exports = router;

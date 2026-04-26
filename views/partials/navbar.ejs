@@ -1,0 +1,33 @@
+<nav class="sticky top-0 z-40 bg-surface-container-lowest/95 backdrop-blur border-b border-surface-container-high/60">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center gap-3">
+    <a class="font-headline text-2xl text-primary-container font-bold" href="/">Cr<img src="/favicon.png" alt="Craftify logo" style="width:24px;height:24px;vertical-align:middle;margin:0 6px;">ftify</a>
+
+
+    <a class="text-sm font-semibold text-on-surface hover:text-primary" href="/products">Products</a>
+    <a class="text-sm font-semibold text-on-surface hover:text-primary" href="/auctions">Auctions</a>
+
+    <% if (user) { %>
+      <a class="text-sm font-semibold text-on-surface hover:text-primary" href="/user/notifications">Notifications<% if (notificationCount > 0) { %> (<%= notificationCount > 9 ? '9+' : notificationCount %>)<% } %></a>
+      <a class="text-sm font-semibold text-on-surface hover:text-primary" href="/cart">Cart<% if (cartCount > 0) { %> (<span class="cart-count"><%= cartCount %></span>)<% } %></a>
+
+      <% if (user.role === 'admin') { %>
+        <a class="text-sm font-semibold text-on-surface hover:text-primary" href="/admin/dashboard">Admin</a>
+      <% } else if (user.role === 'artisan') { %>
+        <a class="text-sm font-semibold text-on-surface hover:text-primary" href="/artisan/dashboard">Artisan</a>
+      <% } else { %>
+        <a class="text-sm font-semibold text-on-surface hover:text-primary" href="/orders">Orders</a>
+        <a class="text-sm font-semibold text-on-surface hover:text-primary" href="/auctions/my-bids">My Bids</a>
+      <% } %>
+
+      <a class="text-sm font-semibold text-on-surface hover:text-primary" href="/user/profile"><%= user.name.split(' ')[0] %></a>
+      <form action="/auth/logout" method="POST" class="m-0">
+        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+        <button type="submit" class="bg-surface-container-high text-on-surface px-3 py-2 rounded-lg text-xs font-semibold">Logout</button>
+      </form>
+    <% } else { %>
+      <a class="text-sm font-semibold text-on-surface hover:text-primary" href="/cart">Cart<% if (cartCount > 0) { %> (<span class="cart-count"><%= cartCount %></span>)<% } %></a>
+      <a class="text-sm font-semibold text-on-surface hover:text-primary" href="/auth/login">Login</a>
+      <a class="bg-primary-container text-on-primary-container px-3 py-2 rounded-lg text-xs font-semibold" href="/auth/register">Sign Up</a>
+    <% } %>
+  </div>
+</nav>

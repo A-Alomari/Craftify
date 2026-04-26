@@ -1,0 +1,244 @@
+<%- include('../partials/header', { title: title }) %>
+
+<div class="flex bg-surface min-h-screen">
+  <%- include('./partials/sidebar') %>
+
+  <main class="flex-1 min-w-0 pb-24 md:pb-0 p-6 md:p-8">
+    <%- include('./partials/tabs') %>
+
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div>
+        <span class="font-label text-xs uppercase tracking-[0.2em] text-secondary font-bold mb-1 block">Overview</span>
+        <h1 class="text-3xl font-headline font-bold text-on-surface">
+          <%= profile && profile.shop_name ? profile.shop_name : 'My Studio' %>
+        </h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="/artisan/products/new"
+          class="flex items-center gap-2 bg-primary-container text-on-primary-container font-bold px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity text-sm">
+          <span class="material-symbols-outlined text-sm">add</span>
+          New Product
+        </a>
+        <a href="/artisan/auctions/new"
+          class="flex items-center gap-2 bg-surface-container-low text-on-surface font-bold px-5 py-2.5 rounded-xl hover:bg-surface-container-high transition-colors text-sm">
+          <span class="material-symbols-outlined text-sm">gavel</span>
+          New Auction
+        </a>
+      </div>
+    </div>
+
+    <!-- Stats Bento Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+
+      <!-- Revenue -->
+      <div class="bg-primary-container rounded-2xl p-6 flex flex-col justify-between min-h-[140px]">
+        <div class="flex items-center justify-between mb-4">
+          <span class="font-label text-xs uppercase tracking-widest text-on-primary-container/60 font-bold">Total Revenue</span>
+          <span class="material-symbols-outlined text-on-primary-container/30 text-xl">payments</span>
+        </div>
+        <div>
+          <p class="text-4xl font-headline font-bold text-on-primary-container">
+            BD <%= stats.total_revenue ? parseFloat(stats.total_revenue).toFixed(2) : '0.00' %>
+          </p>
+          <p class="text-on-primary-container/60 text-sm mt-1 font-body">from paid orders</p>
+        </div>
+      </div>
+
+      <!-- Active Listings -->
+      <div class="bg-surface-container-lowest rounded-2xl p-6 flex flex-col justify-between min-h-[140px]">
+        <div class="flex items-center justify-between mb-4">
+          <span class="font-label text-xs uppercase tracking-widest text-secondary font-bold">Active Listings</span>
+          <span class="material-symbols-outlined text-secondary/30 text-xl">inventory_2</span>
+        </div>
+        <div>
+          <p class="text-4xl font-headline font-bold text-on-surface"><%= stats.total_products || 0 %></p>
+          <p class="text-secondary text-sm mt-1 font-body">
+            approved products<% if ((stats.active_auctions || 0) > 0) { %> · <%= stats.active_auctions %> auction<%= stats.active_auctions > 1 ? 's' : '' %><% } %>
+          </p>
+        </div>
+      </div>
+
+      <!-- Open Orders -->
+      <div class="bg-surface-container-lowest rounded-2xl p-6 flex flex-col justify-between min-h-[140px]">
+        <div class="flex items-center justify-between mb-4">
+          <span class="font-label text-xs uppercase tracking-widest text-secondary font-bold">Open Orders</span>
+          <span class="material-symbols-outlined text-secondary/30 text-xl">package_2</span>
+        </div>
+        <div>
+          <p class="text-4xl font-headline font-bold text-on-surface"><%= stats.open_orders || 0 %></p>
+          <p class="text-secondary text-sm mt-1 font-body">
+            <% if ((stats.open_orders || 0) > 0) { %>
+              need attention · <a href="/artisan/orders" class="text-primary hover:underline">view</a>
+            <% } else { %>
+              all caught up
+            <% } %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- Recent Sales -->
+      <div class="lg:col-span-7 bg-surface-container-lowest rounded-2xl overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-5">
+          <h2 class="font-headline text-lg font-bold text-on-surface">Recent Sales</h2>
+          <a href="/artisan/orders" class="text-sm font-bold text-primary hover:underline flex items-center gap-1">
+            View all <span class="material-symbols-outlined text-sm leading-none">arrow_forward</span>
+          </a>
+        </div>
+
+        <% if (recentOrders && recentOrders.length > 0) { %>
+          <div>
+            <% recentOrders.forEach(o => { %>
+              <div class="flex items-center gap-4 px-6 py-4 hover:bg-surface-container-low/60 transition-colors border-t border-surface-container-low">
+                <div class="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-surface-container-low">
+                  <img src="<%= o.product_image || '/images/placeholder-product.svg' %>"
+                    alt="product"
+                    class="w-full h-full object-cover"
+                    onerror="this.onerror=null;this.src='/images/placeholder-product.svg'">
+                </div>
+                <div class="flex-grow min-w-0">
+                  <p class="font-body font-bold text-on-surface text-sm truncate">
+                    <%= o.product_name || ('Order #' + o.id) %>
+                    <% if ((o.item_count || 1) > 1) { %><span class="font-normal text-secondary"> +<%= o.item_count - 1 %></span><% } %>
+                  </p>
+                  <p class="text-secondary text-xs mt-0.5"><%= o.customer_name %></p>
+                </div>
+                <div class="text-right flex-shrink-0">
+                  <p class="font-body font-bold text-on-surface text-sm">BD <%= parseFloat(o.total_amount || 0).toFixed(2) %></p>
+                  <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-bold
+                    <%= o.status === 'delivered' ? 'bg-green-100 text-green-800' :
+                        o.status === 'shipped'   ? 'bg-blue-100 text-blue-800' :
+                        o.status === 'processing'? 'bg-yellow-100 text-yellow-800' :
+                        'bg-surface-container-low text-secondary' %>">
+                    <%= o.status.charAt(0).toUpperCase() + o.status.slice(1) %>
+                  </span>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <div class="px-6 py-16 text-center">
+            <span class="material-symbols-outlined text-4xl text-secondary/20 block mb-3">receipt_long</span>
+            <p class="text-secondary font-body text-sm">No sales yet. Share your products to get started.</p>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Studio Insights -->
+      <div class="lg:col-span-5 space-y-4">
+
+        <!-- Studio Insights -->
+        <div class="bg-surface-container-lowest rounded-2xl p-6">
+          <h2 class="font-headline text-base font-bold text-on-surface mb-5">Shop Insights</h2>
+
+          <% const ratingVal = stats.avg_rating ? parseFloat(stats.avg_rating) : 0; %>
+          <% const ratingPct = Math.round((ratingVal / 5) * 100); %>
+          <div class="mb-5">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-sm text-secondary font-body">Avg. Rating</span>
+              <span class="text-sm font-bold text-on-surface"><%= ratingVal > 0 ? ratingVal.toFixed(1) + ' / 5' : 'No reviews' %></span>
+            </div>
+            <div class="w-full h-2 bg-surface-container-low rounded-full overflow-hidden">
+              <div class="h-2 bg-primary-container rounded-full" style="width: <%= ratingPct %>%"></div>
+            </div>
+          </div>
+
+          <% const views = stats.total_views || 0; %>
+          <div class="mb-5">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-sm text-secondary font-body">Product Views</span>
+              <span class="text-sm font-bold text-on-surface"><%= views.toLocaleString() %></span>
+            </div>
+            <div class="w-full h-2 bg-surface-container-low rounded-full overflow-hidden">
+              <div class="h-2 bg-surface-container-high rounded-full" style="width: <%= views > 0 ? Math.min(100, Math.round((views / Math.max(views, 200)) * 100)) : 0 %>%"></div>
+            </div>
+          </div>
+
+          <% const convRate = views > 0 ? ((stats.total_orders || 0) / views * 100) : 0; %>
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-sm text-secondary font-body">Conversion Rate</span>
+              <span class="text-sm font-bold text-on-surface"><%= views > 0 ? convRate.toFixed(1) + '%' : '—' %></span>
+            </div>
+            <div class="w-full h-2 bg-surface-container-low rounded-full overflow-hidden">
+              <div class="h-2 bg-primary-container/50 rounded-full" style="width: <%= Math.min(100, convRate) %>%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Revenue Trend -->
+        <div class="bg-surface-container-lowest rounded-2xl p-6">
+          <div class="flex items-center justify-between mb-5">
+            <h3 class="font-headline text-base font-bold text-on-surface">Revenue Trend</h3>
+            <a href="/artisan/analytics" class="text-xs font-bold text-primary hover:underline">Full analytics</a>
+          </div>
+          <%
+            var maxRev = 1;
+            if (monthlyRevenue && monthlyRevenue.length > 0) {
+              monthlyRevenue.forEach(function(m) {
+                var v = parseFloat(m.revenue || 0);
+                if (v > maxRev) maxRev = v;
+              });
+            }
+          %>
+          <% if (monthlyRevenue && monthlyRevenue.length > 0) { %>
+            <div class="flex items-end gap-1 h-16">
+              <% monthlyRevenue.forEach(function(m) { %>
+                <% var barPx = Math.max(4, Math.round((parseFloat(m.revenue || 0) / maxRev) * 64)); %>
+                <div class="flex-1 bg-primary-container rounded-t hover:opacity-80 transition-opacity cursor-default"
+                  style="height:<%= barPx %>px"
+                  title="BD <%= parseFloat(m.revenue || 0).toFixed(2) %>"></div>
+              <% }); %>
+            </div>
+            <div class="flex gap-1 mt-1.5">
+              <% monthlyRevenue.forEach(function(m) { %>
+                <div class="flex-1 text-center">
+                  <span class="text-[9px] font-label text-secondary"><%= m.month ? m.month.slice(5) : '' %></span>
+                </div>
+              <% }); %>
+            </div>
+          <% } else { %>
+            <div class="h-20 flex items-center justify-center">
+              <p class="text-secondary text-sm font-body">No revenue data yet</p>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-surface-container-lowest rounded-2xl p-6">
+          <h3 class="font-headline text-base font-bold text-on-surface mb-4">Quick Actions</h3>
+          <div class="grid grid-cols-2 gap-3">
+            <a href="/artisan/products/new"
+              class="flex flex-col items-center gap-2 bg-surface-container-low hover:bg-surface-container-high rounded-xl p-4 transition-colors text-center">
+              <span class="material-symbols-outlined text-primary text-2xl">add_box</span>
+              <span class="text-xs font-bold font-label text-on-surface">Add Product</span>
+            </a>
+            <a href="/artisan/orders"
+              class="flex flex-col items-center gap-2 bg-surface-container-low hover:bg-surface-container-high rounded-xl p-4 transition-colors text-center">
+              <span class="material-symbols-outlined text-primary text-2xl">package_2</span>
+              <span class="text-xs font-bold font-label text-on-surface">Orders</span>
+            </a>
+            <a href="/artisan/coupons"
+              class="flex flex-col items-center gap-2 bg-surface-container-low hover:bg-surface-container-high rounded-xl p-4 transition-colors text-center">
+              <span class="material-symbols-outlined text-primary text-2xl">confirmation_number</span>
+              <span class="text-xs font-bold font-label text-on-surface">Promo Codes</span>
+            </a>
+            <a href="/artisan/analytics"
+              class="flex flex-col items-center gap-2 bg-surface-container-low hover:bg-surface-container-high rounded-xl p-4 transition-colors text-center">
+              <span class="material-symbols-outlined text-primary text-2xl">bar_chart</span>
+              <span class="text-xs font-bold font-label text-on-surface">Analytics</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<%- include('../partials/footer') %>

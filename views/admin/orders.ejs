@@ -1,0 +1,174 @@
+<%- include('../partials/header', { title: title }) %>
+<%
+  const statusFilter = filters && filters.status ? filters.status : '';
+  const paymentFilter = filters && filters.payment_status ? filters.payment_status : '';
+  const searchFilter = filters && filters.search ? filters.search : '';
+  const orderStatusClass = function(status) {
+    if (status === 'delivered') return 'bg-emerald-100 text-emerald-700';
+    if (status === 'cancelled' || status === 'refunded') return 'bg-red-100 text-red-700';
+    if (status === 'shipped' || status === 'processing') return 'bg-blue-100 text-blue-700';
+    return 'bg-amber-100 text-amber-700';
+  };
+%>
+
+<div class="flex bg-surface min-h-screen">
+  <%- include('./partials/sidebar') %>
+
+  <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
+    <%- include('./partials/topbar') %>
+
+    <section class="max-w-7xl mx-auto mt-8 mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div>
+        <span class="font-label text-xs tracking-[0.2em] text-primary font-semibold uppercase">Administration</span>
+        <h1 class="font-headline text-3xl text-on-surface mt-2">Order Management</h1>
+        <p class="text-secondary mt-1">Track payment and fulfillment states across all orders.</p>
+      </div>
+      <p class="text-xs text-secondary uppercase tracking-widest">Orders: <%= orders ? orders.length : 0 %></p>
+    </section>
+
+    <section class="max-w-7xl mx-auto bg-surface-container-lowest rounded-xl overflow-hidden">
+
+      <!-- Filter Tabs + Search -->
+      <div class="px-5 pt-5 pb-4 border-b border-surface-container-high flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center" style="background:#f7f9fb;">
+        <%
+          const adminTabs = [
+            { label: 'All',           value: '' },
+            { label: 'New',           value: 'new' },
+            { label: 'In Production', value: 'in_production' },
+            { label: 'Ready',         value: 'ready' },
+            { label: 'Shipped',       value: 'shipped' }
+          ];
+          const tabStatusMap = {
+            '':            ['pending', 'confirmed', 'processing', 'ready', 'shipped', 'delivered', 'cancelled'],
+            'new':         ['pending', 'confirmed'],
+            'in_production': ['processing'],
+            'ready':       ['ready'],
+            'shipped':     ['shipped']
+          };
+          const activeTab = statusFilter === 'pending' || statusFilter === 'confirmed' ? 'new'
+                          : statusFilter === 'processing' ? 'in_production'
+                          : statusFilter === 'ready' ? 'ready'
+                          : statusFilter === 'shipped' ? 'shipped'
+                          : statusFilter === '' ? '' : '';
+        %>
+        <div class="flex flex-wrap gap-2">
+          <% adminTabs.forEach(function(tab) {
+               const sp = searchFilter ? '&search=' + encodeURIComponent(searchFilter) : '';
+               const pp = paymentFilter ? '&payment_status=' + encodeURIComponent(paymentFilter) : '';
+               const isActive = activeTab === tab.value;
+               let href = '/admin/orders?tab=' + tab.value + sp + pp;
+          %>
+            <a href="<%= href %>"
+               style="<%= isActive ? 'background:#e6e8ea; color:#191c1e; font-weight:600;' : 'color:#545f73;' %> padding:0.5rem 1rem; border-radius:0.5rem; font-size:0.875rem; text-decoration:none; transition:background 0.15s;">
+              <%= tab.label %>
+            </a>
+          <% }); %>
+        </div>
+
+        <form method="GET" action="/admin/orders" class="flex items-center rounded-lg px-3 py-2 w-full lg:w-auto" style="background:#f7f9fb; border:1px solid rgba(134,116,97,0.15);">
+          <% if (statusFilter) { %><input type="hidden" name="status" value="<%= statusFilter %>"><% } %>
+          <% if (paymentFilter) { %><input type="hidden" name="payment_status" value="<%= paymentFilter %>"><% } %>
+          <span class="material-symbols-outlined text-secondary text-sm mr-2">search</span>
+          <input class="bg-transparent border-none text-sm text-on-surface placeholder:text-secondary focus:ring-0 w-full lg:w-52 p-0"
+                 name="search" placeholder="Order ID or customer..." type="text" value="<%= searchFilter %>"/>
+        </form>
+      </div>
+
+      <!-- Table -->
+      <% if (orders && orders.length > 0) { %>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-surface-container-high" style="background:rgba(236,238,240,0.5);">
+                <th class="px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest">Order &amp; Date</th>
+                <th class="px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest">Customer</th>
+                <th class="px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest">Product</th>
+                <th class="px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest">Status &amp; Priority</th>
+                <th class="px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container-high/50">
+              <% orders.forEach(function(o) {
+                   let statusLabel, badgeBg, badgeColor, dotColor;
+                   if (o.status === 'pending' || o.status === 'confirmed') {
+                     statusLabel = 'New'; badgeBg = '#fef3c7'; badgeColor = '#d97706'; dotColor = '#f59e0b';
+                   } else if (o.status === 'processing') {
+                     statusLabel = 'In Production'; badgeBg = '#dbeafe'; badgeColor = '#2563eb'; dotColor = '#3b82f6';
+                   } else if (o.status === 'ready') {
+                     statusLabel = 'Ready'; badgeBg = '#dcfce7'; badgeColor = '#16a34a'; dotColor = '#22c55e';
+                   } else if (o.status === 'shipped') {
+                     statusLabel = 'Shipped'; badgeBg = '#f3e8ff'; badgeColor = '#9333ea'; dotColor = '#a855f7';
+                   } else if (o.status === 'delivered') {
+                     statusLabel = 'Delivered'; badgeBg = '#d1fae5'; badgeColor = '#059669'; dotColor = '#10b981';
+                   } else if (o.status === 'cancelled') {
+                     statusLabel = 'Cancelled'; badgeBg = '#fee2e2'; badgeColor = '#dc2626'; dotColor = '#ef4444';
+                   } else {
+                     statusLabel = o.status.charAt(0).toUpperCase() + o.status.slice(1);
+                     badgeBg = '#f1f5f9'; badgeColor = '#64748b'; dotColor = '#94a3b8';
+                   }
+                   const payBg    = o.payment_status === 'paid'   ? '#d1fae5' : o.payment_status === 'failed' ? '#fee2e2' : '#fef3c7';
+                   const payColor = o.payment_status === 'paid'   ? '#059669' : o.payment_status === 'failed' ? '#dc2626' : '#d97706';
+                   const initials = o.customer_name
+                     ? o.customer_name.split(' ').map(function(n){ return n[0]; }).join('').toUpperCase().slice(0, 2)
+                     : '??';
+              %>
+                <tr class="hover:bg-surface-container-low/20 transition-colors">
+                  <!-- Order & Date -->
+                  <td class="px-6 py-5">
+                    <a href="/admin/orders/<%= o.id %>" class="font-semibold text-sm text-on-surface hover:text-primary transition-colors" style="text-decoration:none;">#ORD-<%= String(o.id).padStart(4, '0') %></a>
+                    <p class="text-xs text-secondary mt-0.5"><%= new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></p>
+                  </td>
+                  <!-- Customer -->
+                  <td class="px-6 py-5">
+                    <div class="flex items-center gap-2">
+                      <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0" style="background:#d5e0f8; color:#3c475a;"><%= initials %></div>
+                      <span class="text-sm text-on-surface"><%= o.customer_name %></span>
+                    </div>
+                  </td>
+                  <!-- Product -->
+                  <td class="px-6 py-5">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-lg overflow-hidden shrink-0" style="background:#eceef0;">
+                        <img src="<%= o.product_image || '/images/placeholder-product.jpg' %>"
+                             alt="<%= o.product_name || 'Product' %>"
+                             class="w-full h-full object-cover"
+                             onerror="this.src='/images/placeholder-product.jpg'">
+                      </div>
+                      <span class="text-sm text-on-surface truncate max-w-[160px]"><%= o.product_name || 'Custom Order' %></span>
+                    </div>
+                  </td>
+                  <!-- Status & Priority -->
+                  <td class="px-6 py-5">
+                    <div class="flex flex-col gap-1.5">
+                      <span style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600; white-space:nowrap; background:<%= badgeBg %>; color:<%= badgeColor %>; letter-spacing:0.02em; width:fit-content;">
+                        <span style="width:6px; height:6px; border-radius:50%; background:<%= dotColor %>; margin-right:6px; flex-shrink:0;"></span>
+                        <%= statusLabel %>
+                      </span>
+                      <span style="display:inline-flex; align-items:center; padding:3px 8px; border-radius:6px; font-size:10px; font-weight:600; white-space:nowrap; background:<%= payBg %>; color:<%= payColor %>; letter-spacing:0.04em; width:fit-content;">
+                        <%= (o.payment_status || 'pending').charAt(0).toUpperCase() + (o.payment_status || 'pending').slice(1) %>
+                      </span>
+                    </div>
+                  </td>
+                  <!-- Actions -->
+                  <td class="px-6 py-5 text-right">
+                    <a href="/admin/orders/<%= o.id %>" class="bg-surface-container-high text-on-surface hover:bg-surface-container-highest px-3 py-1.5 rounded-lg text-xs font-bold transition-colors" style="text-decoration:none;">View</a>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="py-14 text-center">
+          <span class="material-symbols-outlined text-5xl text-secondary/60">receipt_long</span>
+          <p class="text-secondary mt-3">No orders found for this filter.</p>
+          <% if (statusFilter || searchFilter) { %>
+            <a href="/admin/orders" class="mt-3 inline-block text-primary text-sm font-medium hover:underline">Clear filters</a>
+          <% } %>
+        </div>
+      <% } %>
+    </section>
+  </main>
+</div>
+
+<%- include('../partials/footer') %>

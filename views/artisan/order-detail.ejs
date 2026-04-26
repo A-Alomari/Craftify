@@ -1,0 +1,376 @@
+<%- include('../partials/header', { title: title }) %>
+
+<%
+  let statusLabel, statusClass, dotClass;
+  if (order.status === 'pending' || order.status === 'confirmed') {
+    statusLabel = 'New'; statusClass = 'bg-amber-100 text-amber-600'; dotClass = 'bg-amber-500';
+  } else if (order.status === 'processing') {
+    statusLabel = 'In Production'; statusClass = 'bg-blue-100 text-blue-600'; dotClass = 'bg-blue-500';
+  } else if (order.status === 'ready') {
+    statusLabel = 'Ready'; statusClass = 'bg-green-100 text-green-600'; dotClass = 'bg-green-500';
+  } else if (order.status === 'shipped') {
+    statusLabel = 'Shipped'; statusClass = 'bg-purple-50 text-purple-600'; dotClass = 'bg-purple-500';
+  } else if (order.status === 'delivered') {
+    statusLabel = 'Delivered'; statusClass = 'bg-emerald-100 text-emerald-600'; dotClass = 'bg-emerald-500';
+  } else {
+    statusLabel = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+    statusClass = 'bg-slate-100 text-slate-500'; dotClass = 'bg-slate-400';
+  }
+
+  const initials = order.customer_name
+    ? order.customer_name.split(' ').map(function(n){ return n[0]; }).join('').toUpperCase().slice(0, 2)
+    : '??';
+
+  const statusFlow = ['pending', 'processing', 'ready', 'shipped', 'delivered'];
+  const currentStep = statusFlow.indexOf(order.status === 'confirmed' ? 'pending' : order.status);
+%>
+
+<div class="flex bg-surface min-h-screen">
+  <%- include('./partials/sidebar') %>
+
+  <main class="flex-1 min-h-screen pb-24 md:pb-0">
+    <div class="p-6 md:p-8 lg:p-10 max-w-5xl mx-auto w-full space-y-8">
+
+      <!-- Back + Header -->
+      <div>
+        <a href="/artisan/orders" class="inline-flex items-center gap-1 text-xs uppercase tracking-[0.2em] text-secondary hover:text-primary font-medium transition-colors mb-4">
+          <span class="material-symbols-outlined text-sm">arrow_back</span>
+          Back to Orders
+        </a>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 class="font-headline text-3xl font-bold text-on-surface">
+              Order #ORD-<%= String(order.id).padStart(4, '0') %>
+            </h1>
+            <p class="font-body text-secondary text-sm mt-1">
+              Placed on <%= new Date(order.created_at).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %>
+            </p>
+          </div>
+          <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-semibold <%= statusClass %> w-fit">
+            <span class="w-2 h-2 rounded-full <%= dotClass %> mr-2"></span>
+            <%= statusLabel %>
+          </span>
+        </div>
+      </div>
+
+      <!-- Progress Steps -->
+      <% if (!['cancelled', 'refunded'].includes(order.status)) { %>
+      <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20 shadow-sm">
+        <h2 class="font-label text-xs uppercase tracking-widest text-secondary font-medium mb-5">Fulfillment Progress</h2>
+        <div class="flex items-center gap-0">
+          <%
+            const steps = [
+              { label: 'Order Placed', icon: 'receipt_long' },
+              { label: 'In Production', icon: 'precision_manufacturing' },
+              { label: 'Ready', icon: 'check_circle' },
+              { label: 'Shipped', icon: 'local_shipping' },
+              { label: 'Delivered', icon: 'home' }
+            ];
+          %>
+          <% steps.forEach(function(step, i) {
+               const done = i < currentStep;
+               const active = i === currentStep;
+          %>
+            <div class="flex items-center flex-1 min-w-0 <%= i === steps.length - 1 ? '' : '' %>">
+              <div class="flex flex-col items-center gap-1.5 flex-shrink-0">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center
+                  <%= done ? 'bg-primary text-white' : active ? 'bg-primary-container text-on-primary-container ring-2 ring-primary/30' : 'bg-surface-container text-secondary' %>">
+                  <span class="material-symbols-outlined text-[1.1rem]" style="font-variation-settings: 'FILL' <%= done || active ? 1 : 0 %>"><%= step.icon %></span>
+                </div>
+                <span class="font-label text-[10px] font-medium text-center leading-tight
+                  <%= done ? 'text-primary' : active ? 'text-on-surface' : 'text-secondary' %>" style="max-width:4rem">
+                  <%= step.label %>
+                </span>
+              </div>
+              <% if (i < steps.length - 1) { %>
+                <div class="flex-1 h-0.5 mb-5 mx-1 <%= done ? 'bg-primary' : 'bg-surface-container-high' %>"></div>
+              <% } %>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+      <% } %>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left: Items + Totals -->
+        <div class="lg:col-span-2 space-y-6">
+
+          <!-- Order Items -->
+          <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-surface-container-low bg-surface-bright">
+              <h2 class="font-headline text-lg font-semibold text-on-surface">Order Items</h2>
+            </div>
+            <div class="divide-y divide-surface-container-low">
+              <% items.forEach(function(item) { %>
+                <div class="flex items-center gap-4 px-6 py-4">
+                  <div class="w-14 h-14 rounded-xl bg-surface-container overflow-hidden shrink-0">
+                    <img src="<%= item.image || '/images/placeholder-product.jpg' %>"
+                         alt="<%= item.product_name %>"
+                         class="w-full h-full object-cover"
+                         onerror="this.src='/images/placeholder-product.jpg'">
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="font-body font-semibold text-on-surface truncate"><%= item.product_name %></p>
+                    <p class="font-body text-xs text-secondary mt-0.5">
+                      Qty <%= item.quantity %> × $<%= Number(item.unit_price || 0).toFixed(2) %>
+                    </p>
+                  </div>
+                  <p class="font-body font-bold text-on-surface text-sm shrink-0">
+                    $<%= Number(item.total_price || 0).toFixed(2) %>
+                  </p>
+                </div>
+              <% }); %>
+            </div>
+
+            <!-- Totals -->
+            <div class="px-6 py-4 border-t border-surface-container-low bg-surface-bright space-y-2">
+              <div class="flex justify-between font-body text-sm text-secondary">
+                <span>Subtotal</span>
+                <span>$<%= Number(order.subtotal || 0).toFixed(2) %></span>
+              </div>
+              <% if (order.shipping_cost > 0) { %>
+              <div class="flex justify-between font-body text-sm text-secondary">
+                <span>Shipping</span>
+                <span>$<%= Number(order.shipping_cost || 0).toFixed(2) %></span>
+              </div>
+              <% } %>
+              <% if (order.discount_amount > 0) { %>
+              <div class="flex justify-between font-body text-sm text-green-600">
+                <span>Discount <%= order.coupon_code ? '(' + order.coupon_code + ')' : '' %></span>
+                <span>−$<%= Number(order.discount_amount || 0).toFixed(2) %></span>
+              </div>
+              <% } %>
+              <div class="flex justify-between font-body font-bold text-on-surface text-base pt-2 border-t border-surface-container-low">
+                <span>Total</span>
+                <span>$<%= Number(order.total_amount || 0).toFixed(2) %></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <% if (['pending', 'confirmed', 'processing', 'ready'].includes(order.status)) { %>
+          <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 shadow-sm p-6">
+            <h2 class="font-headline text-lg font-semibold text-on-surface mb-4">Update Status</h2>
+            <div class="flex flex-wrap gap-3">
+              <% if (order.status === 'pending' || order.status === 'confirmed') { %>
+                <form action="/artisan/orders/<%= order.id %>/status" method="POST">
+                  <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                  <input type="hidden" name="status" value="processing">
+                  <button class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 rounded-lg text-sm font-semibold transition-colors">
+                    <span class="material-symbols-outlined text-sm">precision_manufacturing</span>
+                    Start Production
+                  </button>
+                </form>
+              <% } else if (order.status === 'processing') { %>
+                <form action="/artisan/orders/<%= order.id %>/status" method="POST">
+                  <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                  <input type="hidden" name="status" value="ready">
+                  <button class="inline-flex items-center gap-2 px-5 py-2.5 bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 rounded-lg text-sm font-semibold transition-colors">
+                    <span class="material-symbols-outlined text-sm">check_circle</span>
+                    Mark as Ready
+                  </button>
+                </form>
+              <% } else if (order.status === 'ready') { %>
+                <button type="button" onclick="document.getElementById('shipModal').classList.remove('hidden')"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-container text-on-primary-container hover:brightness-95 rounded-lg text-sm font-semibold transition-colors shadow-sm">
+                  <span class="material-symbols-outlined text-sm">local_shipping</span>
+                  Confirm Shipment
+                </button>
+              <% } %>
+            </div>
+          </div>
+          <% } %>
+        </div>
+
+        <!-- Right: Customer + Shipping -->
+        <div class="space-y-6">
+
+          <!-- Customer Info -->
+          <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-surface-container-low bg-surface-bright">
+              <h2 class="font-headline text-base font-semibold text-on-surface">Customer</h2>
+            </div>
+            <div class="p-5 space-y-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-sm shrink-0">
+                  <%= initials %>
+                </div>
+                <div class="min-w-0">
+                  <p class="font-body font-semibold text-on-surface truncate"><%= order.customer_name %></p>
+                  <p class="font-body text-xs text-secondary truncate"><%= order.customer_email %></p>
+                </div>
+              </div>
+              <% if (order.customer_phone) { %>
+              <div class="flex items-center gap-2 text-sm text-secondary">
+                <span class="material-symbols-outlined text-[1rem]">phone</span>
+                <span class="font-body"><%= order.customer_phone %></span>
+              </div>
+              <% } %>
+              <div class="flex items-center gap-2 text-sm text-secondary">
+                <span class="material-symbols-outlined text-[1rem]">payments</span>
+                <span class="font-body capitalize"><%= order.payment_method || 'N/A' %></span>
+                <span class="ml-auto px-2 py-0.5 rounded text-[10px] font-bold uppercase
+                  <%= order.payment_status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700' %>">
+                  <%= order.payment_status %>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shipping Address -->
+          <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-surface-container-low bg-surface-bright">
+              <h2 class="font-headline text-base font-semibold text-on-surface">Ship To</h2>
+            </div>
+            <div class="p-5">
+              <div class="flex gap-3">
+                <span class="material-symbols-outlined text-secondary text-[1.25rem] mt-0.5 shrink-0">location_on</span>
+                <address class="font-body not-italic text-sm text-on-surface space-y-0.5">
+                  <p class="font-semibold"><%= order.customer_name %></p>
+                  <% if (order.shipping_building) { %><p><%= order.shipping_building %></p><% } %>
+                  <p><%= order.shipping_address %></p>
+                  <p>
+                    <%= [order.shipping_city, order.shipping_postal].filter(Boolean).join(', ') %>
+                  </p>
+                  <p class="text-secondary"><%= order.shipping_country || 'Bahrain' %></p>
+                </address>
+              </div>
+
+              <% if (order.notes) { %>
+              <div class="mt-4 pt-4 border-t border-surface-container-low">
+                <p class="font-label text-xs uppercase tracking-widest text-secondary font-medium mb-2">Customer Notes</p>
+                <p class="font-body text-sm text-on-surface bg-surface-container rounded-lg p-3 italic"><%= order.notes %></p>
+              </div>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- Order Meta -->
+          <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-surface-container-low bg-surface-bright">
+              <h2 class="font-headline text-base font-semibold text-on-surface">Order Info</h2>
+            </div>
+            <div class="p-5 space-y-3">
+              <div class="flex justify-between text-sm">
+                <span class="text-secondary font-body">Order ID</span>
+                <span class="font-body font-semibold text-on-surface">#ORD-<%= String(order.id).padStart(4, '0') %></span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-secondary font-body">Date Placed</span>
+                <span class="font-body text-on-surface"><%= new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-secondary font-body">Last Updated</span>
+                <span class="font-body text-on-surface"><%= new Date(order.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-secondary font-body">Items</span>
+                <span class="font-body font-semibold text-on-surface"><%= items.length %></span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/footer') %>
+
+<% if (order.status === 'ready') { %>
+<!-- Shipment Confirmation Modal -->
+<div id="shipModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+  <div class="bg-surface-container-lowest rounded-2xl shadow-2xl border border-outline-variant/20 w-full max-w-lg overflow-hidden">
+    <!-- Modal Header -->
+    <div class="px-6 py-4 border-b border-surface-container-low bg-surface-bright flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary">local_shipping</span>
+        <h3 class="font-headline text-lg font-semibold text-on-surface">Confirm Shipment</h3>
+      </div>
+      <button onclick="document.getElementById('shipModal').classList.add('hidden')"
+              class="text-secondary hover:text-on-surface transition-colors p-1 rounded-md hover:bg-surface-container">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="p-6 space-y-5">
+      <p class="font-body text-sm text-secondary">Please review the shipping details before confirming. This action will mark the order as shipped.</p>
+
+      <!-- Customer -->
+      <div class="bg-surface-container rounded-xl p-4 space-y-3">
+        <p class="font-label text-xs uppercase tracking-widest text-secondary font-medium">Customer</p>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-xs shrink-0">
+            <%= order.customer_name ? order.customer_name.split(' ').map(function(n){return n[0];}).join('').toUpperCase().slice(0,2) : '??' %>
+          </div>
+          <div>
+            <p class="font-body font-semibold text-on-surface text-sm"><%= order.customer_name %></p>
+            <p class="font-body text-xs text-secondary"><%= order.customer_email %></p>
+          </div>
+        </div>
+        <% if (order.customer_phone) { %>
+        <div class="flex items-center gap-2 text-sm text-secondary">
+          <span class="material-symbols-outlined text-[1rem]">phone</span>
+          <span class="font-body"><%= order.customer_phone %></span>
+        </div>
+        <% } %>
+      </div>
+
+      <!-- Ship-To Address -->
+      <div class="bg-surface-container rounded-xl p-4 space-y-3">
+        <p class="font-label text-xs uppercase tracking-widest text-secondary font-medium">Shipping Address</p>
+        <div class="flex gap-3">
+          <span class="material-symbols-outlined text-secondary text-[1.25rem] mt-0.5 shrink-0">location_on</span>
+          <address class="font-body not-italic text-sm text-on-surface space-y-0.5 leading-relaxed">
+            <p class="font-semibold"><%= order.customer_name %></p>
+            <% if (order.shipping_building) { %><p><%= order.shipping_building %></p><% } %>
+            <p><%= order.shipping_address %></p>
+            <p><%= [order.shipping_city, order.shipping_postal].filter(Boolean).join(', ') %></p>
+            <p class="text-secondary"><%= order.shipping_country || 'Bahrain' %></p>
+          </address>
+        </div>
+        <% if (order.notes) { %>
+        <div class="pt-3 border-t border-surface-container-low">
+          <p class="font-label text-xs uppercase tracking-widest text-secondary font-medium mb-1">Customer Notes</p>
+          <p class="font-body text-xs text-on-surface italic bg-surface rounded-lg p-2"><%= order.notes %></p>
+        </div>
+        <% } %>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="bg-surface-container rounded-xl p-4">
+        <p class="font-label text-xs uppercase tracking-widest text-secondary font-medium mb-2">Order Summary</p>
+        <div class="flex justify-between font-body text-sm">
+          <span class="text-secondary">Order</span>
+          <span class="font-semibold text-on-surface">#ORD-<%= String(order.id).padStart(4, '0') %></span>
+        </div>
+        <div class="flex justify-between font-body text-sm mt-1">
+          <span class="text-secondary">Total</span>
+          <span class="font-bold text-on-surface">$<%= Number(order.total_amount || 0).toFixed(2) %></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="px-6 py-4 border-t border-surface-container-low bg-surface-bright flex gap-3 justify-end">
+      <button onclick="document.getElementById('shipModal').classList.add('hidden')"
+              class="px-5 py-2.5 rounded-lg border border-outline-variant text-on-surface font-body font-medium text-sm hover:bg-surface-container-low transition-colors">
+        Cancel
+      </button>
+      <form action="/artisan/orders/<%= order.id %>/status" method="POST" class="inline">
+        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+        <input type="hidden" name="status" value="shipped">
+        <button type="submit"
+                class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-container text-on-primary-container hover:brightness-95 rounded-lg text-sm font-semibold transition-colors shadow-sm">
+          <span class="material-symbols-outlined text-sm">local_shipping</span>
+          Confirm & Mark Shipped
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+<% } %>

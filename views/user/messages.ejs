@@ -1,0 +1,150 @@
+<%- include('../partials/header', { title: title }) %>
+
+<main class="flex-grow min-h-screen bg-surface-container-lowest">
+
+<%
+  const conversationList = Array.isArray(conversations) ? conversations : [];
+  const unreadTotal = conversationList.reduce(function(total, conversation) {
+    return total + Number(conversation.unread_count || 0);
+  }, 0);
+
+  const formatThreadTime = function(value) {
+    if (!value) return '';
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return '';
+
+    const now = new Date();
+    const sameDay = now.toDateString() === parsed.toDateString();
+    if (sameDay) {
+      return parsed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    return parsed.toLocaleDateString();
+  };
+
+  const getRoleLabel = function(role) {
+    return role === 'artisan' ? 'Artisan' : 'Customer';
+  };
+%>
+
+<section class="flex overflow-hidden" style="height:calc(100vh - 72px);">
+  <aside class="w-full md:w-[30%] lg:w-[25%] bg-surface-container-lowest border-r border-outline-variant/10 flex flex-col overflow-hidden" style="height:calc(100vh - 72px);">
+    <div class="p-6 pb-4">
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold font-headline text-on-surface flex items-center gap-2">
+          Messages
+          <span class="bg-tertiary text-on-tertiary text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider"><%= unreadTotal %></span>
+        </h1>
+        <a href="/user/profile" class="p-2 text-secondary hover:bg-surface-container-low rounded-full transition-colors" aria-label="Back to profile">
+          <span class="material-symbols-outlined">person</span>
+        </a>
+      </div>
+      <div class="relative group">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-lg group-focus-within:text-primary transition-colors">search</span>
+        <input class="w-full bg-surface-container-low border-none rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-0 transition-all" placeholder="Search conversations..." type="text"/>
+      </div>
+    </div>
+
+    <div class="flex-grow overflow-y-auto px-2 space-y-1 pb-20 md:pb-4">
+      <% if (conversationList.length > 0) { %>
+        <% conversationList.forEach(function(conv) { %>
+          <a href="/user/messages/<%= conv.other_user_id %>" class="flex items-start gap-3 p-4 hover:bg-surface-container-low rounded-2xl cursor-pointer group transition-all relative">
+            <div class="relative flex-shrink-0">
+              <% const displayAvatar = (conv.other_user_role === 'artisan' && conv.shop_image) ? conv.shop_image : conv.other_user_avatar; %>
+              <% if (displayAvatar) { %>
+                <img alt="<%= conv.other_user_name %>" class="w-12 h-12 rounded-full object-cover" src="<%= displayAvatar %>" onerror="this.onerror=null; this.src='/images/default-avatar.png';"/>
+              <% } else { %>
+                <div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold">
+                  <%= ((conv.other_user_role === 'artisan' && conv.shop_name ? conv.shop_name : conv.other_user_name) || '?')[0].toUpperCase() %>
+                </div>
+              <% } %>
+            </div>
+
+            <div class="flex-grow min-w-0">
+              <div class="flex justify-between items-baseline mb-0.5">
+                <h3 class="font-semibold text-on-surface truncate"><%= (conv.other_user_role === 'artisan' && conv.shop_name) ? conv.shop_name : conv.other_user_name %></h3>
+                <span class="text-[10px] text-secondary uppercase tracking-tighter"><%= formatThreadTime(conv.last_message_time) %></span>
+              </div>
+              <div class="flex items-center gap-1.5 mb-1">
+                <span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-1.5 py-0.5 rounded uppercase"><%= getRoleLabel(conv.other_user_role) %></span>
+              </div>
+              <p class="text-xs text-secondary truncate"><%= conv.last_message || 'No messages yet' %></p>
+            </div>
+
+            <% if (Number(conv.unread_count || 0) > 0) { %>
+              <div class="absolute right-4 bottom-4 min-w-5 h-5 px-1.5 bg-primary text-on-primary rounded-full text-[10px] font-bold flex items-center justify-center">
+                <%= conv.unread_count %>
+              </div>
+            <% } %>
+          </a>
+        <% }); %>
+      <% } else { %>
+        <div class="p-6 text-center">
+          <span class="material-symbols-outlined text-5xl text-secondary/60">chat</span>
+          <p class="text-secondary mt-3">No conversations yet.</p>
+        </div>
+      <% } %>
+
+      <% if (pagination && pagination.totalPages > 1) { %>
+        <div class="p-4">
+          <%- include('../partials/pagination', { 
+            pagination: pagination, 
+            baseUrl: '/user/messages', 
+            query: {} 
+          }) %>
+        </div>
+      <% } %>
+    </div>
+  </aside>
+
+  <section class="hidden md:flex flex-col flex-1 bg-surface items-center justify-center px-10">
+    <div class="text-center max-w-md">
+      <span class="material-symbols-outlined text-6xl text-secondary/70">forum</span>
+      <h2 class="font-headline text-3xl mt-4">Select a Conversation</h2>
+      <p class="text-secondary mt-2">Choose a thread from the left panel to continue chatting with artisans and customers.</p>
+    </div>
+  </section>
+</section>
+
+</main>
+
+<%- include('../partials/footer') %>
+
+<script>
+(function() {
+  if (!window.io) return;
+  var socket = window.io();
+  socket.emit('joinUser');
+
+  socket.on('newConversation', function(data) {
+    var sidebar = document.querySelector('.flex-grow.overflow-y-auto');
+    if (!sidebar) return;
+    var otherId = String(data.other_user_id);
+    var existing = sidebar.querySelector('a[href="/user/messages/' + otherId + '"]');
+    if (existing) {
+      var preview = existing.querySelector('p.text-xs.text-secondary');
+      if (preview) preview.textContent = data.last_message || '';
+      sidebar.prepend(existing);
+    } else {
+      var initials = (data.other_user_name || '?')[0].toUpperCase();
+      var html = '<a href="/user/messages/' + otherId + '" class="flex items-start gap-3 p-4 hover:bg-surface-container-low rounded-2xl cursor-pointer group transition-all relative">' +
+        '<div class="relative flex-shrink-0">' +
+        (data.other_user_avatar
+          ? '<img alt="' + (data.other_user_name || '') + '" class="w-12 h-12 rounded-full object-cover" src="' + data.other_user_avatar + '" onerror="this.onerror=null;this.src=\'/images/default-avatar.png\'"/>'
+          : '<div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold">' + initials + '</div>'
+        ) +
+        '</div>' +
+        '<div class="flex-grow min-w-0">' +
+          '<div class="flex justify-between items-baseline mb-0.5">' +
+            '<h3 class="font-semibold text-on-surface truncate">' + (data.other_user_name || '') + '</h3>' +
+            '<span class="text-[10px] text-secondary uppercase tracking-tighter">now</span>' +
+          '</div>' +
+          '<div class="flex items-center gap-1.5 mb-1"><span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">' + (data.other_user_role || '') + '</span></div>' +
+          '<p class="text-xs text-secondary truncate">' + (data.last_message || '') + '</p>' +
+        '</div>' +
+        '<div class="absolute right-4 bottom-4 min-w-5 h-5 px-1.5 bg-primary text-on-primary rounded-full text-[10px] font-bold flex items-center justify-center">1</div>' +
+        '</a>';
+      sidebar.insertAdjacentHTML('afterbegin', html);
+    }
+  });
+})();
+</script>

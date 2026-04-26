@@ -1,0 +1,144 @@
+<%- include('../partials/header', { title: title }) %>
+
+<main class="flex-grow min-h-screen">
+<section class="max-w-5xl mx-auto px-6 py-10 md:py-14">
+
+  <header class="mb-10 relative">
+    <div class="absolute -top-6 -left-6 w-32 h-32 bg-secondary-container/20 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+    <h1 class="font-headline text-4xl md:text-5xl text-on-surface mb-3">My Reviews</h1>
+    <p class="font-body text-on-secondary-container text-base max-w-xl leading-relaxed">Manage your feedback and ratings for purchased products.</p>
+  </header>
+
+  <!-- Filters -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 bg-surface-container-low p-4 rounded-xl border border-outline-variant/20">
+    <div class="flex flex-wrap gap-2">
+      <a href="/user/reviews<%= filters.sort && filters.sort !== 'desc' ? '?sort=' + filters.sort : '' %>"
+         class="px-4 py-2 font-label text-sm uppercase tracking-wide rounded-md transition-colors <%= !filters.rating ? 'bg-surface-container-lowest text-on-surface shadow-sm border border-outline-variant/10' : 'bg-transparent text-on-secondary-container hover:bg-surface-container-highest' %>">
+        All Reviews
+      </a>
+      <a href="/user/reviews?rating=5<%= filters.sort && filters.sort !== 'desc' ? '&sort=' + filters.sort : '' %>"
+         class="px-4 py-2 font-label text-sm uppercase tracking-wide rounded-md transition-colors <%= filters.rating == 5 ? 'bg-surface-container-lowest text-on-surface shadow-sm border border-outline-variant/10' : 'bg-transparent text-on-secondary-container hover:bg-surface-container-highest' %>">
+        5 Stars
+      </a>
+      <a href="/user/reviews?rating=4<%= filters.sort && filters.sort !== 'desc' ? '&sort=' + filters.sort : '' %>"
+         class="px-4 py-2 font-label text-sm uppercase tracking-wide rounded-md transition-colors <%= filters.rating == 4 ? 'bg-surface-container-lowest text-on-surface shadow-sm border border-outline-variant/10' : 'bg-transparent text-on-secondary-container hover:bg-surface-container-highest' %>">
+        4 Stars
+      </a>
+      <a href="/user/reviews?rating=3<%= filters.sort && filters.sort !== 'desc' ? '&sort=' + filters.sort : '' %>"
+         class="px-4 py-2 font-label text-sm uppercase tracking-wide rounded-md transition-colors <%= filters.rating == 3 ? 'bg-surface-container-lowest text-on-surface shadow-sm border border-outline-variant/10' : 'bg-transparent text-on-secondary-container hover:bg-surface-container-highest' %>">
+        3 Stars
+      </a>
+    </div>
+    <% var _ratingQ = filters.rating ? '&rating=' + parseInt(filters.rating) : ''; %>
+    <div class="relative">
+      <select onchange="window.location='/user/reviews?sort=' + this.value + '<%- _ratingQ %>'"
+              class="appearance-none bg-surface-container-lowest border-outline-variant/20 text-on-surface font-body text-sm py-2 pl-4 pr-10 rounded-md focus:ring-1 focus:ring-primary focus:border-primary shadow-sm">
+        <option value="desc" <%= filters.sort === 'desc' || !filters.sort ? 'selected' : '' %>>Newest First</option>
+        <option value="asc" <%= filters.sort === 'asc' ? 'selected' : '' %>>Oldest First</option>
+        <option value="highest" <%= filters.sort === 'highest' ? 'selected' : '' %>>Highest Rated</option>
+        <option value="lowest" <%= filters.sort === 'lowest' ? 'selected' : '' %>>Lowest Rated</option>
+      </select>
+      <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-secondary-container pointer-events-none text-xl">expand_more</span>
+    </div>
+  </div>
+
+  <!-- Reviews List -->
+  <% if (reviews && reviews.length > 0) { %>
+    <div class="space-y-6">
+      <% reviews.forEach(function(r) { %>
+        <article class="bg-surface-container-lowest p-6 rounded-xl relative overflow-hidden group border border-outline-variant/10 hover:shadow-md transition-shadow">
+          <div class="flex flex-col md:flex-row gap-6">
+            <!-- Product Info -->
+            <div class="flex items-start gap-4 md:w-1/3">
+              <img
+                alt="<%= r.product_name %>"
+                class="w-20 h-20 object-cover rounded-lg shadow-sm flex-shrink-0"
+                src="<%= r.image || '/images/placeholder-product.svg' %>"
+                onerror="this.onerror=null;this.src='/images/placeholder-product.svg'"
+              />
+              <div class="min-w-0">
+                <h3 class="font-headline font-bold text-base text-on-surface mb-1 leading-tight line-clamp-2"><%= r.product_name %></h3>
+                <% if (r.artisan_name) { %>
+                  <p class="font-body text-sm text-on-secondary-container mb-2">by <%= r.artisan_name %></p>
+                <% } %>
+              </div>
+            </div>
+
+            <!-- Review Content -->
+            <div class="flex-1 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                  <div class="flex items-center gap-0.5 text-primary">
+                    <% for (let s = 1; s <= 5; s++) { %>
+                      <span class="material-symbols-outlined text-lg <%= s <= Number(r.rating) ? 'text-primary' : 'text-surface-variant' %>"<% if (s <= Number(r.rating)) { %> style="font-variation-settings: 'FILL' 1"<% } %>>star</span>
+                    <% } %>
+                  </div>
+                  <span class="font-body text-sm text-on-secondary-container">
+                    <%= new Date(r.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                  </span>
+                </div>
+                <% if (r.title) { %>
+                  <p class="font-semibold text-on-surface text-sm mb-1"><%= r.title %></p>
+                <% } %>
+                <p class="font-body text-on-surface leading-relaxed text-sm"><%= r.comment %></p>
+              </div>
+              <div class="flex justify-end gap-4 border-t border-surface-variant/50 pt-4 mt-4">
+                <form action="/user/reviews/<%= r.id %>/delete" method="POST" data-confirm="Delete this review?">
+                  <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                  <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-100 text-error hover:bg-red-500 hover:text-white transition-colors text-xs font-bold uppercase tracking-wider">
+                    <span class="material-symbols-outlined text-sm">delete</span>Delete
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </article>
+      <% }); %>
+    </div>
+  <% } else { %>
+    <div class="bg-surface-container-lowest rounded-xl py-16 text-center border border-outline-variant/10">
+      <span class="material-symbols-outlined text-5xl text-secondary/50">rate_review</span>
+      <p class="font-headline text-xl text-on-surface mt-4 mb-2">No reviews yet</p>
+      <p class="text-secondary text-sm">
+        <% if (filters.rating) { %>
+          No <%= filters.rating %>-star reviews found.
+          <a href="/user/reviews" class="text-primary hover:underline ml-1">View all reviews</a>
+        <% } else { %>
+          Purchase a product and share your experience.
+        <% } %>
+      </p>
+      <a href="/products" class="inline-block mt-6 bg-primary-container text-on-primary-container px-6 py-2.5 rounded-lg text-sm font-bold hover:opacity-90">Browse Products</a>
+    </div>
+  <% } %>
+
+  <!-- Pagination -->
+  <% if (pagination && pagination.totalPages > 1) { %>
+  <% var pgRating = filters.rating ? '&rating=' + filters.rating : ''; %>
+  <% var pgSort = filters.sort && filters.sort !== 'desc' ? '&sort=' + filters.sort : ''; %>
+  <nav class="flex justify-center items-center gap-2 mt-10">
+    <% if (pagination.currentPage > 1) { %>
+      <a href="/user/reviews?page=<%= pagination.currentPage - 1 %><%= pgRating %><%= pgSort %>"
+         class="px-3 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant/20 hover:bg-surface-container text-on-surface text-sm font-medium transition-colors">
+        <span class="material-symbols-outlined text-sm align-middle">chevron_left</span>
+      </a>
+    <% } %>
+    <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+      <a href="/user/reviews?page=<%= i %><%= pgRating %><%= pgSort %>"
+         class="px-3.5 py-2 rounded-lg text-sm font-bold transition-colors <%= i === pagination.currentPage ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container-lowest border border-outline-variant/20 text-on-surface hover:bg-surface-container' %>">
+        <%= i %>
+      </a>
+    <% } %>
+    <% if (pagination.currentPage < pagination.totalPages) { %>
+      <a href="/user/reviews?page=<%= pagination.currentPage + 1 %><%= pgRating %><%= pgSort %>"
+         class="px-3 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant/20 hover:bg-surface-container text-on-surface text-sm font-medium transition-colors">
+        <span class="material-symbols-outlined text-sm align-middle">chevron_right</span>
+      </a>
+    <% } %>
+  </nav>
+  <% } %>
+
+</section>
+</main>
+
+<%- include('../partials/footer') %>
+

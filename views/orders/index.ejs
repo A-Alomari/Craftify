@@ -1,0 +1,407 @@
+<%- include('../partials/header', { title: title }) %>
+
+<%
+  const statusConfig = function(status) {
+    if (status === 'delivered') return { badge: 'bg-green-100 text-green-700', dot: 'bg-green-500', label: 'Delivered' };
+    if (status === 'shipped' || status === 'processing') return { badge: 'bg-blue-100 text-blue-700', dot: 'bg-blue-500', label: status === 'processing' ? 'Processing' : 'Shipped' };
+    if (status === 'cancelled' || status === 'refunded') return { badge: 'bg-red-100 text-red-700', dot: 'bg-red-500', label: 'Cancelled' };
+    return { badge: 'bg-amber-100 text-amber-700', dot: 'bg-amber-500', label: 'Pending' };
+  };
+
+  const paymentIcon = function(method) {
+    return method === 'cash' ? 'account_balance_wallet' : 'credit_card';
+  };
+%>
+
+<main class="flex-grow max-w-screen-xl mx-auto w-full px-6 py-12">
+  <div class="mb-12">
+    <h1 class="text-4xl font-serif font-bold text-on-surface mb-2">My Orders</h1>
+    <p class="text-on-secondary-container font-body tracking-wide">View and manage all your past and current orders.</p>
+  </div>
+
+  <div class="flex flex-col md:flex-row gap-4 mb-10 items-end justify-between bg-surface-container-low p-6 rounded-xl">
+    <form id="orders-filter-form" method="GET" action="/orders" class="flex flex-wrap gap-4 w-full">
+      <div class="flex flex-col gap-1.5">
+        <span class="text-[10px] uppercase tracking-widest font-bold text-outline px-1">Order Status</span>
+        <select name="status" class="bg-surface-container-lowest border-none rounded-lg text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary-container min-w-[160px] text-on-surface" onchange="document.getElementById('orders-filter-form').submit()">
+          <option value="all" <%= (!filters.status || filters.status === 'all') ? 'selected' : '' %>>All Orders</option>
+          <option value="pending" <%= filters.status === 'pending' ? 'selected' : '' %>>Pending</option>
+          <option value="processing" <%= filters.status === 'processing' ? 'selected' : '' %>>Processing</option>
+          <option value="shipped" <%= filters.status === 'shipped' ? 'selected' : '' %>>Shipped</option>
+          <option value="delivered" <%= filters.status === 'delivered' ? 'selected' : '' %>>Delivered</option>
+          <option value="cancelled" <%= filters.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <span class="text-[10px] uppercase tracking-widest font-bold text-outline px-1">Sort By</span>
+        <select name="sort" class="bg-surface-container-lowest border-none rounded-lg text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary-container min-w-[160px] text-on-surface" onchange="document.getElementById('orders-filter-form').submit()">
+          <option value="desc" <%= filters.sort !== 'asc' ? 'selected' : '' %>>Newest First</option>
+          <option value="asc" <%= filters.sort === 'asc' ? 'selected' : '' %>>Oldest First</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1.5 flex-1 min-w-[200px] md:max-w-xs lg:max-w-sm">
+        <span class="text-[10px] uppercase tracking-widest font-bold text-outline px-1">Search</span>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+          <input name="search" value="<%= filters.search || '' %>" class="w-full bg-surface-container-lowest border-none rounded-lg pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container" placeholder="Search order ID or product..." type="text"/>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <% if (orders && orders.length > 0) { %>
+    <div class="space-y-8">
+      <% orders.forEach(function(order) { const status = statusConfig(order.status); const orderItems = order.previewItems || []; %>
+        <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/10 shadow-[0px_20px_40px_rgba(25,28,30,0.04)] <%= order.status === 'cancelled' ? 'opacity-75' : '' %>">
+          <div class="flex flex-wrap justify-between items-start gap-4 mb-8">
+            <div class="flex gap-8">
+              <div>
+                <p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Order ID</p>
+                <p class="font-serif font-bold text-on-surface">#ORD-<%= String(order.id).padStart(6, '0') %></p>
+              </div>
+              <div>
+                <p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Date Placed</p>
+                <p class="font-medium text-on-surface"><%= new Date(order.created_at).toLocaleDateString() %></p>
+              </div>
+            </div>
+            <span class="inline-flex items-center px-3 py-1 rounded-full <%= status.badge %> text-xs font-bold uppercase tracking-wider">
+              <span class="w-1.5 h-1.5 rounded-full <%= status.dot %> mr-2"></span>
+              <%= status.label %>
+            </span>
+          </div>
+
+          <div class="flex items-center gap-4 mb-8">
+            <div class="flex -space-x-3 overflow-hidden">
+              <% if (orderItems.length > 0) { %>
+                <% orderItems.forEach(function(item) { %>
+                  <img alt="<%= item.product_name %>" class="inline-block h-20 w-20 rounded-lg ring-4 ring-surface-container-lowest object-cover" src="<%= item.image || '/images/placeholder-product.svg' %>" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'"/>
+                <% }) %>
+              <% } else { %>
+                <img alt="Order Item" class="inline-block h-20 w-20 rounded-lg ring-4 ring-surface-container-lowest object-cover" src="/images/placeholder-product.svg"/>
+              <% } %>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-on-surface"><%= Number(order.item_count || 0) %> Item<%= Number(order.item_count || 0) === 1 ? '' : 's' %></p>
+              <p class="text-xs text-outline italic">Craftify Order</p>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row justify-between items-end sm:items-center pt-8 border-t border-outline-variant/10">
+            <div class="flex gap-8 mb-4 sm:mb-0">
+              <div>
+                <p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Total Amount</p>
+                <p class="font-serif text-xl font-bold text-primary">$<%= Number(order.total_amount || 0).toFixed(2) %></p>
+              </div>
+              <div>
+                <p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Payment Method</p>
+                <div class="flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-sm" data-icon="<%= paymentIcon(order.payment_method) %>"><%= paymentIcon(order.payment_method) %></span>
+                  <p class="text-sm font-medium text-on-surface"><%= (order.payment_method || 'card').toUpperCase() %></p>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-4">
+              <button class="reorder-btn text-sm font-semibold text-primary hover:underline underline-offset-4" data-order-id="<%= order.id %>">Reorder</button>
+              <% if (order.status === 'delivered') { %>
+                <button class="write-review-btn border-2 border-primary-container text-primary px-6 py-2 rounded-lg text-sm font-bold hover:bg-primary-container/5 transition-all" data-order-id="<%= order.id %>">Write Review</button>
+              <% } %>
+              <a class="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition-all scale-95 active:scale-90" href="/orders/<%= order.id %>/track">View Details</a>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  <% } else { %>
+    <div class="bg-surface-container-lowest rounded-xl p-12 text-center border border-outline-variant/10">
+      <span class="material-symbols-outlined text-5xl text-secondary/60">shopping_bag</span>
+      <p class="text-secondary mt-3">No orders yet. Start shopping to see your history here.</p>
+      <a href="/products" class="inline-flex mt-6 bg-primary-container text-on-primary-container px-6 py-2.5 rounded-lg text-sm font-bold">Browse Products</a>
+    </div>
+  <% } %>
+
+  <%- include('../partials/pagination') %>
+</main>
+
+<!-- ===== Write Review Modal ===== -->
+<div id="review-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+  <div class="bg-surface-container-lowest rounded-xl max-w-2xl w-full p-8 md:p-10 relative my-auto shadow-2xl">
+    <button id="review-modal-close" aria-label="Close modal" class="absolute top-5 right-5 text-on-surface-variant hover:text-on-surface transition-colors">
+      <span class="material-symbols-outlined text-3xl">close</span>
+    </button>
+    <h2 class="font-headline text-2xl md:text-3xl text-on-surface mb-8 text-center font-bold">Write a Review</h2>
+
+    <!-- Product selector (shown when multiple reviewable items) -->
+    <div id="review-product-list" class="mb-6 hidden">
+      <p class="text-[10px] uppercase tracking-widest font-bold text-outline mb-3">Select Product to Review</p>
+      <div id="review-product-cards" class="space-y-2"></div>
+    </div>
+
+    <!-- Product context (shown when item is selected) -->
+    <div id="review-product-context" class="hidden flex items-center gap-4 mb-8 bg-surface-container-low p-4 rounded-xl">
+      <img id="review-product-img" alt="Product" class="w-20 h-20 object-cover rounded-lg"/>
+      <div>
+        <h3 id="review-product-name" class="font-headline text-base font-bold text-on-surface"></h3>
+        <p id="review-product-artisan" class="font-body text-sm text-secondary mt-0.5"></p>
+      </div>
+    </div>
+
+    <!-- No reviewable items message -->
+    <div id="review-no-items" class="hidden text-center py-8">
+      <span class="material-symbols-outlined text-5xl text-secondary/40">rate_review</span>
+      <p class="text-secondary mt-3">No items available to review in this order.</p>
+    </div>
+
+    <!-- Loading state -->
+    <div id="review-loading" class="flex justify-center py-10">
+      <span class="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
+    </div>
+
+    <!-- Review form (hidden until product selected) -->
+    <form id="review-form" class="hidden">
+      <input type="hidden" id="review-product-id" name="product_id"/>
+      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"/>
+
+      <!-- Star Rating -->
+      <div class="mb-8">
+        <label class="block font-label text-sm text-on-surface uppercase tracking-widest mb-3">Overall Rating</label>
+        <div id="star-rating" class="flex items-center gap-2" data-rating="0">
+          <% for (let i = 1; i <= 5; i++) { %>
+            <span class="star-btn material-symbols-outlined text-4xl cursor-pointer text-outline-variant transition-colors" data-value="<%= i %>">star</span>
+          <% } %>
+          <span id="star-label" class="font-body text-sm text-secondary ml-2 font-medium"></span>
+        </div>
+        <input type="hidden" id="review-rating" name="rating" value="0"/>
+      </div>
+
+      <!-- Title -->
+      <div class="mb-6">
+        <label class="block font-label text-sm text-on-surface uppercase tracking-widest mb-2" for="review-title">Review Title</label>
+        <input id="review-title" name="title" maxlength="100" class="w-full bg-surface-container-low border-none rounded-lg px-4 py-3 text-on-surface placeholder:text-on-surface-variant focus:ring-2 focus:ring-primary-container" placeholder="Summarize your experience..." type="text" required/>
+      </div>
+
+      <!-- Comment -->
+      <div class="mb-8">
+        <div class="flex justify-between items-end mb-2">
+          <label class="block font-label text-sm text-on-surface uppercase tracking-widest" for="review-comment">Your Review</label>
+          <span id="char-count" class="font-body text-xs text-on-surface-variant">0 / 500</span>
+        </div>
+        <textarea id="review-comment" name="comment" maxlength="500" rows="4" class="w-full bg-surface-container-low border-none rounded-lg px-4 py-3 text-on-surface placeholder:text-on-surface-variant focus:ring-2 focus:ring-primary-container resize-none" placeholder="Share your experience with this product..." required></textarea>
+      </div>
+
+      <!-- Error message -->
+      <p id="review-error" class="hidden text-red-600 text-sm mb-4"></p>
+
+      <!-- Actions -->
+      <div class="flex justify-end gap-4 pt-4 border-t border-outline-variant/10">
+        <button type="button" id="review-cancel" class="px-6 py-2.5 text-sm font-medium text-secondary hover:text-on-surface rounded-lg transition-colors">Cancel</button>
+        <button type="submit" id="review-submit" class="bg-primary-container text-on-primary-container px-8 py-2.5 rounded-lg text-sm font-bold hover:opacity-90 transition-all">Submit Review</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== Toast ===== -->
+
+<script>
+(function() {
+  const CSRF = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
+  const starLabels = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+
+  // --- Review Modal ---
+  const modal = document.getElementById('review-modal');
+  const reviewForm = document.getElementById('review-form');
+  const reviewLoading = document.getElementById('review-loading');
+  const reviewProductList = document.getElementById('review-product-list');
+  const reviewProductCards = document.getElementById('review-product-cards');
+  const reviewProductContext = document.getElementById('review-product-context');
+  const reviewNoItems = document.getElementById('review-no-items');
+  const starRating = document.getElementById('star-rating');
+  const ratingInput = document.getElementById('review-rating');
+  const starLabel = document.getElementById('star-label');
+  const charCount = document.getElementById('char-count');
+  const commentTextarea = document.getElementById('review-comment');
+  const reviewError = document.getElementById('review-error');
+
+  function openModal() { modal.classList.remove('hidden'); modal.classList.add('flex'); document.body.style.overflow = 'hidden'; }
+  function closeModal() { modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = ''; resetModal(); }
+
+  function resetModal() {
+    reviewForm.classList.add('hidden');
+    reviewLoading.classList.remove('hidden');
+    reviewProductList.classList.add('hidden');
+    reviewProductContext.classList.add('hidden');
+    reviewNoItems.classList.add('hidden');
+    reviewProductCards.innerHTML = '';
+    ratingInput.value = '0';
+    starRating.dataset.rating = '0';
+    reviewError.classList.add('hidden');
+    reviewError.textContent = '';
+    document.getElementById('review-title').value = '';
+    commentTextarea.value = '';
+    charCount.textContent = '0 / 500';
+    document.getElementById('review-product-id').value = '';
+    updateStars(0);
+  }
+
+  function updateStars(val) {
+    document.querySelectorAll('.star-btn').forEach(s => {
+      const v = parseInt(s.dataset.value);
+      if (v <= val) {
+        s.style.fontVariationSettings = "'FILL' 1";
+        s.classList.remove('text-outline-variant');
+        s.classList.add('text-amber-500');
+      } else {
+        s.style.fontVariationSettings = "'FILL' 0";
+        s.classList.add('text-outline-variant');
+        s.classList.remove('text-amber-500');
+      }
+    });
+    starLabel.textContent = starLabels[val] || '';
+  }
+
+  // Star hover + click
+  document.querySelectorAll('.star-btn').forEach(s => {
+    s.addEventListener('mouseenter', () => updateStars(parseInt(s.dataset.value)));
+    s.addEventListener('mouseleave', () => updateStars(parseInt(ratingInput.value)));
+    s.addEventListener('click', () => { ratingInput.value = s.dataset.value; starRating.dataset.rating = s.dataset.value; updateStars(parseInt(s.dataset.value)); });
+  });
+
+  // Char counter
+  commentTextarea.addEventListener('input', () => { charCount.textContent = commentTextarea.value.length + ' / 500'; });
+
+  // Select product in modal
+  function selectProduct(item) {
+    reviewProductList.classList.add('hidden');
+    reviewProductContext.classList.remove('hidden');
+    document.getElementById('review-product-img').src = item.image || '/images/placeholder-product.svg';
+    document.getElementById('review-product-name').textContent = item.product_name;
+    document.getElementById('review-product-artisan').textContent = item.artisan_name ? 'by ' + item.artisan_name : '';
+    document.getElementById('review-product-id').value = item.product_id;
+    reviewForm.classList.remove('hidden');
+  }
+
+  // Open Review modal
+  document.querySelectorAll('.write-review-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const orderId = btn.dataset.orderId;
+      openModal();
+      resetModal();
+      try {
+        const res = await fetch('/orders/' + orderId + '/items', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+        const data = await res.json();
+        reviewLoading.classList.add('hidden');
+        if (!data.success) { reviewNoItems.classList.remove('hidden'); return; }
+        const reviewable = data.items.filter(i => i.canReview);
+        if (reviewable.length === 0) {
+          reviewNoItems.classList.remove('hidden');
+          return;
+        }
+        if (reviewable.length === 1) {
+          selectProduct(reviewable[0]);
+        } else {
+          reviewProductList.classList.remove('hidden');
+          reviewable.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-surface-container-low transition-colors border border-transparent hover:border-primary-container/30';
+            card.innerHTML = '<img src="' + (item.image || '/images/placeholder-product.svg') + '" class="w-12 h-12 object-cover rounded-md"/><div><p class="font-medium text-on-surface text-sm">' + item.product_name + '</p>' + (item.artisan_name ? '<p class="text-xs text-secondary">by ' + item.artisan_name + '</p>' : '') + '</div>';
+            card.addEventListener('click', () => selectProduct(item));
+            reviewProductCards.appendChild(card);
+          });
+        }
+      } catch (e) {
+        reviewLoading.classList.add('hidden');
+        reviewNoItems.classList.remove('hidden');
+      }
+    });
+  });
+
+  document.getElementById('review-modal-close').addEventListener('click', closeModal);
+  document.getElementById('review-cancel').addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+  // Submit review
+  reviewForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const rating = parseInt(ratingInput.value);
+    if (!rating || rating < 1) { reviewError.textContent = 'Please select a star rating.'; reviewError.classList.remove('hidden'); return; }
+    const productId = document.getElementById('review-product-id').value;
+    const title = document.getElementById('review-title').value.trim();
+    const comment = commentTextarea.value.trim();
+    if (!productId || !title || !comment) { reviewError.textContent = 'Please fill in all fields.'; reviewError.classList.remove('hidden'); return; }
+    reviewError.classList.add('hidden');
+    const submitBtn = document.getElementById('review-submit');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+    try {
+      const res = await fetch('/user/reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'CSRF-Token': CSRF
+        },
+        body: JSON.stringify({ product_id: productId, rating, title, comment, _csrf: CSRF })
+      });
+      const data = await res.json();
+      if (data.success) {
+        closeModal();
+        if (typeof showToast === 'function') showToast('Review submitted! Thank you for your feedback.', 'success');
+      } else {
+        reviewError.textContent = data.message || 'Error submitting review. Please try again.';
+        reviewError.classList.remove('hidden');
+      }
+    } catch (err) {
+      reviewError.textContent = 'Error submitting review. Please try again.';
+      reviewError.classList.remove('hidden');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Review';
+    }
+  });
+
+  // --- Reorder ---
+  document.querySelectorAll('.reorder-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const orderId = btn.dataset.orderId;
+      btn.disabled = true;
+      btn.textContent = 'Adding...';
+      try {
+        const res = await fetch('/orders/' + orderId + '/reorder', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'CSRF-Token': CSRF
+          },
+          body: JSON.stringify({ _csrf: CSRF })
+        });
+        const data = await res.json();
+        if (typeof showToast !== 'function') return;
+        if (data.success) {
+          if (data.added.length > 0) {
+            showToast('Added to cart: ' + data.added.map(i => i.name).join(', '), 'success');
+          }
+          if (data.outOfStock && data.outOfStock.length > 0) {
+            const partial = data.outOfStock.filter(i => i.reason === 'partial');
+            const oos = data.outOfStock.filter(i => i.reason !== 'partial');
+            if (partial.length) showToast(partial.map(i => i.name + ' — only ' + i.available + ' available').join(', '), 'warning');
+            if (oos.length) showToast(oos.map(i => i.name).join(', ') + ' — out of stock', 'warning');
+          }
+          if (data.added.length === 0 && (!data.outOfStock || data.outOfStock.length === 0)) {
+            showToast('Nothing to reorder.', 'info');
+          }
+        } else {
+          showToast('Error reordering. Please try again.', 'danger');
+        }
+      } catch (e) {
+        if (typeof showToast === 'function') showToast('Error reordering. Please try again.', 'danger');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Reorder';
+      }
+    });
+  });
+})();
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,336 @@
+<%- include('../partials/header', { title: title }) %>
+
+<style>
+  details > summary::-webkit-details-marker { display: none; }
+</style>
+
+<main class="flex-grow py-20 px-4 md:px-8 max-w-4xl mx-auto w-full">
+  <article class="bg-transparent">
+
+    <!-- Page Header -->
+    <header class="mb-12 text-center flex flex-col items-center">
+      <div class="w-16 h-16 rounded-full bg-primary-container/10 flex items-center justify-center text-amber-600 mb-6 shadow-sm border border-primary-container/20">
+        <span class="material-symbols-outlined text-3xl">handyman</span>
+      </div>
+      <h1 class="font-headline text-4xl md:text-5xl font-bold text-on-surface mb-4 tracking-tight">Artisan Guidelines</h1>
+      <p class="font-body text-secondary text-lg">Standards and best practices for selling on Craftify.</p>
+    </header>
+
+    <div class="space-y-6 font-body text-base text-on-surface/90 leading-relaxed">
+
+      <!-- Intro Banner -->
+      <section class="bg-surface-container-lowest rounded-2xl p-8 md:p-10 shadow-sm border border-outline-variant/30 text-center relative overflow-hidden mb-8">
+        <div class="absolute inset-0 bg-primary-container/5 pointer-events-none"></div>
+        <span class="material-symbols-outlined text-amber-600 text-4xl mb-4 relative z-10 block">workspace_premium</span>
+        <p class="text-lg relative z-10 text-secondary">
+          Craftify is a marketplace built on trust, authenticity, and the love of handmade craft. These guidelines ensure every artisan and buyer has a great experience. By registering as an artisan, you agree to uphold these standards.
+        </p>
+        <a href="/auth/artisan-register" class="inline-flex items-center justify-center mt-6 px-8 py-3 bg-amber-600 hover:bg-amber-700 text-white font-label text-sm font-semibold rounded-full shadow-sm transition-colors duration-200 relative z-10">
+          Apply to Sell on Craftify
+        </a>
+      </section>
+
+      <!-- 1. What Can You Sell? -->
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300" open>
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">category</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">1. What Can You Sell?</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p class="mb-4">Craftify is exclusively for handmade, vintage, and craft supply items. We do not permit the resale of mass-produced goods.</p>
+          <div class="grid md:grid-cols-3 gap-4 mt-6">
+            <div class="rounded-xl p-5 bg-green-50 border border-green-100">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                <span class="font-semibold text-green-800">Allowed</span>
+              </div>
+              <ul class="space-y-2 text-sm text-green-900">
+                <li>Handmade items you created</li>
+                <li>Vintage items 20+ years old</li>
+                <li>Craft supplies &amp; materials</li>
+                <li>Digital art &amp; patterns</li>
+                <li>Custom / made-to-order work</li>
+              </ul>
+            </div>
+            <div class="rounded-xl p-5 bg-red-50 border border-red-100">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="material-symbols-outlined text-red-600 text-xl">cancel</span>
+                <span class="font-semibold text-red-800">Not Allowed</span>
+              </div>
+              <ul class="space-y-2 text-sm text-red-900">
+                <li>Factory-made / mass-produced items</li>
+                <li>Counterfeit or replica goods</li>
+                <li>Hazardous materials</li>
+                <li>Illegal or prohibited items</li>
+                <li>Items infringing on IP rights</li>
+              </ul>
+            </div>
+            <div class="rounded-xl p-5 bg-amber-50 border border-amber-100">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="material-symbols-outlined text-amber-600 text-xl">help</span>
+                <span class="font-semibold text-amber-800">Review Required</span>
+              </div>
+              <ul class="space-y-2 text-sm text-amber-900">
+                <li>Food &amp; edible items</li>
+                <li>Items for children under 3</li>
+                <li>Cosmetics &amp; skincare</li>
+                <li>Plants &amp; seeds</li>
+                <li>Medical / wellness claims</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- 2. Listing Quality Standards -->
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">photo_camera</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">2. Listing Quality Standards</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p class="mb-4">High-quality listings build buyer trust and help your shop succeed. Every listing must include:</p>
+          <ul class="list-none space-y-3 mt-4">
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span><strong class="text-on-surface font-medium">Photos:</strong> At least one clear, well-lit photo. Show the item from multiple angles. Use natural light where possible and avoid heavy filters.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span><strong class="text-on-surface font-medium">Title:</strong> Descriptive and accurate. Include materials, style, and key characteristics (e.g., "Handwoven Wool Basket — Natural Brown, 30cm").</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span><strong class="text-on-surface font-medium">Description:</strong> Cover materials, dimensions, colors, care instructions, and any personalization options. Be honest about imperfections in handmade items.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span><strong class="text-on-surface font-medium">Price:</strong> Set a fair price that reflects your materials, time, and skill. All prices must be in USD and include any applicable fees.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span><strong class="text-on-surface font-medium">Processing Time:</strong> Always state how long you need to prepare and dispatch the item.</span>
+            </li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- 3. Shipping & Fulfilment -->
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">local_shipping</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">3. Shipping &amp; Fulfilment</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <ul class="list-none space-y-3">
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span>Ship orders within your stated processing time. If you anticipate a delay, contact the buyer immediately.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span>Package items securely to prevent damage in transit. Use appropriate cushioning for fragile pieces.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span>Provide tracking information where available. Buyers value visibility into their shipment.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span>For international orders, clearly state whether you ship internationally and any restrictions.</span>
+            </li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- 4. Customer Service -->
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">support_agent</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">4. Customer Service</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <ul class="list-none space-y-3">
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span>Respond to buyer messages within <strong class="text-on-surface font-medium">48 hours</strong>. Prompt, friendly communication builds your shop's reputation.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span>Handle disputes fairly and professionally. Offer replacements or refunds for items that arrive damaged or significantly not as described.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span>Never ask buyers to leave positive reviews in exchange for discounts or gifts — reviews must be honest and unsolicited.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">check_circle</span>
+              <span>Maintain a shop cancellation rate below 3%. Frequent cancellations may result in account review.</span>
+            </li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- 5. Prohibited Conduct -->
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">block</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">5. Prohibited Conduct</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p class="mb-4">The following behaviors will result in listing removal and may lead to permanent account suspension:</p>
+          <ul class="list-none space-y-3">
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-red-500 text-xl shrink-0 mt-0.5">cancel</span>
+              <span>Misrepresenting items as handmade when they are commercially manufactured.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-red-500 text-xl shrink-0 mt-0.5">cancel</span>
+              <span>Copying or reproducing another artisan's photos, descriptions, or designs.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-red-500 text-xl shrink-0 mt-0.5">cancel</span>
+              <span>Keyword stuffing or misleading tags to appear in unrelated search results.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-red-500 text-xl shrink-0 mt-0.5">cancel</span>
+              <span>Attempting to conduct transactions outside of Craftify to avoid fees.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-red-500 text-xl shrink-0 mt-0.5">cancel</span>
+              <span>Harassment, discrimination, or abusive communication toward buyers or other artisans.</span>
+            </li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- 6. Fees & Commissions -->
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">account_balance_wallet</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">6. Fees &amp; Commissions</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p class="mb-6">Craftify charges a commission on each completed sale to cover platform infrastructure, payment processing, and buyer support. Listing a product is free.</p>
+          <div class="rounded-xl overflow-hidden border border-outline-variant/20">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-surface-container-low">
+                  <th class="text-left px-4 py-3 font-semibold text-on-surface">Fee Type</th>
+                  <th class="text-left px-4 py-3 font-semibold text-on-surface">Rate</th>
+                  <th class="text-left px-4 py-3 font-semibold text-on-surface">Notes</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-outline-variant/10">
+                <tr>
+                  <td class="px-4 py-3">Listing Fee</td>
+                  <td class="px-4 py-3 text-amber-700 font-medium">Free</td>
+                  <td class="px-4 py-3">No charge to create a listing</td>
+                </tr>
+                <tr class="bg-surface-container/30">
+                  <td class="px-4 py-3">Transaction Commission</td>
+                  <td class="px-4 py-3">5%</td>
+                  <td class="px-4 py-3">Applied to the final sale price</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-3">Auction Commission</td>
+                  <td class="px-4 py-3">7%</td>
+                  <td class="px-4 py-3">Applied to the winning bid amount</td>
+                </tr>
+                <tr class="bg-surface-container/30">
+                  <td class="px-4 py-3">Payment Processing</td>
+                  <td class="px-4 py-3">2.9% + $0.30</td>
+                  <td class="px-4 py-3">Charged by the payment processor</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="mt-4 text-sm">Craftify reserves the right to update fees with 30 days' notice to registered artisans.</p>
+        </div>
+      </details>
+
+      <!-- 7. Account Standing -->
+      <details class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/20 relative overflow-hidden group/details hover:border-amber-300/50 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-200 group-open/details:bg-amber-500 transition-colors duration-300 pointer-events-none"></div>
+        <summary class="flex items-center justify-between p-6 md:p-8 cursor-pointer list-none focus:outline-none">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-amber-600 border border-outline-variant/20 shrink-0">
+              <span class="material-symbols-outlined text-2xl">verified</span>
+            </div>
+            <h2 class="font-headline text-xl md:text-2xl font-bold text-on-surface m-0">7. Account Standing &amp; Enforcement</h2>
+          </div>
+          <span class="material-symbols-outlined text-amber-600 text-3xl transform group-open/details:rotate-180 transition-transform duration-300 shrink-0">expand_more</span>
+        </summary>
+        <div class="px-6 md:px-8 pb-6 md:pb-8 pt-0 text-secondary">
+          <p class="mb-4">Craftify monitors shop performance to maintain the quality and trust of our marketplace. Accounts may be reviewed or suspended for:</p>
+          <ul class="list-none space-y-3">
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">warning</span>
+              <span>Consistently low ratings (below 3.5 stars) or a high volume of unresolved disputes.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">warning</span>
+              <span>Repeated policy violations, including listing prohibited items after warnings.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">warning</span>
+              <span>Non-fulfillment of orders or abandoning an active shop without notice.</span>
+            </li>
+          </ul>
+          <p class="mt-4">We'll always try to work with artisans before taking enforcement action. If your account is flagged, you'll be notified with an opportunity to respond.</p>
+        </div>
+      </details>
+
+    </div>
+
+    <!-- CTA -->
+    <div class="mt-12 p-8 bg-surface-container-low rounded-2xl border border-outline-variant/20 flex flex-col sm:flex-row justify-between items-center gap-6 shadow-sm">
+      <div class="flex items-center gap-4">
+        <span class="material-symbols-outlined text-amber-600 text-3xl">palette</span>
+        <p class="font-body text-base font-medium text-on-surface">Ready to share your craft with the world?</p>
+      </div>
+      <a class="inline-flex items-center justify-center px-8 py-3 bg-amber-600 hover:bg-amber-700 text-white font-label text-sm font-semibold rounded-full shadow-sm transition-colors duration-200" href="/auth/artisan-register">
+        Apply to Sell
+      </a>
+    </div>
+
+  </article>
+</main>
+
+<%- include('../partials/footer') %>

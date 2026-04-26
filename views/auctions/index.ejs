@@ -1,0 +1,130 @@
+<%- include('../partials/header', { title: 'Live Auctions | Craftify' }) %>
+<%
+const auctionFilters = typeof filters !== 'undefined' && filters ? filters : {};
+const statusFilter = auctionFilters.status || 'active';
+const sortFilter = auctionFilters.sort || 'ending_soon';
+const categoryFilter = auctionFilters.category || null;
+const auctionQueryString = `status=${encodeURIComponent(statusFilter)}&sort=${encodeURIComponent(sortFilter)}${categoryFilter ? '&category=' + categoryFilter : ''}`;
+%>
+
+<main class="max-w-7xl mx-auto px-8 py-16">
+<!-- Header Section -->
+<header class="mb-12">
+<div class="flex items-center gap-3 mb-4">
+<h1 class="text-5xl font-serif font-extrabold tracking-tight">Live Auctions</h1>
+<span class="flex h-3 w-3 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-error"></span>
+</span>
+</div>
+<p class="max-w-2xl text-lg text-secondary leading-relaxed font-sans">
+    Bid on exclusive, one-of-a-kind pieces directly from the artisan's studio. These unique items are available for a limited time only.
+</p>
+</header>
+<!-- Filters and Controls -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+<div class="flex flex-wrap gap-3">
+<a href="/auctions?status=active&sort=<%= encodeURIComponent(sortFilter) %>" class="<%= statusFilter === 'active' ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-high text-on-surface hover:bg-surface-container-highest' %> px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 transition-colors">
+    Live Now
+</a>
+<a href="/auctions?status=all&sort=<%= encodeURIComponent(sortFilter) %>" class="<%= statusFilter === 'all' ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-high text-on-surface hover:bg-surface-container-highest' %> px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 transition-colors">
+    All Auctions
+</a>
+<a href="/auctions?status=ended&sort=<%= encodeURIComponent(sortFilter) %>" class="<%= statusFilter === 'ended' ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-high text-on-surface hover:bg-surface-container-highest' %> px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 transition-colors">
+    Ended
+</a>
+<a href="/auctions?status=sold&sort=<%= encodeURIComponent(sortFilter) %>" class="<%= statusFilter === 'sold' ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-high text-on-surface hover:bg-surface-container-highest' %> px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 transition-colors">
+    Sold
+</a>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between md:justify-end gap-4 border-t md:border-t-0 pt-4 md:pt-0">
+<span class="text-sm font-sans text-secondary italic">Showing <%= auctions ? auctions.length : 0 %> auction<%= auctions && auctions.length === 1 ? '' : 's' %> for <%= statusFilter %> status</span>
+<form action="/auctions" method="GET">
+<input type="hidden" name="status" value="<%= statusFilter %>">
+    <select name="sort" onchange="this.form.submit()" class="bg-surface-container-low border-none rounded-lg text-sm px-4 py-2 focus:ring-primary cursor-pointer text-secondary font-medium">
+        <option value="ending_soon" <%= sortFilter === 'ending_soon' ? 'selected' : '' %>>Ending Soon</option>
+        <option value="newest" <%= sortFilter === 'newest' ? 'selected' : '' %>>Newest</option>
+        <option value="most_bids" <%= sortFilter === 'most_bids' ? 'selected' : '' %>>Most Bids</option>
+        <option value="highest_bid" <%= sortFilter === 'highest_bid' ? 'selected' : '' %>>Highest Bid</option>
+    </select>
+</form>
+</div>
+</div>
+<!-- Auction Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+    <% if (auctions && auctions.length > 0) { %>
+        <% auctions.forEach(function(auction) { %>
+            <div class="group bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col transition-all duration-300 shadow-sm hover:shadow-xl">
+                <div class="relative aspect-[4/5] overflow-hidden">
+                    <a href="/auctions/<%= auction.id %>">
+                        <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="<%= auction.image || '/images/placeholder-product.svg' %>" alt="<%= auction.product_name || auction.title %>" loading="lazy" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'"/>
+                    </a>
+                    
+                    <% if (auction.status === 'active') { %>
+                        <div class="absolute top-4 left-4 bg-tertiary text-white text-[10px] font-bold px-3 py-1 rounded-sm flex items-center gap-1.5 uppercase tracking-tighter shadow-sm">
+                            <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                            LIVE BID
+                        </div>
+                    <% } else if (auction.status === 'ended' || auction.status === 'sold') { %>
+                        <div class="absolute top-4 left-4 bg-surface-container-high text-on-surface-variant text-[10px] font-bold px-3 py-1 rounded-sm flex items-center gap-1.5 uppercase tracking-tighter shadow-sm">
+                            ENDED
+                        </div>
+                    <% } %>
+                    <% if (auction.category_name) { %>
+                        <div class="absolute top-4 right-4">
+                            <span class="bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold tracking-widest rounded-md uppercase px-3 py-1"><%= auction.category_name %></span>
+                        </div>
+                    <% } %>
+                </div>
+                <div class="p-5 flex flex-col flex-grow">
+                    <span class="font-sans text-[10px] font-extrabold uppercase tracking-[0.2em] text-secondary mb-2 whitespace-nowrap overflow-hidden text-ellipsis"><%= auction.category_name || 'AUCTION' %></span>
+                    <h3 class="font-serif text-xl font-bold mb-1 leading-tight text-on-surface whitespace-nowrap overflow-hidden text-ellipsis"><%= auction.title || auction.product_name %></h3>
+                    <p class="text-xs text-secondary mb-6 italic">by <%= auction.shop_name || 'Artisan' %> &nbsp;·&nbsp; <span class="font-semibold not-italic"><%= auction.bid_count || 0 %></span> bid<%= (auction.bid_count || 0) === 1 ? '' : 's' %></p>
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <span class="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Current Bid</span>
+                            <span class="text-xl font-serif font-bold text-primary">$<%= (auction.current_highest_bid || auction.starting_price).toFixed(2) %></span>
+                        </div>
+                        <div>
+                            <span class="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Ends In</span>
+                            <div class="flex items-center gap-1 text-sm font-bold text-error">
+                                <span class="material-symbols-outlined text-[16px]" data-icon="alarm">alarm</span>
+                                
+                                <% 
+                                    const now = new Date();
+                                    const end = new Date(auction.end_time);
+                                    let diff = end - now;
+                                    let timeString = '';
+                                    if (diff <= 0) {
+                                        timeString = 'Ended';
+                                    } else {
+                                        let hours = Math.floor(diff / (1000 * 60 * 60));
+                                        let days = Math.floor(hours / 24);
+                                        let hrs = hours % 24;
+                                        if (days > 0) timeString = `${days}d ${hrs}h`;
+                                        else timeString = `${hrs}h left`;
+                                    }
+                                %>
+                                <%= timeString %>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-auto">
+                        <a href="/auctions/<%= auction.id %>" class="block text-center w-full bg-primary-container text-on-primary-container py-3 rounded-lg font-bold text-sm uppercase tracking-widest hover:bg-primary hover:text-white transition-all active:scale-95">
+                            <span class="material-symbols-outlined text-base">gavel</span>
+                            Place a Bid
+                        </a>
+                    </div>
+                </div>
+            </div>
+        <% }); %>
+    <% } else { %>
+        <div class="col-span-full">
+            <p class="text-center text-on-surface-variant my-12 text-lg">No live auctions at the moment. Check back soon!</p>
+        </div>
+    <% } %>
+</div>
+<%- include('../partials/pagination', { pagination: pagination, queryString: auctionQueryString }) %>
+</main>
+
+<%- include('../partials/footer') %>

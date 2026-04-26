@@ -1,0 +1,222 @@
+<%- include('../partials/header', { title: title }) %>
+
+<main class="flex-grow min-h-screen">
+
+<%
+  const artisanProducts = Array.isArray(products) ? products : [];
+  const artisanReviews = Array.isArray(reviews) ? reviews : [];
+  const hasArtisan = !!artisan;
+
+  const numericAvgRating = stats && stats.avg_rating ? Number(stats.avg_rating) : 0;
+  const displayAvgRating = numericAvgRating > 0 ? numericAvgRating.toFixed(1) : 'N/A';
+  const memberYear = artisan && artisan.user_created_at ? new Date(artisan.user_created_at).getFullYear() : null;
+
+  const ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  artisanReviews.forEach(function(review) {
+    const parsed = Math.max(1, Math.min(5, Math.round(Number(review.rating || 0))));
+    ratingCounts[parsed] += 1;
+  });
+  const reviewTotal = artisanReviews.length;
+
+  const ratingPercent = function(star) {
+    if (reviewTotal === 0) return 0;
+    return Math.round((ratingCounts[star] / reviewTotal) * 100);
+  };
+
+  const getStars = function(rating) {
+    const safeRating = Number(rating || 0);
+    const stars = [];
+    for (let i = 1; i <= 5; i += 1) {
+      if (safeRating >= i) {
+        stars.push('star');
+      } else if (safeRating >= i - 0.5) {
+        stars.push('star_half');
+      } else {
+        stars.push('star');
+      }
+    }
+    return stars;
+  };
+%>
+
+<section class="pb-24 max-w-7xl mx-auto px-4 sm:px-6">
+  <% if (hasArtisan) { %>
+    <section class="mt-8 relative">
+      <div class="px-8 pb-12 pt-6 bg-surface-container-lowest rounded-3xl">
+        <div class="flex flex-col md:flex-row items-start gap-6">
+          <div class="w-24 h-24 rounded-full bg-surface-container overflow-hidden shadow-md flex-shrink-0">
+            <img class="w-full h-full object-cover" src="<%= artisan.profile_image || artisan.avatar || '/images/default-avatar.png' %>" alt="<%= artisan.shop_name %>" onerror="this.onerror=null; this.src='/images/default-avatar.png';"/>
+          </div>
+
+          <div class="flex-1 flex flex-col md:flex-row md:justify-between md:items-center w-full gap-4">
+            <div>
+              <h1 class="text-4xl font-headline font-bold text-on-surface"><%= artisan.shop_name %></h1>
+              <p class="text-secondary font-medium mt-1"><%= artisan.name %><%= artisan.location ? ' - ' + artisan.location : '' %></p>
+            </div>
+            <div class="flex gap-3">
+              <% if (typeof user !== 'undefined' && user && Number(user.id) !== Number(artisan.user_id)) { %>
+                <a href="/user/messages/<%= artisan.user_id %>" class="border-2 border-outline-variant text-on-surface font-bold px-8 py-3 rounded-xl hover:bg-surface-container transition-all active:scale-95">Message</a>
+              <% } %>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <div class="lg:col-span-2">
+            <p class="text-lg text-secondary leading-relaxed font-body">
+              <%= artisan.bio || 'This artisan has not added a studio bio yet.' %>
+            </p>
+          </div>
+          <div class="bg-surface-container-low p-6 rounded-2xl grid grid-cols-2 gap-y-4">
+            <div>
+              <span class="block text-xs font-label uppercase tracking-widest text-outline">Total Products</span>
+              <span class="text-xl font-headline font-bold"><%= Number((stats && stats.total_products) || artisanProducts.length || 0) %></span>
+            </div>
+            <div>
+              <span class="block text-xs font-label uppercase tracking-widest text-outline">Total Sales</span>
+              <span class="text-xl font-headline font-bold"><%= Number((stats && stats.total_orders) || 0) %></span>
+            </div>
+            <div>
+              <span class="block text-xs font-label uppercase tracking-widest text-outline">Average Rating</span>
+              <span class="flex items-center gap-1 text-xl font-headline font-bold text-primary">
+                <%= displayAvgRating %>
+                <span class="material-symbols-outlined text-sm filled-icon">star</span>
+              </span>
+            </div>
+            <div>
+              <span class="block text-xs font-label uppercase tracking-widest text-outline">Member Since</span>
+              <span class="text-xl font-headline font-bold"><%= memberYear || 'N/A' %></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="mt-4 border-b border-surface-container flex gap-8 px-8">
+      <a href="#artisan-products" class="pb-4 border-b-2 border-primary text-primary font-bold tracking-wide">Products</a>
+      <a href="#artisan-reviews" class="pb-4 border-b-2 border-transparent text-secondary hover:text-on-surface transition-colors font-medium tracking-wide">Reviews</a>
+    </div>
+
+    <section id="artisan-products" class="mt-12">
+      <% if (artisanProducts.length > 0) { %>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+          <% artisanProducts.forEach(function(product) { %>
+            <% const stars = getStars(product.avg_rating); %>
+            <article class="group bg-surface-container-lowest p-5 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col">
+              <a href="/products/<%= product.id %>">
+                <div class="aspect-square rounded-2xl overflow-hidden mb-6 relative">
+                  <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="<%= product.image || '/images/placeholder-product.svg' %>" alt="<%= product.name %>" onerror="this.onerror=null; this.src='/images/placeholder-product.svg';"/>
+                  <span class="absolute top-4 left-4 bg-secondary-container/90 backdrop-blur-sm text-on-secondary-container text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-full"><%= product.category_name || 'Handmade' %></span>
+                </div>
+              </a>
+              <div class="flex justify-between items-start mb-2 gap-2">
+                <h3 class="font-headline text-xl font-bold line-clamp-2"><a href="/products/<%= product.id %>" class="hover:text-primary transition-colors"><%= product.name %></a></h3>
+                <span class="font-headline font-bold text-primary text-lg">$<%= Number(product.price || 0).toFixed(2) %></span>
+              </div>
+              <div class="flex items-center gap-1 text-primary-container mb-6">
+                <% stars.forEach(function(star, index) { %>
+                  <span class="material-symbols-outlined text-sm <%= Number(product.avg_rating || 0) >= index + 1 ? 'filled-icon' : '' %>"><%= star %></span>
+                <% }); %>
+                <span class="text-secondary text-xs ml-2">(<%= Number(product.review_count || 0) %>)</span>
+              </div>
+
+              <div class="mt-auto">
+              <% if (!user || user.role === 'customer') { %>
+              <form action="/cart/add" method="POST">
+                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                <input type="hidden" name="productId" value="<%= product.id %>">
+                <input type="hidden" name="quantity" value="1">
+                <button class="w-full py-3 bg-surface-container-low hover:bg-primary-container hover:text-on-primary-container text-on-surface font-bold rounded-xl transition-colors flex items-center justify-center gap-2" type="submit">
+                  <span class="material-symbols-outlined text-lg">shopping_bag</span>
+                  Add to Cart
+                </button>
+              </form>
+              <% } else { %>
+              <a href="/products/<%= product.id %>" class="w-full py-3 bg-surface-container-low text-on-surface font-bold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm hover:bg-surface-container-high">
+                <span class="material-symbols-outlined text-lg">open_in_new</span>
+                View Product
+              </a>
+              <% } %>
+              </div>
+            </article>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="bg-surface-container-lowest rounded-xl py-14 text-center">
+          <span class="material-symbols-outlined text-5xl text-secondary/60">inventory_2</span>
+          <p class="text-secondary mt-3">No products yet. Check back later.</p>
+        </div>
+      <% } %>
+    </section>
+
+    <section id="artisan-reviews" class="mt-20 px-8">
+      <h2 class="text-3xl font-headline font-bold mb-8">Customer Stories</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-12">
+        <div class="lg:col-span-1">
+          <div class="text-center md:text-left">
+            <span class="text-6xl font-headline font-bold"><%= displayAvgRating %></span>
+            <div class="flex justify-center md:justify-start items-center gap-1 text-primary my-2">
+              <% getStars(numericAvgRating).forEach(function(star, index) { %>
+                <span class="material-symbols-outlined <%= numericAvgRating >= index + 1 ? 'filled-icon' : '' %>"><%= star %></span>
+              <% }); %>
+            </div>
+            <p class="text-secondary font-medium"><%= reviewTotal %> Verified Reviews</p>
+          </div>
+
+          <div class="mt-8 space-y-3">
+            <% [5, 4, 3, 2, 1].forEach(function(star) { %>
+              <div class="flex items-center gap-3">
+                <span class="text-xs font-bold w-4"><%= star %></span>
+                <div class="flex-1 h-2 bg-surface-container rounded-full overflow-hidden">
+                  <div class="h-full bg-primary" style="width:<%= ratingPercent(star) %>%"></div>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+
+        <div class="lg:col-span-3 space-y-10">
+          <% if (artisanReviews.length > 0) { %>
+            <% artisanReviews.forEach(function(review, index) { %>
+              <article class="flex gap-6 <%= index < artisanReviews.length - 1 ? 'pb-10 border-b border-surface-container-high' : '' %>">
+                <img class="w-14 h-14 rounded-full object-cover" src="<%= review.reviewer_avatar || '/images/default-avatar.png' %>" alt="<%= review.reviewer_name %>" onerror="this.onerror=null; this.src='/images/default-avatar.png';"/>
+                <div class="flex-1">
+                  <div class="flex justify-between items-start mb-2 gap-3">
+                    <div>
+                      <h4 class="font-bold"><%= review.reviewer_name %></h4>
+                      <p class="text-xs text-secondary"><%= review.created_at ? new Date(review.created_at).toLocaleDateString() : '' %></p>
+                    </div>
+                    <div class="flex text-primary text-sm">
+                      <% getStars(review.rating).forEach(function(star, starIndex) { %>
+                        <span class="material-symbols-outlined <%= Number(review.rating || 0) >= starIndex + 1 ? 'filled-icon' : '' %>"><%= star %></span>
+                      <% }); %>
+                    </div>
+                  </div>
+                  <% if (review.title) { %>
+                    <p class="font-semibold text-on-surface/90 mb-2"><%= review.title %></p>
+                  <% } %>
+                  <p class="text-on-surface/80 leading-relaxed italic">"<%= review.comment %>"</p>
+                </div>
+              </article>
+            <% }); %>
+          <% } else { %>
+            <div class="bg-surface-container-lowest rounded-xl p-8 text-center">
+              <span class="material-symbols-outlined text-5xl text-secondary/60">rate_review</span>
+              <p class="text-secondary mt-3">No reviews yet for this artisan.</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </section>
+  <% } else { %>
+    <div class="bg-surface-container-lowest rounded-xl py-14 text-center mt-10">
+      <span class="material-symbols-outlined text-5xl text-secondary/60">storefront</span>
+      <p class="text-secondary mt-3">Artisan profile not found.</p>
+    </div>
+  <% } %>
+</section>
+
+</main>
+
+<%- include('../partials/footer') %>
+

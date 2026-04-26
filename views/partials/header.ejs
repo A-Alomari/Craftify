@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <link href="/assets/styles.css" rel="stylesheet"/>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta name="description" content="Discover unique, handcrafted treasures from artisans around the globe. Shop handmade products, join live auctions, and support independent creators on Craftify."/>
+    <meta property="og:site_name" content="Craftify"/>
+    <meta property="og:type" content="website"/>
+    <title><%= typeof title !== 'undefined' ? title : 'Craftify | Handcrafted with Soul' %></title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+    <%
+        const currentPathValue = typeof currentPath === 'string' ? currentPath : '/';
+        const navItems = [{ href: '/', label: 'Home' }, { href: '/products', label: 'Shop' }, { href: '/auctions', label: 'Auctions' }];
+        if (user && user.role === 'customer') {
+            navItems.push({ href: '/orders', label: 'Orders' });
+            navItems.push({ href: '/auctions/my-bids', label: 'My Bids' });
+        }
+        if (user && user.role === 'artisan') navItems.push({ href: '/artisan/dashboard', label: 'Dashboard' });
+        if (user && user.role === 'admin') navItems.push({ href: '/admin/dashboard', label: 'Dashboard' });
+    %>
+    <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 w-full z-50 shadow-sm dark:shadow-none bg-surface-container-lowest">
+        <nav class="flex justify-between items-center px-6 py-4 max-w-full mx-auto">
+            <div class="flex items-center gap-2">
+                <a class="flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-slate-100 font-headline" href="/">
+                    <div class="w-8 h-8 rounded-full overflow-hidden bg-transparent flex items-center justify-center">
+                        <img src="/favicon.png" alt="Craftify logo" class="w-8 h-8 object-cover"/>
+                    </div>
+                    <span>Craftify</span>
+                </a>
+            </div>
+            <div class="hidden md:flex items-center gap-8">
+                <% navItems.forEach(function(item) { 
+                    let isActive;
+                    if (item.href === '/') {
+                      isActive = currentPathValue === '/';
+                    } else if (item.href === '/auctions') {
+                      isActive = currentPathValue === '/auctions' || (currentPathValue.startsWith('/auctions/') && !currentPathValue.startsWith('/auctions/my-bids'));
+                    } else {
+                      isActive = currentPathValue.startsWith(item.href);
+                    }
+                %>
+                    <a class="text-sm font-medium Inter <%= isActive ? 'text-amber-600 dark:text-amber-500 border-b-2 border-amber-600 dark:border-amber-500 pb-1' : 'text-slate-700 dark:text-slate-300 hover:text-amber-600 transition-colors' %>" href="<%= item.href %>"><%= item.label %></a>
+                <% }) %>
+            </div>
+            <div class="flex items-center gap-2">
+                <% if (!(typeof user !== 'undefined' && user && (user.role === 'artisan' || user.role === 'admin'))) { %>
+                <a href="/cart" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform text-slate-700 dark:text-slate-300 relative">
+                    <span class="material-symbols-outlined">shopping_cart</span>
+                    <% if (typeof cartCount !== 'undefined' && cartCount > 0) { %>
+                        <span class="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-600 text-[10px] font-bold text-white"><%= cartCount %></span>
+                    <% } %>
+                </a>
+                <% } %>
+                <% if (typeof user !== 'undefined' && user) { %>
+                    <a href="/user/notifications" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform text-slate-700 dark:text-slate-300 relative">
+                        <span class="material-symbols-outlined">notifications</span>
+                        <% if (typeof notificationCount !== 'undefined' && notificationCount > 0) { %>
+                            <span class="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-600 px-1 text-[10px] font-bold text-white"><%= notificationCount > 9 ? '9+' : notificationCount %></span>
+                        <% } %>
+                    </a>
+                    <a href="/user/messages" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform text-slate-700 dark:text-slate-300" aria-label="Messages">
+                        <span class="material-symbols-outlined">chat</span>
+                    </a>
+                    <a href="/user/profile" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform text-slate-700 dark:text-slate-300">
+                        <span class="material-symbols-outlined">account_circle</span>
+                    </a>
+                    <form action="/auth/logout" method="POST" class="m-0">
+                        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                        <button type="submit" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all active:scale-95 duration-150 transition-transform text-slate-700 dark:text-slate-300 border-0 bg-transparent" aria-label="Logout">
+                            <span class="material-symbols-outlined">logout</span>
+                        </button>
+                    </form>
+                <% } else { %>
+                    <a href="/auth/artisan-register" class="hidden lg:inline-flex items-center rounded-lg px-3 py-2 text-sm font-headline text-amber-700 underline decoration-amber-300 underline-offset-4 transition-colors hover:text-amber-800">
+                        Sell on Craftify
+                    </a>
+                    <a href="/auth/login" class="inline-flex items-center rounded-lg border border-amber-200 bg-white px-4 py-2 text-sm font-semibold text-amber-800 transition-colors hover:bg-amber-50">
+                        Sign In
+                    </a>
+                    <a href="/auth/register" class="hidden sm:inline-flex items-center rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-amber-700">
+                        Sign Up
+                    </a>
+                <% } %>
+            </div>
+        </nav>
+        <% 
+            // Standardized flash messages: supports both messages.error/messages.success and legacy error_msg/success_msg/error
+            const flashError = (typeof messages !== 'undefined' && messages.error) || (typeof error_msg !== 'undefined' && error_msg) || (typeof error !== 'undefined' && error) || '';
+            const flashSuccess = (typeof messages !== 'undefined' && messages.success) || (typeof success_msg !== 'undefined' && success_msg) || '';
+        %>
+        <% if (flashError && flashError.length > 0) { %>
+            <script>document.addEventListener('DOMContentLoaded',function(){if(typeof showToast==='function')showToast('<%= String(Array.isArray(flashError)?flashError[0]:flashError).replace(/'/g,"\\'") %>','error');});</script>
+        <% } %>
+        <% if (flashSuccess && flashSuccess.length > 0) { %>
+            <script>document.addEventListener('DOMContentLoaded',function(){if(typeof showToast==='function')showToast('<%= String(Array.isArray(flashSuccess)?flashSuccess[0]:flashSuccess).replace(/'/g,"\\'") %>','success');});</script>
+        <% } %>
+    </header>

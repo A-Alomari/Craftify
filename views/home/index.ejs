@@ -1,0 +1,282 @@
+<%- include('../partials/header', { title: 'Craftify | Handcrafted with Soul' }) %>
+
+<main class="flex-grow min-h-screen">
+
+<!-- Hero Section -->
+<section class="relative h-[870px] min-h-[600px] flex items-center overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover" alt="Artisanal pottery workshop with warm lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsLN_HztruXUkvC8LpcyYMRMiMPLSJPsIPBaHoBzlJF0Pnhz3KnEtPAms3nUl7mQpiO_R4nKhFDYFlMzGx0WijhlvLrfM_dCz3fHdEDMTxKJOtO1_4GiZlC33P8TYgN21bQ9azY1eSdO6Co5KG44yARx47x9GjVxW9KTdJvU3GulZ3wP_xXW6M1Mbdq2VJpbLCKZF0-MUnTP-crC4BP3-4ozUI7QdwLyuEUeqqdjJ0G3B5viruBFDkda4RlRM__ljXzpnQlpuj73Y"/>
+<div class="absolute inset-0 bg-gradient-to-r from-on-surface/80 via-on-surface/40 to-transparent"></div>
+</div>
+<div class="relative z-10 max-w-7xl mx-auto px-8 w-full">
+<div class="max-w-2xl">
+<h1 class="font-headline text-6xl md:text-7xl text-white mb-6 leading-tight">Handcrafted with Soul</h1>
+<p class="text-surface-container-lowest text-lg md:text-xl mb-10 leading-relaxed font-light">
+    Discover unique, handmade treasures from independent artisans around the world. Support craftsmanship and bring authentic beauty into your home.
+</p>
+<div class="flex flex-wrap gap-4">
+<a href="/products" class="bg-primary-container text-on-primary-container px-8 py-4 rounded-xl font-bold hover:brightness-110 transition-all flex items-center gap-2">
+    Shop Now
+    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+<% if (!(typeof user !== 'undefined' && user)) { %>
+<a href="/auth/artisan-register" class="border-2 border-white/40 text-white backdrop-blur-sm px-8 py-4 rounded-xl font-bold hover:bg-white hover:text-on-surface transition-all">
+    Become an Artisan
+</a>
+<% } %>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Shop by Category -->
+<section class="py-24 max-w-7xl mx-auto px-8">
+<div class="flex justify-between items-end mb-12">
+<div>
+<h2 class="font-headline text-3xl text-on-surface mb-2">Shop by Category</h2>
+<p class="text-secondary font-label uppercase tracking-widest text-xs">Curated Collections</p>
+</div>
+<a class="font-headline italic text-primary hover:underline transition-all" href="/products">View All</a>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+    <% if (categories && categories.length > 0) { %>
+        <% categories.slice(0, 6).forEach(function(cat) { %>
+        <a class="group bg-surface-container-lowest p-8 rounded-xl flex flex-col items-center justify-center text-center transition-all hover:-translate-y-1" href="/products/category/<%= cat.id %>">
+            <div class="w-16 h-16 rounded-full bg-surface-container-low flex items-center justify-center mb-4 group-hover:bg-primary-fixed transition-colors">
+                <span class="material-symbols-outlined text-3xl text-primary">category</span>
+            </div>
+            <span class="font-label text-xs uppercase tracking-wider font-semibold text-on-surface"><%= cat.name %></span>
+        </a>
+        <% }); %>
+    <% } %>
+</div>
+</section>
+
+<!-- New Arrivals -->
+<section class="py-24 max-w-7xl mx-auto px-8">
+<div class="flex justify-between items-end mb-12 gap-6">
+<div>
+<p class="text-secondary font-label uppercase tracking-widest text-xs mb-2">Fresh From The Studio</p>
+<h2 class="font-headline text-3xl text-on-surface">New Arrivals</h2>
+</div>
+<a class="font-headline italic text-primary hover:underline transition-all" href="/products?sort=newest">Browse Latest</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <% if (newArrivals && newArrivals.length > 0) { %>
+        <% newArrivals.slice(0, 4).forEach(function(product) { %>
+            <div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col">
+                <div class="relative h-72 overflow-hidden shrink-0">
+                    <a href="/products/<%= product.id %>">
+                        <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="<%= product.image || '/images/placeholder-product.svg' %>" alt="<%= product.name %>" loading="lazy" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'"/>
+                    </a>
+                    <div class="absolute top-4 left-4 bg-primary-container text-on-primary-container px-3 py-1 rounded-lg font-headline font-bold">
+                        $<%= Number(product.price).toFixed(2) %>
+                    </div>
+                </div>
+                <div class="p-6 flex flex-col flex-grow">
+                    <p class="text-xs uppercase tracking-[0.2em] text-secondary mb-2">Just Added</p>
+                    <h3 class="font-headline text-xl text-on-surface mb-2">
+                        <a href="/products/<%= product.id %>" class="hover:text-primary transition-colors"><%= product.name %></a>
+                    </h3>
+                    <p class="text-sm text-secondary mb-4">by <a href="/user/artisan/<%= product.artisan_id %>" class="italic hover:text-primary transition-colors"><%= product.shop_name || 'Artisan' %></a></p>
+                    <a href="/products/<%= product.id %>" class="mt-auto inline-flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all">
+                        View details
+                        <span class="material-symbols-outlined text-base">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+        <% }); %>
+    <% } %>
+</div>
+</section>
+
+<!-- Featured Creations -->
+<section class="py-24 bg-surface-container-low">
+<div class="max-w-7xl mx-auto px-8">
+<div class="mb-12">
+<h2 class="font-headline text-3xl text-on-surface mb-2">Featured Creations</h2>
+<p class="text-secondary font-label uppercase tracking-widest text-xs">Handpicked for you</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <% if (featuredProducts && featuredProducts.length > 0) { %>
+        <% featuredProducts.slice(0, 4).forEach(function(product) { %>
+            <% var images = []; try { images = JSON.parse(product.images || '[]'); } catch(e) {} %>
+            <div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col">
+                <div class="relative h-80 overflow-hidden shrink-0">
+                    <a href="/products/<%= product.id %>">
+                        <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="<%= images[0] || '/images/placeholder-product.svg' %>" alt="<%= product.name %>" loading="lazy" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'"/>
+                    </a>
+                    <div class="absolute top-4 left-4 bg-primary-container text-on-primary-container px-3 py-1 rounded-lg font-headline font-bold">
+                        $<%= product.price.toFixed(2) %>
+                    </div>
+                </div>
+                <div class="p-6 flex flex-col flex-grow">
+                    <h3 class="font-headline text-lg mb-1 whitespace-nowrap overflow-hidden text-ellipsis"><%= product.name %></h3>
+                    <p class="text-secondary text-sm mb-3">by <span class="italic"><%= product.shop_name || 'Artisan' %></span></p>
+                    <div class="flex items-center gap-1 mb-6 text-primary">
+                        <span class="material-symbols-outlined text-sm">star</span>
+                        <span class="text-xs font-bold"><%= product.avg_rating ? product.avg_rating.toFixed(1) : 'New' %></span>
+                        <% if (product.review_count > 0) { %>
+                        <span class="text-xs text-secondary">(<%= product.review_count %>)</span>
+                        <% } %>
+                    </div>
+                    <% if (!user || user.role === 'customer') { %>
+                    <form action="/cart/add" method="POST" class="mt-auto">
+                    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                        <input type="hidden" name="productId" value="<%= product.id %>">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="w-full bg-surface-container-high text-on-surface py-3 rounded-lg font-bold hover:bg-primary-container hover:text-on-primary-container transition-all flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-lg">add_shopping_cart</span>
+                            Add to Cart
+                        </button>
+                    </form>
+                    <% } else { %>
+                    <a href="/products/<%= product.id %>" class="mt-auto w-full bg-surface-container-high text-on-surface py-3 rounded-lg font-bold hover:bg-primary-container hover:text-on-primary-container transition-all flex items-center justify-center gap-2 text-sm">View Details</a>
+                    <% } %>
+                </div>
+            </div>
+        <% }); %>
+    <% } %>
+</div>
+</div>
+</section>
+
+<!-- Featured Artisans -->
+<section class="py-24 max-w-7xl mx-auto px-8">
+<div class="flex justify-between items-end mb-12 gap-6">
+<div>
+<p class="text-secondary font-label uppercase tracking-widest text-xs mb-2">Meet The Makers</p>
+<h2 class="font-headline text-3xl text-on-surface">Featured Artisans</h2>
+</div>
+<a class="font-headline italic text-primary hover:underline transition-all" href="/artisans">Explore Shops</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <% if (featuredArtisans && featuredArtisans.length > 0) { %>
+        <% featuredArtisans.forEach(function(artisan) { %>
+            <article class="bg-surface-container-low rounded-3xl p-8 text-center shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col">
+
+                <!-- Avatar -->
+                <img
+                  class="w-24 h-24 rounded-full object-cover mx-auto mb-5 ring-4 ring-primary-container/20 flex-shrink-0"
+                  src="<%= artisan.profile_image || artisan.avatar || '' %>"
+                  alt="<%= artisan.shop_name || artisan.name %>"
+                  onerror="(function(img){img.onerror=null;var n=(img.alt||'?')[0].toUpperCase();var colors=['%23D97706','%2310B981','%233B82F6','%238B5CF6','%23EF4444'];var c=colors[n.charCodeAt(0)%colors.length];img.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'96\' height=\'96\'><circle cx=\'48\' cy=\'48\' r=\'48\' fill=\''+c+'\'/><text x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\' font-family=\'Arial,sans-serif\' font-size=\'38\' font-weight=\'bold\' fill=\'white\'>'+n+'</text></svg>';})(this)"
+                />
+
+                <p class="text-xs uppercase tracking-[0.2em] text-secondary mb-2">Artisan Shop</p>
+
+                <h3 class="font-headline text-2xl text-on-surface mb-2">
+                    <a href="/user/artisan/<%= artisan.user_id %>" class="hover:text-primary transition-colors"><%= artisan.shop_name || artisan.name %></a>
+                </h3>
+
+                <p class="text-sm text-secondary mb-4 flex-grow">
+                    <%= artisan.bio ? artisan.bio.slice(0, 100) + (artisan.bio.length > 100 ? '...' : '') : 'Discover handmade work from this Craftify artisan.' %>
+                </p>
+
+                <div class="flex items-center justify-center gap-4 text-sm text-on-surface mb-5">
+                    <span><strong><%= artisan.product_count || 0 %></strong> products</span>
+                    <% if (artisan.avg_rating) { %>
+                      <span><strong><%= Number(artisan.avg_rating).toFixed(1) %></strong> rating</span>
+                    <% } else { %>
+                      <span class="text-secondary italic text-xs">New</span>
+                    <% } %>
+                </div>
+
+                <div class="flex items-center justify-center gap-3 mt-auto">
+                    <a href="/user/artisan/<%= artisan.user_id %>" class="inline-flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all">
+                        Visit shop
+                        <span class="material-symbols-outlined text-base">storefront</span>
+                    </a>
+                    <% if (typeof user !== 'undefined' && user && user.role === 'customer') { %>
+                      <a href="/user/messages/<%= artisan.user_id %>" class="p-1.5 text-secondary hover:text-primary transition-colors" aria-label="Message artisan">
+                        <span class="material-symbols-outlined text-lg">chat</span>
+                      </a>
+                    <% } %>
+                </div>
+            </article>
+        <% }); %>
+    <% } %>
+</div>
+</section>
+
+<!-- Live Auctions -->
+<section class="py-24 bg-gradient-to-br from-surface-container-low to-surface-container-lowest">
+<div class="max-w-7xl mx-auto px-8">
+<div class="flex justify-between items-end mb-12 gap-6">
+<div>
+<p class="text-secondary font-label uppercase tracking-widest text-xs mb-2">Real-Time Bidding</p>
+<h2 class="font-headline text-3xl text-on-surface">Ending Soon</h2>
+</div>
+<a class="font-headline italic text-primary hover:underline transition-all" href="/auctions">View All Auctions</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <% if (activeAuctions && activeAuctions.length > 0) { %>
+        <% activeAuctions.forEach(function(auction) { %>
+            <article class="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col">
+                <a href="/auctions/<%= auction.id %>" class="block h-64 overflow-hidden shrink-0">
+                    <img class="w-full h-full object-cover transition-transform duration-700 hover:scale-105" src="<%= auction.image || '/images/placeholder-product.svg' %>" alt="<%= auction.title %>" loading="lazy" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'"/>
+                </a>
+                <div class="p-6 flex flex-col flex-grow">
+                    <div class="flex items-center justify-between gap-3 mb-3 text-xs uppercase tracking-[0.2em] text-secondary">
+                        <span>Live Auction</span>
+                        <span><%= auction.bid_count || 0 %> bids</span>
+                    </div>
+                    <h3 class="font-headline text-xl text-on-surface mb-2">
+                        <a href="/auctions/<%= auction.id %>" class="hover:text-primary transition-colors"><%= auction.title %></a>
+                    </h3>
+                    <p class="text-sm text-secondary italic mb-4">by <%= auction.shop_name || 'Artisan' %></p>
+                    <div class="flex items-center justify-between gap-3 mb-4">
+                        <div>
+                            <p class="text-[10px] uppercase tracking-[0.2em] text-secondary mb-0.5">Current bid</p>
+                            <p class="font-headline text-lg text-primary">$<%= Number(auction.current_highest_bid || auction.starting_price || 0).toFixed(2) %></p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] uppercase tracking-[0.2em] text-secondary mb-0.5">Ends</p>
+                            <p class="text-xs font-semibold text-on-surface"><%= new Date(auction.end_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %></p>
+                        </div>
+                    </div>
+                    <% if (!user || user.role === 'customer') { %>
+                    <a href="/auctions/<%= auction.id %>" class="mt-auto flex items-center justify-center gap-2 w-full bg-primary-container text-on-primary-container py-3 rounded-xl font-bold text-sm tracking-wide hover:opacity-90 transition-all active:scale-95">
+                        <span class="material-symbols-outlined text-base">gavel</span>
+                        Place a Bid
+                    </a>
+                    <% } else { %>
+                    <a href="/auctions/<%= auction.id %>" class="mt-auto flex items-center justify-center gap-2 w-full bg-surface-container-high text-on-surface py-3 rounded-xl font-bold text-sm tracking-wide hover:opacity-90 transition-all">
+                        View Auction
+                    </a>
+                    <% } %>
+                </div>
+            </article>
+        <% }); %>
+    <% } %>
+</div>
+</div>
+</section>
+
+<!-- Newsletter Banner -->
+<% if (!(typeof user !== 'undefined' && user)) { %>
+<section class="py-20 px-8">
+<div class="max-w-7xl mx-auto rounded-3xl overflow-hidden bg-tertiary text-on-tertiary relative">
+<div class="absolute top-0 right-0 w-1/3 h-full opacity-10">
+<span class="material-symbols-outlined text-[200px] absolute -top-10 -right-10">draw</span>
+</div>
+<div class="relative z-10 p-12 md:p-20 text-center">
+<h2 class="font-headline text-4xl mb-6">Join Our Community</h2>
+<p class="text-tertiary-fixed text-lg max-w-xl mx-auto mb-10 opacity-90">
+    Stay updated with the latest arrivals from our master artisans, exclusive auctions, and stories from the workshops.
+</p>
+<form action="/subscribe" method="POST" class="flex flex-col md:flex-row gap-4 max-w-lg mx-auto">
+<input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+<input name="email" required class="flex-1 bg-white/10 border-white/20 rounded-xl px-6 py-4 text-white placeholder:text-white/60 focus:ring-2 focus:ring-primary-container focus:border-transparent outline-none" placeholder="Your email address" type="email"/>
+<button class="bg-primary-container text-on-primary-container px-10 py-4 rounded-xl font-bold hover:bg-white hover:text-tertiary transition-all" type="submit">
+    Subscribe
+</button>
+</form>
+</div>
+</div>
+</section>
+<% } %>
+
+</main>
+
+<%- include('../partials/footer') %>

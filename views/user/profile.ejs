@@ -1,0 +1,550 @@
+﻿<%- include('../partials/header', { title: title }) %>
+
+<main class="flex-grow min-h-screen">
+<%
+  const profileName = userProfile && userProfile.name ? userProfile.name : 'User';
+  const profileEmail = userProfile && userProfile.email ? userProfile.email : '';
+  const profilePhone = userProfile && userProfile.phone ? userProfile.phone : '';
+  const profileAddress = userProfile && userProfile.shipping_address ? userProfile.shipping_address : '';
+  const profileCity = userProfile && userProfile.city ? userProfile.city : '';
+  const profileCountry = userProfile && userProfile.country ? userProfile.country : 'Bahrain';
+  const profilePostalCode = userProfile && userProfile.postal_code ? userProfile.postal_code : '';
+  const profileAvatar = userProfile && userProfile.avatar ? userProfile.avatar : '/images/default-avatar.png';
+  const roleSource = userProfile && userProfile.role ? userProfile.role : 'customer';
+  const joinedYear = userProfile && userProfile.created_at ? new Date(userProfile.created_at).getFullYear() : new Date().getFullYear();
+
+  const isArtisan = roleSource === 'artisan';
+  const isAdmin = roleSource === 'admin';
+
+  // Shop info from artisan profile
+  const shopName = artisanProfile && artisanProfile.shop_name ? artisanProfile.shop_name : '';
+  const shopBio = artisanProfile && artisanProfile.bio ? artisanProfile.bio : '';
+  const shopReturnPolicy = artisanProfile && artisanProfile.return_policy ? artisanProfile.return_policy : '';
+  const shopImage = artisanProfile && artisanProfile.profile_image ? artisanProfile.profile_image : '/images/placeholder-product.jpg';
+
+  const pathValue = typeof currentPath === 'string' ? currentPath : '/user/profile';
+  const activeTabVal = typeof activeTab !== 'undefined' ? activeTab : 'profile';
+
+  // Customer sidebar links — use ?tab= query params
+  const customerSidebarLinks = [
+    { tab: 'profile', href: '/user/profile', icon: 'account_circle', label: 'Profile' },
+    { tab: 'wishlist', href: '/user/profile?tab=wishlist', icon: 'favorite', label: 'Wishlist' },
+    { tab: 'reviews', href: '/user/profile?tab=reviews', icon: 'rate_review', label: 'Reviews' }
+  ];
+
+  const isLinkActive = function(link) {
+    return activeTabVal === link.tab;
+  };
+%>
+
+<% if (isArtisan) { %>
+<!-- ═══════════════════════════════════════════════════════════ ARTISAN VIEW -->
+<section class="px-6 lg:px-8 py-10 max-w-3xl mx-auto space-y-6">
+
+  <header class="mb-2">
+    <h1 class="text-4xl font-headline font-bold text-on-surface"><%= shopName || 'My Shop' %></h1>
+    <p class="text-secondary font-label text-sm tracking-widest uppercase mt-2">Shop Account</p>
+  </header>
+
+  <% if (typeof success_msg !== 'undefined' && success_msg && success_msg.length > 0) { %>
+    <div class="bg-green-50 border border-green-200 rounded-xl px-5 py-4 text-green-800 text-sm font-medium"><%= success_msg[0] %></div>
+  <% } %>
+  <% if (typeof error_msg !== 'undefined' && error_msg && error_msg.length > 0) { %>
+    <div class="bg-red-50 border border-red-200 rounded-xl px-5 py-4 text-red-800 text-sm font-medium"><%= error_msg[0] %></div>
+  <% } %>
+
+  <!-- Shop Image — its own form with dedicated submit button -->
+  <form action="/user/shop-profile?_csrf=<%= typeof csrfToken !== 'undefined' ? encodeURIComponent(csrfToken) : '' %>" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+    <input type="hidden" name="shop_name" value="<%= shopName %>">
+    <input type="hidden" name="bio" value="<%= shopBio %>">
+    <input type="hidden" name="return_policy" value="<%= shopReturnPolicy %>">
+
+    <div class="bg-surface-container-lowest rounded-2xl p-8 mb-6">
+      <h2 class="font-headline text-xl font-bold text-on-surface mb-6">Shop Image</h2>
+      <div class="flex items-center gap-6">
+        <label for="shop_image_input" class="relative group cursor-pointer shrink-0 w-32 h-32 rounded-2xl overflow-hidden border-4 border-surface-container-high bg-surface-container-low block">
+          <img
+            id="shopImagePreview"
+            src="<%= shopImage %>"
+            alt="Shop Image"
+            class="w-full h-full object-cover"
+            onerror="this.onerror=null;this.src='/images/placeholder-product.jpg'"
+          >
+          <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
+            <span class="material-symbols-outlined text-white text-3xl">photo_camera</span>
+            <span class="text-white text-[11px] font-bold uppercase tracking-wide">Change</span>
+          </div>
+        </label>
+        <input
+          type="file"
+          id="shop_image_input"
+          name="shop_image"
+          accept="image/jpeg,image/png,image/webp"
+          style="display:none"
+          data-crop-aspect="1"
+          data-preview="shopImagePreview"
+        >
+        <div class="space-y-3">
+          <p class="font-semibold text-on-surface text-base"><%= shopName || 'Your Shop' %></p>
+          <p class="text-secondary text-sm">Click the image to select a new photo. It will be cropped to a square.</p>
+          <button type="submit" class="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-xl font-bold text-sm tracking-wide hover:brightness-105 active:scale-95 transition-all">
+            Update Image
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <!-- Shop Details — separate form -->
+  <form action="/user/shop-profile?_csrf=<%= typeof csrfToken !== 'undefined' ? encodeURIComponent(csrfToken) : '' %>" method="POST">
+    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+
+    <div class="bg-surface-container-lowest rounded-2xl p-8 space-y-6">
+      <h2 class="font-headline text-xl font-bold text-on-surface">Shop Details</h2>
+
+      <div class="space-y-2">
+        <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Shop Name</label>
+        <input type="text" name="shop_name" value="<%= shopName %>"
+          class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all"
+          placeholder="Your shop name" required>
+      </div>
+
+      <div class="space-y-2">
+        <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Bio</label>
+        <textarea name="bio" rows="4"
+          class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all resize-none"
+          placeholder="Tell customers about your craft and story..."><%= shopBio %></textarea>
+      </div>
+
+      <div class="space-y-2">
+        <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Return Policy</label>
+        <textarea name="return_policy" rows="3"
+          class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all resize-none"
+          placeholder="Describe your return and refund policy..."><%= shopReturnPolicy %></textarea>
+      </div>
+
+      <div class="flex justify-end">
+        <button type="submit" class="bg-primary-container text-on-primary-container px-8 py-3 rounded-xl font-bold text-sm tracking-wide hover:brightness-105 active:scale-95 transition-all">
+          Save Shop Info
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Account Security -->
+  <div class="bg-surface-container-lowest rounded-2xl p-8 space-y-6">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="material-symbols-outlined text-primary">lock_reset</span>
+      <h2 class="font-headline text-xl font-bold text-on-surface">Account Security</h2>
+    </div>
+
+    <div class="space-y-2">
+      <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Email Address</label>
+      <input type="email" value="<%= profileEmail %>" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-secondary" disabled>
+    </div>
+
+    <form action="/user/change-password" method="POST">
+      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+      <div class="space-y-5">
+        <div class="space-y-2">
+          <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Current Password</label>
+          <input type="password" name="current_password" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all" required>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div class="space-y-2">
+            <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">New Password</label>
+            <input type="password" name="new_password" minlength="6" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all" required>
+          </div>
+          <div class="space-y-2">
+            <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Confirm New Password</label>
+            <input type="password" name="confirm_password" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all" required>
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <button type="submit" class="bg-primary-container text-on-primary-container px-8 py-3 rounded-xl font-bold text-sm tracking-wide hover:brightness-105 active:scale-95 transition-all">
+            Change Password
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+</section>
+<% } else { %>
+<!-- ═══════════════════════════════════════════════════════════ CUSTOMER VIEW -->
+<section class="px-6 lg:px-8 py-10 max-w-screen-2xl mx-auto">
+  <%- include('./partials/account-nav', { currentPath: '/user/profile' }) %>
+  <div class="flex gap-8 lg:gap-12 min-h-screen">
+
+    <!-- Sidebar — desktop -->
+    <aside class="hidden md:block md:w-64 lg:w-72 shrink-0">
+      <nav class="sticky top-24 flex flex-col pt-4 pb-8 space-y-1" style="max-height: calc(100vh - 96px); overflow-y: auto;">
+      <div class="px-5 mb-6">
+        <h2 class="text-2xl font-headline font-bold text-on-surface">My Account</h2>
+        <p class="font-label text-[10px] tracking-[0.16em] uppercase text-secondary mt-1">Member since <%= joinedYear %></p>
+      </div>
+      <% customerSidebarLinks.forEach(function(link) { const active = isLinkActive(link); %>
+        <a href="<%= link.href %>" class="flex items-center gap-3 pl-5 pr-4 py-3 text-sm tracking-wide uppercase transition-all duration-200 <%= active ? 'text-primary font-bold border-l-4 border-primary-container bg-primary-container/10' : 'text-secondary hover:bg-primary-container/10 hover:text-primary' %>">
+          <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' <%= active ? 1 : 0 %>"><%= link.icon %></span>
+          <span><%= link.label %></span>
+        </a>
+      <% }); %>
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <div class="flex-1 min-w-0 space-y-8">
+
+      <!-- Mobile nav strip -->
+      <div class="md:hidden flex gap-2 overflow-x-auto pb-1">
+        <% customerSidebarLinks.forEach(function(link) { const active = isLinkActive(link); %>
+          <a href="<%= link.href %>" class="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider
+            <%= active ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-low text-on-surface' %>">
+            <span class="material-symbols-outlined text-base"><%= link.icon %></span>
+            <span><%= link.label %></span>
+          </a>
+        <% }); %>
+      </div>
+
+      <% if (typeof success_msg !== 'undefined' && success_msg && success_msg.length > 0) { %>
+        <div class="bg-green-50 border border-green-200 rounded-xl px-5 py-4 text-green-800 text-sm font-medium"><%= success_msg[0] %></div>
+      <% } %>
+      <% if (typeof error_msg !== 'undefined' && error_msg && error_msg.length > 0) { %>
+        <div class="bg-red-50 border border-red-200 rounded-xl px-5 py-4 text-red-800 text-sm font-medium"><%= error_msg[0] %></div>
+      <% } %>
+
+      <% if (activeTabVal === 'profile') { %>
+      <!-- Profile Photo — own form, click image to change -->
+      <div class="bg-surface-container-lowest rounded-2xl p-8">
+        <h2 class="font-headline text-xl font-bold text-on-surface mb-6">Profile Photo</h2>
+        <form action="/user/profile?_csrf=<%= typeof csrfToken !== 'undefined' ? encodeURIComponent(csrfToken) : '' %>" method="POST" enctype="multipart/form-data">
+          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+          <div class="flex items-center gap-6">
+            <label for="avatar" class="relative group cursor-pointer shrink-0 w-32 h-32 rounded-2xl overflow-hidden border-4 border-surface-container-high bg-surface-container-low block">
+              <img
+                id="avatarPreview"
+                src="<%= profileAvatar %>"
+                alt="<%= profileName %>"
+                class="w-full h-full object-cover"
+                onerror="this.onerror=null;this.src='/images/default-avatar.png'"
+              >
+              <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
+                <span class="material-symbols-outlined text-white text-2xl">photo_camera</span>
+                <span class="text-white text-[10px] font-bold uppercase tracking-wide">Change</span>
+              </div>
+            </label>
+            <input
+              type="file"
+              id="avatar"
+              name="avatar"
+              accept="image/jpeg,image/png,image/webp"
+              style="display:none"
+              data-crop-aspect="1"
+              data-preview="avatarPreview"
+            >
+            <div class="space-y-3">
+              <p class="font-semibold text-on-surface"><%= profileName %></p>
+              <p class="text-secondary text-sm">Click the photo to select a new one. It will be cropped to a square.</p>
+              <button type="submit" class="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-xl font-bold text-sm tracking-wide hover:brightness-105 active:scale-95 transition-all">
+                Update Photo
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Personal Information -->
+      <div class="bg-surface-container-lowest rounded-2xl p-8">
+        <h2 class="font-headline text-xl font-bold text-on-surface mb-6">Personal Information</h2>
+        <form action="/user/profile?_csrf=<%= typeof csrfToken !== 'undefined' ? encodeURIComponent(csrfToken) : '' %>" method="POST">
+          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="space-y-2">
+              <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Full Name</label>
+              <input type="text" name="name" value="<%= profileName %>"
+                class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all" required>
+            </div>
+            <div class="space-y-2">
+              <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Email Address</label>
+              <input type="email" value="<%= profileEmail %>" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-secondary" disabled>
+            </div>
+            <div class="space-y-2 md:col-span-2">
+              <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Phone Number</label>
+              <input type="text" name="phone" value="<%= profilePhone %>"
+                class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all">
+            </div>
+            <div class="md:col-span-2 rounded-2xl border border-outline-variant/25 bg-surface-container-low p-5 space-y-4">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Shipping Address</label>
+                <span class="inline-flex items-center rounded-full bg-primary-container/20 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary">Checkout Default</span>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="space-y-2 md:col-span-2">
+                  <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Street Address</label>
+                  <textarea name="shipping_address" rows="3"
+                    class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all resize-none"
+                    placeholder="Building, street, block"><%= profileAddress %></textarea>
+                </div>
+                <div class="space-y-2">
+                  <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Postal Code</label>
+                  <input type="text" name="postal_code" value="<%= profilePostalCode %>"
+                    class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all" placeholder="12345">
+                </div>
+                <div class="space-y-2">
+                  <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">City</label>
+                  <input type="text" name="city" value="<%= profileCity %>"
+                    class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all" placeholder="Manama">
+                </div>
+                <div class="space-y-2">
+                  <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Country</label>
+                  <input type="text" name="country" value="<%= profileCountry %>"
+                    class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all" placeholder="Bahrain">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button type="submit" class="bg-primary-container text-on-primary-container px-8 py-3 rounded-xl font-bold text-sm tracking-wide hover:brightness-105 active:scale-95 transition-all">
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Change Password -->
+      <div class="bg-surface-container-lowest rounded-2xl p-8">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="material-symbols-outlined text-primary">lock_reset</span>
+          <h2 class="font-headline text-xl font-bold text-on-surface">Change Password</h2>
+        </div>
+        <form action="/user/change-password" method="POST">
+          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+          <div class="space-y-5">
+            <div class="space-y-2">
+              <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Current Password</label>
+              <input type="password" name="current_password" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all" required>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div class="space-y-2">
+                <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">New Password</label>
+                <input type="password" name="new_password" minlength="6" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all" required>
+              </div>
+              <div class="space-y-2">
+                <label class="block text-[10px] font-label uppercase tracking-[0.2em] text-secondary font-bold">Confirm New Password</label>
+                <input type="password" name="confirm_password" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-0 focus:border-l-2 focus:border-primary transition-all" required>
+              </div>
+            </div>
+            <div class="flex justify-end">
+              <button type="submit" class="bg-primary-container text-on-primary-container px-8 py-3 rounded-xl font-bold text-sm tracking-wide hover:brightness-105 active:scale-95 transition-all">
+                Change Password
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <% } /* end activeTabVal === 'profile' */ %>
+
+      <!-- ===== WISHLIST PANEL ===== -->
+      <% if (activeTabVal === 'wishlist') { %>
+      <%
+        const wItems = typeof wishlistItems !== 'undefined' ? wishlistItems : [];
+        const wFormatPrice = function(v) { return Number(v || 0).toFixed(2); };
+        const wRenderStars = function(rating) {
+          const r = Number(rating || 0);
+          const out = [];
+          for (let i = 1; i <= 5; i++) out.push(r >= i ? 'star' : 'star');
+          return out;
+        };
+      %>
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+        <div>
+          <div class="flex items-center gap-3 mb-1">
+            <span class="material-symbols-outlined text-tertiary text-2xl" style="font-variation-settings:'FILL' 1">favorite</span>
+            <h2 class="font-headline text-3xl font-bold">My Wishlist</h2>
+          </div>
+          <p class="text-on-surface-variant font-medium ml-10"><%= (typeof pagination !== 'undefined' && pagination) ? pagination.totalItems : wItems.length %> item<%= ((typeof pagination !== 'undefined' && pagination) ? pagination.totalItems : wItems.length) === 1 ? '' : 's' %> saved</p>
+        </div>
+        <a href="/products" class="px-5 py-2.5 rounded-lg border border-outline text-on-surface font-semibold hover:bg-surface-container-low transition-colors flex items-center gap-2 self-start">
+          <span class="material-symbols-outlined text-xl">add_shopping_cart</span>
+          Browse More
+        </a>
+      </div>
+      <% if (wItems.length > 0) { %>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+          <% wItems.forEach(function(wItem) { %>
+            <% const wInStock = Number(wItem.stock || 0) > 0; %>
+            <% const wStars = wRenderStars(wItem.avg_rating); %>
+            <article class="group flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden hover:shadow-xl transition-shadow duration-300">
+              <div class="relative aspect-[4/5] overflow-hidden <%= wInStock ? '' : 'grayscale-[0.4]' %>">
+                <a href="/products/<%= wItem.product_id %>">
+                  <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="<%= wItem.image %>" alt="<%= wItem.name %>" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'"/>
+                </a>
+                <form action="/user/wishlist/remove" method="POST" class="absolute top-4 right-4 wishlist-remove-form">
+                  <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                  <input type="hidden" name="productId" value="<%= wItem.product_id %>">
+                  <button type="submit" class="w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-tertiary shadow-sm hover:text-red-500 transition-colors" aria-label="Remove from wishlist">
+                    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">favorite</span>
+                  </button>
+                </form>
+                <% if (!wInStock) { %>
+                  <div class="absolute inset-0 bg-black/10 flex items-center justify-center pointer-events-none">
+                    <span class="bg-black/60 text-white px-4 py-2 text-xs font-bold rounded uppercase tracking-widest">Out of Stock</span>
+                  </div>
+                <% } %>
+              </div>
+              <div class="p-5 flex flex-col flex-grow">
+                <span class="text-[10px] font-bold tracking-[0.2em] text-secondary uppercase mb-2">HANDMADE</span>
+                <h3 class="text-lg font-bold font-headline mb-1 line-clamp-2 min-h-[52px]"><a href="/products/<%= wItem.product_id %>" class="hover:text-primary transition-colors"><%= wItem.name %></a></h3>
+                <p class="text-on-surface-variant text-sm mb-3">by <span><%= wItem.shop_name || 'Craftify Artisan' %></span></p>
+                <div class="flex items-center gap-2 mb-4">
+                  <div class="flex text-amber-500">
+                    <% wStars.forEach(function(star, idx) { %>
+                      <span class="material-symbols-outlined text-sm <%= Number(wItem.avg_rating || 0) >= idx + 1 ? 'filled-icon' : '' %>"><%= star %></span>
+                    <% }); %>
+                  </div>
+                  <span class="text-xs text-on-surface-variant font-medium"><%= Number(wItem.avg_rating || 0).toFixed(1) %></span>
+                </div>
+                <div class="mt-auto">
+                  <div class="flex justify-between items-center mb-4">
+                    <span class="text-xl font-bold font-headline text-on-surface">$<%= wFormatPrice(wItem.price) %></span>
+                    <span class="text-xs font-bold <%= wInStock ? 'text-emerald-600' : 'text-error' %> flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full <%= wInStock ? 'bg-emerald-600' : 'bg-error' %>"></span>
+                      <%= wInStock ? 'In Stock' : 'Out of Stock' %>
+                    </span>
+                  </div>
+                  <% if (wInStock) { %>
+                    <form action="/user/wishlist/move-to-cart" method="POST">
+                      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                      <input type="hidden" name="productId" value="<%= wItem.product_id %>">
+                      <button class="w-full py-3 bg-primary-container text-on-primary-container font-bold rounded-lg hover:bg-primary transition-colors duration-200" type="submit">Add to Cart</button>
+                    </form>
+                  <% } else { %>
+                    <button class="w-full py-3 border border-outline text-on-surface font-bold rounded-lg" disabled>Notify Me</button>
+                  <% } %>
+                </div>
+              </div>
+            </article>
+          <% }); %>
+        </div>
+
+        <!-- Wishlist Pagination -->
+        <% if (typeof pagination !== 'undefined' && pagination && pagination.totalPages > 1) { %>
+        <nav class="flex justify-center items-center gap-2 mt-10">
+          <% if (pagination.currentPage > 1) { %>
+            <a href="/user/profile?tab=wishlist&page=<%= pagination.currentPage - 1 %>"
+               class="px-3 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant/20 hover:bg-surface-container text-on-surface text-sm font-medium transition-colors">
+              <span class="material-symbols-outlined text-sm" style="vertical-align:middle">chevron_left</span>
+            </a>
+          <% } %>
+          <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+            <a href="/user/profile?tab=wishlist&page=<%= i %>"
+               class="px-3 py-2 rounded-lg text-sm font-bold transition-colors <%= i === pagination.currentPage ? 'bg-primary text-on-primary' : 'bg-surface-container-lowest border border-outline-variant/20 text-on-surface hover:bg-surface-container' %>">
+              <%= i %>
+            </a>
+          <% } %>
+          <% if (pagination.currentPage < pagination.totalPages) { %>
+            <a href="/user/profile?tab=wishlist&page=<%= pagination.currentPage + 1 %>"
+               class="px-3 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant/20 hover:bg-surface-container text-on-surface text-sm font-medium transition-colors">
+              <span class="material-symbols-outlined text-sm" style="vertical-align:middle">chevron_right</span>
+            </a>
+          <% } %>
+        </nav>
+        <% } %>
+      <% } else { %>
+          <p class="text-secondary mt-2">Browse handmade pieces and save your favorites here.</p>
+          <a href="/products" class="inline-flex mt-6 items-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-semibold">
+            <span class="material-symbols-outlined text-lg">storefront</span>
+            Browse Products
+          </a>
+        </div>
+      <% } %>
+      <% } /* end wishlist */ %>
+
+      <!-- ===== REVIEWS PANEL ===== -->
+      <% if (activeTabVal === 'reviews') { %>
+      <% const rItems = typeof reviewItems !== 'undefined' ? reviewItems : []; %>
+      <div class="mb-2 relative">
+        <div class="absolute -top-6 -left-6 w-28 h-28 bg-secondary-container/20 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+        <h2 class="font-headline text-3xl font-bold text-on-surface mb-2">My Reviews</h2>
+        <p class="font-body text-on-secondary-container text-sm">Manage your feedback and ratings for purchased products.</p>
+      </div>
+      <% if (rItems.length > 0) { %>
+        <div class="space-y-6 mt-6">
+          <% rItems.forEach(function(r) { %>
+            <article class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 hover:shadow-md transition-shadow">
+              <div class="flex flex-col md:flex-row gap-6">
+                <div class="flex items-start gap-4 md:w-1/3">
+                  <img alt="<%= r.product_name %>" class="w-20 h-20 object-cover rounded-lg shadow-sm flex-shrink-0"
+                    src="<%= r.image || '/images/placeholder-product.svg' %>" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'"/>
+                  <div class="min-w-0">
+                    <h3 class="font-headline font-bold text-base text-on-surface mb-1 leading-tight line-clamp-2"><%= r.product_name %></h3>
+                    <% if (r.artisan_name) { %><p class="font-body text-sm text-on-secondary-container mb-2">by <%= r.artisan_name %></p><% } %>
+                  </div>
+                </div>
+                <div class="flex-1 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                      <div class="flex items-center gap-0.5 text-primary">
+                        <% for (let s = 1; s <= 5; s++) { %>
+                          <span class="material-symbols-outlined text-lg <%= s <= Number(r.rating) ? 'text-primary' : 'text-surface-variant' %>"<% if (s <= Number(r.rating)) { %> style="font-variation-settings: 'FILL' 1"<% } %>>star</span>
+                        <% } %>
+                      </div>
+                      <span class="font-body text-sm text-on-secondary-container"><%= new Date(r.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></span>
+                    </div>
+                    <% if (r.title) { %><p class="font-semibold text-on-surface text-sm mb-1"><%= r.title %></p><% } %>
+                    <p class="font-body text-on-surface leading-relaxed text-sm"><%= r.comment %></p>
+                  </div>
+                  <div class="flex justify-end gap-4 border-t border-surface-variant/50 pt-4 mt-4">
+                    <form action="/user/reviews/<%= r.id %>/delete" method="POST" data-confirm="Delete this review?">
+                      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                      <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-100 text-error hover:bg-red-500 hover:text-white transition-colors text-xs font-bold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-sm">delete</span>Delete
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </article>
+          <% }); %>
+        </div>
+
+        <!-- Reviews Pagination -->
+        <% if (typeof pagination !== 'undefined' && pagination && pagination.totalPages > 1) { %>
+        <nav class="flex justify-center items-center gap-2 mt-10">
+          <% if (pagination.currentPage > 1) { %>
+            <a href="/user/profile?tab=reviews&page=<%= pagination.currentPage - 1 %>"
+               class="px-3 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant/20 hover:bg-surface-container text-on-surface text-sm font-medium transition-colors">
+              <span class="material-symbols-outlined text-sm" style="vertical-align:middle">chevron_left</span>
+            </a>
+          <% } %>
+          <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+            <a href="/user/profile?tab=reviews&page=<%= i %>"
+               class="px-3 py-2 rounded-lg text-sm font-bold transition-colors <%= i === pagination.currentPage ? 'bg-primary text-on-primary' : 'bg-surface-container-lowest border border-outline-variant/20 text-on-surface hover:bg-surface-container' %>">
+              <%= i %>
+            </a>
+          <% } %>
+          <% if (pagination.currentPage < pagination.totalPages) { %>
+            <a href="/user/profile?tab=reviews&page=<%= pagination.currentPage + 1 %>"
+               class="px-3 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant/20 hover:bg-surface-container text-on-surface text-sm font-medium transition-colors">
+              <span class="material-symbols-outlined text-sm" style="vertical-align:middle">chevron_right</span>
+            </a>
+          <% } %>
+        </nav>
+        <% } %>
+      <% } else { %>
+          <p class="font-headline text-xl text-on-surface mt-4 mb-2">No reviews yet</p>
+          <p class="text-secondary text-sm">Purchase a product and share your experience.</p>
+          <a href="/products" class="inline-block mt-6 bg-primary-container text-on-primary-container px-6 py-2.5 rounded-lg text-sm font-bold hover:opacity-90">Browse Products</a>
+        </div>
+      <% } %>
+      <% } /* end reviews */ %>
+
+    </div>
+  </div>
+</section>
+<% } %>
+
+</main>
+
+<%- include('../partials/footer') %>
