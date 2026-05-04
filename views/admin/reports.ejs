@@ -83,7 +83,7 @@
         <div class="bg-surface-container-lowest rounded-xl p-6 relative overflow-hidden" style="box-shadow:0 8px 30px rgba(25,28,30,0.04);">
           <div style="position:absolute;top:0;right:0;width:8rem;height:8rem;background:#855300;opacity:0.05;border-bottom-left-radius:9999px;margin-right:-2rem;margin-top:-2rem;"></div>
           <p class="font-label text-sm text-secondary uppercase tracking-wider mb-2">Total Revenue</p>
-          <h3 class="font-headline text-3xl text-on-surface">$<%= revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></h3>
+          <h3 class="font-headline text-on-surface truncate" style="font-size:clamp(1.25rem,2.5vw,1.875rem);">$<%= revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></h3>
           <div class="mt-4 flex items-center text-sm font-body">
             <span class="material-symbols-outlined text-base mr-1" style="color:#059669;">trending_up</span>
             <span class="text-secondary ml-1"><%= periodLabel %></span>
@@ -379,14 +379,14 @@
           </div>
           <div class="flex flex-col gap-2">
             <label class="font-label text-sm text-secondary font-medium">Format</label>
-            <div class="flex gap-3 items-center">
-              <div class="flex bg-surface-container-low rounded-xl p-1">
-                <button type="button" class="px-4 py-2 bg-surface-container-lowest rounded-lg text-sm font-medium text-on-surface shadow-sm">PDF</button>
-                <button type="button" class="px-4 py-2 text-sm font-medium text-secondary hover:text-on-surface transition-colors">CSV</button>
+            <div class="flex flex-col gap-2">
+              <div class="flex bg-surface-container-low rounded-xl p-1 self-start">
+                <button id="fmt-pdf" type="button" onclick="selectFormat('pdf')" class="px-5 py-2 bg-surface-container-lowest rounded-lg text-sm font-semibold text-on-surface shadow-sm transition-all">PDF</button>
+                <button id="fmt-csv" type="button" onclick="selectFormat('csv')" class="px-5 py-2 text-sm font-medium text-secondary hover:text-on-surface transition-colors rounded-lg">CSV</button>
               </div>
-              <button type="button" class="flex-1 bg-primary-container text-on-primary-container rounded-xl py-3 px-4 font-label font-semibold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
-                <span class="material-symbols-outlined text-sm">download</span>
-                Generate
+              <button type="button" class="w-full rounded-xl py-3 px-5 font-label font-semibold text-sm text-white flex items-center justify-center gap-2 transition-opacity hover:opacity-90 active:scale-95" style="background:#f59e0b;">
+                <span class="material-symbols-outlined text-base">download</span>
+                Generate Report
               </button>
             </div>
           </div>
@@ -457,4 +457,18 @@
     dot.style.display = 'none';
   });
 })();
+
+// Format toggle for Report Generator
+function selectFormat(fmt) {
+  var pdf = document.getElementById('fmt-pdf');
+  var csv = document.getElementById('fmt-csv');
+  if (!pdf || !csv) return;
+  if (fmt === 'pdf') {
+    pdf.className = 'px-5 py-2 bg-surface-container-lowest rounded-lg text-sm font-semibold text-on-surface shadow-sm transition-all';
+    csv.className = 'px-5 py-2 text-sm font-medium text-secondary hover:text-on-surface transition-colors rounded-lg';
+  } else {
+    csv.className = 'px-5 py-2 bg-surface-container-lowest rounded-lg text-sm font-semibold text-on-surface shadow-sm transition-all';
+    pdf.className = 'px-5 py-2 text-sm font-medium text-secondary hover:text-on-surface transition-colors rounded-lg';
+  }
+}
 </script>

@@ -9,25 +9,28 @@ const Coupon = require('../models/Coupon');
 const Notification = require('../models/Notification');
 
 function getReportWindowStartIso(period) {
-  const now = new Date();
+  // Anchor to latest order date in DB so seeded data always shows
+  const latestRow = Order.getLatestOrderDate();
+  const anchor = latestRow ? new Date(latestRow) : new Date();
   switch (period) {
-    case 'week':  now.setDate(now.getDate() - 7);   break;
-    case 'year':  now.setDate(now.getDate() - 365);  break;
+    case 'week':  anchor.setDate(anchor.getDate() - 7);   break;
+    case 'year':  anchor.setDate(anchor.getDate() - 365);  break;
     case 'month':
-    default:      now.setDate(now.getDate() - 30);   break;
+    default:      anchor.setDate(anchor.getDate() - 30);   break;
   }
-  return now.toISOString();
+  return anchor.toISOString();
 }
 
 function getPrevReportWindowStartIso(period) {
-  const now = new Date();
+  const latestRow = Order.getLatestOrderDate();
+  const anchor = latestRow ? new Date(latestRow) : new Date();
   switch (period) {
-    case 'week':  now.setDate(now.getDate() - 14);   break;
-    case 'year':  now.setDate(now.getDate() - 730);  break;
+    case 'week':  anchor.setDate(anchor.getDate() - 14);   break;
+    case 'year':  anchor.setDate(anchor.getDate() - 730);  break;
     case 'month':
-    default:      now.setDate(now.getDate() - 60);   break;
+    default:      anchor.setDate(anchor.getDate() - 60);   break;
   }
-  return now.toISOString();
+  return anchor.toISOString();
 }
 
 function respondAdminNotFound(req, res, redirectPath, message) {
@@ -51,6 +54,9 @@ exports.dashboard = (req, res) => {
     const pendingArtisans = ArtisanProfile.findAll({ approved: false, limit: 5 });
     const pendingProducts = Product.findAll({ status: 'pending', limit: 5 });
 
+    // Growth trajectory — last 30 active days (anchored to latest order in DB)
+    const growthData = Order.getDashboardGrowthData();
+
     res.render('admin/dashboard', {
       title: 'Admin Dashboard - Craftify',
       userStats,
@@ -59,7 +65,8 @@ exports.dashboard = (req, res) => {
       auctionStats,
       recentOrders,
       pendingArtisans,
-      pendingProducts
+      pendingProducts,
+      growthData
     });
   } catch (err) {
     console.error('Admin dashboard error:', err);
@@ -174,20 +181,35 @@ exports.deleteUser = (req, res) => {
 // Artisan management
 exports.artisans = (req, res) => {
   try {
-    const { approved, search } = req.query;
+    const { approved, search, page } = req.query;
     const filters = {};
-    
+    const currentPage = Math.max(1, parseInt(page) || 1);
+    const limit = 20;
+    const offset = (currentPage - 1) * limit;
+
     if (approved !== undefined) {
       filters.approved = approved === 'true';
     }
     if (search) filters.search = search;
 
+    const countFilters = { ...filters };
+    filters.limit = limit;
+    filters.offset = offset;
+
     const artisans = ArtisanProfile.findAll(filters);
+    const totalCount = ArtisanProfile.count(countFilters);
+    const totalPages = Math.ceil(totalCount / limit);
 
     res.render('admin/artisans', {
       title: 'Artisan Management - Craftify',
       artisans,
-      filters: { approved, search }
+      filters: { approved, search },
+      pagination: {
+        current: currentPage,
+        total: totalPages,
+        hasPrev: currentPage > 1,
+        hasNext: currentPage < totalPages
+      }
     });
   } catch (err) {
     console.error('Admin artisans error:', err);
@@ -272,9 +294,10 @@ exports.products = (req, res) => {
       categories,
       filters: { status, category, search },
       pagination: {
-        currentPage,
-        totalPages,
-        totalItems: totalCount
+        current: currentPage,
+        total: totalPages,
+        hasPrev: currentPage > 1,
+        hasNext: currentPage < totalPages
       }
     });
   } catch (err) {
@@ -748,16 +771,52 @@ exports.rejectAuction = (req, res) => {
 // Reviews management
 exports.reviews = (req, res) => {
   try {
-    const { status } = req.query;
+    const { status, rating, search, page } = req.query;
+    const currentPage = Math.max(1, parseInt(page) || 1);
+    const limit = 15;
+    const offset = (currentPage - 1) * limit;
+
     const filters = {};
     if (status) filters.status = status;
+    if (rating) filters.rating = parseInt(rating, 10);
+    if (search) filters.search = search;
 
-    const reviews = Review.findAll(filters);
+    const pagedFilters = { ...filters, limit, offset };
+    const reviews = Review.findAll(pagedFilters);
+
+    // Parse product image for each review row
+    reviews.forEach(r => {
+      try {
+        const imgs = JSON.parse(r.product_images || '[]');
+        r.product_image = imgs[0] || '';
+      } catch (e) {
+        r.product_image = '';
+      }
+    });
+
+    // Compute total count with current filters for pagination
+    const totalCount = Review.count(filters);
+    const totalPages = Math.ceil(totalCount / limit);
+
+    // Compute summary stats from all reviews (no filter)
+    const allReviews = Review.findAll({});
+    const totalReviews = allReviews.length;
+    const pendingReviews = allReviews.filter(r => !r.is_approved).length;
+    const avgRating = allReviews.length > 0
+      ? (allReviews.reduce((sum, r) => sum + (Number(r.rating) || 0), 0) / allReviews.length).toFixed(1)
+      : '0.0';
 
     res.render('admin/reviews', {
       title: 'Review Management - Craftify',
       reviews,
-      filters: { status }
+      filters: { status, rating, search },
+      pagination: {
+        current: currentPage,
+        total: totalPages,
+        hasPrev: currentPage > 1,
+        hasNext: currentPage < totalPages
+      },
+      reviewStats: { total: totalReviews, pending: pendingReviews, avgRating }
     });
   } catch (err) {
     console.error('Admin reviews error:', err);

@@ -91,35 +91,87 @@
                 <div class="lg:col-span-2 bg-surface-container-lowest p-8 rounded-xl relative">
                     <div class="flex justify-between items-start mb-8">
                         <div>
-                            <h4 class="font-headline text-xl text-on-surface">Growth trajectory</h4>
-                            <p class="text-sm text-secondary">Volume of platform activity in recent periods</p>
+                            <h4 class="font-headline text-xl text-on-surface">Growth Trajectory</h4>
+                            <p class="text-sm text-secondary">Daily revenue over the last 30 days</p>
                         </div>
                         <span class="bg-surface-container-low rounded-lg text-xs font-semibold px-4 py-2">Last 30 Days</span>
                     </div>
-                    <div class="h-64 flex items-end justify-between gap-2 relative">
-                        <div class="absolute inset-0 flex items-center justify-center opacity-20 pointer-events-none">
-                            <span class="material-symbols-outlined text-primary-container" style="font-size:10rem;line-height:1;">show_chart</span>
+
+                    <%
+                      const gd = typeof growthData !== 'undefined' && growthData && growthData.length > 0 ? growthData : null;
+                      let gdPath = 'M0,80 Q25,60 50,50 T100,20';
+                      let gdFill = gdPath + ' L100,100 L0,100 Z';
+                      let gdXLabels = [];
+                      let gdYLabels = ['', '', '', ''];
+                      if (gd) {
+                        const gdMax = Math.max(...gd.map(function(s){ return Number(s.revenue||0); }), 1);
+                        const gdPts = gd.map(function(s, i) {
+                          const x = gd.length === 1 ? 50 : (i / (gd.length - 1)) * 100;
+                          const y = 10 + (1 - Number(s.revenue||0) / gdMax) * 80;
+                          return { x: x.toFixed(2), y: y.toFixed(2) };
+                        });
+                        gdPath = 'M' + gdPts.map(function(p){ return p.x + ',' + p.y; }).join(' L');
+                        gdFill = gdPath + ' L100,100 L0,100 Z';
+                        const idxs = [0, Math.floor(gd.length * 0.5), gd.length - 1];
+                        gdXLabels = idxs.map(function(i){
+                          const dt = new Date(gd[i].date);
+                          return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        });
+                        gdYLabels = ['$'+Math.round(gdMax), '$'+Math.round(gdMax*0.66), '$'+Math.round(gdMax*0.33), '$0'];
+                      }
+                    %>
+
+                    <% if (gd) { %>
+                      <div class="flex flex-col" style="min-height:240px;">
+                        <div class="flex flex-1" style="min-height:0;">
+                          <!-- Y-Axis -->
+                          <div class="flex flex-col justify-between text-xs font-label text-secondary text-right pr-3 flex-shrink-0"
+                               style="width:3.5rem; border-right:1px solid rgba(134,116,97,0.12);">
+                            <% gdYLabels.forEach(function(l){ %><span><%= l %></span><% }); %>
+                          </div>
+                          <!-- Chart -->
+                          <div id="dash-chart-wrapper" class="flex-1 relative" style="cursor:crosshair; min-height:200px;">
+                            <div class="absolute inset-0 flex flex-col justify-between pointer-events-none">
+                              <div style="border-bottom:1px solid rgba(134,116,97,0.08);"></div>
+                              <div style="border-bottom:1px solid rgba(134,116,97,0.08);"></div>
+                              <div style="border-bottom:1px solid rgba(134,116,97,0.08);"></div>
+                              <div style="border-bottom:1px solid rgba(134,116,97,0.08);"></div>
+                            </div>
+                            <svg id="dash-revenue-svg" class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100" style="display:block;">
+                              <defs>
+                                <linearGradient id="dash-amber-grad" x1="0" x2="0" y1="0" y2="1">
+                                  <stop offset="0%" stop-color="#855300"/>
+                                  <stop offset="100%" stop-color="#f7f9fb" stop-opacity="0"/>
+                                </linearGradient>
+                              </defs>
+                              <path d="<%= gdPath %>" fill="none" stroke="#855300" stroke-width="2" vector-effect="non-scaling-stroke"/>
+                              <path d="<%= gdFill %>" fill="url(#dash-amber-grad)" opacity="0.2"/>
+                              <circle id="dash-chart-dot" cx="50" cy="50" r="3" fill="#fff" stroke="#855300" stroke-width="1.5"
+                                      vector-effect="non-scaling-stroke" style="display:none;"/>
+                            </svg>
+                            <div id="dash-vline" class="absolute top-0 bottom-0 pointer-events-none hidden"
+                                 style="width:1px; background:rgba(133,83,0,0.3); left:0;"></div>
+                            <div id="dash-tooltip" class="absolute hidden" style="z-index:20; pointer-events:none; top:8px; left:0; min-width:120px;">
+                              <div class="bg-surface-container-lowest rounded-lg border border-outline-variant/30 px-3 py-2" style="box-shadow:0 8px 24px rgba(25,28,30,0.12);">
+                                <p id="dash-tip-date" class="font-label text-secondary mb-1" style="font-size:10px; text-transform:uppercase; letter-spacing:0.1em;"></p>
+                                <p id="dash-tip-rev" class="font-headline text-on-surface" style="font-size:1.1rem; line-height:1;"></p>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <div class="w-full flex items-end justify-between h-48 px-2 relative z-10">
-                            <div class="w-3 bg-primary-container/20 rounded-t-full" style="height:35%"></div>
-                            <div class="w-3 bg-primary-container/20 rounded-t-full" style="height:52%"></div>
-                            <div class="w-3 bg-primary-container rounded-t-full" style="height:46%"></div>
-                            <div class="w-3 bg-primary-container/20 rounded-t-full" style="height:63%"></div>
-                            <div class="w-3 bg-primary-container rounded-t-full" style="height:70%"></div>
-                            <div class="w-3 bg-primary-container/20 rounded-t-full" style="height:58%"></div>
-                            <div class="w-3 bg-primary-container rounded-t-full" style="height:82%"></div>
-                            <div class="w-3 bg-primary-container/20 rounded-t-full" style="height:74%"></div>
-                            <div class="w-3 bg-primary-container rounded-t-full" style="height:90%"></div>
-                            <div class="w-3 bg-primary-container rounded-t-full" style="height:100%"></div>
-                            <div class="w-3 bg-primary-container/20 rounded-t-full" style="height:79%"></div>
-                            <div class="w-3 bg-primary-container rounded-t-full" style="height:88%"></div>
+                        <!-- X labels -->
+                        <div class="flex justify-between text-xs font-label text-secondary mt-2" style="padding-left:3.5rem;">
+                          <% gdXLabels.forEach(function(l){ %><span><%= l %></span><% }); %>
                         </div>
-                    </div>
-                    <div class="flex justify-between mt-4 text-[10px] text-secondary font-bold uppercase tracking-widest border-t border-surface-container pt-4">
-                        <span>Week 1</span>
-                        <span>Week 3</span>
-                        <span>Today</span>
-                    </div>
+                      </div>
+                    <% } else { %>
+                      <div class="flex items-center justify-center" style="height:200px;">
+                        <div class="text-center text-secondary">
+                          <span class="material-symbols-outlined text-5xl opacity-40">monitoring</span>
+                          <p class="mt-2 text-sm">No revenue data for the last 30 days.</p>
+                        </div>
+                      </div>
+                    <% } %>
                 </div>
 
                 <div class="bg-surface-container-high p-6 rounded-xl space-y-6" style="background:rgba(227,229,233,0.5)">
@@ -272,3 +324,56 @@
 </div>
 
 <%- include('../partials/footer') %>
+
+<script type="application/json" id="dash-raw-data"><%- JSON.stringify((typeof growthData !== 'undefined' && growthData ? growthData : []).map(function(s){ return { day: s.date, revenue: s.revenue }; })) %></script>
+
+<script>
+(function () {
+  var rawData = JSON.parse(document.getElementById('dash-raw-data').textContent || '[]');
+  if (!rawData.length) return;
+
+  var wrapper  = document.getElementById('dash-chart-wrapper');
+  var tooltip  = document.getElementById('dash-tooltip');
+  var vline    = document.getElementById('dash-vline');
+  var tipDate  = document.getElementById('dash-tip-date');
+  var tipRev   = document.getElementById('dash-tip-rev');
+  var dot      = document.getElementById('dash-chart-dot');
+  if (!wrapper || !tooltip) return;
+
+  var pts = rawData.map(function(d, i) {
+    return { x: rawData.length === 1 ? 50 : (i / (rawData.length - 1)) * 100, revenue: d.revenue, day: d.day };
+  });
+  var maxRev = Math.max.apply(null, rawData.map(function(d){ return d.revenue; }));
+
+  wrapper.addEventListener('mousemove', function (e) {
+    var rect   = wrapper.getBoundingClientRect();
+    var mouseX = e.clientX - rect.left;
+    var idx    = Math.round(Math.max(0, Math.min(1, mouseX / rect.width)) * (pts.length - 1));
+    var pt     = pts[idx];
+    if (!pt) return;
+
+    var dtStr = String(pt.day).length === 10 ? pt.day + 'T12:00:00' : pt.day;
+    tipDate.textContent = new Date(dtStr).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    tipRev.textContent  = '$' + Number(pt.revenue).toFixed(2);
+
+    vline.style.left = mouseX + 'px';
+    vline.classList.remove('hidden');
+
+    dot.setAttribute('cx', pt.x.toFixed ? pt.x.toFixed(2) : pt.x);
+    dot.setAttribute('cy', maxRev > 0 ? (10 + (1 - pt.revenue / maxRev) * 80).toFixed(2) : '80');
+    dot.style.display = 'block';
+
+    var tipW = 130;
+    var tipX = mouseX + 12;
+    if (tipX + tipW > rect.width) tipX = mouseX - tipW - 12;
+    tooltip.style.left = Math.max(0, tipX) + 'px';
+    tooltip.classList.remove('hidden');
+  });
+
+  wrapper.addEventListener('mouseleave', function () {
+    tooltip.classList.add('hidden');
+    vline.classList.add('hidden');
+    dot.style.display = 'none';
+  });
+})();
+</script>

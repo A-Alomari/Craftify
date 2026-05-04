@@ -441,6 +441,29 @@ class Order {
     `).all(startIso);
   }
 
+  // Returns the ISO string of the most recent order's created_at
+  static getLatestOrderDate() {
+    const db = getDb();
+    const row = db.prepare('SELECT MAX(created_at) as latest FROM orders').get();
+    return row?.latest || null;
+  }
+
+  // Dashboard chart: last 30 active days relative to newest order in DB
+  static getDashboardGrowthData() {
+    const db = getDb();
+    return db.prepare(`
+      SELECT DATE(created_at) as date, SUM(total_amount) as revenue, COUNT(*) as orders
+      FROM orders
+      WHERE status NOT IN ('cancelled')
+        AND DATE(created_at) >= DATE(
+          (SELECT MAX(DATE(created_at)) FROM orders WHERE status NOT IN ('cancelled')),
+          '-30 days'
+        )
+      GROUP BY DATE(created_at)
+      ORDER BY date
+    `).all();
+  }
+
   static getTopProductsSince(startIso, limit = 10) {
     const db = getDb();
     return db.prepare(`

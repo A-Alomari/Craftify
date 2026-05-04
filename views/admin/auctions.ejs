@@ -8,6 +8,17 @@
     if (status === 'awaiting_approval') return 'bg-orange-100 text-orange-700';
     return 'bg-surface-container-high text-on-surface';
   };
+  const auctionLabel = function(status) {
+    const labels = {
+      active: 'Active',
+      sold: 'Sold',
+      cancelled: 'Cancelled',
+      awaiting_approval: 'Awaiting Approval',
+      pending: 'Pending',
+      ended: 'Ended'
+    };
+    return labels[status] || status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  };
 %>
 
 <div class="flex flex-col lg:flex-row bg-surface min-h-screen">
@@ -74,7 +85,7 @@
                   <td class="px-6 py-4 text-sm text-on-surface">$<%= Number(a.current_highest_bid || 0).toFixed(2) %></td>
                   <td class="px-6 py-4 text-sm text-on-surface"><%= a.bid_count || 0 %></td>
                   <td class="px-6 py-4">
-                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest <%= auctionStatusClass(a.status) %>"><%= a.status %></span>
+                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest <%= auctionStatusClass(a.status) %>"><%= auctionLabel(a.status) %></span>
                   </td>
                   <td class="px-6 py-4 text-sm text-secondary"><%= new Date(a.end_time).toLocaleString() %></td>
                   <td class="px-6 py-4 text-right">

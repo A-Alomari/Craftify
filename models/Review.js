@@ -93,7 +93,8 @@ class Review {
   static findAll(filters = {}) {
     const db = getDb();
     let query = `
-      SELECT r.*, u.name as reviewer_name, p.name as product_name,
+      SELECT r.*, u.name as reviewer_name, u.avatar as reviewer_avatar,
+        p.name as product_name, p.images as product_images,
         ap.shop_name as artisan_shop
       FROM reviews r
       JOIN users u ON r.user_id = u.id
@@ -105,10 +106,17 @@ class Review {
 
     if (filters.status === 'visible' || filters.approved) {
       query += ' AND r.is_approved = 1';
+    } else if (filters.status === 'hidden') {
+      query += ' AND r.is_approved = 0';
     }
     if (filters.artisan_id) {
       query += ' AND p.artisan_id = ?';
       params.push(filters.artisan_id);
+    }
+    if (filters.search) {
+      query += ' AND (LOWER(u.name) LIKE ? OR LOWER(p.name) LIKE ? OR LOWER(r.comment) LIKE ?)';
+      const term = `%${filters.search.toLowerCase()}%`;
+      params.push(term, term, term);
     }
     if (filters.rating) {
       query += ' AND r.rating = ?';
@@ -120,6 +128,10 @@ class Review {
     if (filters.limit) {
       query += ' LIMIT ?';
       params.push(filters.limit);
+      if (filters.offset) {
+        query += ' OFFSET ?';
+        params.push(filters.offset);
+      }
     }
 
     return db.prepare(query).all(...params);
@@ -224,15 +236,33 @@ class Review {
 
   static count(filters = {}) {
     const db = getDb();
-    let query = 'SELECT COUNT(*) as count FROM reviews r WHERE 1=1';
+    let query = `
+      SELECT COUNT(*) as count
+      FROM reviews r
+      JOIN users u ON r.user_id = u.id
+      JOIN products p ON r.product_id = p.id
+      WHERE 1=1
+    `;
     const params = [];
 
-    if (filters.status === 'visible' || filters.approved) {
+    if (filters.status === 'visible') {
+      query += ' AND r.is_approved = 1';
+    } else if (filters.status === 'hidden') {
+      query += ' AND r.is_approved = 0';
+    } else if (filters.approved) {
       query += ' AND r.is_approved = 1';
     }
     if (filters.artisan_id) {
-      query += ' AND r.product_id IN (SELECT id FROM products WHERE artisan_id = ?)';
+      query += ' AND p.artisan_id = ?';
       params.push(filters.artisan_id);
+    }
+    if (filters.search) {
+      query += ' AND (u.name LIKE ? OR p.name LIKE ? OR r.comment LIKE ?)';
+      params.push(`%${filters.search}%`, `%${filters.search}%`, `%${filters.search}%`);
+    }
+    if (filters.rating) {
+      query += ' AND r.rating = ?';
+      params.push(filters.rating);
     }
 
     return db.prepare(query).get(...params)?.count || 0;

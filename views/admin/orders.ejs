@@ -16,53 +16,53 @@
       </div>
 
       <!-- Stat Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20 flex flex-col gap-4" style="box-shadow:0 4px 20px rgba(25,28,30,0.03);">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:rgba(188,199,222,0.3); color:#545f73;">
-              <span class="material-symbols-outlined">receipt_long</span>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+        <div class="bg-surface-container-lowest rounded-2xl p-4 sm:p-6 border border-outline-variant/20 flex flex-col gap-3 sm:gap-4" style="box-shadow:0 4px 20px rgba(25,28,30,0.03);">
+          <div class="flex items-center gap-2 sm:gap-3">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0" style="background:rgba(188,199,222,0.3); color:#545f73;">
+              <span class="material-symbols-outlined text-[1.1rem] sm:text-xl">receipt_long</span>
             </div>
-            <h3 class="font-label text-sm uppercase tracking-widest text-secondary font-medium">Total Orders</h3>
+            <h3 class="font-label text-[10px] sm:text-sm uppercase tracking-widest text-secondary font-medium leading-tight">Total Orders</h3>
           </div>
-          <div class="flex items-baseline gap-2">
-            <span class="font-headline text-4xl font-semibold text-on-surface"><%= (stats.total || 0).toLocaleString() %></span>
-            <span class="font-body text-sm text-secondary">orders</span>
+          <div class="flex items-baseline gap-1 sm:gap-2">
+            <span class="font-headline text-2xl sm:text-4xl font-semibold text-on-surface"><%= (stats.total || 0).toLocaleString() %></span>
+            <span class="font-body text-xs sm:text-sm text-secondary">orders</span>
           </div>
         </div>
-        <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20 flex flex-col gap-4 relative overflow-hidden" style="box-shadow:0 4px 20px rgba(25,28,30,0.03);">
-          <div class="flex items-center gap-3 relative z-10">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:rgba(245,158,11,0.15); color:#855300;">
-              <span class="material-symbols-outlined">pending_actions</span>
+        <div class="bg-surface-container-lowest rounded-2xl p-4 sm:p-6 border border-outline-variant/20 flex flex-col gap-3 sm:gap-4 relative overflow-hidden" style="box-shadow:0 4px 20px rgba(25,28,30,0.03);">
+          <div class="flex items-center gap-2 sm:gap-3 relative z-10">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0" style="background:rgba(245,158,11,0.15); color:#855300;">
+              <span class="material-symbols-outlined text-[1.1rem] sm:text-xl">pending_actions</span>
             </div>
-            <h3 class="font-label text-sm uppercase tracking-widest text-secondary font-medium">Pending</h3>
+            <h3 class="font-label text-[10px] sm:text-sm uppercase tracking-widest text-secondary font-medium leading-tight">Pending</h3>
           </div>
-          <div class="flex items-baseline gap-2 relative z-10">
-            <span class="font-headline text-4xl font-semibold text-on-surface"><%= (stats.pending || 0).toLocaleString() %></span>
-            <span class="font-body text-sm text-secondary">orders</span>
+          <div class="flex items-baseline gap-1 sm:gap-2 relative z-10">
+            <span class="font-headline text-2xl sm:text-4xl font-semibold text-on-surface"><%= (stats.pending || 0).toLocaleString() %></span>
+            <span class="font-body text-xs sm:text-sm text-secondary">orders</span>
           </div>
         </div>
-        <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20 flex flex-col gap-4" style="box-shadow:0 4px 20px rgba(25,28,30,0.03);">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:rgba(37,99,235,0.1); color:#2563eb;">
-              <span class="material-symbols-outlined">local_shipping</span>
+        <div class="bg-surface-container-lowest rounded-2xl p-4 sm:p-6 border border-outline-variant/20 flex flex-col gap-3 sm:gap-4" style="box-shadow:0 4px 20px rgba(25,28,30,0.03);">
+          <div class="flex items-center gap-2 sm:gap-3">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0" style="background:rgba(37,99,235,0.1); color:#2563eb;">
+              <span class="material-symbols-outlined text-[1.1rem] sm:text-xl">local_shipping</span>
             </div>
-            <h3 class="font-label text-sm uppercase tracking-widest text-secondary font-medium">Shipped</h3>
+            <h3 class="font-label text-[10px] sm:text-sm uppercase tracking-widest text-secondary font-medium leading-tight">Shipped</h3>
           </div>
-          <div class="flex items-baseline gap-2">
-            <span class="font-headline text-4xl font-semibold text-on-surface"><%= (stats.shipped || 0).toLocaleString() %></span>
-            <span class="font-body text-sm text-secondary">orders</span>
+          <div class="flex items-baseline gap-1 sm:gap-2">
+            <span class="font-headline text-2xl sm:text-4xl font-semibold text-on-surface"><%= (stats.shipped || 0).toLocaleString() %></span>
+            <span class="font-body text-xs sm:text-sm text-secondary">orders</span>
           </div>
         </div>
-        <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20 flex flex-col gap-4" style="box-shadow:0 4px 20px rgba(25,28,30,0.03);">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:rgba(5,150,105,0.12); color:#059669;">
-              <span class="material-symbols-outlined">verified</span>
+        <div class="bg-surface-container-lowest rounded-2xl p-4 sm:p-6 border border-outline-variant/20 flex flex-col gap-3 sm:gap-4" style="box-shadow:0 4px 20px rgba(25,28,30,0.03);">
+          <div class="flex items-center gap-2 sm:gap-3">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0" style="background:rgba(5,150,105,0.12); color:#059669;">
+              <span class="material-symbols-outlined text-[1.1rem] sm:text-xl">verified</span>
             </div>
-            <h3 class="font-label text-sm uppercase tracking-widest text-secondary font-medium">Delivered</h3>
+            <h3 class="font-label text-[10px] sm:text-sm uppercase tracking-widest text-secondary font-medium leading-tight">Delivered</h3>
           </div>
-          <div class="flex items-baseline gap-2">
-            <span class="font-headline text-4xl font-semibold text-on-surface"><%= (stats.delivered || 0).toLocaleString() %></span>
-            <span class="font-body text-sm text-secondary">orders</span>
+          <div class="flex items-baseline gap-1 sm:gap-2">
+            <span class="font-headline text-2xl sm:text-4xl font-semibold text-on-surface"><%= (stats.delivered || 0).toLocaleString() %></span>
+            <span class="font-body text-xs sm:text-sm text-secondary">orders</span>
           </div>
         </div>
       </div>
@@ -159,7 +159,7 @@
                   <p class="text-xs text-secondary mt-0.5"><%= new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></p>
                 </div>
               </div>
-              <div class="flex items-center gap-2 mb-2">
+              <div class="flex items-center gap-2 mb-3">
                 <% if (o.customer_avatar) { %>
                   <img src="<%= o.customer_avatar %>" alt="<%= initials %>" class="w-8 h-8 rounded-full object-cover shrink-0" onerror="this.onerror=null;this.src='';this.style.display='none';this.nextElementSibling.style.display='flex';">
                   <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0" style="background:#d5e0f8; color:#3c475a; display:none;"><%= initials %></div>
@@ -171,7 +171,10 @@
                   <% if (o.artisan_name) { %><p class="text-xs text-secondary"><%= o.artisan_name %></p><% } %>
                 </div>
               </div>
-              <a href="/admin/orders/<%= o.id %>" class="p-1.5 text-secondary bg-surface-container-low rounded-lg inline-flex" style="text-decoration:none;"><span class="material-symbols-outlined text-base">visibility</span></a>
+              <div class="flex items-center justify-between">
+                <span class="font-semibold text-sm text-on-surface">$<%= Number(o.total_amount || 0).toFixed(2) %></span>
+                <a href="/admin/orders/<%= o.id %>" class="p-1.5 text-secondary bg-surface-container-low rounded-lg inline-flex" style="text-decoration:none;"><span class="material-symbols-outlined text-base">visibility</span></a>
+              </div>
             </div>
 
             <!-- Desktop Row -->

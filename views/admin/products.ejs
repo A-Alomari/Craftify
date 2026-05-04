@@ -138,11 +138,10 @@
         </div>
       <% } %>
 
-      <% if (pagination && pagination.totalPages > 1) { %>
+      <% if (pagination && pagination.total > 1) { %>
         <%- include('../partials/pagination', { 
-          pagination: pagination, 
-          baseUrl: '/admin/products', 
-          query: filters 
+          pagination: pagination,
+          queryString: [filters.status ? 'status=' + filters.status : '', filters.category ? 'category=' + filters.category : '', filters.search ? 'search=' + encodeURIComponent(filters.search) : ''].filter(Boolean).join('&')
         }) %>
       <% } %>
     </section>
