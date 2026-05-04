@@ -41,5 +41,6 @@ module.exports = (suiteContext) => {
   require('./controllers/c28-direct-controller-coverage.suite')(suiteContext);
   require('./controllers/c29-final-branch-closures.suite')(suiteContext);
   require('./controllers/c30-api-controller-direct.suite')(suiteContext);
+  require('./controllers/c31-admin-product-auction-new-features.suite')(suiteContext);
 };
 

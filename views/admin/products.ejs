@@ -5,7 +5,7 @@
   const searchFilter = filters && filters.search ? filters.search : '';
 %>
 
-<div class="flex bg-surface min-h-screen">
+<div class="flex flex-col lg:flex-row bg-surface min-h-screen">
   <%- include('./partials/sidebar') %>
 
   <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
@@ -62,37 +62,67 @@
                 <th class="px-6 py-4">Price</th>
                 <th class="px-6 py-4">Stock</th>
                 <th class="px-6 py-4">Status</th>
-                <th class="px-6 py-4 text-right">Action</th>
+                <th class="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-surface-container-high/50">
               <% products.forEach(function(p) { %>
+                <%
+                  let productImages = [];
+                  try { productImages = JSON.parse(p.images || '[]'); } catch(e) {}
+                  const productThumb = productImages[0] || null;
+                %>
                 <tr class="hover:bg-surface-container-low/20 transition-colors">
-                  <td class="px-6 py-5">
-                    <p class="text-sm font-semibold text-on-surface"><%= p.name %></p>
-                    <p class="text-xs text-secondary">ID: <%= p.id %></p>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <% if (productThumb) { %>
+                        <img src="<%= productThumb %>" alt="<%= p.name %>" class="h-11 w-11 rounded-xl object-cover shrink-0 shadow-sm" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'" />
+                      <% } else { %>
+                        <div class="h-11 w-11 rounded-xl bg-surface-container-high flex items-center justify-center shrink-0">
+                          <span class="material-symbols-outlined text-secondary text-[20px]">image_not_supported</span>
+                        </div>
+                      <% } %>
+                      <div>
+                        <p class="text-sm font-semibold text-on-surface"><%= p.name %></p>
+                        <p class="text-xs text-secondary">ID: <%= p.id %></p>
+                      </div>
+                    </div>
                   </td>
-                  <td class="px-6 py-5 text-sm text-on-surface"><%= p.shop_name || '-' %></td>
-                  <td class="px-6 py-5 text-sm text-on-surface">$<%= Number(p.price || 0).toFixed(2) %></td>
-                  <td class="px-6 py-5 text-sm text-on-surface"><%= p.stock %></td>
-                  <td class="px-6 py-5">
+                  <td class="px-6 py-4 text-sm text-on-surface"><%= p.shop_name || '-' %></td>
+                  <td class="px-6 py-4 text-sm text-on-surface">$<%= Number(p.price || 0).toFixed(2) %></td>
+                  <td class="px-6 py-4 text-sm text-on-surface"><%= p.stock %></td>
+                  <td class="px-6 py-4">
                     <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest <%= p.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : (p.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700') %>"><%= p.status %></span>
                   </td>
-                  <td class="px-6 py-5 text-right">
-                    <div class="inline-flex gap-2">
-                      <% if (p.status === 'pending') { %>
+                  <td class="px-6 py-4 text-right">
+                    <div class="inline-flex items-center gap-1">
+                      <%# View details %>
+                      <a href="/admin/products/<%= p.id %>" title="View Details" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors inline-flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">visibility</span></a>
+                      <%# Approve — shown for pending OR rejected %>
+                      <% if (p.status === 'pending' || p.status === 'rejected') { %>
                         <form action="/admin/products/<%= p.id %>/approve" method="POST" class="inline-block">
                           <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                          <button class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Approve</button>
-                        </form>
-                        <form action="/admin/products/<%= p.id %>/reject" method="POST" class="inline-block">
-                          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                          <button class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Reject</button>
+                          <button type="submit" title="Approve" class="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"><span class="material-symbols-outlined text-[20px]">check_circle</span></button>
                         </form>
                       <% } %>
-                      <form action="/admin/products/<%= p.id %>/featured" method="POST" class="inline-block">
+                      <%# Reject — shown for pending only %>
+                      <% if (p.status === 'pending') { %>
+                        <form action="/admin/products/<%= p.id %>/reject" method="POST" class="inline-block">
+                          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                          <button type="submit" title="Reject" class="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"><span class="material-symbols-outlined text-[20px]">cancel</span></button>
+                        </form>
+                      <% } %>
+                      <%# Featured — only when approved %>
+                      <% if (p.status === 'approved') { %>
+                        <form action="/admin/products/<%= p.id %>/featured" method="POST" class="inline-block">
+                          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                          <button type="submit" title="<%= p.featured ? 'Remove Featured' : 'Mark Featured' %>" class="p-2 rounded-lg transition-colors <%= p.featured ? 'text-amber-500 hover:bg-amber-50' : 'text-slate-400 hover:text-amber-500 hover:bg-amber-50' %>"><span class="material-symbols-outlined text-[20px]"><%= p.featured ? 'star' : 'star_border' %></span></button>
+                        </form>
+                      <% } %>
+                      <%# Delete %>
+                      <form action="/admin/products/<%= p.id %>/delete" method="POST" class="inline-block" data-confirm="Delete this product permanently?">
                         <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                        <button class="<%= p.featured ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-high text-secondary hover:text-on-surface' %> px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Featured</button>
+                        <button type="submit" title="Delete" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><span class="material-symbols-outlined text-[20px]">delete</span></button>
                       </form>
                     </div>
                   </td>

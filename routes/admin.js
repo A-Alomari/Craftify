@@ -25,9 +25,12 @@ router.post('/artisans/:id/reject', adminController.rejectArtisan);
 
 // Products
 router.get('/products', adminController.products);
+router.get('/products/:id', (req, res) => res.redirect(`/products/${req.params.id}`));
 router.post('/products/:id/approve', adminController.approveProduct);
 router.post('/products/:id/reject', adminController.rejectProduct);
 router.post('/products/:id/featured', adminController.toggleFeatured);
+router.delete('/products/:id', adminController.deleteProduct);
+router.post('/products/:id/delete', adminController.deleteProduct);
 
 // Categories
 router.get('/categories', adminController.categories);
@@ -43,6 +46,7 @@ router.post('/orders/:id/status', adminController.updateOrderStatus);
 
 // Auctions
 router.get('/auctions', adminController.auctions);
+router.get('/auctions/:id', (req, res) => res.redirect(`/auctions/${req.params.id}`));
 router.post('/auctions/:id/approve', adminController.approveAuction);
 router.post('/auctions/:id/reject', adminController.rejectAuction);
 router.post('/auctions/:id/cancel', adminController.cancelAuction);

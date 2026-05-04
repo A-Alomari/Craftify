@@ -20,7 +20,7 @@
     };
 %>
 
-<div class="flex bg-surface min-h-screen">
+<div class="flex flex-col lg:flex-row bg-surface min-h-screen">
     <%- include('./partials/sidebar') %>
 
     <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
@@ -98,21 +98,21 @@
                     </div>
                     <div class="h-64 flex items-end justify-between gap-2 relative">
                         <div class="absolute inset-0 flex items-center justify-center opacity-20 pointer-events-none">
-                            <span class="material-symbols-outlined text-[10rem] text-primary-container">show_chart</span>
+                            <span class="material-symbols-outlined text-primary-container" style="font-size:10rem;line-height:1;">show_chart</span>
                         </div>
                         <div class="w-full flex items-end justify-between h-48 px-2 relative z-10">
-                            <div class="w-3 bg-primary-container/20 h-[35%] rounded-t-full"></div>
-                            <div class="w-3 bg-primary-container/20 h-[52%] rounded-t-full"></div>
-                            <div class="w-3 bg-primary-container h-[46%] rounded-t-full"></div>
-                            <div class="w-3 bg-primary-container/20 h-[63%] rounded-t-full"></div>
-                            <div class="w-3 bg-primary-container h-[70%] rounded-t-full"></div>
-                            <div class="w-3 bg-primary-container/20 h-[58%] rounded-t-full"></div>
-                            <div class="w-3 bg-primary-container h-[82%] rounded-t-full"></div>
-                            <div class="w-3 bg-primary-container/20 h-[74%] rounded-t-full"></div>
-                            <div class="w-3 bg-primary-container h-[90%] rounded-t-full"></div>
-                            <div class="w-3 bg-primary-container h-[100%] rounded-t-full"></div>
-                            <div class="w-3 bg-primary-container/20 h-[79%] rounded-t-full"></div>
-                            <div class="w-3 bg-primary-container h-[88%] rounded-t-full"></div>
+                            <div class="w-3 bg-primary-container/20 rounded-t-full" style="height:35%"></div>
+                            <div class="w-3 bg-primary-container/20 rounded-t-full" style="height:52%"></div>
+                            <div class="w-3 bg-primary-container rounded-t-full" style="height:46%"></div>
+                            <div class="w-3 bg-primary-container/20 rounded-t-full" style="height:63%"></div>
+                            <div class="w-3 bg-primary-container rounded-t-full" style="height:70%"></div>
+                            <div class="w-3 bg-primary-container/20 rounded-t-full" style="height:58%"></div>
+                            <div class="w-3 bg-primary-container rounded-t-full" style="height:82%"></div>
+                            <div class="w-3 bg-primary-container/20 rounded-t-full" style="height:74%"></div>
+                            <div class="w-3 bg-primary-container rounded-t-full" style="height:90%"></div>
+                            <div class="w-3 bg-primary-container rounded-t-full" style="height:100%"></div>
+                            <div class="w-3 bg-primary-container/20 rounded-t-full" style="height:79%"></div>
+                            <div class="w-3 bg-primary-container rounded-t-full" style="height:88%"></div>
                         </div>
                     </div>
                     <div class="flex justify-between mt-4 text-[10px] text-secondary font-bold uppercase tracking-widest border-t border-surface-container pt-4">
@@ -122,7 +122,7 @@
                     </div>
                 </div>
 
-                <div class="bg-surface-container-high/50 p-6 rounded-xl space-y-6">
+                <div class="bg-surface-container-high p-6 rounded-xl space-y-6" style="background:rgba(227,229,233,0.5)">
                     <h4 class="font-headline text-lg text-on-surface">Artisan Spotlight</h4>
                     <div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm space-y-4">
                         <% if (spotlightArtisan) { %>

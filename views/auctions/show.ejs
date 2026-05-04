@@ -16,7 +16,7 @@
         <a href="/auctions" class="inline-block mt-6 text-primary hover:underline group"><span class="material-symbols-outlined align-middle mr-1 group-hover:-translate-x-1 transition-transform">arrow_back</span>Back to Auctions</a>
     </div>
 <% } else { %>
-    <% var images = []; try { images = JSON.parse(auction.product_images || '[]'); } catch(e) {} %>
+    <% var images = auction.imageArray || []; %>
     <% if (images.length === 0) images.push('/images/placeholder-product.svg'); %>
 
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">

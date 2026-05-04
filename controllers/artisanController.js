@@ -232,6 +232,13 @@ exports.updateProduct = (req, res) => {
       height_cm: height_cm ? parseFloat(height_cm) : null
     });
 
+    // If the product was rejected, re-submit it for review
+    if (product.status === 'rejected') {
+      Product.update(id, { status: 'pending' });
+      req.flash('success_msg', 'Product updated and re-submitted for admin review');
+      return res.redirect('/artisan/products');
+    }
+
     req.flash('success_msg', 'Product updated successfully');
     if (updatedProduct && updatedProduct.status === 'approved') {
       res.redirect(`/products/${id}`);
@@ -302,6 +309,7 @@ exports.orders = (req, res) => {
                          Order.count({ artisan_id: artisanId, status: 'confirmed' });
     const inProduction  = Order.count({ artisan_id: artisanId, status: 'processing' });
     const readyToShip   = Order.count({ artisan_id: artisanId, status: 'ready' });
+    const delivered     = Order.count({ artisan_id: artisanId, status: 'delivered' });
 
     const totalPages = Math.max(1, Math.ceil(totalOrders / perPage));
 
@@ -309,7 +317,7 @@ exports.orders = (req, res) => {
       title: 'Order Queue - Craftify',
       orders,
       shopName,
-      stats: { totalPending, inProduction, readyToShip },
+      stats: { totalPending, inProduction, readyToShip, delivered },
       pagination: { currentPage, totalPages, totalOrders, perPage, offset },
       filters: { status: status || 'all', search: activeSearch }
     });

@@ -368,6 +368,59 @@ exports.toggleFeatured = (req, res) => {
   }
 };
 
+exports.productDetail = (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid product ID');
+      return res.redirect('/admin/products');
+    }
+    const product = Product.findById(id);
+    if (!product) {
+      return respondAdminNotFound(req, res, '/admin/products', 'Product not found');
+    }
+    let images = [];
+    try { images = JSON.parse(product.images || '[]'); } catch (e) {}
+
+    res.render('admin/product-detail', {
+      title: `Product: ${product.name} - Admin - Craftify`,
+      product,
+      images
+    });
+  } catch (err) {
+    console.error('Admin product detail error:', err);
+    res.redirect('/admin/products');
+  }
+};
+
+exports.deleteProduct = (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid product ID');
+      return res.redirect('/admin/products');
+    }
+    const product = Product.findById(id);
+    if (!product) {
+      return respondAdminNotFound(req, res, '/admin/products', 'Product not found');
+    }
+    Product.delete(id);
+
+    if (req.xhr) {
+      return res.json({ success: true });
+    }
+
+    req.flash('success_msg', 'Product deleted');
+    res.redirect('/admin/products');
+  } catch (err) {
+    console.error('Delete product error:', err);
+    if (req.xhr) {
+      return res.status(500).json({ success: false, message: 'Error deleting product' });
+    }
+    res.redirect('/admin/products');
+  }
+};
+
 // Categories management
 exports.categories = (req, res) => {
   try {
@@ -467,31 +520,38 @@ exports.deleteCategory = (req, res) => {
 // Orders management
 exports.orders = (req, res) => {
   try {
-    const { tab, payment_status, search } = req.query;
+    const { status, search } = req.query;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = 15;
+    const offset = (page - 1) * limit;
+
     const filters = {};
-
-    // Map tab values to actual DB statuses
-    const tabStatusMap = {
-      'new':          ['pending', 'confirmed'],
-      'in_production': ['processing'],
-      'ready':        ['ready'],
-      'shipped':      ['shipped']
-    };
-    let resolvedStatus = '';
-    if (tab && tabStatusMap[tab]) {
-      filters.statuses = tabStatusMap[tab];
-      resolvedStatus = tabStatusMap[tab][0];
-    }
-
-    if (payment_status) filters.payment_status = payment_status;
+    if (status) filters.status = status;
     if (search) filters.search = search;
 
-    const orders = Order.findAll(filters);
+    const orders = Order.findAll({ ...filters, limit, offset });
+    const total = Order.countAll(filters);
+    const stats = Order.getStatusCounts();
+
+    // Attach first artisan name to each order row
+    const orderIds = orders.map(o => o.id);
+    const previews = Order.getPreviewItemsForOrders(orderIds, 1);
+    orders.forEach(o => {
+      const preview = previews[o.id];
+      o.artisan_name = preview && preview[0] ? preview[0].artisan_name : '';
+    });
 
     res.render('admin/orders', {
       title: 'Order Management - Craftify',
       orders,
-      filters: { status: resolvedStatus, payment_status, search }
+      filters: { status: status || '', search: search || '' },
+      stats,
+      pagination: {
+        page,
+        totalPages: Math.ceil(total / limit),
+        total,
+        limit
+      }
     });
   } catch (err) {
     console.error('Admin orders error:', err);
@@ -586,6 +646,31 @@ exports.auctions = (req, res) => {
   } catch (err) {
     console.error('Admin auctions error:', err);
     res.redirect('/admin/dashboard');
+  }
+};
+
+exports.auctionDetail = (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      req.flash('error_msg', 'Invalid auction ID');
+      return res.redirect('/admin/auctions');
+    }
+    const auction = Auction.findById(id);
+    if (!auction) {
+      return respondAdminNotFound(req, res, '/admin/auctions', 'Auction not found');
+    }
+    let images = [];
+    try { images = JSON.parse(auction.product_images || auction.images || '[]'); } catch (e) {}
+
+    res.render('admin/auction-detail', {
+      title: `Auction: ${auction.product_name || auction.title} - Admin - Craftify`,
+      auction,
+      images
+    });
+  } catch (err) {
+    console.error('Admin auction detail error:', err);
+    res.redirect('/admin/auctions');
   }
 };
 

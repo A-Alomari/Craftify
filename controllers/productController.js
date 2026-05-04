@@ -73,9 +73,20 @@ exports.show = (req, res) => {
     const { id } = req.params;
     const product = Product.findById(id);
 
-    if (!product || product.status !== 'approved') {
+    if (!product) {
       req.flash('error_msg', 'Product not found');
       return res.redirect('/products');
+    }
+
+    // Non-approved products are only visible to admin or the owning artisan
+    if (product.status !== 'approved') {
+      const user = req.session.user;
+      const isAdmin = user && user.role === 'admin';
+      const isOwner = user && user.id === product.artisan_id;
+      if (!isAdmin && !isOwner) {
+        req.flash('error_msg', 'Product not found');
+        return res.redirect('/products');
+      }
     }
 
     // Increment views

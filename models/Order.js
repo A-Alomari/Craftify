@@ -133,6 +133,53 @@ class Order {
     return db.prepare(query).all(...params);
   }
 
+  static countAll(filters = {}) {
+    const db = getDb();
+    let query = `
+      SELECT COUNT(*) as count
+      FROM orders o
+      JOIN users u ON o.user_id = u.id
+      WHERE 1=1
+    `;
+    const params = [];
+
+    if (filters.statuses && filters.statuses.length > 0) {
+      query += ` AND o.status IN (${filters.statuses.map(() => '?').join(', ')})`;
+      params.push(...filters.statuses);
+    } else if (filters.status) {
+      query += ' AND o.status = ?';
+      params.push(filters.status);
+    }
+    if (filters.payment_status) {
+      query += ' AND o.payment_status = ?';
+      params.push(filters.payment_status);
+    }
+    if (filters.search) {
+      query += ' AND (CAST(o.id AS TEXT) = ? OR u.name LIKE ? OR u.email LIKE ?)';
+      params.push(filters.search, `%${filters.search}%`, `%${filters.search}%`);
+    }
+
+    return db.prepare(query).get(...params)?.count || 0;
+  }
+
+  static getStatusCounts() {
+    const db = getDb();
+    const rows = db.prepare(`
+      SELECT status, COUNT(*) as count FROM orders GROUP BY status
+    `).all();
+    const map = {};
+    rows.forEach(r => { map[r.status] = r.count; });
+    return {
+      total:      rows.reduce((s, r) => s + r.count, 0),
+      pending:    (map.pending || 0) + (map.confirmed || 0),
+      processing: map.processing || 0,
+      shipped:    map.shipped || 0,
+      delivered:  map.delivered || 0,
+      cancelled:  map.cancelled || 0,
+      refunded:   map.refunded || 0,
+    };
+  }
+
   static create(orderData) {
     const db = getDb();
     const {
