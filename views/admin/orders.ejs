@@ -143,15 +143,29 @@
           %>
             <!-- Mobile Card -->
             <div class="md:hidden px-4 py-4 border-b" style="border-color:rgba(134,116,97,0.06);">
-              <div class="flex items-start justify-between gap-2 mb-2">
-                <div>
-                  <a href="/admin/orders/<%= o.id %>" class="font-semibold text-sm text-on-surface hover:text-primary" style="text-decoration:none;">#ORD-<%= String(o.id).padStart(4,'0') %></a>
+              <div class="flex items-start gap-3 mb-2">
+                <div class="w-12 h-12 rounded-xl bg-surface-container overflow-hidden shrink-0">
+                  <% if (o.order_image) { %>
+                    <img src="<%= o.order_image %>" alt="" class="w-full h-full object-cover" onerror="this.src='/images/placeholder-product.jpg'">
+                  <% } else { %>
+                    <div class="w-full h-full flex items-center justify-center text-secondary opacity-40"><span class="material-symbols-outlined">inventory_2</span></div>
+                  <% } %>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between gap-2">
+                    <a href="/admin/orders/<%= o.id %>" class="font-semibold text-sm text-on-surface hover:text-primary" style="text-decoration:none;">#ORD-<%= String(o.id).padStart(4,'0') %></a>
+                    <span style="display:inline-flex; align-items:center; padding:3px 8px; border-radius:6px; font-size:10px; font-weight:600; white-space:nowrap; background:<%= badgeBg %>; color:<%= badgeColor %>;"><%= statusLabel %></span>
+                  </div>
                   <p class="text-xs text-secondary mt-0.5"><%= new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></p>
                 </div>
-                <span style="display:inline-flex; align-items:center; padding:3px 8px; border-radius:6px; font-size:10px; font-weight:600; white-space:nowrap; background:<%= badgeBg %>; color:<%= badgeColor %>;"><%= statusLabel %></span>
               </div>
               <div class="flex items-center gap-2 mb-2">
-                <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0" style="background:#d5e0f8; color:#3c475a;"><%= initials %></div>
+                <% if (o.customer_avatar) { %>
+                  <img src="<%= o.customer_avatar %>" alt="<%= initials %>" class="w-8 h-8 rounded-full object-cover shrink-0" onerror="this.onerror=null;this.src='';this.style.display='none';this.nextElementSibling.style.display='flex';">
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0" style="background:#d5e0f8; color:#3c475a; display:none;"><%= initials %></div>
+                <% } else { %>
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0" style="background:#d5e0f8; color:#3c475a;"><%= initials %></div>
+                <% } %>
                 <div>
                   <p class="text-sm font-medium text-on-surface"><%= o.customer_name %></p>
                   <% if (o.artisan_name) { %><p class="text-xs text-secondary"><%= o.artisan_name %></p><% } %>
@@ -164,15 +178,30 @@
             <div class="hidden md:grid px-6 py-4 border-b items-center hover:bg-surface-bright transition-colors"
                  style="grid-template-columns: 9rem 1fr 1fr 8rem 8rem 6rem; border-color:rgba(134,116,97,0.06);">
 
-              <!-- Order + Date -->
-              <div>
-                <a href="/admin/orders/<%= o.id %>" class="font-semibold text-sm text-on-surface hover:text-primary transition-colors" style="text-decoration:none;">#ORD-<%= String(o.id).padStart(4,'0') %></a>
-                <p class="text-xs text-secondary mt-0.5"><%= new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></p>
+              <!-- Order + Date + Product Image -->
+              <div class="flex items-center gap-2">
+                <div class="w-10 h-10 rounded-lg bg-surface-container overflow-hidden shrink-0">
+                  <% if (o.order_image) { %>
+                    <img src="<%= o.order_image %>" alt="" class="w-full h-full object-cover" onerror="this.src='/images/placeholder-product.jpg'">
+                  <% } else { %>
+                    <div class="w-full h-full flex items-center justify-center text-secondary opacity-30"><span class="material-symbols-outlined" style="font-size:1.1rem;">inventory_2</span></div>
+                  <% } %>
+                </div>
+                <div>
+                  <a href="/admin/orders/<%= o.id %>" class="font-semibold text-sm text-on-surface hover:text-primary transition-colors" style="text-decoration:none;">#ORD-<%= String(o.id).padStart(4,'0') %></a>
+                  <p class="text-xs text-secondary mt-0.5"><%= new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></p>
+                </div>
               </div>
 
               <!-- Customer -->
               <div class="flex items-center gap-2 min-w-0 pr-3">
-                <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0" style="background:#d5e0f8; color:#3c475a;"><%= initials %></div>
+                <% if (o.customer_avatar) { %>
+                  <img src="<%= o.customer_avatar %>" alt="<%= initials %>" class="w-8 h-8 rounded-full object-cover shrink-0"
+                       onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0" style="background:#d5e0f8; color:#3c475a; display:none;"><%= initials %></div>
+                <% } else { %>
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0" style="background:#d5e0f8; color:#3c475a;"><%= initials %></div>
+                <% } %>
                 <span class="font-body text-sm text-on-surface truncate"><%= o.customer_name %></span>
               </div>
 
@@ -180,7 +209,13 @@
               <div class="pr-3">
                 <% if (o.artisan_name) { %>
                   <div class="flex items-center gap-1.5">
-                    <span class="material-symbols-outlined text-secondary" style="font-size:15px;">brush</span>
+                    <% if (o.artisan_avatar) { %>
+                      <img src="<%= o.artisan_avatar %>" alt="" class="w-6 h-6 rounded-full object-cover shrink-0"
+                           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                      <div class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0" style="background:#e8d5f8; color:#6d3a8c; display:none;"><%= o.artisan_name[0] %></div>
+                    <% } else { %>
+                      <div class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0" style="background:#e8d5f8; color:#6d3a8c;"><%= o.artisan_name[0] %></div>
+                    <% } %>
                     <span class="font-body text-sm text-secondary truncate"><%= o.artisan_name %></span>
                   </div>
                 <% } else { %>

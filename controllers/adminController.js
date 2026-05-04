@@ -10,20 +10,23 @@ const Notification = require('../models/Notification');
 
 function getReportWindowStartIso(period) {
   const now = new Date();
-
   switch (period) {
-    case 'week':
-      now.setDate(now.getDate() - 7);
-      break;
-    case 'year':
-      now.setDate(now.getDate() - 365);
-      break;
+    case 'week':  now.setDate(now.getDate() - 7);   break;
+    case 'year':  now.setDate(now.getDate() - 365);  break;
     case 'month':
-    default:
-      now.setDate(now.getDate() - 30);
-      break;
+    default:      now.setDate(now.getDate() - 30);   break;
   }
+  return now.toISOString();
+}
 
+function getPrevReportWindowStartIso(period) {
+  const now = new Date();
+  switch (period) {
+    case 'week':  now.setDate(now.getDate() - 14);   break;
+    case 'year':  now.setDate(now.getDate() - 730);  break;
+    case 'month':
+    default:      now.setDate(now.getDate() - 60);   break;
+  }
   return now.toISOString();
 }
 
@@ -533,12 +536,15 @@ exports.orders = (req, res) => {
     const total = Order.countAll(filters);
     const stats = Order.getStatusCounts();
 
-    // Attach first artisan name to each order row
+    // Attach first artisan name + avatar + product image to each order row
     const orderIds = orders.map(o => o.id);
     const previews = Order.getPreviewItemsForOrders(orderIds, 1);
     orders.forEach(o => {
       const preview = previews[o.id];
-      o.artisan_name = preview && preview[0] ? preview[0].artisan_name : '';
+      const first = preview && preview[0] ? preview[0] : null;
+      o.artisan_name   = first ? first.artisan_name   : '';
+      o.artisan_avatar = first ? first.artisan_avatar : '';
+      o.order_image    = first ? first.image          : '';
     });
 
     res.render('admin/orders', {
@@ -1070,12 +1076,22 @@ exports.deleteCoupon = (req, res) => {
 exports.reports = (req, res) => {
   try {
     const { period = 'month' } = req.query;
-    const startIso = getReportWindowStartIso(period);
-    const salesData = Order.getSalesDataSince(startIso);
-    const topProducts = Order.getTopProductsSince(startIso, 10);
-    const topArtisans = Order.getTopArtisansSince(startIso, 10);
-    const totalRevenue = Order.getTotalRevenueSince(startIso);
-    const totalOrders = Order.countSince(startIso);
+    const startIso     = getReportWindowStartIso(period);
+    const prevStartIso  = getPrevReportWindowStartIso(period);
+    const salesData     = Order.getSalesDataSince(startIso);
+    const topProducts   = Order.getTopProductsSince(startIso, 10);
+    const topArtisans   = Order.getTopArtisansSince(startIso, 10);
+    const totalRevenue  = Order.getTotalRevenueSince(startIso);
+    const prevRevenue   = Order.getTotalRevenueSince(prevStartIso);
+    const totalOrders   = Order.countSince(startIso);
+    const statusCounts  = Order.getStatusCounts();
+
+    // Commission growth vs previous period
+    const curCommission  = Number(totalRevenue || 0) * 0.10;
+    const prevCommission = Number(prevRevenue  || 0) * 0.10;
+    const commissionGrowth = prevCommission > 0
+      ? Math.round(((curCommission - prevCommission) / prevCommission) * 100)
+      : null;
 
     res.render('admin/reports', {
       title: 'Reports - Craftify',
@@ -1084,7 +1100,9 @@ exports.reports = (req, res) => {
       topProducts,
       topArtisans,
       totalRevenue,
-      totalOrders
+      totalOrders,
+      statusCounts,
+      commissionGrowth
     });
   } catch (err) {
     console.error('Reports error:', err);

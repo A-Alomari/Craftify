@@ -79,7 +79,7 @@ class Order {
   static findAll(filters = {}) {
     const db = getDb();
     let query = `
-      SELECT o.*, u.name as customer_name, u.email as customer_email,
+      SELECT o.*, u.name as customer_name, u.email as customer_email, u.avatar as customer_avatar,
         (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) as item_count
       FROM orders o
       JOIN users u ON o.user_id = u.id
@@ -235,10 +235,11 @@ class Order {
     const db = getDb();
     const placeholders = orderIds.map(() => '?').join(', ');
     const rows = db.prepare(`
-      SELECT oi.order_id, oi.product_id, p.name as product_name, p.images, u.name as artisan_name
+      SELECT oi.order_id, oi.product_id, p.name as product_name, p.images, u.name as artisan_name, ap.profile_image as artisan_avatar
       FROM order_items oi
       JOIN products p ON oi.product_id = p.id
       LEFT JOIN users u ON p.artisan_id = u.id
+      LEFT JOIN artisan_profiles ap ON p.artisan_id = ap.user_id
       WHERE oi.order_id IN (${placeholders})
       ORDER BY oi.order_id ASC, oi.id ASC
     `).all(...orderIds);
@@ -267,6 +268,7 @@ class Order {
         product_id: row.product_id,
         product_name: row.product_name,
         artisan_name: row.artisan_name || '',
+        artisan_avatar: row.artisan_avatar || '',
         image
       });
     });
@@ -456,7 +458,7 @@ class Order {
   static getTopArtisansSince(startIso, limit = 10) {
     const db = getDb();
     return db.prepare(`
-      SELECT ap.shop_name, u.name, SUM(oi.total_price) as revenue
+      SELECT ap.shop_name, u.name, ap.profile_image as avatar, SUM(oi.total_price) as revenue
       FROM order_items oi
       JOIN users u ON oi.artisan_id = u.id
       JOIN artisan_profiles ap ON u.id = ap.user_id

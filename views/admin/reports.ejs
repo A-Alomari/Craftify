@@ -1,156 +1,460 @@
 <%- include('../partials/header', { title: title }) %>
+
 <%
   const selectedPeriod = period || 'month';
   const revenue = Number(totalRevenue || 0);
-  const orders = Number(totalOrders || 0);
-  const averageOrder = orders > 0 ? revenue / orders : 0;
+  const orders  = Number(totalOrders  || 0);
+  const commissionAmt = revenue * 0.10;
+  const sc      = statusCounts || {};
+  const scTotal = sc.total || 1;
+  const pctDelivered  = scTotal > 0 ? Math.round((sc.delivered  || 0) / scTotal * 100) : 0;
+  const pctShipped    = scTotal > 0 ? Math.round((sc.shipped    || 0) / scTotal * 100) : 0;
+  const pctProcessing = scTotal > 0 ? Math.round((sc.processing || 0) / scTotal * 100) : 0;
+  const pctCancelled  = scTotal > 0 ? Math.round((sc.cancelled  || 0) / scTotal * 100) : 0;
+  const periodLabel = selectedPeriod === 'week' ? 'Last 7 Days' : selectedPeriod === 'year' ? 'Last 365 Days' : 'Last 30 Days';
+  const cgVal = typeof commissionGrowth !== 'undefined' ? commissionGrowth : null;
+
+  // ── SVG line chart data ──────────────────────────────────────────────────
+  let svgPath  = 'M0,80 Q25,60 50,50 T100,20';
+  let svgFill  = svgPath + ' L100,100 L0,100 Z';
+  let xLabels  = [];
+  let yLabels  = ['$0','$0','$0','$0'];
+  let chartPts = [];
+
+  if (salesData && salesData.length > 0) {
+    const maxRev = Math.max(...salesData.map(function(s){ return Number(s.revenue || 0); }), 1);
+    const pts = salesData.map(function(s, i) {
+      const x = salesData.length === 1 ? 50 : (i / (salesData.length - 1)) * 100;
+      const y = 10 + (1 - Number(s.revenue || 0) / maxRev) * 80;
+      return { x: x.toFixed(2), y: y.toFixed(2), date: s.date, revenue: s.revenue };
+    });
+    svgPath  = 'M' + pts.map(function(p){ return p.x + ',' + p.y; }).join(' L');
+    svgFill  = svgPath + ' L100,100 L0,100 Z';
+    chartPts = pts;
+
+    const labelIdxs = [0, Math.floor(pts.length * 0.25), Math.floor(pts.length * 0.5), Math.floor(pts.length * 0.75), pts.length - 1];
+    xLabels = [...new Set(labelIdxs)].map(function(idx) {
+      const dt = new Date(salesData[idx].date);
+      return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+
+    const step = Math.round(maxRev / 3);
+    yLabels = ['$' + Math.round(maxRev), '$' + Math.round(maxRev * 2 / 3), '$' + step, '$0'];
+  }
 %>
 
 <div class="flex flex-col lg:flex-row bg-surface min-h-screen">
   <%- include('./partials/sidebar') %>
 
-  <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
-    <%- include('./partials/topbar') %>
+  <main class="flex-1 min-h-screen pb-24 md:pb-0 flex flex-col w-full overflow-x-hidden">
+    <div class="p-4 sm:p-6 md:p-8 lg:p-10 max-w-7xl mx-auto w-full">
+      <%- include('./partials/topbar') %>
 
-    <section class="max-w-7xl mx-auto mt-8 mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-      <div>
-        <span class="font-label text-xs tracking-[0.2em] text-primary font-semibold uppercase">Administration</span>
-        <h1 class="font-headline text-3xl text-on-surface mt-2">Performance Reports</h1>
-        <p class="text-secondary mt-1">Track revenue, orders, and best performers across defined windows.</p>
+      <!-- Header + Period Pill -->
+      <div class="mb-10 mt-4">
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <div>
+            <h2 class="font-headline text-4xl text-on-surface mb-2">Platform Performance Reports</h2>
+            <p class="font-body text-secondary text-base">Comprehensive data visualization and platform revenue tracking.</p>
+          </div>
+          <div class="relative bg-surface-container-lowest rounded-md p-1 flex" style="box-shadow:0px 20px 40px rgba(25,28,30,0.06);">
+            <a href="?period=week"
+               class="px-4 py-2 text-sm font-medium transition-colors rounded"
+               style="<%= selectedPeriod === 'week'  ? 'background:#eceef0; color:#191c1e; box-shadow:inset 0 0 0 1px rgba(134,116,97,0.2);' : 'color:#545f73;' %>">
+              7 Days
+            </a>
+            <a href="?period=month"
+               class="px-4 py-2 text-sm font-medium transition-colors rounded"
+               style="<%= selectedPeriod === 'month' ? 'background:#eceef0; color:#191c1e; box-shadow:inset 0 0 0 1px rgba(134,116,97,0.2);' : 'color:#545f73;' %>">
+              30 Days
+            </a>
+            <a href="?period=year"
+               class="px-4 py-2 text-sm font-medium transition-colors rounded"
+               style="<%= selectedPeriod === 'year'  ? 'background:#eceef0; color:#191c1e; box-shadow:inset 0 0 0 1px rgba(134,116,97,0.2);' : 'color:#545f73;' %>">
+              365 Days
+            </a>
+          </div>
+        </div>
       </div>
 
-      <form method="GET" action="/admin/reports" class="w-full md:w-auto">
-        <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Period</label>
-        <div class="flex gap-2">
-          <select name="period" class="bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container min-w-[180px]">
-            <option value="week" <%= selectedPeriod === 'week' ? 'selected' : '' %>>Last 7 Days</option>
-            <option value="month" <%= selectedPeriod === 'month' ? 'selected' : '' %>>Last 30 Days</option>
-            <option value="year" <%= selectedPeriod === 'year' ? 'selected' : '' %>>Last 365 Days</option>
-          </select>
-          <button type="submit" class="bg-primary-container text-on-primary-container px-5 py-2.5 rounded-xl font-semibold text-sm">Apply</button>
+      <!-- Stats Bento (5 cards) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+        <!-- Total Revenue -->
+        <div class="bg-surface-container-lowest rounded-xl p-6 relative overflow-hidden" style="box-shadow:0 8px 30px rgba(25,28,30,0.04);">
+          <div style="position:absolute;top:0;right:0;width:8rem;height:8rem;background:#855300;opacity:0.05;border-bottom-left-radius:9999px;margin-right:-2rem;margin-top:-2rem;"></div>
+          <p class="font-label text-sm text-secondary uppercase tracking-wider mb-2">Total Revenue</p>
+          <h3 class="font-headline text-3xl text-on-surface">$<%= revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></h3>
+          <div class="mt-4 flex items-center text-sm font-body">
+            <span class="material-symbols-outlined text-base mr-1" style="color:#059669;">trending_up</span>
+            <span class="text-secondary ml-1"><%= periodLabel %></span>
+          </div>
         </div>
-      </form>
-    </section>
+        <!-- Platform Commission -->
+        <div class="bg-surface-container-lowest rounded-xl p-6 relative overflow-hidden" style="box-shadow:0 8px 30px rgba(25,28,30,0.04);">
+          <div style="position:absolute;top:0;right:0;width:8rem;height:8rem;background:#855300;opacity:0.05;border-bottom-left-radius:9999px;margin-right:-2rem;margin-top:-2rem;"></div>
+          <p class="font-label text-sm text-secondary uppercase tracking-wider mb-2">Platform Commission</p>
+          <h3 class="font-headline text-3xl text-primary">$<%= commissionAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></h3>
+          <div class="mt-4 flex items-center text-sm font-body">
+            <span class="material-symbols-outlined text-base mr-1" style="color:#059669;">percent</span>
+            <span class="text-secondary ml-1">10% of revenue</span>
+          </div>
+        </div>
+        <!-- Commission Growth -->
+        <div class="bg-surface-container-lowest rounded-xl p-6 relative overflow-hidden" style="box-shadow:0 8px 30px rgba(25,28,30,0.04);">
+          <div style="position:absolute;top:0;right:0;width:8rem;height:8rem;background:#855300;opacity:0.05;border-bottom-left-radius:9999px;margin-right:-2rem;margin-top:-2rem;"></div>
+          <p class="font-label text-sm text-secondary uppercase tracking-wider mb-2">Commission Growth</p>
+          <% if (cgVal !== null) { %>
+            <h3 class="font-headline text-3xl" style="color:<%= cgVal >= 0 ? '#059669' : '#b02d29' %>;">
+              <%= cgVal >= 0 ? '+' : '' %><%= cgVal %>%
+            </h3>
+            <div class="mt-4 flex items-center text-sm font-body">
+              <span class="material-symbols-outlined text-base mr-1" style="color:<%= cgVal >= 0 ? '#059669' : '#b02d29' %>;"><%= cgVal >= 0 ? 'trending_up' : 'trending_down' %></span>
+              <span class="text-secondary ml-1">vs previous period</span>
+            </div>
+          <% } else { %>
+            <h3 class="font-headline text-3xl text-secondary">—</h3>
+            <div class="mt-4 flex items-center text-sm font-body">
+              <span class="material-symbols-outlined text-base mr-1 text-secondary">horizontal_rule</span>
+              <span class="text-secondary ml-1">No prior data</span>
+            </div>
+          <% } %>
+        </div>
+        <!-- Total Orders -->
+        <div class="bg-surface-container-lowest rounded-xl p-6 relative overflow-hidden" style="box-shadow:0 8px 30px rgba(25,28,30,0.04);">
+          <div style="position:absolute;top:0;right:0;width:8rem;height:8rem;background:#855300;opacity:0.05;border-bottom-left-radius:9999px;margin-right:-2rem;margin-top:-2rem;"></div>
+          <p class="font-label text-sm text-secondary uppercase tracking-wider mb-2">Total Orders</p>
+          <h3 class="font-headline text-3xl text-on-surface"><%= orders.toLocaleString() %></h3>
+          <div class="mt-4 flex items-center text-sm font-body">
+            <span class="material-symbols-outlined text-secondary text-base mr-1">receipt_long</span>
+            <span class="text-secondary ml-1"><%= periodLabel %></span>
+          </div>
+        </div>
+        <!-- Active Artisans -->
+        <div class="bg-surface-container-lowest rounded-xl p-6 relative overflow-hidden" style="box-shadow:0 8px 30px rgba(25,28,30,0.04);">
+          <div style="position:absolute;top:0;right:0;width:8rem;height:8rem;background:#855300;opacity:0.05;border-bottom-left-radius:9999px;margin-right:-2rem;margin-top:-2rem;"></div>
+          <p class="font-label text-sm text-secondary uppercase tracking-wider mb-2">Active Artisans</p>
+          <h3 class="font-headline text-3xl text-on-surface"><%= topArtisans ? topArtisans.length : 0 %></h3>
+          <div class="mt-4 flex items-center text-sm font-body">
+            <span class="material-symbols-outlined text-base mr-1" style="color:#059669;">groups</span>
+            <span class="text-secondary ml-1">with sales this period</span>
+          </div>
+        </div>
+      </div>
 
-    <section class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      <article class="bg-surface-container-lowest rounded-xl p-5">
-        <p class="text-[10px] uppercase tracking-[0.2em] text-secondary font-bold">Total Revenue</p>
-        <p class="font-headline text-3xl text-on-surface mt-3">$<%= revenue.toFixed(2) %></p>
-      </article>
-      <article class="bg-surface-container-lowest rounded-xl p-5">
-        <p class="text-[10px] uppercase tracking-[0.2em] text-secondary font-bold">Total Orders</p>
-        <p class="font-headline text-3xl text-on-surface mt-3"><%= orders %></p>
-      </article>
-      <article class="bg-surface-container-lowest rounded-xl p-5">
-        <p class="text-[10px] uppercase tracking-[0.2em] text-secondary font-bold">Average Order Value</p>
-        <p class="font-headline text-3xl text-on-surface mt-3">$<%= averageOrder.toFixed(2) %></p>
-      </article>
-    </section>
+      <!-- Revenue Trends + Top Products -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
 
-    <section class="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-2 gap-6">
-      <article class="bg-surface-container-lowest rounded-xl overflow-hidden">
-        <header class="px-6 py-4 border-b border-surface-container-high">
-          <h2 class="font-headline text-xl text-on-surface">Sales Timeline</h2>
-        </header>
+        <!-- Revenue Growth (SVG line chart — same as artisan analytics) -->
+        <div class="lg:col-span-2 bg-surface-container-lowest rounded-xl p-8 flex flex-col" style="box-shadow:0 8px 30px rgba(25,28,30,0.04);">
+          <div class="flex justify-between items-center mb-8">
+            <div>
+              <h3 class="font-headline text-2xl text-on-surface">Revenue Trends</h3>
+              <p class="font-body text-sm text-secondary mt-1">Daily revenue over the selected period.</p>
+            </div>
+            <span class="font-body text-xs text-secondary bg-surface-container px-3 py-1 rounded-full"><%= periodLabel %></span>
+          </div>
 
-        <% if (salesData && salesData.length > 0) { %>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="text-[10px] font-bold text-secondary uppercase tracking-widest border-b border-surface-container-high">
-                  <th class="px-6 py-4">Date</th>
-                  <th class="px-6 py-4">Orders</th>
-                  <th class="px-6 py-4">Revenue</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-surface-container-high/50">
-                <% salesData.forEach(function(s) { %>
-                  <tr class="hover:bg-surface-container-low/20 transition-colors">
-                    <td class="px-6 py-4 text-sm text-on-surface"><%= new Date(s.date).toLocaleDateString() %></td>
-                    <td class="px-6 py-4 text-sm text-on-surface"><%= Number(s.orders || 0) %></td>
-                    <td class="px-6 py-4 text-sm text-on-surface">$<%= Number(s.revenue || 0).toFixed(2) %></td>
+          <% if (salesData && salesData.length > 0) { %>
+            <!-- Chart layout -->
+            <div class="flex flex-col" style="min-height:300px; flex:1;">
+              <!-- Row: y-axis + chart area -->
+              <div class="flex flex-1" style="min-height:0;">
+                <!-- Y-Axis -->
+                <div class="flex flex-col justify-between text-xs font-label text-secondary text-right pr-3 flex-shrink-0"
+                     style="width:3.5rem; padding-bottom:0; border-right:1px solid rgba(134,116,97,0.12);">
+                  <% yLabels.forEach(function(lbl) { %><span><%= lbl %></span><% }); %>
+                </div>
+                <!-- SVG + tooltip wrapper -->
+                <div id="chart-wrapper" class="flex-1 relative" style="cursor:crosshair; min-height:260px;">
+                  <!-- Grid lines -->
+                  <div class="absolute inset-0 flex flex-col justify-between pointer-events-none">
+                    <div class="w-full" style="border-bottom:1px solid rgba(134,116,97,0.08);"></div>
+                    <div class="w-full" style="border-bottom:1px solid rgba(134,116,97,0.08);"></div>
+                    <div class="w-full" style="border-bottom:1px solid rgba(134,116,97,0.08);"></div>
+                    <div class="w-full" style="border-bottom:1px solid rgba(134,116,97,0.08);"></div>
+                  </div>
+                  <!-- SVG line chart -->
+                  <svg id="revenue-svg" class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100" style="display:block;">
+                    <defs>
+                      <linearGradient id="amber-gradient" x1="0" x2="0" y1="0" y2="1">
+                        <stop offset="0%"   stop-color="#855300"/>
+                        <stop offset="100%" stop-color="#f7f9fb" stop-opacity="0"/>
+                      </linearGradient>
+                    </defs>
+                    <path d="<%= svgPath %>" fill="none" stroke="#855300" stroke-width="2" vector-effect="non-scaling-stroke"/>
+                    <path d="<%= svgFill %>" fill="url(#amber-gradient)" opacity="0.2"/>
+                    <circle id="chart-dot" cx="50" cy="50" r="3" fill="#ffffff" stroke="#855300" stroke-width="1.5"
+                            vector-effect="non-scaling-stroke" style="display:none;"/>
+                  </svg>
+                  <!-- Vertical hover line -->
+                  <div id="chart-vline" class="absolute top-0 bottom-0 pointer-events-none hidden"
+                       style="width:1px; background:rgba(133,83,0,0.3); left:0;"></div>
+                  <!-- Tooltip -->
+                  <div id="chart-tooltip" class="absolute hidden" style="z-index:20; pointer-events:none; top:12px; left:0; min-width:130px;">
+                    <div class="bg-surface-container-lowest rounded-lg border border-outline-variant/30 shadow-lg px-3 py-2" style="box-shadow:0 8px 24px rgba(25,28,30,0.12);">
+                      <p id="tip-date" class="font-label text-secondary mb-1" style="font-size:10px; text-transform:uppercase; letter-spacing:0.12em;"></p>
+                      <p id="tip-revenue" class="font-headline text-on-surface" style="font-size:1.125rem; line-height:1;"></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- X-Axis labels -->
+              <div class="flex justify-between text-xs font-label text-secondary mt-2" style="padding-left:3.5rem;">
+                <% xLabels.forEach(function(lbl) { %><span><%= lbl %></span><% }); %>
+              </div>
+            </div>
+          <% } else { %>
+            <div class="flex-1 flex items-center justify-center" style="min-height:260px;">
+              <div class="text-center text-secondary">
+                <span class="material-symbols-outlined text-5xl opacity-40">monitoring</span>
+                <p class="mt-2 text-sm">No sales data for this period.</p>
+              </div>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Top Products -->
+        <div class="bg-surface-container-lowest rounded-xl p-8" style="box-shadow:0 8px 30px rgba(25,28,30,0.04);">
+          <h3 class="font-headline text-xl text-on-surface mb-6">Top Products</h3>
+          <% if (topProducts && topProducts.length > 0) { %>
+            <%
+              const maxProd = Math.max(...topProducts.slice(0,5).map(function(p){ return Number(p.revenue || 0); }), 1);
+              const barColors = ['#855300','#f59e0b','#d97706','#545f73','#ef4444'];
+            %>
+            <div class="space-y-5">
+              <% topProducts.slice(0,5).forEach(function(p, i) {
+                   const pct = Math.round((Number(p.revenue || 0) / maxProd) * 100);
+              %>
+                <div>
+                  <div class="flex justify-between font-body text-sm mb-2 text-on-surface">
+                    <span class="truncate pr-2"><%= p.name %></span>
+                    <span class="shrink-0 text-secondary">$<%= Number(p.revenue || 0).toFixed(0) %></span>
+                  </div>
+                  <div class="w-full rounded-full h-2" style="background:#eceef0;">
+                    <div style="width:<%= pct %>%; height:100%; border-radius:9999px; background:<%= barColors[i] %>;"></div>
+                  </div>
+                </div>
+              <% }); %>
+            </div>
+          <% } else { %>
+            <div class="py-10 text-center text-secondary">
+              <span class="material-symbols-outlined text-4xl opacity-40">inventory_2</span>
+              <p class="mt-2 text-sm">No product data.</p>
+            </div>
+          <% } %>
+        </div>
+
+      </div>
+
+      <!-- Top Artisans + Orders by Status -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+
+        <!-- Top Artisans (2 cols) -->
+        <div class="lg:col-span-2 bg-surface-container-lowest rounded-xl p-8" style="box-shadow:0 8px 30px rgba(25,28,30,0.04);">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="font-headline text-xl text-on-surface">Top Artisans</h3>
+            <a href="/admin/artisans" class="font-body text-sm text-primary" style="text-decoration:none;">View All</a>
+          </div>
+          <% if (topArtisans && topArtisans.length > 0) { %>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left font-body">
+                <thead>
+                  <tr class="border-b text-secondary text-sm font-medium" style="border-color:rgba(134,116,97,0.1);">
+                    <th class="pb-3 pr-4 font-normal">Rank</th>
+                    <th class="pb-3 pr-4 font-normal">Artisan</th>
+                    <th class="pb-3 pr-4 font-normal text-right">Revenue</th>
+                    <th class="pb-3 font-normal text-right">Commission</th>
                   </tr>
-                <% }); %>
-              </tbody>
-            </table>
-          </div>
-        <% } else { %>
-          <div class="py-12 text-center text-secondary">
-            <span class="material-symbols-outlined text-5xl opacity-60">monitoring</span>
-            <p class="mt-2">No sales data for this period.</p>
-          </div>
-        <% } %>
-      </article>
+                </thead>
+                <tbody class="text-sm">
+                  <% topArtisans.slice(0, 8).forEach(function(a, i) { %>
+                    <tr class="border-b transition-colors" style="border-color:rgba(134,116,97,0.06);">
+                      <td class="py-3.5 pr-4">
+                        <span class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs"
+                              style="<%= i === 0 ? 'background:rgba(245,158,11,0.2); color:#855300;' : 'background:#eceef0; color:#545f73;' %>">
+                          <%= i + 1 %>
+                        </span>
+                      </td>
+                      <td class="py-3.5 pr-4">
+                        <div class="flex items-center gap-3">
+                          <% if (a.avatar) { %>
+                            <img src="<%= a.avatar %>" alt="<%= a.name %>" class="rounded-full object-cover flex-shrink-0"
+                                 style="width:36px; height:36px; border:1px solid rgba(134,116,97,0.15);"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="rounded-full flex-shrink-0 items-center justify-center font-bold text-xs"
+                                 style="display:none; width:36px; height:36px; background:rgba(133,83,0,0.12); color:#855300;">
+                              <%= (a.name || '?')[0].toUpperCase() %>
+                            </div>
+                          <% } else { %>
+                            <div class="rounded-full flex-shrink-0 flex items-center justify-center font-bold text-xs"
+                                 style="width:36px; height:36px; background:rgba(133,83,0,0.12); color:#855300;">
+                              <%= (a.name || '?')[0].toUpperCase() %>
+                            </div>
+                          <% } %>
+                          <div>
+                            <p class="text-on-surface font-medium"><%= a.name %></p>
+                            <% if (a.shop_name) { %><p class="text-secondary text-xs"><%= a.shop_name %></p><% } %>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="py-3.5 pr-4 text-on-surface text-right font-medium">$<%= Number(a.revenue || 0).toFixed(2) %></td>
+                      <td class="py-3.5 text-primary text-right">$<%= (Number(a.revenue || 0) * 0.1).toFixed(2) %></td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <div class="py-10 text-center text-secondary">
+              <span class="material-symbols-outlined text-5xl opacity-40">groups</span>
+              <p class="mt-2 text-sm">No artisan data for this period.</p>
+            </div>
+          <% } %>
+        </div>
 
-      <article class="bg-surface-container-lowest rounded-xl overflow-hidden">
-        <header class="px-6 py-4 border-b border-surface-container-high">
-          <h2 class="font-headline text-xl text-on-surface">Top Products</h2>
-        </header>
+        <!-- Orders by Status Donut -->
+        <div class="bg-surface-container-lowest rounded-xl p-8 flex flex-col" style="box-shadow:0 8px 30px rgba(25,28,30,0.04);">
+          <h3 class="font-headline text-xl text-on-surface mb-6">Orders by Status</h3>
+          <div class="flex-1 flex flex-col items-center justify-center">
+            <div style="width:176px; height:176px; border-radius:50%; position:relative; display:flex; align-items:center; justify-content:center; background: conic-gradient(#10b981 0% <%= pctDelivered %>%, #a855f7 <%= pctDelivered %>% <%= pctDelivered + pctShipped %>%, #3b82f6 <%= pctDelivered + pctShipped %>% <%= pctDelivered + pctShipped + pctProcessing %>%, #ef4444 <%= pctDelivered + pctShipped + pctProcessing %>% 100%);">
+              <div style="width:110px; height:110px; border-radius:50%; background:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                <span class="font-headline text-2xl text-on-surface"><%= (sc.total || 0).toLocaleString() %></span>
+                <span class="font-body text-xs text-secondary">Total</span>
+              </div>
+            </div>
+            <div class="mt-8 grid grid-cols-2 gap-4 w-full">
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-sm" style="background:#10b981;"></div>
+                <div><span class="font-body text-xs text-secondary block">Delivered</span><span class="font-body text-sm font-medium text-on-surface"><%= pctDelivered %>%</span></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-sm" style="background:#a855f7;"></div>
+                <div><span class="font-body text-xs text-secondary block">Shipped</span><span class="font-body text-sm font-medium text-on-surface"><%= pctShipped %>%</span></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-sm" style="background:#3b82f6;"></div>
+                <div><span class="font-body text-xs text-secondary block">Processing</span><span class="font-body text-sm font-medium text-on-surface"><%= pctProcessing %>%</span></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-sm" style="background:#ef4444;"></div>
+                <div><span class="font-body text-xs text-secondary block">Cancelled</span><span class="font-body text-sm font-medium text-on-surface"><%= pctCancelled %>%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <% if (topProducts && topProducts.length > 0) { %>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="text-[10px] font-bold text-secondary uppercase tracking-widest border-b border-surface-container-high">
-                  <th class="px-6 py-4">Product</th>
-                  <th class="px-6 py-4">Units</th>
-                  <th class="px-6 py-4">Revenue</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-surface-container-high/50">
-                <% topProducts.forEach(function(p) { %>
-                  <tr class="hover:bg-surface-container-low/20 transition-colors">
-                    <td class="px-6 py-4 text-sm text-on-surface font-medium"><%= p.name %></td>
-                    <td class="px-6 py-4 text-sm text-on-surface"><%= Number(p.sold || 0) %></td>
-                    <td class="px-6 py-4 text-sm text-on-surface">$<%= Number(p.revenue || 0).toFixed(2) %></td>
-                  </tr>
-                <% }); %>
-              </tbody>
-            </table>
-          </div>
-        <% } else { %>
-          <div class="py-12 text-center text-secondary">
-            <span class="material-symbols-outlined text-5xl opacity-60">inventory_2</span>
-            <p class="mt-2">No top product data for this period.</p>
-          </div>
-        <% } %>
-      </article>
+      </div>
 
-      <article class="xl:col-span-2 bg-surface-container-lowest rounded-xl overflow-hidden">
-        <header class="px-6 py-4 border-b border-surface-container-high">
-          <h2 class="font-headline text-xl text-on-surface">Top Artisans</h2>
-        </header>
+      <!-- Report Generator -->
+      <div class="bg-surface-container-lowest rounded-xl p-8 mb-8 border border-outline-variant/20" style="box-shadow:0 8px 30px rgba(25,28,30,0.04);">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="material-symbols-outlined text-primary text-2xl">document_scanner</span>
+          <h3 class="font-headline text-2xl text-on-surface">Report Generator</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+          <div class="flex flex-col gap-2">
+            <label class="font-label text-sm text-secondary font-medium">Report Type</label>
+            <div class="relative">
+              <select class="w-full bg-surface-container-low border-none rounded-xl py-3 pl-4 pr-10 text-on-surface font-body text-sm appearance-none focus:ring-2 focus:ring-primary-container">
+                <option>Sales &amp; Revenue</option>
+                <option>Artisan Performance</option>
+                <option>User Engagement</option>
+              </select>
+              <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none text-sm">expand_more</span>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2 md:col-span-2">
+            <label class="font-label text-sm text-secondary font-medium">Date Range</label>
+            <div class="flex gap-3 items-center">
+              <div class="relative flex-1">
+                <input class="w-full bg-surface-container-low border-none rounded-xl py-3 pl-10 pr-4 text-on-surface font-body text-sm focus:ring-2 focus:ring-primary-container" placeholder="Start Date" type="text"/>
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-sm pointer-events-none">calendar_today</span>
+              </div>
+              <span class="text-secondary">–</span>
+              <div class="relative flex-1">
+                <input class="w-full bg-surface-container-low border-none rounded-xl py-3 pl-10 pr-4 text-on-surface font-body text-sm focus:ring-2 focus:ring-primary-container" placeholder="End Date" type="text"/>
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-sm pointer-events-none">calendar_today</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="font-label text-sm text-secondary font-medium">Format</label>
+            <div class="flex gap-3 items-center">
+              <div class="flex bg-surface-container-low rounded-xl p-1">
+                <button type="button" class="px-4 py-2 bg-surface-container-lowest rounded-lg text-sm font-medium text-on-surface shadow-sm">PDF</button>
+                <button type="button" class="px-4 py-2 text-sm font-medium text-secondary hover:text-on-surface transition-colors">CSV</button>
+              </div>
+              <button type="button" class="flex-1 bg-primary-container text-on-primary-container rounded-xl py-3 px-4 font-label font-semibold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-sm">download</span>
+                Generate
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <% if (topArtisans && topArtisans.length > 0) { %>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="text-[10px] font-bold text-secondary uppercase tracking-widest border-b border-surface-container-high">
-                  <th class="px-6 py-4">Artisan</th>
-                  <th class="px-6 py-4">Shop</th>
-                  <th class="px-6 py-4">Revenue</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-surface-container-high/50">
-                <% topArtisans.forEach(function(a) { %>
-                  <tr class="hover:bg-surface-container-low/20 transition-colors">
-                    <td class="px-6 py-4 text-sm text-on-surface"><%= a.name %></td>
-                    <td class="px-6 py-4 text-sm text-on-surface"><%= a.shop_name || 'N/A' %></td>
-                    <td class="px-6 py-4 text-sm text-on-surface">$<%= Number(a.revenue || 0).toFixed(2) %></td>
-                  </tr>
-                <% }); %>
-              </tbody>
-            </table>
-          </div>
-        <% } else { %>
-          <div class="py-12 text-center text-secondary">
-            <span class="material-symbols-outlined text-5xl opacity-60">groups</span>
-            <p class="mt-2">No artisan performance data for this period.</p>
-          </div>
-        <% } %>
-      </article>
-    </section>
+    </div>
   </main>
 </div>
 
 <%- include('../partials/footer') %>
+
+<script>
+(function () {
+  var data = <%- JSON.stringify((salesData || []).map(function(s){ return { day: s.date, revenue: s.revenue }; })).replace(/<\//g, '<\\/') %>;
+  if (!data.length) return;
+
+  var wrapper  = document.getElementById('chart-wrapper');
+  var tooltip  = document.getElementById('chart-tooltip');
+  var vline    = document.getElementById('chart-vline');
+  var tipDate  = document.getElementById('tip-date');
+  var tipRev   = document.getElementById('tip-revenue');
+  var dot      = document.getElementById('chart-dot');
+  var svg      = document.getElementById('revenue-svg');
+  if (!wrapper || !tooltip || !svg) return;
+
+  var pts = data.map(function(d, i) {
+    return {
+      x: data.length === 1 ? 50 : (i / (data.length - 1)) * 100,
+      revenue: d.revenue,
+      day: d.day
+    };
+  });
+
+  wrapper.addEventListener('mousemove', function (e) {
+    var rect   = wrapper.getBoundingClientRect();
+    var mouseX = e.clientX - rect.left;
+    var pct    = Math.max(0, Math.min(1, mouseX / rect.width));
+    var idx    = Math.round(pct * (pts.length - 1));
+    var pt     = pts[idx];
+    if (!pt) return;
+
+    var dtStr = String(pt.day).length === 10 ? pt.day + 'T12:00:00' : pt.day;
+    var dt    = new Date(dtStr);
+    tipDate.textContent = dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    tipRev.textContent  = '$' + Number(pt.revenue).toFixed(2);
+
+    vline.style.left = mouseX + 'px';
+    vline.classList.remove('hidden');
+
+    var maxRev = Math.max.apply(null, data.map(function(d){ return d.revenue; }));
+    var svgX   = pt.x.toFixed ? pt.x.toFixed(2) : pt.x;
+    var svgY   = maxRev > 0 ? (10 + (1 - pt.revenue / maxRev) * 80).toFixed(2) : '80';
+    dot.setAttribute('cx', svgX);
+    dot.setAttribute('cy', svgY);
+    dot.style.display = 'block';
+
+    var tipW = 140;
+    var tipX = mouseX + 14;
+    if (tipX + tipW > rect.width) tipX = mouseX - tipW - 14;
+    tooltip.style.left = Math.max(0, tipX) + 'px';
+    tooltip.classList.remove('hidden');
+  });
+
+  wrapper.addEventListener('mouseleave', function () {
+    tooltip.classList.add('hidden');
+    vline.classList.add('hidden');
+    dot.style.display = 'none';
+  });
+})();
+</script>
