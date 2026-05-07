@@ -25,6 +25,7 @@ module.exports = (suiteContext) => {
   });
 
   describe('UTILITY / SERVICE / MIDDLEWARE COVERAGE', () => {
+    require('./models/m27-site-setting-audit-log.suite')(suiteContext);
     require('./models/m20-security-policy.suite')();
     require('./models/m21-redirect-full.suite')();
     require('./models/m22-payment-service.suite')();

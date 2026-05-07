@@ -7,6 +7,10 @@ const Auction = require('../models/Auction');
 const Review = require('../models/Review');
 const Coupon = require('../models/Coupon');
 const Notification = require('../models/Notification');
+const SiteSetting = require('../models/SiteSetting');
+const AuditLog = require('../models/AuditLog');
+const bcrypt = require('bcryptjs');
+const NewsletterSubscription = require('../models/NewsletterSubscription');
 
 function getReportWindowStartIso(period) {
   // Anchor to latest order date in DB so seeded data always shows
@@ -162,6 +166,7 @@ exports.deleteUser = (req, res) => {
     }
 
     User.delete(id);
+    AuditLog.record(req.session.user.id, req.session.user.name, 'delete_user', 'user', id, null, req.ip);
 
     if (req.xhr) {
       return res.json({ success: true });
@@ -225,9 +230,8 @@ exports.approveArtisan = (req, res) => {
       return res.redirect('/admin/artisans');
     }
     ArtisanProfile.approve(id);
-
-    // Notify artisan
     Notification.artisanApproved(id);
+    AuditLog.record(req.session.user.id, req.session.user.name, 'approve_artisan', 'artisan', id, null, req.ip);
 
     if (req.xhr) {
       return res.json({ success: true });
@@ -252,6 +256,7 @@ exports.rejectArtisan = (req, res) => {
       return res.redirect('/admin/artisans');
     }
     ArtisanProfile.reject(id);
+    AuditLog.record(req.session.user.id, req.session.user.name, 'reject_artisan', 'artisan', id, null, req.ip);
 
     if (req.xhr) {
       return res.json({ success: true });
@@ -320,6 +325,7 @@ exports.approveProduct = (req, res) => {
 
     Product.update(id, { status: 'approved' });
     Notification.productApproved(product.artisan_id, product.name);
+    AuditLog.record(req.session.user.id, req.session.user.name, 'approve_product', 'product', id, { name: product.name }, req.ip);
 
     if (req.xhr) {
       return res.json({ success: true });
@@ -350,6 +356,7 @@ exports.rejectProduct = (req, res) => {
 
     Product.update(id, { status: 'rejected' });
     Notification.productRejected(product.artisan_id, product.name);
+    AuditLog.record(req.session.user.id, req.session.user.name, 'reject_product', 'product', id, { name: product.name }, req.ip);
 
     if (req.xhr) {
       return res.json({ success: true });
@@ -431,6 +438,7 @@ exports.deleteProduct = (req, res) => {
       return respondAdminNotFound(req, res, '/admin/products', 'Product not found');
     }
     Product.delete(id);
+    AuditLog.record(req.session.user.id, req.session.user.name, 'delete_product', 'product', id, { name: product.name }, req.ip);
 
     if (req.xhr) {
       return res.json({ success: true });
@@ -637,6 +645,7 @@ exports.updateOrderStatus = (req, res) => {
       return respondAdminNotFound(req, res, '/admin/orders', 'Order not found');
     }
     Notification.orderStatusChanged(order.user_id, id, status);
+    AuditLog.record(req.session.user.id, req.session.user.name, 'update_order_status', 'order', id, { status }, req.ip);
 
     if (req.xhr) {
       return res.json({ success: true });
@@ -741,6 +750,7 @@ exports.approveAuction = (req, res) => {
     if (!auction) {
       return respondAdminNotFound(req, res, '/admin/auctions', 'Auction not found');
     }
+    AuditLog.record(req.session.user.id, req.session.user.name, 'approve_auction', 'auction', id, null, req.ip);
     req.flash('success_msg', 'Auction approved and is now live');
     res.redirect('/admin/auctions');
   } catch (err) {
@@ -1146,8 +1156,9 @@ exports.reports = (req, res) => {
     const statusCounts  = Order.getStatusCounts();
 
     // Commission growth vs previous period
-    const curCommission  = Number(totalRevenue || 0) * 0.10;
-    const prevCommission = Number(prevRevenue  || 0) * 0.10;
+    const commissionRate = parseFloat(SiteSetting.get('commission_rate') || '10') / 100;
+    const curCommission  = Number(totalRevenue || 0) * commissionRate;
+    const prevCommission = Number(prevRevenue  || 0) * commissionRate;
     const commissionGrowth = prevCommission > 0
       ? Math.round(((curCommission - prevCommission) / prevCommission) * 100)
       : null;
@@ -1169,9 +1180,202 @@ exports.reports = (req, res) => {
   }
 };
 
-// Settings
+// Settings — GET
 exports.settings = (req, res) => {
-  res.render('admin/settings', {
-    title: 'Settings - Craftify'
-  });
+  try {
+    const settings = SiteSetting.getAll();
+    const subscribers = NewsletterSubscription.findAll();
+    const newsletterCount = subscribers.length;
+    const auditLog = AuditLog.findRecent(5);
+    res.render('admin/settings', {
+      title: 'Platform Settings - Craftify',
+      settings,
+      subscribers,
+      newsletterCount,
+      auditLog
+    });
+  } catch (err) {
+    console.error('Admin settings error:', err);
+    req.flash('error_msg', 'Error loading settings');
+    res.redirect('/admin/dashboard');
+  }
+};
+
+// Settings — POST (save platform settings)
+exports.updateSettings = (req, res) => {
+  try {
+    const {
+      display_timezone,
+      commission_rate,
+      tax_rate,
+      default_shipping_cost,
+      free_shipping_threshold,
+      max_auction_days,
+      auction_listing_fee,
+      email_sender_name,
+      email_sender_address
+    } = req.body;
+
+    const commissionNum = parseFloat(commission_rate);
+    if (isNaN(commissionNum) || commissionNum < 0 || commissionNum > 100) {
+      req.flash('error_msg', 'Commission rate must be between 0 and 100');
+      return res.redirect('/admin/settings');
+    }
+    const taxNum = parseFloat(tax_rate);
+    if (isNaN(taxNum) || taxNum < 0 || taxNum > 100) {
+      req.flash('error_msg', 'Tax rate must be between 0 and 100');
+      return res.redirect('/admin/settings');
+    }
+    const shipCostNum = parseFloat(default_shipping_cost);
+    if (isNaN(shipCostNum) || shipCostNum < 0) {
+      req.flash('error_msg', 'Default shipping cost must be 0 or greater');
+      return res.redirect('/admin/settings');
+    }
+    const freeShipNum = parseFloat(free_shipping_threshold);
+    if (isNaN(freeShipNum) || freeShipNum < 0) {
+      req.flash('error_msg', 'Free shipping threshold must be 0 or greater');
+      return res.redirect('/admin/settings');
+    }
+    const maxDaysNum = parseInt(max_auction_days, 10);
+    if (isNaN(maxDaysNum) || maxDaysNum < 1 || maxDaysNum > 365) {
+      req.flash('error_msg', 'Max auction duration must be between 1 and 365 days');
+      return res.redirect('/admin/settings');
+    }
+    const listingFeeNum = parseFloat(auction_listing_fee);
+    if (isNaN(listingFeeNum) || listingFeeNum < 0) {
+      req.flash('error_msg', 'Auction listing fee must be 0 or greater');
+      return res.redirect('/admin/settings');
+    }
+    if (!email_sender_name || String(email_sender_name).trim().length < 2) {
+      req.flash('error_msg', 'Sender name is required');
+      return res.redirect('/admin/settings');
+    }
+    if (!email_sender_address || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email_sender_address)) {
+      req.flash('error_msg', 'A valid sender email address is required');
+      return res.redirect('/admin/settings');
+    }
+
+    const allowedTimezones = new Set([
+      'Asia/Bahrain', 'Asia/Riyadh', 'Asia/Dubai', 'UTC',
+      'Europe/London', 'Europe/Paris', 'America/New_York', 'America/Los_Angeles'
+    ]);
+    if (display_timezone && !allowedTimezones.has(display_timezone)) {
+      req.flash('error_msg', 'Invalid timezone selection');
+      return res.redirect('/admin/settings');
+    }
+
+    // supported_currencies comes as array from checkboxes (or single string)
+    const rawCurrencies = req.body.supported_currencies;
+    const allowedCurrencies = new Set(['BHD', 'SAR', 'AED', 'USD', 'EUR', 'GBP', 'KWD']);
+    let currenciesArr = [];
+    if (Array.isArray(rawCurrencies)) {
+      currenciesArr = rawCurrencies.filter(c => allowedCurrencies.has(c));
+    } else if (rawCurrencies && allowedCurrencies.has(rawCurrencies)) {
+      currenciesArr = [rawCurrencies];
+    }
+    if (currenciesArr.length === 0) currenciesArr = ['BHD'];
+
+    SiteSetting.bulkSet({
+      display_timezone:        display_timezone || 'Asia/Bahrain',
+      commission_rate:         String(commissionNum),
+      tax_rate:                String(taxNum),
+      default_shipping_cost:   String(shipCostNum),
+      free_shipping_threshold: String(freeShipNum),
+      supported_currencies:    currenciesArr.join(','),
+      max_auction_days:        String(maxDaysNum),
+      auction_listing_fee:     String(listingFeeNum),
+      email_sender_name:       String(email_sender_name).trim(),
+      email_sender_address:    String(email_sender_address).trim().toLowerCase()
+    });
+
+    AuditLog.record(req.session.user.id, req.session.user.name, 'update_settings', 'platform', null, null, req.ip);
+
+    req.flash('success_msg', 'Platform settings saved successfully');
+    res.redirect('/admin/settings');
+  } catch (err) {
+    console.error('Update settings error:', err);
+    req.flash('error_msg', 'Error saving settings');
+    res.redirect('/admin/settings');
+  }
+};
+
+// Settings — POST change admin password
+exports.changeAdminPassword = async (req, res) => {
+  try {
+    const { current_password, new_password, confirm_password } = req.body;
+
+    if (!current_password || !new_password || !confirm_password) {
+      req.flash('error_msg', 'All password fields are required');
+      return res.redirect('/admin/settings#security');
+    }
+    if (new_password !== confirm_password) {
+      req.flash('error_msg', 'New passwords do not match');
+      return res.redirect('/admin/settings#security');
+    }
+    if (new_password.length < 8) {
+      req.flash('error_msg', 'New password must be at least 8 characters');
+      return res.redirect('/admin/settings#security');
+    }
+
+    const admin = User.findById(req.session.user.id);
+    if (!admin) {
+      req.flash('error_msg', 'Admin account not found');
+      return res.redirect('/admin/settings#security');
+    }
+
+    const match = bcrypt.compareSync(current_password, admin.password);
+    if (!match) {
+      req.flash('error_msg', 'Current password is incorrect');
+      return res.redirect('/admin/settings#security');
+    }
+
+    await User.updatePassword(admin.id, new_password);
+    AuditLog.record(req.session.user.id, req.session.user.name, 'change_password', 'user', admin.id, null, req.ip);
+
+    req.flash('success_msg', 'Password changed successfully');
+    res.redirect('/admin/settings#security');
+  } catch (err) {
+    console.error('Change admin password error:', err);
+    req.flash('error_msg', 'Error changing password');
+    res.redirect('/admin/settings#security');
+  }
+};
+
+// Newsletter CSV export
+exports.newsletterExport = (req, res) => {
+  try {
+    const subscribers = NewsletterSubscription.findAll();
+    const csv = ['email,joined_at', ...subscribers.map(s => `${s.email},${s.created_at}`)].join('\n');
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="craftify-subscribers.csv"');
+    res.send(csv);
+  } catch (err) {
+    console.error('Newsletter export error:', err);
+    req.flash('error_msg', 'Error exporting subscribers');
+    res.redirect('/admin/settings');
+  }
+};
+
+// Full audit log page
+exports.auditLog = (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = 30;
+    const offset = (page - 1) * limit;
+    const logs = AuditLog.findAll({ limit, offset });
+    const total = AuditLog.count();
+    res.render('admin/audit-log', {
+      title: 'Activity Ledger - Craftify',
+      logs,
+      pagination: {
+        page,
+        totalPages: Math.ceil(total / limit),
+        total,
+        limit
+      }
+    });
+  } catch (err) {
+    console.error('Audit log error:', err);
+    res.redirect('/admin/settings');
+  }
 };

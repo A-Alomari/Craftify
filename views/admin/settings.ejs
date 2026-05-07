@@ -3,70 +3,296 @@
 <div class="flex flex-col lg:flex-row bg-surface min-h-screen">
   <%- include('./partials/sidebar') %>
 
-  <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
-    <%- include('./partials/topbar') %>
+  <main class="flex-1 min-h-screen flex flex-col">
 
-    <section class="max-w-7xl mx-auto mt-8 mb-6">
-      <span class="font-label text-xs tracking-[0.2em] text-primary font-semibold uppercase">Administration</span>
-      <h1 class="font-headline text-3xl text-on-surface mt-2">Platform Settings</h1>
-      <p class="text-secondary mt-1">Operational preferences and system-level controls for the marketplace.</p>
-    </section>
+    <div class="flex-1 px-6 lg:px-10 py-8 pb-28">
+      <%- include('./partials/topbar') %>
 
-    <section class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <article class="lg:col-span-2 bg-surface-container-lowest rounded-xl p-6">
-        <h2 class="font-headline text-xl text-on-surface mb-4">Storefront Preferences</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Platform Name</label>
-            <input type="text" value="Craftify" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm" readonly>
-          </div>
-          <div>
-            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Support Email</label>
-            <input type="email" value="support@craftify.local" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm" readonly>
-          </div>
-          <div>
-            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Default Currency</label>
-            <input type="text" value="BHD" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm" readonly>
-          </div>
-          <div>
-            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Moderation Mode</label>
-            <input type="text" value="Manual Approval" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm" readonly>
-          </div>
-          <div class="md:col-span-2">
-            <label class="block text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-2">Maintenance Notice</label>
-            <textarea rows="3" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm resize-none" readonly>Settings on this page are currently read-only operational references.</textarea>
-          </div>
+      <div class="max-w-5xl mx-auto mt-8">
+
+        <!-- Page Header -->
+        <div class="flex flex-col gap-3 mb-16">
+          <span class="font-label text-xs tracking-widest text-primary font-semibold uppercase">Administration</span>
+          <h1 class="font-headline text-4xl font-black leading-tight tracking-tight text-on-surface">Settings Studio</h1>
+          <p class="font-body text-secondary text-base max-w-2xl">Manage global storefront parameters, financial mechanisms, and communication channels from a unified panel.</p>
         </div>
-      </article>
 
-      <article class="bg-surface-container-lowest rounded-xl p-6">
-        <h2 class="font-headline text-xl text-on-surface mb-4">Security Status</h2>
-        <ul class="space-y-3">
-          <li class="flex items-center justify-between bg-surface-container-low rounded-xl px-4 py-3">
-            <span class="text-sm text-on-surface">CSRF Protection</span>
-            <span class="px-2 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold bg-emerald-100 text-emerald-700">Active</span>
-          </li>
-          <li class="flex items-center justify-between bg-surface-container-low rounded-xl px-4 py-3">
-            <span class="text-sm text-on-surface">Session Guard</span>
-            <span class="px-2 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold bg-emerald-100 text-emerald-700">Enabled</span>
-          </li>
-          <li class="flex items-center justify-between bg-surface-container-low rounded-xl px-4 py-3">
-            <span class="text-sm text-on-surface">Admin Route Access</span>
-            <span class="px-2 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold bg-emerald-100 text-emerald-700">Restricted</span>
-          </li>
-        </ul>
-      </article>
+      <!-- ─── MAIN SETTINGS FORM ─── -->
+      <form id="settingsForm" action="/admin/settings" method="POST" class="space-y-16">
+        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
 
-      <article class="lg:col-span-3 bg-surface-container-lowest rounded-xl p-6">
-        <h2 class="font-headline text-xl text-on-surface mb-4">Quick Links</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <a href="/admin/reports" class="bg-surface-container-low hover:bg-surface-container-high rounded-xl px-4 py-3 text-sm font-semibold text-on-surface transition-colors">View analytics reports</a>
-          <a href="/admin/users" class="bg-surface-container-low hover:bg-surface-container-high rounded-xl px-4 py-3 text-sm font-semibold text-on-surface transition-colors">Manage user accounts</a>
-          <a href="/admin/products" class="bg-surface-container-low hover:bg-surface-container-high rounded-xl px-4 py-3 text-sm font-semibold text-on-surface transition-colors">Review product queue</a>
+        <!-- ── General & Storefront ── -->
+        <section>
+          <div class="mb-6 flex items-baseline gap-4">
+            <h2 class="font-headline text-[26px] font-bold text-on-surface">General &amp; Storefront</h2>
+            <div class="h-[1px] flex-grow bg-surface-container-high"></div>
+          </div>
+          <div class="bg-surface-container-lowest p-8 rounded-xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="flex flex-col gap-2">
+                <label class="font-label text-[10px] uppercase tracking-[0.2em] text-secondary font-semibold">Timezone</label>
+                <% const tz = settings.display_timezone || 'Asia/Bahrain'; %>
+                <select name="display_timezone" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface font-body text-sm focus:ring-2 focus:ring-primary-container">
+                  <option value="Asia/Bahrain" <%- tz === 'Asia/Bahrain' ? 'selected' : '' %>>Arabia Standard Time (AST +3)</option>
+                  <option value="Asia/Riyadh"  <%- tz === 'Asia/Riyadh'  ? 'selected' : '' %>>Saudi Arabia Time (+3)</option>
+                  <option value="Asia/Dubai"   <%- tz === 'Asia/Dubai'   ? 'selected' : '' %>>Gulf Standard Time (GST +4)</option>
+                  <option value="UTC"           <%- tz === 'UTC'          ? 'selected' : '' %>>Coordinated Universal Time (UTC)</option>
+                  <option value="Europe/London" <%- tz === 'Europe/London'? 'selected' : '' %>>Greenwich Mean Time (GMT)</option>
+                  <option value="Europe/Paris"  <%- tz === 'Europe/Paris' ? 'selected' : '' %>>Central European Time (CET +1)</option>
+                  <option value="America/New_York"    <%- tz === 'America/New_York'     ? 'selected' : '' %>>Eastern Time (EST −5)</option>
+                  <option value="America/Los_Angeles" <%- tz === 'America/Los_Angeles'  ? 'selected' : '' %>>Pacific Time (PST −8)</option>
+                </select>
+                <p class="text-xs text-secondary">Sets the global display timezone for dates and analytics.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Commerce & Financial ── -->
+        <section>
+          <div class="mb-6 flex items-baseline gap-4">
+            <h2 class="font-headline text-[26px] font-bold text-on-surface">Commerce &amp; Financial</h2>
+            <div class="h-[1px] flex-grow bg-surface-container-high"></div>
+          </div>
+          <div class="bg-surface-container-lowest p-8 rounded-xl space-y-8">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="flex flex-col gap-2">
+                <label class="font-label text-[10px] uppercase tracking-[0.2em] text-secondary font-semibold">Commission Rate (%)</label>
+                <input type="number" name="commission_rate" step="0.1" min="0" max="100"
+                  value="<%= settings.commission_rate || '10' %>"
+                  class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface font-headline text-lg focus:ring-2 focus:ring-primary-container"/>
+                <p class="text-xs text-secondary">Platform revenue share deducted from each order.</p>
+              </div>
+              <div class="flex flex-col gap-2">
+                <label class="font-label text-[10px] uppercase tracking-[0.2em] text-secondary font-semibold">Tax Rate / VAT (%)</label>
+                <input type="number" name="tax_rate" step="0.1" min="0" max="100"
+                  value="<%= settings.tax_rate || '0' %>"
+                  class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface font-headline text-lg focus:ring-2 focus:ring-primary-container"/>
+                <p class="text-xs text-secondary">Applied to each order at checkout (Bahrain VAT compliance).</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="flex flex-col gap-2">
+                <label class="font-label text-[10px] uppercase tracking-[0.2em] text-secondary font-semibold">Default Shipping Cost</label>
+                <div class="relative">
+                  <input type="number" name="default_shipping_cost" step="0.001" min="0"
+                    value="<%= settings.default_shipping_cost || '3' %>"
+                    class="w-full bg-surface-container-low border-none rounded-xl py-3 pl-4 pr-12 text-on-surface font-headline text-lg focus:ring-2 focus:ring-primary-container"/>
+                  <span class="absolute inset-y-0 right-0 pr-4 flex items-center text-secondary font-body text-sm pointer-events-none">BHD</span>
+                </div>
+                <p class="text-xs text-secondary">Applied when order total is below the free shipping threshold.</p>
+              </div>
+              <div class="flex flex-col gap-2">
+                <label class="font-label text-[10px] uppercase tracking-[0.2em] text-secondary font-semibold">Free Shipping Threshold</label>
+                <div class="relative">
+                  <input type="number" name="free_shipping_threshold" step="0.001" min="0"
+                    value="<%= settings.free_shipping_threshold || '50' %>"
+                    class="w-full bg-surface-container-low border-none rounded-xl py-3 pl-4 pr-12 text-on-surface font-headline text-lg focus:ring-2 focus:ring-primary-container"/>
+                  <span class="absolute inset-y-0 right-0 pr-4 flex items-center text-secondary font-body text-sm pointer-events-none">BHD</span>
+                </div>
+                <p class="text-xs text-secondary">Orders at or above this amount qualify for free shipping.</p>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-3 pt-4 border-t border-surface-container-high/50">
+              <label class="font-label text-[10px] uppercase tracking-[0.2em] text-secondary font-semibold">Supported Currencies</label>
+              <% const activeCurrencies = (settings.supported_currencies || 'BHD').split(','); %>
+              <% const currencyList = [
+                { code: 'BHD', label: 'BHD – Bahraini Dinar' },
+                { code: 'SAR', label: 'SAR – Saudi Riyal' },
+                { code: 'AED', label: 'AED – Emirati Dirham' },
+                { code: 'USD', label: 'USD – US Dollar' },
+                { code: 'EUR', label: 'EUR – Euro' },
+                { code: 'GBP', label: 'GBP – British Pound' },
+                { code: 'KWD', label: 'KWD – Kuwaiti Dinar' },
+              ]; %>
+              <div class="flex flex-wrap gap-3">
+                <% currencyList.forEach(function(c) { const isActive = activeCurrencies.includes(c.code); %>
+                  <label class="flex items-center gap-2 cursor-pointer <%- isActive ? 'bg-secondary-container text-on-secondary-container' : 'bg-surface-container-low text-secondary hover:bg-surface-container' %> px-4 py-2 rounded-xl transition-colors">
+                    <input type="checkbox" name="supported_currencies" value="<%= c.code %>" <%- isActive ? 'checked' : '' %>
+                      class="form-checkbox text-primary rounded border-none bg-surface focus:ring-0 w-4 h-4"/>
+                    <span class="font-body text-sm font-medium"><%= c.label %></span>
+                  </label>
+                <% }); %>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Auction Architecture ── -->
+        <section>
+          <div class="mb-6 flex items-baseline gap-4">
+            <h2 class="font-headline text-[26px] font-bold text-on-surface">Auction Architecture</h2>
+            <div class="h-[1px] flex-grow bg-surface-container-high"></div>
+          </div>
+          <div class="bg-surface-container-lowest p-8 rounded-xl grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="flex flex-col gap-2">
+              <label class="font-label text-[10px] uppercase tracking-[0.2em] text-secondary font-semibold">Maximum Duration (Days)</label>
+              <input type="number" name="max_auction_days" min="1" max="365"
+                value="<%= settings.max_auction_days || '30' %>"
+                class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface font-headline text-lg focus:ring-2 focus:ring-primary-container"/>
+              <p class="text-xs text-secondary">Artisans cannot submit auctions longer than this duration.</p>
+            </div>
+            <div class="flex flex-col gap-2">
+              <label class="font-label text-[10px] uppercase tracking-[0.2em] text-secondary font-semibold">Listing Fee</label>
+              <div class="relative">
+                <input type="number" name="auction_listing_fee" step="0.001" min="0"
+                  value="<%= settings.auction_listing_fee || '0' %>"
+                  class="w-full bg-surface-container-low border-none rounded-xl py-3 pl-4 pr-12 text-on-surface font-headline text-lg focus:ring-2 focus:ring-primary-container"/>
+                <span class="absolute inset-y-0 right-0 pr-4 flex items-center text-secondary font-body text-sm pointer-events-none">BHD</span>
+              </div>
+              <p class="text-xs text-secondary">Fee recorded on the auction when it is approved by admin.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Correspondence ── -->
+        <section>
+          <div class="mb-6 flex items-baseline gap-4">
+            <h2 class="font-headline text-[26px] font-bold text-on-surface">Correspondence</h2>
+            <div class="h-[1px] flex-grow bg-surface-container-high"></div>
+          </div>
+          <div class="bg-surface-container-lowest p-8 rounded-xl space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="flex flex-col gap-2">
+                <label class="font-label text-[10px] uppercase tracking-[0.2em] text-secondary font-semibold">Sender Name</label>
+                <input type="text" name="email_sender_name"
+                  value="<%= settings.email_sender_name || 'Craftify' %>"
+                  class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface font-body text-sm focus:ring-2 focus:ring-primary-container"/>
+              </div>
+              <div class="flex flex-col gap-2">
+                <label class="font-label text-[10px] uppercase tracking-[0.2em] text-secondary font-semibold">Sender Address</label>
+                <input type="email" name="email_sender_address"
+                  value="<%= settings.email_sender_address || 'noreply@craftify.local' %>"
+                  class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface font-body text-sm focus:ring-2 focus:ring-primary-container"/>
+              </div>
+            </div>
+
+            <!-- Newsletter Subscribers -->
+            <div class="pt-6 border-t border-surface-container-high/50">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="font-headline text-xl font-bold text-on-surface">
+                  Newsletter Subscribers
+                  <span class="ml-2 px-2.5 py-0.5 rounded-full text-xs bg-secondary-container text-on-secondary-container font-bold"><%= newsletterCount || 0 %></span>
+                </h3>
+                <a href="/admin/settings/newsletter/export" class="font-body text-primary font-semibold hover:underline text-sm flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[18px]">download</span> Export CSV
+                </a>
+              </div>
+              <p class="text-secondary mb-5 text-sm">Registered audience for platform newsletters and announcements.</p>
+              <div class="bg-surface rounded-xl border border-outline-variant/30 overflow-hidden">
+                <div class="max-h-52 overflow-y-auto divide-y divide-surface-container-low">
+                  <% if (subscribers && subscribers.length > 0) { %>
+                    <% subscribers.forEach(function(s) { %>
+                      <div class="flex justify-between items-center px-4 py-3 hover:bg-surface-container-lowest transition-colors">
+                        <span class="text-sm font-medium text-on-surface"><%= s.email %></span>
+                        <span class="text-xs text-secondary">
+                          <%= new Date(s.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                        </span>
+                      </div>
+                    <% }); %>
+                  <% } else { %>
+                    <div class="px-4 py-10 text-center text-secondary text-sm">No subscribers yet.</div>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </form><!-- end #settingsForm -->
+
+      <!-- ─── SECURITY & AUDIT ─── -->
+      <section class="mt-16 mb-20" id="security">
+        <div class="mb-6 flex items-baseline gap-4">
+          <h2 class="font-headline text-[26px] font-bold text-on-surface">Security &amp; Audit</h2>
+          <div class="h-[1px] flex-grow bg-surface-container-high"></div>
         </div>
-      </article>
-    </section>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+          <!-- Change Password -->
+          <div class="bg-surface-container-lowest p-8 rounded-xl flex flex-col">
+            <h3 class="font-headline text-xl font-bold text-on-surface mb-6">Administrator Credentials</h3>
+            <form action="/admin/settings/change-password" method="POST" class="space-y-4 flex-grow">
+              <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+              <div class="flex flex-col gap-2">
+                <label class="font-label text-[10px] uppercase tracking-[0.2em] text-secondary font-semibold">Current Password</label>
+                <input type="password" name="current_password" required autocomplete="current-password"
+                  class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface font-body text-sm focus:ring-2 focus:ring-primary-container"/>
+              </div>
+              <div class="flex flex-col gap-2">
+                <label class="font-label text-[10px] uppercase tracking-[0.2em] text-secondary font-semibold">New Password</label>
+                <input type="password" name="new_password" required autocomplete="new-password" minlength="8"
+                  class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface font-body text-sm focus:ring-2 focus:ring-primary-container"/>
+              </div>
+              <div class="flex flex-col gap-2">
+                <label class="font-label text-[10px] uppercase tracking-[0.2em] text-secondary font-semibold">Confirm New Password</label>
+                <input type="password" name="confirm_password" required autocomplete="new-password" minlength="8"
+                  class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface font-body text-sm focus:ring-2 focus:ring-primary-container"/>
+              </div>
+              <div class="pt-4">
+                <button type="submit" class="bg-primary-container text-on-primary-container font-semibold py-3 px-6 rounded-xl hover:opacity-90 transition-opacity text-sm">
+                  Update Credentials
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Activity Ledger -->
+          <div class="bg-surface-container-lowest p-8 rounded-xl flex flex-col relative overflow-hidden">
+            <div class="absolute right-2 bottom-2 opacity-[0.04] pointer-events-none select-none">
+              <span class="material-symbols-outlined" style="font-size:140px;">history</span>
+            </div>
+            <h3 class="font-headline text-xl font-bold text-on-surface mb-1 relative z-10">Activity Ledger</h3>
+            <p class="text-secondary mb-5 text-sm relative z-10">An immutable record of administrative actions across the platform.</p>
+            <div class="space-y-4 flex-grow relative z-10">
+              <% if (auditLog && auditLog.length > 0) { %>
+                <% auditLog.forEach(function(entry) { %>
+                  <div class="flex gap-3 items-start">
+                    <div class="w-2 h-2 rounded-full bg-primary mt-1.5 flex-shrink-0"></div>
+                    <div>
+                      <p class="text-sm font-medium text-on-surface"><%= entry.action_label %></p>
+                      <p class="text-xs text-secondary">
+                        <% if (entry.admin_name) { %><%= entry.admin_name %> · <% } %>
+                        <% if (entry.detail_text) { %><%= entry.detail_text %> · <% } %>
+                        <%= new Date(entry.created_at).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' }) %>
+                      </p>
+                    </div>
+                  </div>
+                <% }); %>
+              <% } else { %>
+                <p class="text-sm text-secondary italic">No actions recorded yet. Activity appears here as you manage the platform.</p>
+              <% } %>
+            </div>
+            <div class="mt-8 relative z-10">
+              <a href="/admin/settings/audit" class="inline-flex items-center font-headline text-sm text-primary border-b border-primary pb-0.5 hover:text-on-primary-container transition-colors">
+                Review Complete Ledger <span class="material-symbols-outlined text-[16px] ml-1">arrow_forward</span>
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div><!-- end max-w-5xl -->
+    </div><!-- end scrollable content -->
+
+    <!-- ── Sticky Save Bar (full width of main) ── -->
+    <div class="sticky bottom-0 bg-surface-container-lowest border-t border-surface-container-high backdrop-blur-md z-20">
+      <div class="max-w-5xl mx-auto px-6 lg:px-10 py-4 flex justify-end items-center gap-4">
+        <a href="/admin/settings" class="font-headline text-secondary hover:text-on-surface transition-colors px-6 py-2 text-sm rounded-xl hover:bg-surface-container-low">
+          Discard Changes
+        </a>
+        <button type="submit" form="settingsForm" class="bg-primary-container text-on-primary-container font-semibold py-2 px-8 rounded-xl hover:opacity-90 transition-opacity shadow-sm text-sm">
+          Save Configuration
+        </button>
+      </div>
+    </div>
+
   </main>
 </div>
 
 <%- include('../partials/footer') %>
+

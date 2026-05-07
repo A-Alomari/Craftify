@@ -6,6 +6,7 @@ const Shipment = require('../models/Shipment');
 const Coupon = require('../models/Coupon');
 const Notification = require('../models/Notification');
 const User = require('../models/User');
+const SiteSetting = require('../models/SiteSetting');
 const { authorizePayment } = require('./paymentService');
 
 function runTransactionCommand(db, command) {
@@ -29,7 +30,11 @@ function throwCheckoutError(message, code) {
 }
 
 function createOrderFromCheckout({ userId, checkoutData, cartItems, totals, appliedCoupon }) {
-  const shipping = totals.total > 50 ? 0 : 5;
+  const freeShipThreshold = parseFloat(SiteSetting.get('free_shipping_threshold') || '50');
+  const defaultShipCost   = parseFloat(SiteSetting.get('default_shipping_cost')   || '3');
+  const taxRate           = parseFloat(SiteSetting.get('tax_rate')                || '0') / 100;
+  const shipping = totals.total >= freeShipThreshold ? 0 : defaultShipCost;
+  const taxAmount = Math.round(totals.total * taxRate * 1000) / 1000;
   let discount = 0;
   let couponCode = null;
 
@@ -46,7 +51,7 @@ function createOrderFromCheckout({ userId, checkoutData, cartItems, totals, appl
     }
   }
 
-  const totalAmount = totals.total + shipping - discount;
+  const totalAmount = totals.total + shipping + taxAmount - discount;
   if (!Number.isFinite(totalAmount) || totalAmount <= 0) {
     throwCheckoutError('Order total is invalid', 'CHECKOUT_VALIDATION');
   }

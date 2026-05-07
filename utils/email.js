@@ -53,7 +53,17 @@ function getTransporter() {
 async function sendPasswordResetEmail(toEmail, resetToken, userName) {
   const transporter = getTransporter();
   const resetUrl = `${process.env.APP_URL || 'http://localhost:3000'}/auth/reset-password/${resetToken}`;
-  const fromAddress = process.env.EMAIL_FROM || 'Craftify <noreply@craftify.com>';
+
+  // Use sender from platform settings when available, with .env fallback
+  let fromAddress = process.env.EMAIL_FROM || 'Craftify <noreply@craftify.com>';
+  try {
+    const SiteSetting = require('../models/SiteSetting');
+    const senderName = SiteSetting.get('email_sender_name');
+    const senderAddr = SiteSetting.get('email_sender_address');
+    if (senderName && senderAddr) {
+      fromAddress = `"${senderName}" <${senderAddr}>`;
+    }
+  } catch (e) { /* DB may not be ready during startup; use fallback */ }
 
   const mailOptions = {
     from: fromAddress,

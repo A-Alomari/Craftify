@@ -463,6 +463,19 @@ exports.createAuction = (req, res) => {
   try {
     const { product_id, title, description, starting_bid, reserve_price, bid_increment, start_time, end_time } = req.body;
 
+    // Enforce max auction duration from platform settings
+    const SiteSetting = require('../models/SiteSetting');
+    const maxDays = parseInt(SiteSetting.get('max_auction_days') || '30', 10);
+    const durationMs = new Date(end_time) - new Date(start_time);
+    if (isNaN(durationMs) || durationMs <= 0) {
+      req.flash('error_msg', 'Auction end time must be after start time');
+      return res.redirect('/artisan/auctions/new');
+    }
+    if (durationMs / (1000 * 60 * 60 * 24) > maxDays) {
+      req.flash('error_msg', `Auction duration cannot exceed ${maxDays} days`);
+      return res.redirect('/artisan/auctions/new');
+    }
+
     // Product is optional — if provided, verify ownership
     let verifiedProductId = null;
     if (product_id) {

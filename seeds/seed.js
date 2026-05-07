@@ -16,7 +16,8 @@ const expectedCounts = {
   wishlist: 18,
   messages: 22,
   coupons: 14,
-  notifications: 45
+  notifications: 45,
+  newsletter_subscriptions: 8
 };
 
 const tablesToReset = [
@@ -36,7 +37,9 @@ const tablesToReset = [
   'categories',
   'coupons',
   'newsletter_subscriptions',
-  'password_resets'
+  'password_resets',
+  'platform_settings',
+  'admin_audit_log'
 ];
 
 function requireSingleId(db, query, param, label) {
@@ -813,6 +816,39 @@ async function seed() {
   insNotif.run(art6, 'auction', 'New Auction Live!', 'Your Hand-Embroidered Silk Scarf auction is live with 5 bids and a current high of $105.', '/artisan/auctions', 0, new Date(now - 0.3*dayMs).toISOString());
   insNotif.run(cust1, 'promotion', 'New Coupon Available', 'Use SUMMER15 for 15% off any order this season. Valid for 45 more days.', '/products', 0, new Date(now - 1*dayMs).toISOString());
   insNotif.run(cust3, 'message', 'Reply from Yuki Glass Studio', 'Yuki confirmed the Rainbow Glass Prism Pendant is in stock and ready to ship.', `/user/messages/${art3}`, 1, new Date(now - 2.8*dayMs).toISOString());
+
+    // ── Newsletter Subscribers ──
+    console.log('Creating newsletter subscribers...');
+    const insNews = db.prepare('INSERT OR IGNORE INTO newsletter_subscriptions (email, created_at) VALUES (?,?)');
+    [
+      ['john@test.com',    new Date(now - 60*dayMs).toISOString()],
+      ['sarah@test.com',   new Date(now - 55*dayMs).toISOString()],
+      ['fatima@test.com',  new Date(now - 50*dayMs).toISOString()],
+      ['khalid@test.com',  new Date(now - 45*dayMs).toISOString()],
+      ['omar@test.com',    new Date(now - 40*dayMs).toISOString()],
+      ['jana@test.com',    new Date(now - 35*dayMs).toISOString()],
+      ['newsletter1@craftify.local', new Date(now - 20*dayMs).toISOString()],
+      ['newsletter2@craftify.local', new Date(now - 10*dayMs).toISOString()],
+    ].forEach(([email, created_at]) => insNews.run(email, created_at));
+
+    // ── Platform Settings (seed defaults so admin settings page is populated) ──
+    console.log('Creating platform settings...');
+    const insSet = db.prepare(
+      `INSERT INTO platform_settings (key, value, updated_at) VALUES (?,?,CURRENT_TIMESTAMP)
+       ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP`
+    );
+    [
+      ['display_timezone',       'Asia/Bahrain'],
+      ['commission_rate',        '10'],
+      ['tax_rate',               '0'],
+      ['default_shipping_cost',  '3'],
+      ['free_shipping_threshold','50'],
+      ['supported_currencies',   'BHD'],
+      ['max_auction_days',       '30'],
+      ['auction_listing_fee',    '0'],
+      ['email_sender_name',      'Craftify'],
+      ['email_sender_address',   'noreply@craftify.local'],
+    ].forEach(([key, value]) => insSet.run(key, value));
 
     // Verify expected row counts before announcing success.
     verifyCounts(db);
