@@ -67,6 +67,7 @@ router.post('/coupons/:id/delete', adminController.deleteCoupon);
 
 // Reports
 router.get('/reports', adminController.reports);
+router.get('/reports/export', adminController.exportReport);
 
 // Settings
 router.get('/settings', adminController.settings);

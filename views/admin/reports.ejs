@@ -353,26 +353,28 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
           <div class="flex flex-col gap-2">
-            <label class="font-label text-sm text-secondary font-medium">Report Type</label>
+            <label class="font-label text-sm text-secondary font-medium" for="rpt-type">Report Type</label>
             <div class="relative">
-              <select class="w-full bg-surface-container-low border-none rounded-xl py-3 pl-4 pr-10 text-on-surface font-body text-sm appearance-none focus:ring-2 focus:ring-primary-container">
-                <option>Sales &amp; Revenue</option>
-                <option>Artisan Performance</option>
-                <option>User Engagement</option>
+              <select id="rpt-type" class="w-full bg-surface-container-low border-none rounded-xl py-3 pl-4 pr-10 text-on-surface font-body text-sm appearance-none focus:ring-2 focus:ring-primary-container">
+                <option value="sales">Sales &amp; Revenue Report</option>
+                <option value="artisan">Artisan Performance Report</option>
+                <option value="orders">Order Analytics Report</option>
+                <option value="platform">Platform Overview Report</option>
+                <option value="custom">Custom Date Range Report</option>
               </select>
               <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none text-sm">expand_more</span>
             </div>
           </div>
           <div class="flex flex-col gap-2 md:col-span-2">
-            <label class="font-label text-sm text-secondary font-medium">Date Range</label>
+            <label class="font-label text-sm text-secondary font-medium">Date Range <span class="font-normal text-xs">(optional — defaults to current period)</span></label>
             <div class="flex gap-3 items-center">
               <div class="relative flex-1">
-                <input class="w-full bg-surface-container-low border-none rounded-xl py-3 pl-10 pr-4 text-on-surface font-body text-sm focus:ring-2 focus:ring-primary-container" placeholder="Start Date" type="text"/>
+                <input id="rpt-from" class="w-full bg-surface-container-low border-none rounded-xl py-3 pl-10 pr-4 text-on-surface font-body text-sm focus:ring-2 focus:ring-primary-container" placeholder="Start Date (YYYY-MM-DD)" type="date"/>
                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-sm pointer-events-none">calendar_today</span>
               </div>
               <span class="text-secondary">–</span>
               <div class="relative flex-1">
-                <input class="w-full bg-surface-container-low border-none rounded-xl py-3 pl-10 pr-4 text-on-surface font-body text-sm focus:ring-2 focus:ring-primary-container" placeholder="End Date" type="text"/>
+                <input id="rpt-to" class="w-full bg-surface-container-low border-none rounded-xl py-3 pl-10 pr-4 text-on-surface font-body text-sm focus:ring-2 focus:ring-primary-container" placeholder="End Date (YYYY-MM-DD)" type="date"/>
                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-sm pointer-events-none">calendar_today</span>
               </div>
             </div>
@@ -384,7 +386,7 @@
                 <button id="fmt-pdf" type="button" onclick="selectFormat('pdf')" class="px-5 py-2 bg-surface-container-lowest rounded-lg text-sm font-semibold text-on-surface shadow-sm transition-all">PDF</button>
                 <button id="fmt-csv" type="button" onclick="selectFormat('csv')" class="px-5 py-2 text-sm font-medium text-secondary hover:text-on-surface transition-colors rounded-lg">CSV</button>
               </div>
-              <button type="button" class="w-full rounded-xl py-3 px-5 font-label font-semibold text-sm text-white flex items-center justify-center gap-2 transition-opacity hover:opacity-90 active:scale-95" style="background:#f59e0b;">
+              <button type="button" onclick="generateReport()" class="w-full rounded-xl py-3 px-5 font-label font-semibold text-sm text-white flex items-center justify-center gap-2 transition-opacity hover:opacity-90 active:scale-95" style="background:#f59e0b;">
                 <span class="material-symbols-outlined text-base">download</span>
                 Generate Report
               </button>
@@ -459,7 +461,9 @@
 })();
 
 // Format toggle for Report Generator
+var _selectedFormat = 'pdf';
 function selectFormat(fmt) {
+  _selectedFormat = fmt;
   var pdf = document.getElementById('fmt-pdf');
   var csv = document.getElementById('fmt-csv');
   if (!pdf || !csv) return;
@@ -470,5 +474,16 @@ function selectFormat(fmt) {
     csv.className = 'px-5 py-2 bg-surface-container-lowest rounded-lg text-sm font-semibold text-on-surface shadow-sm transition-all';
     pdf.className = 'px-5 py-2 text-sm font-medium text-secondary hover:text-on-surface transition-colors rounded-lg';
   }
+}
+
+function generateReport() {
+  var type   = document.getElementById('rpt-type')  ? document.getElementById('rpt-type').value  : 'sales';
+  var from   = document.getElementById('rpt-from')  ? document.getElementById('rpt-from').value  : '';
+  var to     = document.getElementById('rpt-to')    ? document.getElementById('rpt-to').value    : '';
+  var period = '<%= selectedPeriod %>';
+  var params = new URLSearchParams({ type: type, format: _selectedFormat, period: period });
+  if (from) params.set('from', from);
+  if (to)   params.set('to', to);
+  window.location.href = '/admin/reports/export?' + params.toString();
 }
 </script>
