@@ -1,0 +1,12 @@
+node_modules
+.git
+.env
+.sessions
+.uploads
+uploads
+public/uploads
+coverage
+tests
+*.log
+npm-debug.log*
+Dockerfile*
