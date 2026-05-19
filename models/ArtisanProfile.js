@@ -51,6 +51,10 @@ class ArtisanProfile {
     if (filters.limit) {
       query += ' LIMIT ?';
       params.push(filters.limit);
+      if (filters.offset) {
+        query += ' OFFSET ?';
+        params.push(filters.offset);
+      }
     }
 
     return db.prepare(query).all(...params);
@@ -150,6 +154,10 @@ class ArtisanProfile {
     if (filters.approved !== undefined) {
       query += ' AND ap.is_approved = ?';
       params.push(filters.approved ? 1 : 0);
+    }
+    if (filters.search) {
+      query += ' AND (ap.shop_name LIKE ? OR u.name LIKE ?)';
+      params.push(`%${filters.search}%`, `%${filters.search}%`);
     }
 
     return db.prepare(query).get(...params)?.count || 0;

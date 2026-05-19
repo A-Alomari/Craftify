@@ -1,0 +1,95 @@
+<%- include('../partials/header', { title: title }) %>
+<%
+  const auctionStatusClass = function(status) {
+    if (status === 'active') return 'bg-emerald-100 text-emerald-700';
+    if (status === 'sold') return 'bg-primary-container text-on-primary-container';
+    if (status === 'cancelled') return 'bg-red-100 text-red-700';
+    if (status === 'awaiting_approval') return 'bg-orange-100 text-orange-700';
+    return 'bg-surface-container-high text-on-surface';
+  };
+%>
+
+<div class="flex bg-surface min-h-screen">
+  <%- include('./partials/sidebar') %>
+
+  <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
+    <%- include('./partials/topbar') %>
+
+    <section class="max-w-5xl mx-auto mt-8 mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div>
+        <a href="/admin/auctions" class="text-xs uppercase tracking-[0.2em] text-secondary hover:text-primary">&larr; Back to Auctions</a>
+        <h1 class="font-headline text-3xl text-on-surface mt-2"><%= auction.title %></h1>
+        <p class="text-secondary mt-1">Product: <strong><%= auction.product_name || '-' %></strong> &bull; Auction ID: <%= auction.id %> &bull; by <%= auction.shop_name || auction.artisan_name || 'Unknown' %></p>
+      </div>
+      <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest self-start <%= auctionStatusClass(auction.status) %>"><%= auction.status %></span>
+    </section>
+
+    <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <!-- Image -->
+      <section class="lg:col-span-3 bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm">
+        <% if (images && images.length > 0) { %>
+          <div class="p-4">
+            <img src="<%= images[0] %>" alt="<%= auction.product_name %>" class="w-full rounded-lg object-cover max-h-80" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'">
+          </div>
+        <% } else { %>
+          <div class="flex items-center justify-center h-64 bg-surface-container-low">
+            <span class="material-symbols-outlined text-5xl text-secondary/40">gavel</span>
+          </div>
+        <% } %>
+      </section>
+
+      <!-- Details + Actions -->
+      <section class="lg:col-span-2 space-y-4">
+        <div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm space-y-3">
+          <h2 class="text-xs uppercase tracking-[0.2em] text-secondary font-bold">Auction Details</h2>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between"><span class="text-secondary">Starting Bid</span><span class="font-semibold text-on-surface">$<%= Number(auction.starting_price || 0).toFixed(2) %></span></div>
+            <div class="flex justify-between"><span class="text-secondary">Current Bid</span><span class="font-semibold text-on-surface">$<%= Number(auction.current_highest_bid || 0).toFixed(2) %></span></div>
+            <div class="flex justify-between"><span class="text-secondary">Bid Count</span><span class="font-semibold text-on-surface"><%= auction.bid_count || 0 %></span></div>
+            <div class="flex justify-between"><span class="text-secondary">Bid Increment</span><span class="font-semibold text-on-surface">$<%= Number(auction.bid_increment || 1).toFixed(2) %></span></div>
+            <div class="flex justify-between"><span class="text-secondary">Start Time</span><span class="font-semibold text-on-surface"><%= new Date(auction.start_time).toLocaleString() %></span></div>
+            <div class="flex justify-between"><span class="text-secondary">End Time</span><span class="font-semibold text-on-surface"><%= new Date(auction.end_time).toLocaleString() %></span></div>
+            <div class="flex justify-between"><span class="text-secondary">Artisan</span><span class="font-semibold text-on-surface"><%= auction.shop_name || auction.artisan_name || '-' %></span></div>
+          </div>
+        </div>
+
+        <% if (auction.description) { %>
+          <div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
+            <h2 class="text-xs uppercase tracking-[0.2em] text-secondary font-bold mb-3">Description</h2>
+            <p class="text-sm text-on-surface leading-relaxed"><%= auction.description %></p>
+          </div>
+        <% } %>
+
+        <!-- Admin Actions -->
+        <div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm space-y-2">
+          <h2 class="text-xs uppercase tracking-[0.2em] text-secondary font-bold mb-3">Admin Actions</h2>
+          <% if (auction.status === 'awaiting_approval') { %>
+            <form action="/admin/auctions/<%= auction.id %>/approve" method="POST">
+              <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+              <button type="submit" class="w-full flex items-center justify-center gap-2 bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors">
+                <span class="material-symbols-outlined text-[18px]">check_circle</span> Approve Auction
+              </button>
+            </form>
+            <form action="/admin/auctions/<%= auction.id %>/reject" method="POST" data-confirm="Reject this auction?">
+              <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+              <button type="submit" class="w-full flex items-center justify-center gap-2 bg-amber-100 text-amber-700 hover:bg-amber-200 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors">
+                <span class="material-symbols-outlined text-[18px]">cancel</span> Reject Auction
+              </button>
+            </form>
+          <% } else if (auction.status === 'active' || auction.status === 'pending') { %>
+            <form action="/admin/auctions/<%= auction.id %>/cancel" method="POST" data-confirm="Cancel this auction?">
+              <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+              <button type="submit" class="w-full flex items-center justify-center gap-2 bg-red-100 text-red-700 hover:bg-red-200 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors">
+                <span class="material-symbols-outlined text-[18px]">block</span> Cancel Auction
+              </button>
+            </form>
+          <% } else { %>
+            <p class="text-sm text-secondary text-center py-2">No actions available for this status.</p>
+          <% } %>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/footer') %>

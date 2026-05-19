@@ -14,6 +14,7 @@
 <body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
     <%
         const currentPathValue = typeof currentPath === 'string' ? currentPath : '/';
+        const isAdminArea = currentPathValue.startsWith('/admin') || currentPathValue.startsWith('/artisan');
         const navItems = [{ href: '/', label: 'Home' }, { href: '/products', label: 'Shop' }, { href: '/auctions', label: 'Auctions' }];
         if (user && user.role === 'customer') {
             navItems.push({ href: '/orders', label: 'Orders' });

@@ -1,91 +1,276 @@
 <%- include('../partials/header', { title: title }) %>
+
 <%
-  const orderStatusClass = function(status) {
-    if (status === 'delivered') return 'bg-emerald-100 text-emerald-700';
-    if (status === 'cancelled' || status === 'refunded') return 'bg-red-100 text-red-700';
-    if (status === 'shipped' || status === 'processing') return 'bg-blue-100 text-blue-700';
-    return 'bg-amber-100 text-amber-700';
-  };
+  let statusLabel, statusClass, dotClass;
+  if (order.status === 'pending' || order.status === 'confirmed') {
+    statusLabel = 'New'; statusClass = 'bg-amber-100 text-amber-600'; dotClass = 'bg-amber-500';
+  } else if (order.status === 'processing') {
+    statusLabel = 'In Production'; statusClass = 'bg-blue-100 text-blue-600'; dotClass = 'bg-blue-500';
+  } else if (order.status === 'ready') {
+    statusLabel = 'Ready'; statusClass = 'bg-green-100 text-green-600'; dotClass = 'bg-green-500';
+  } else if (order.status === 'shipped') {
+    statusLabel = 'Shipped'; statusClass = 'bg-purple-50 text-purple-600'; dotClass = 'bg-purple-500';
+  } else if (order.status === 'delivered') {
+    statusLabel = 'Delivered'; statusClass = 'bg-emerald-100 text-emerald-600'; dotClass = 'bg-emerald-500';
+  } else if (order.status === 'cancelled') {
+    statusLabel = 'Cancelled'; statusClass = 'bg-red-100 text-red-600'; dotClass = 'bg-red-500';
+  } else {
+    statusLabel = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+    statusClass = 'bg-slate-100 text-slate-500'; dotClass = 'bg-slate-400';
+  }
+
+  const initials = order.customer_name
+    ? order.customer_name.split(' ').map(function(n){ return n[0]; }).join('').toUpperCase().slice(0, 2)
+    : '??';
+
+  const statusFlow = ['pending', 'processing', 'ready', 'shipped', 'delivered'];
+  const currentStep = statusFlow.indexOf(order.status === 'confirmed' ? 'pending' : order.status);
 %>
 
-<div class="flex bg-surface min-h-screen">
+<div class="flex flex-col lg:flex-row bg-surface min-h-screen">
   <%- include('./partials/sidebar') %>
 
-  <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
-    <%- include('./partials/topbar') %>
+  <main class="flex-1 min-h-screen pb-24 md:pb-0">
+    <div class="p-6 md:p-8 lg:p-10 max-w-5xl mx-auto w-full space-y-8">
+      <%- include('./partials/topbar') %>
 
-    <section class="max-w-7xl mx-auto mt-8 mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <!-- Back + Header -->
       <div>
-        <a href="/admin/orders" class="text-xs uppercase tracking-[0.2em] text-secondary hover:text-primary">Back to Orders</a>
-        <h1 class="font-headline text-3xl text-on-surface mt-2">Order #ORD-<%= String(order.id).padStart(4, '0') %></h1>
-        <p class="text-secondary mt-1">Placed on <%= new Date(order.created_at).toLocaleString() %></p>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest <%= orderStatusClass(order.status) %>"><%= order.status %></span>
-        <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest <%= order.payment_status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' %>"><%= order.payment_status %></span>
-      </div>
-    </section>
-
-    <div class="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-3 gap-6">
-      <section class="xl:col-span-2 space-y-6">
-        <article class="bg-surface-container-lowest rounded-xl p-6">
-          <h2 class="font-headline text-xl text-on-surface mb-5">Order Items</h2>
-
-          <% if (items && items.length > 0) { %>
-            <div class="space-y-4">
-              <% items.forEach(function(item) { %>
-                <div class="flex items-center justify-between gap-4 p-4 rounded-xl bg-surface-container-low">
-                  <div class="flex items-center gap-3 min-w-0">
-                    <img src="<%= item.image || '/images/placeholder-product.svg' %>" alt="<%= item.product_name %>" class="w-12 h-12 rounded-lg object-cover" onerror="this.onerror=null;this.src='/images/placeholder-product.svg'">
-                    <div class="min-w-0">
-                      <p class="text-sm font-semibold text-on-surface truncate"><%= item.product_name %></p>
-                      <p class="text-xs text-secondary">Qty <%= item.quantity %> x $<%= Number(item.unit_price || 0).toFixed(2) %></p>
-                    </div>
-                  </div>
-                  <p class="text-sm font-bold text-on-surface">$<%= Number(item.total_price || 0).toFixed(2) %></p>
-                </div>
-              <% }); %>
-            </div>
-          <% } else { %>
-            <p class="text-secondary">No order items found.</p>
-          <% } %>
-
-          <div class="mt-6 pt-5 border-t border-surface-container-high flex justify-between items-center">
-            <span class="font-label text-xs uppercase tracking-[0.2em] text-secondary">Order Total</span>
-            <span class="font-headline text-2xl text-on-surface">$<%= Number(order.total_amount || 0).toFixed(2) %></span>
+        <a href="/admin/orders" class="inline-flex items-center gap-1 text-xs uppercase tracking-[0.2em] text-secondary hover:text-primary font-medium transition-colors mb-4" style="text-decoration:none;">
+          <span class="material-symbols-outlined text-sm">arrow_back</span>
+          Back to Orders
+        </a>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 class="font-headline text-3xl font-bold text-on-surface">
+              Order #ORD-<%= String(order.id).padStart(4, '0') %>
+            </h1>
+            <p class="font-body text-secondary text-sm mt-1">
+              Placed on <%= new Date(order.created_at).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %>
+            </p>
           </div>
-        </article>
+          <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-semibold <%= statusClass %> w-fit">
+            <span class="w-2 h-2 rounded-full <%= dotClass %> mr-2"></span>
+            <%= statusLabel %>
+          </span>
+        </div>
+      </div>
 
-        <article class="bg-surface-container-lowest rounded-xl p-6">
-          <h2 class="font-headline text-xl text-on-surface mb-4">Update Status</h2>
-          <form action="/admin/orders/<%= order.id %>/status" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-            <select name="status" class="md:col-span-2 bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container">
-              <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>Pending</option>
-              <option value="confirmed" <%= order.status === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
-              <option value="processing" <%= order.status === 'processing' ? 'selected' : '' %>>Processing</option>
-              <option value="shipped" <%= order.status === 'shipped' ? 'selected' : '' %>>Shipped</option>
-              <option value="delivered" <%= order.status === 'delivered' ? 'selected' : '' %>>Delivered</option>
-              <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
-            </select>
-            <button class="bg-primary-container text-on-primary-container px-4 py-2.5 rounded-xl font-semibold text-sm">Save</button>
-          </form>
-        </article>
-      </section>
+      <!-- Progress Steps -->
+      <% if (!['cancelled', 'refunded'].includes(order.status)) { %>
+      <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20 shadow-sm">
+        <h2 class="font-label text-xs uppercase tracking-widest text-secondary font-medium mb-5">Fulfillment Progress</h2>
+        <div class="flex items-center gap-0">
+          <%
+            const steps = [
+              { label: 'Order Placed', icon: 'receipt_long' },
+              { label: 'In Production', icon: 'precision_manufacturing' },
+              { label: 'Ready', icon: 'check_circle' },
+              { label: 'Shipped', icon: 'local_shipping' },
+              { label: 'Delivered', icon: 'home' }
+            ];
+          %>
+          <% steps.forEach(function(step, i) {
+               const done = i < currentStep;
+               const active = i === currentStep;
+          %>
+            <div class="flex items-center flex-1 min-w-0">
+              <div class="flex flex-col items-center gap-1.5 flex-shrink-0">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center
+                  <%= done ? 'bg-primary text-white' : active ? 'bg-primary-container text-on-primary-container ring-2 ring-primary/30' : 'bg-surface-container text-secondary' %>">
+                  <span class="material-symbols-outlined text-[1.1rem]" style="font-variation-settings: 'FILL' <%= done || active ? 1 : 0 %>"><%= step.icon %></span>
+                </div>
+                <span class="font-label text-[10px] font-medium text-center leading-tight
+                  <%= done ? 'text-primary' : active ? 'text-on-surface' : 'text-secondary' %>" style="max-width:4rem">
+                  <%= step.label %>
+                </span>
+              </div>
+              <% if (i < steps.length - 1) { %>
+                <div class="flex-1 h-0.5 mb-5 mx-1 <%= done ? 'bg-primary' : 'bg-surface-container-high' %>"></div>
+              <% } %>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+      <% } %>
 
-      <aside class="space-y-6">
-        <article class="bg-surface-container-lowest rounded-xl p-6">
-          <h2 class="font-headline text-lg text-on-surface mb-3">Customer</h2>
-          <p class="text-sm font-semibold text-on-surface"><%= order.customer_name %></p>
-          <p class="text-sm text-secondary mt-1"><%= order.customer_email %></p>
-        </article>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <article class="bg-surface-container-lowest rounded-xl p-6">
-          <h2 class="font-headline text-lg text-on-surface mb-3">Shipping</h2>
-          <p class="text-sm text-on-surface"><%= order.shipping_address %></p>
-          <p class="text-sm text-secondary mt-1"><%= order.shipping_city || '' %> <%= order.shipping_country || '' %></p>
-        </article>
-      </aside>
+        <!-- Left: Items + Status Update -->
+        <div class="lg:col-span-2 space-y-6">
+
+          <!-- Order Items -->
+          <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-surface-container-low bg-surface-bright">
+              <h2 class="font-headline text-lg font-semibold text-on-surface">Order Items</h2>
+            </div>
+            <div class="divide-y divide-surface-container-low">
+              <% if (items && items.length > 0) { %>
+                <% items.forEach(function(item) { %>
+                  <div class="flex items-center gap-4 px-6 py-4">
+                    <div class="w-14 h-14 rounded-xl bg-surface-container overflow-hidden shrink-0">
+                      <img src="<%= item.image || '/images/placeholder-product.jpg' %>"
+                           alt="<%= item.product_name %>"
+                           class="w-full h-full object-cover"
+                           onerror="this.src='/images/placeholder-product.jpg'">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="font-body font-semibold text-on-surface truncate"><%= item.product_name %></p>
+                      <p class="font-body text-xs text-secondary mt-0.5">
+                        Qty <%= item.quantity %> × $<%= Number(item.unit_price || 0).toFixed(2) %>
+                      </p>
+                    </div>
+                    <p class="font-body font-bold text-on-surface text-sm shrink-0">
+                      $<%= Number(item.total_price || 0).toFixed(2) %>
+                    </p>
+                  </div>
+                <% }); %>
+              <% } else { %>
+                <div class="px-6 py-8 text-center text-secondary font-body text-sm">No items found.</div>
+              <% } %>
+            </div>
+
+            <!-- Totals -->
+            <div class="px-6 py-4 border-t border-surface-container-low bg-surface-bright space-y-2">
+              <div class="flex justify-between font-body text-sm text-secondary">
+                <span>Subtotal</span>
+                <span>$<%= Number(order.subtotal || 0).toFixed(2) %></span>
+              </div>
+              <% if (order.shipping_cost > 0) { %>
+              <div class="flex justify-between font-body text-sm text-secondary">
+                <span>Shipping</span>
+                <span>$<%= Number(order.shipping_cost || 0).toFixed(2) %></span>
+              </div>
+              <% } %>
+              <% if (order.discount_amount > 0) { %>
+              <div class="flex justify-between font-body text-sm text-green-600">
+                <span>Discount<%= order.coupon_code ? ' (' + order.coupon_code + ')' : '' %></span>
+                <span>−$<%= Number(order.discount_amount || 0).toFixed(2) %></span>
+              </div>
+              <% } %>
+              <div class="flex justify-between font-body font-bold text-on-surface text-base pt-2 border-t border-surface-container-low">
+                <span>Total</span>
+                <span>$<%= Number(order.total_amount || 0).toFixed(2) %></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Update Status -->
+          <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-surface-container-low bg-surface-bright">
+              <h2 class="font-headline text-lg font-semibold text-on-surface">Update Status</h2>
+            </div>
+            <div class="p-6">
+              <form action="/admin/orders/<%= order.id %>/status" method="POST" class="flex flex-col sm:flex-row gap-3">
+                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                <select name="status" class="flex-1 bg-surface-container-low border-none rounded-xl px-4 py-2.5 text-sm text-on-surface focus:ring-2 focus:ring-primary-container">
+                  <option value="pending"    <%= order.status === 'pending'    ? 'selected' : '' %>>Pending</option>
+                  <option value="confirmed"  <%= order.status === 'confirmed'  ? 'selected' : '' %>>Confirmed</option>
+                  <option value="processing" <%= order.status === 'processing' ? 'selected' : '' %>>Processing</option>
+                  <option value="ready"      <%= order.status === 'ready'      ? 'selected' : '' %>>Ready</option>
+                  <option value="shipped"    <%= order.status === 'shipped'    ? 'selected' : '' %>>Shipped</option>
+                  <option value="delivered"  <%= order.status === 'delivered'  ? 'selected' : '' %>>Delivered</option>
+                  <option value="cancelled"  <%= order.status === 'cancelled'  ? 'selected' : '' %>>Cancelled</option>
+                  <option value="refunded"   <%= order.status === 'refunded'   ? 'selected' : '' %>>Refunded</option>
+                </select>
+                <button type="submit" class="inline-flex items-center gap-2 px-6 py-2.5 bg-primary-container text-on-primary-container rounded-xl text-sm font-semibold hover:brightness-95 transition-all">
+                  <span class="material-symbols-outlined text-sm">save</span>
+                  Save Status
+                </button>
+              </form>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Sidebar: Customer + Ship To + Order Info -->
+        <div class="space-y-6">
+
+          <!-- Customer Info -->
+          <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-surface-container-low bg-surface-bright">
+              <h2 class="font-headline text-base font-semibold text-on-surface">Customer</h2>
+            </div>
+            <div class="p-5 space-y-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-sm shrink-0">
+                  <%= initials %>
+                </div>
+                <div class="min-w-0">
+                  <p class="font-body font-semibold text-on-surface truncate"><%= order.customer_name %></p>
+                  <p class="font-body text-xs text-secondary truncate"><%= order.customer_email %></p>
+                </div>
+              </div>
+              <% if (order.customer_phone) { %>
+              <div class="flex items-center gap-2 text-sm text-secondary">
+                <span class="material-symbols-outlined text-[1rem]">phone</span>
+                <span class="font-body"><%= order.customer_phone %></span>
+              </div>
+              <% } %>
+              <div class="flex items-center gap-2 text-sm text-secondary">
+                <span class="material-symbols-outlined text-[1rem]">payments</span>
+                <span class="font-body capitalize"><%= order.payment_method || 'N/A' %></span>
+                <span class="ml-auto px-2 py-0.5 rounded text-[10px] font-bold uppercase
+                  <%= order.payment_status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700' %>">
+                  <%= order.payment_status %>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ship To -->
+          <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-surface-container-low bg-surface-bright">
+              <h2 class="font-headline text-base font-semibold text-on-surface">Ship To</h2>
+            </div>
+            <div class="p-5">
+              <div class="flex gap-3">
+                <span class="material-symbols-outlined text-secondary text-[1.25rem] mt-0.5 shrink-0">location_on</span>
+                <address class="font-body not-italic text-sm text-on-surface space-y-0.5">
+                  <p class="font-semibold"><%= order.customer_name %></p>
+                  <% if (order.shipping_building) { %><p><%= order.shipping_building %></p><% } %>
+                  <p><%= order.shipping_address %></p>
+                  <p><%= [order.shipping_city, order.shipping_postal].filter(Boolean).join(', ') %></p>
+                  <p class="text-secondary"><%= order.shipping_country || 'Bahrain' %></p>
+                </address>
+              </div>
+              <% if (order.notes) { %>
+              <div class="mt-4 pt-4 border-t border-surface-container-low">
+                <p class="font-label text-xs uppercase tracking-widest text-secondary font-medium mb-2">Customer Notes</p>
+                <p class="font-body text-sm text-on-surface bg-surface-container rounded-lg p-3 italic"><%= order.notes %></p>
+              </div>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- Order Meta -->
+          <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-surface-container-low bg-surface-bright">
+              <h2 class="font-headline text-base font-semibold text-on-surface">Order Info</h2>
+            </div>
+            <div class="p-5 space-y-3">
+              <div class="flex justify-between text-sm">
+                <span class="text-secondary font-body">Order ID</span>
+                <span class="font-body font-semibold text-on-surface">#ORD-<%= String(order.id).padStart(4, '0') %></span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-secondary font-body">Date Placed</span>
+                <span class="font-body text-on-surface"><%= new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-secondary font-body">Last Updated</span>
+                <span class="font-body text-on-surface"><%= new Date(order.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-secondary font-body">Items</span>
+                <span class="font-body font-semibold text-on-surface"><%= items ? items.length : 0 %></span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </div>
   </main>
 </div>

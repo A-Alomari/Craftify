@@ -23,6 +23,25 @@ module.exports = ({ getTestContext, makeUnique }) => {
       const stored = db.prepare('SELECT COUNT(*) as count FROM newsletter_subscriptions WHERE email = ?').get(email);
       expect(stored.count).toBe(1);
     });
+
+    test('findAll returns an array containing all subscribed emails', () => {
+      const email1 = `${makeUnique('nl_a')}@test.com`;
+      const email2 = `${makeUnique('nl_b')}@test.com`;
+      NewsletterSubscription.subscribe(email1);
+      NewsletterSubscription.subscribe(email2);
+      const all = NewsletterSubscription.findAll();
+      expect(Array.isArray(all)).toBe(true);
+      const emails = all.map(s => s.email);
+      expect(emails).toContain(email1);
+      expect(emails).toContain(email2);
+    });
+
+    test('count returns the total number of subscribers', () => {
+      const before = NewsletterSubscription.count();
+      expect(typeof before).toBe('number');
+      NewsletterSubscription.subscribe(`${makeUnique('nl_count')}@test.com`);
+      expect(NewsletterSubscription.count()).toBe(before + 1);
+    });
   });
 
   describe('PasswordReset Model', () => {

@@ -1,6 +1,6 @@
 <%- include('../partials/header', { title: title }) %>
 
-<div class="flex bg-surface min-h-screen">
+<div class="flex flex-col lg:flex-row bg-surface min-h-screen">
   <%- include('./partials/sidebar') %>
 
   <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
@@ -132,14 +132,22 @@
                     <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest <%= couponActive ? 'bg-emerald-100 text-emerald-700' : 'bg-surface-container-high text-on-surface' %>"><%= couponActive ? 'Active' : 'Inactive' %></span>
                   </td>
                   <td class="px-6 py-5 text-right">
-                    <div class="inline-flex gap-2">
+                    <div class="inline-flex gap-3 items-center">
                       <form action="/admin/coupons/<%= c.id %>/toggle" method="POST" class="inline-block">
                         <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                        <button class="bg-surface-container-high text-on-surface hover:bg-surface-container-highest px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"><%= couponActive ? 'Deactivate' : 'Activate' %></button>
+                        <button type="submit" title="<%= couponActive ? 'Deactivate' : 'Activate' %>" class="p-1.5 rounded-lg hover:bg-surface-container-low transition-colors">
+                          <% if (couponActive) { %>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#92400e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="5"/><circle cx="7" cy="12" r="3" fill="#92400e" stroke="none"/></svg>
+                          <% } else { %>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#065f46" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="5"/><circle cx="17" cy="12" r="3" fill="#065f46" stroke="none"/></svg>
+                          <% } %>
+                        </button>
                       </form>
                       <form action="/admin/coupons/<%= c.id %>/delete" method="POST" class="inline-block" data-confirm="Delete this coupon?">
                         <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                        <button class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Delete</button>
+                        <button type="submit" title="Delete" class="p-1.5 rounded-lg hover:bg-surface-container-low transition-colors">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#991b1b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                        </button>
                       </form>
                     </div>
                   </td>

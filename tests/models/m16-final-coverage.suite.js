@@ -177,7 +177,7 @@ module.exports = ({ getTestContext }) => {
         start_time: new Date(now + 60 * 60 * 1000).toISOString(),
         end_time: new Date(now + 2 * 60 * 60 * 1000).toISOString()
       });
-      expect(pendingAuction.status).toBe('pending');
+      expect(pendingAuction.status).toBe('awaiting_approval');
 
       const auctionPrepare = db.prepare.bind(db);
       db.prepare = (sql) => {

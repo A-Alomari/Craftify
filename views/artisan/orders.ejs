@@ -24,7 +24,7 @@
       <% } %>
 
       <!-- Stat Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20 flex flex-col gap-4" style="box-shadow:0 4px 20px rgba(25,28,30,0.03);">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:rgba(188,199,222,0.3); color:#545f73;">
@@ -63,6 +63,19 @@
             <span class="font-body text-sm text-secondary">orders</span>
           </div>
         </div>
+
+        <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20 flex flex-col gap-4" style="box-shadow:0 4px 20px rgba(25,28,30,0.03);">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:rgba(5,150,105,0.12); color:#059669;">
+              <span class="material-symbols-outlined">verified</span>
+            </div>
+            <h3 class="font-label text-sm uppercase tracking-widest text-secondary font-medium">Delivered</h3>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="font-headline text-4xl font-semibold text-on-surface"><%= stats.delivered %></span>
+            <span class="font-body text-sm text-secondary">orders</span>
+          </div>
+        </div>
       </div>
 
       <!-- Order Table -->
@@ -76,7 +89,8 @@
               { label: 'New',           value: 'new' },
               { label: 'In Production', value: 'in_production' },
               { label: 'Ready',         value: 'ready' },
-              { label: 'Shipped',       value: 'shipped' }
+              { label: 'Shipped',       value: 'shipped' },
+              { label: 'Delivered',     value: 'delivered' }
             ];
           %>
           <div class="w-full lg:w-auto overflow-x-auto">

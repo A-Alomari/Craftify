@@ -15,7 +15,8 @@
     "test:routes": "jest --runInBand tests/routes/ --forceExit --detectOpenHandles --verbose",
     "test:middleware": "jest --runInBand tests/middleware/ --forceExit --verbose",
     "test:services": "jest --runInBand tests/services/ --forceExit --verbose",
-    "test:new": "jest --runInBand tests/routes/ tests/middleware/ tests/services/ --forceExit --detectOpenHandles --verbose"
+    "test:new": "jest --runInBand tests/routes/ tests/middleware/ tests/services/ --forceExit --detectOpenHandles --verbose",
+    "test:performance": "jest --runInBand tests/performance/performance.test.js --forceExit --detectOpenHandles --verbose"
   },
   "jest": {
     "testEnvironment": "node",
@@ -23,7 +24,8 @@
       "**/tests/**/*.test.js",
       "**/tests/craftify.test.js",
       "**/tests/bug-fixes.test.js",
-      "**/tests/full-audit.test.js"
+      "**/tests/full-audit.test.js",
+      "**/tests/performance/**/*.test.js"
     ],
     "coverageThreshold": {
       "global": {
@@ -65,6 +67,7 @@
     "method-override": "^3.0.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^8.0.4",
+    "pdfkit": "^0.18.0",
     "session-file-store": "^1.5.0",
     "socket.io": "^4.7.4",
     "sql.js": "^1.14.1",

@@ -276,6 +276,28 @@ const schema = `
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
+  CREATE TABLE IF NOT EXISTS platform_settings (
+    key TEXT PRIMARY KEY NOT NULL,
+    value TEXT NOT NULL DEFAULT '',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS admin_audit_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    admin_id INTEGER NOT NULL,
+    admin_name TEXT,
+    action TEXT NOT NULL,
+    entity_type TEXT,
+    entity_id INTEGER,
+    detail TEXT,
+    ip_address TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_audit_log_admin ON admin_audit_log(admin_id);
+  CREATE INDEX IF NOT EXISTS idx_audit_log_created ON admin_audit_log(created_at);
+
   CREATE INDEX IF NOT EXISTS idx_products_artisan ON products(artisan_id);
   CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
   CREATE INDEX IF NOT EXISTS idx_products_status ON products(status);

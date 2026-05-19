@@ -1,173 +1,295 @@
 <%- include('../partials/header', { title: title }) %>
-<%
-  const statusFilter = filters && filters.status ? filters.status : '';
-  const paymentFilter = filters && filters.payment_status ? filters.payment_status : '';
-  const searchFilter = filters && filters.search ? filters.search : '';
-  const orderStatusClass = function(status) {
-    if (status === 'delivered') return 'bg-emerald-100 text-emerald-700';
-    if (status === 'cancelled' || status === 'refunded') return 'bg-red-100 text-red-700';
-    if (status === 'shipped' || status === 'processing') return 'bg-blue-100 text-blue-700';
-    return 'bg-amber-100 text-amber-700';
-  };
-%>
 
-<div class="flex bg-surface min-h-screen">
+<div class="flex flex-col lg:flex-row bg-surface min-h-screen">
   <%- include('./partials/sidebar') %>
 
-  <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
-    <%- include('./partials/topbar') %>
+  <main class="flex-1 min-h-screen pb-24 md:pb-0 flex flex-col w-full overflow-x-hidden">
+    <div class="p-4 sm:p-6 md:p-8 lg:p-10 max-w-7xl mx-auto w-full space-y-8">
+      <%- include('./partials/topbar') %>
 
-    <section class="max-w-7xl mx-auto mt-8 mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-      <div>
-        <span class="font-label text-xs tracking-[0.2em] text-primary font-semibold uppercase">Administration</span>
-        <h1 class="font-headline text-3xl text-on-surface mt-2">Order Management</h1>
-        <p class="text-secondary mt-1">Track payment and fulfillment states across all orders.</p>
+      <!-- Page Header -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div class="space-y-1">
+          <h1 class="font-headline text-2xl sm:text-3xl font-semibold text-on-surface tracking-tight">Order Management</h1>
+          <p class="font-body text-secondary text-sm">Track payment and fulfillment states across all platform orders.</p>
+        </div>
       </div>
-      <p class="text-xs text-secondary uppercase tracking-widest">Orders: <%= orders ? orders.length : 0 %></p>
-    </section>
 
-    <section class="max-w-7xl mx-auto bg-surface-container-lowest rounded-xl overflow-hidden">
+      <!-- Stat Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+        <div class="bg-surface-container-lowest rounded-2xl p-4 sm:p-6 border border-outline-variant/20 flex flex-col gap-3 sm:gap-4" style="box-shadow:0 4px 20px rgba(25,28,30,0.03);">
+          <div class="flex items-center gap-2 sm:gap-3">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0" style="background:rgba(188,199,222,0.3); color:#545f73;">
+              <span class="material-symbols-outlined text-[1.1rem] sm:text-xl">receipt_long</span>
+            </div>
+            <h3 class="font-label text-[10px] sm:text-sm uppercase tracking-widest text-secondary font-medium leading-tight">Total Orders</h3>
+          </div>
+          <div class="flex items-baseline gap-1 sm:gap-2">
+            <span class="font-headline text-2xl sm:text-4xl font-semibold text-on-surface"><%= (stats.total || 0).toLocaleString() %></span>
+            <span class="font-body text-xs sm:text-sm text-secondary">orders</span>
+          </div>
+        </div>
+        <div class="bg-surface-container-lowest rounded-2xl p-4 sm:p-6 border border-outline-variant/20 flex flex-col gap-3 sm:gap-4 relative overflow-hidden" style="box-shadow:0 4px 20px rgba(25,28,30,0.03);">
+          <div class="flex items-center gap-2 sm:gap-3 relative z-10">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0" style="background:rgba(245,158,11,0.15); color:#855300;">
+              <span class="material-symbols-outlined text-[1.1rem] sm:text-xl">pending_actions</span>
+            </div>
+            <h3 class="font-label text-[10px] sm:text-sm uppercase tracking-widest text-secondary font-medium leading-tight">Pending</h3>
+          </div>
+          <div class="flex items-baseline gap-1 sm:gap-2 relative z-10">
+            <span class="font-headline text-2xl sm:text-4xl font-semibold text-on-surface"><%= (stats.pending || 0).toLocaleString() %></span>
+            <span class="font-body text-xs sm:text-sm text-secondary">orders</span>
+          </div>
+        </div>
+        <div class="bg-surface-container-lowest rounded-2xl p-4 sm:p-6 border border-outline-variant/20 flex flex-col gap-3 sm:gap-4" style="box-shadow:0 4px 20px rgba(25,28,30,0.03);">
+          <div class="flex items-center gap-2 sm:gap-3">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0" style="background:rgba(37,99,235,0.1); color:#2563eb;">
+              <span class="material-symbols-outlined text-[1.1rem] sm:text-xl">local_shipping</span>
+            </div>
+            <h3 class="font-label text-[10px] sm:text-sm uppercase tracking-widest text-secondary font-medium leading-tight">Shipped</h3>
+          </div>
+          <div class="flex items-baseline gap-1 sm:gap-2">
+            <span class="font-headline text-2xl sm:text-4xl font-semibold text-on-surface"><%= (stats.shipped || 0).toLocaleString() %></span>
+            <span class="font-body text-xs sm:text-sm text-secondary">orders</span>
+          </div>
+        </div>
+        <div class="bg-surface-container-lowest rounded-2xl p-4 sm:p-6 border border-outline-variant/20 flex flex-col gap-3 sm:gap-4" style="box-shadow:0 4px 20px rgba(25,28,30,0.03);">
+          <div class="flex items-center gap-2 sm:gap-3">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0" style="background:rgba(5,150,105,0.12); color:#059669;">
+              <span class="material-symbols-outlined text-[1.1rem] sm:text-xl">verified</span>
+            </div>
+            <h3 class="font-label text-[10px] sm:text-sm uppercase tracking-widest text-secondary font-medium leading-tight">Delivered</h3>
+          </div>
+          <div class="flex items-baseline gap-1 sm:gap-2">
+            <span class="font-headline text-2xl sm:text-4xl font-semibold text-on-surface"><%= (stats.delivered || 0).toLocaleString() %></span>
+            <span class="font-body text-xs sm:text-sm text-secondary">orders</span>
+          </div>
+        </div>
+      </div>
 
-      <!-- Filter Tabs + Search -->
-      <div class="px-5 pt-5 pb-4 border-b border-surface-container-high flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center" style="background:#f7f9fb;">
-        <%
-          const adminTabs = [
-            { label: 'All',           value: '' },
-            { label: 'New',           value: 'new' },
-            { label: 'In Production', value: 'in_production' },
-            { label: 'Ready',         value: 'ready' },
-            { label: 'Shipped',       value: 'shipped' }
-          ];
-          const tabStatusMap = {
-            '':            ['pending', 'confirmed', 'processing', 'ready', 'shipped', 'delivered', 'cancelled'],
-            'new':         ['pending', 'confirmed'],
-            'in_production': ['processing'],
-            'ready':       ['ready'],
-            'shipped':     ['shipped']
-          };
-          const activeTab = statusFilter === 'pending' || statusFilter === 'confirmed' ? 'new'
-                          : statusFilter === 'processing' ? 'in_production'
-                          : statusFilter === 'ready' ? 'ready'
-                          : statusFilter === 'shipped' ? 'shipped'
-                          : statusFilter === '' ? '' : '';
-        %>
-        <div class="flex flex-wrap gap-2">
-          <% adminTabs.forEach(function(tab) {
-               const sp = searchFilter ? '&search=' + encodeURIComponent(searchFilter) : '';
-               const pp = paymentFilter ? '&payment_status=' + encodeURIComponent(paymentFilter) : '';
-               const isActive = activeTab === tab.value;
-               let href = '/admin/orders?tab=' + tab.value + sp + pp;
+      <!-- Order Table -->
+      <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 overflow-hidden flex flex-col" style="box-shadow:0 8px 30px rgba(25,28,30,0.04);">
+
+        <!-- Filter Tabs + Search -->
+        <div class="p-4 sm:p-5 border-b flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center" style="border-color:rgba(134,116,97,0.08); background:#f7f9fb;">
+          <%
+            const adminTabs = [
+              { label: 'All',        value: '' },
+              { label: 'Pending',    value: 'pending' },
+              { label: 'Processing', value: 'processing' },
+              { label: 'Shipped',    value: 'shipped' },
+              { label: 'Delivered',  value: 'delivered' },
+              { label: 'Cancelled',  value: 'cancelled' },
+              { label: 'Refunded',   value: 'refunded' },
+            ];
           %>
-            <a href="<%= href %>"
-               style="<%= isActive ? 'background:#e6e8ea; color:#191c1e; font-weight:600;' : 'color:#545f73;' %> padding:0.5rem 1rem; border-radius:0.5rem; font-size:0.875rem; text-decoration:none; transition:background 0.15s;">
-              <%= tab.label %>
-            </a>
-          <% }); %>
-        </div>
-
-        <form method="GET" action="/admin/orders" class="flex items-center rounded-lg px-3 py-2 w-full lg:w-auto" style="background:#f7f9fb; border:1px solid rgba(134,116,97,0.15);">
-          <% if (statusFilter) { %><input type="hidden" name="status" value="<%= statusFilter %>"><% } %>
-          <% if (paymentFilter) { %><input type="hidden" name="payment_status" value="<%= paymentFilter %>"><% } %>
-          <span class="material-symbols-outlined text-secondary text-sm mr-2">search</span>
-          <input class="bg-transparent border-none text-sm text-on-surface placeholder:text-secondary focus:ring-0 w-full lg:w-52 p-0"
-                 name="search" placeholder="Order ID or customer..." type="text" value="<%= searchFilter %>"/>
-        </form>
-      </div>
-
-      <!-- Table -->
-      <% if (orders && orders.length > 0) { %>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="border-b border-surface-container-high" style="background:rgba(236,238,240,0.5);">
-                <th class="px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest">Order &amp; Date</th>
-                <th class="px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest">Customer</th>
-                <th class="px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest">Product</th>
-                <th class="px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest">Status &amp; Priority</th>
-                <th class="px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-surface-container-high/50">
-              <% orders.forEach(function(o) {
-                   let statusLabel, badgeBg, badgeColor, dotColor;
-                   if (o.status === 'pending' || o.status === 'confirmed') {
-                     statusLabel = 'New'; badgeBg = '#fef3c7'; badgeColor = '#d97706'; dotColor = '#f59e0b';
-                   } else if (o.status === 'processing') {
-                     statusLabel = 'In Production'; badgeBg = '#dbeafe'; badgeColor = '#2563eb'; dotColor = '#3b82f6';
-                   } else if (o.status === 'ready') {
-                     statusLabel = 'Ready'; badgeBg = '#dcfce7'; badgeColor = '#16a34a'; dotColor = '#22c55e';
-                   } else if (o.status === 'shipped') {
-                     statusLabel = 'Shipped'; badgeBg = '#f3e8ff'; badgeColor = '#9333ea'; dotColor = '#a855f7';
-                   } else if (o.status === 'delivered') {
-                     statusLabel = 'Delivered'; badgeBg = '#d1fae5'; badgeColor = '#059669'; dotColor = '#10b981';
-                   } else if (o.status === 'cancelled') {
-                     statusLabel = 'Cancelled'; badgeBg = '#fee2e2'; badgeColor = '#dc2626'; dotColor = '#ef4444';
-                   } else {
-                     statusLabel = o.status.charAt(0).toUpperCase() + o.status.slice(1);
-                     badgeBg = '#f1f5f9'; badgeColor = '#64748b'; dotColor = '#94a3b8';
-                   }
-                   const payBg    = o.payment_status === 'paid'   ? '#d1fae5' : o.payment_status === 'failed' ? '#fee2e2' : '#fef3c7';
-                   const payColor = o.payment_status === 'paid'   ? '#059669' : o.payment_status === 'failed' ? '#dc2626' : '#d97706';
-                   const initials = o.customer_name
-                     ? o.customer_name.split(' ').map(function(n){ return n[0]; }).join('').toUpperCase().slice(0, 2)
-                     : '??';
+          <div class="w-full lg:w-auto overflow-x-auto">
+            <div class="flex gap-2 min-w-max">
+              <% adminTabs.forEach(function(tab) {
+                   const sp = filters.search ? '&search=' + encodeURIComponent(filters.search) : '';
+                   const isActive = filters.status === tab.value;
               %>
-                <tr class="hover:bg-surface-container-low/20 transition-colors">
-                  <!-- Order & Date -->
-                  <td class="px-6 py-5">
-                    <a href="/admin/orders/<%= o.id %>" class="font-semibold text-sm text-on-surface hover:text-primary transition-colors" style="text-decoration:none;">#ORD-<%= String(o.id).padStart(4, '0') %></a>
-                    <p class="text-xs text-secondary mt-0.5"><%= new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></p>
-                  </td>
-                  <!-- Customer -->
-                  <td class="px-6 py-5">
-                    <div class="flex items-center gap-2">
-                      <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0" style="background:#d5e0f8; color:#3c475a;"><%= initials %></div>
-                      <span class="text-sm text-on-surface"><%= o.customer_name %></span>
-                    </div>
-                  </td>
-                  <!-- Product -->
-                  <td class="px-6 py-5">
-                    <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 rounded-lg overflow-hidden shrink-0" style="background:#eceef0;">
-                        <img src="<%= o.product_image || '/images/placeholder-product.jpg' %>"
-                             alt="<%= o.product_name || 'Product' %>"
-                             class="w-full h-full object-cover"
-                             onerror="this.src='/images/placeholder-product.jpg'">
-                      </div>
-                      <span class="text-sm text-on-surface truncate max-w-[160px]"><%= o.product_name || 'Custom Order' %></span>
-                    </div>
-                  </td>
-                  <!-- Status & Priority -->
-                  <td class="px-6 py-5">
-                    <div class="flex flex-col gap-1.5">
-                      <span style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600; white-space:nowrap; background:<%= badgeBg %>; color:<%= badgeColor %>; letter-spacing:0.02em; width:fit-content;">
-                        <span style="width:6px; height:6px; border-radius:50%; background:<%= dotColor %>; margin-right:6px; flex-shrink:0;"></span>
-                        <%= statusLabel %>
-                      </span>
-                      <span style="display:inline-flex; align-items:center; padding:3px 8px; border-radius:6px; font-size:10px; font-weight:600; white-space:nowrap; background:<%= payBg %>; color:<%= payColor %>; letter-spacing:0.04em; width:fit-content;">
-                        <%= (o.payment_status || 'pending').charAt(0).toUpperCase() + (o.payment_status || 'pending').slice(1) %>
-                      </span>
-                    </div>
-                  </td>
-                  <!-- Actions -->
-                  <td class="px-6 py-5 text-right">
-                    <a href="/admin/orders/<%= o.id %>" class="bg-surface-container-high text-on-surface hover:bg-surface-container-highest px-3 py-1.5 rounded-lg text-xs font-bold transition-colors" style="text-decoration:none;">View</a>
-                  </td>
-                </tr>
+                <a href="/admin/orders?status=<%= tab.value %><%= sp %>"
+                   style="<%= isActive ? 'background:#e6e8ea; color:#191c1e; font-weight:600;' : 'color:#545f73;' %> padding:0.5rem 1rem; border-radius:0.5rem; font-size:0.875rem; text-decoration:none; transition:background 0.15s; white-space:nowrap;">
+                  <%= tab.label %>
+                </a>
               <% }); %>
-            </tbody>
-          </table>
+            </div>
+          </div>
+
+          <form method="GET" action="/admin/orders"
+                class="flex items-center rounded-lg px-3 py-2 w-full lg:w-auto lg:min-w-[260px]" style="background:#f7f9fb; border:1px solid rgba(134,116,97,0.15);">
+            <% if (filters.status) { %><input type="hidden" name="status" value="<%= filters.status %>"><% } %>
+            <span class="material-symbols-outlined text-secondary text-sm mr-2">search</span>
+            <input class="bg-transparent border-none text-sm font-body text-on-surface placeholder:text-secondary focus:ring-0 w-full lg:w-52 p-0"
+                   name="search" placeholder="Order ID or customer..." type="text" value="<%= filters.search %>"/>
+          </form>
         </div>
-      <% } else { %>
-        <div class="py-14 text-center">
-          <span class="material-symbols-outlined text-5xl text-secondary/60">receipt_long</span>
-          <p class="text-secondary mt-3">No orders found for this filter.</p>
-          <% if (statusFilter || searchFilter) { %>
-            <a href="/admin/orders" class="mt-3 inline-block text-primary text-sm font-medium hover:underline">Clear filters</a>
-          <% } %>
+
+        <!-- Column Headers (Desktop) -->
+        <div class="hidden md:grid px-6 py-3 border-b" style="grid-template-columns: 9rem 1fr 1fr 8rem 8rem 6rem; background:rgba(236,238,240,0.5); border-color:rgba(134,116,97,0.08);">
+          <div class="font-label text-xs uppercase tracking-widest text-secondary font-medium">Order</div>
+          <div class="font-label text-xs uppercase tracking-widest text-secondary font-medium">Customer</div>
+          <div class="font-label text-xs uppercase tracking-widest text-secondary font-medium">Artisan</div>
+          <div class="font-label text-xs uppercase tracking-widest text-secondary font-medium">Total</div>
+          <div class="font-label text-xs uppercase tracking-widest text-secondary font-medium">Status</div>
+          <div class="font-label text-xs uppercase tracking-widest text-secondary font-medium text-right">Actions</div>
         </div>
-      <% } %>
-    </section>
+
+        <!-- Rows -->
+        <% if (orders && orders.length > 0) { %>
+          <div class="flex flex-col">
+          <% orders.forEach(function(o) {
+               let statusLabel, badgeBg, badgeColor, dotColor;
+               if (o.status === 'pending' || o.status === 'confirmed') {
+                 statusLabel = 'New'; badgeBg = '#fef3c7'; badgeColor = '#d97706'; dotColor = '#f59e0b';
+               } else if (o.status === 'processing') {
+                 statusLabel = 'Processing'; badgeBg = '#dbeafe'; badgeColor = '#2563eb'; dotColor = '#3b82f6';
+               } else if (o.status === 'ready') {
+                 statusLabel = 'Ready'; badgeBg = '#dcfce7'; badgeColor = '#16a34a'; dotColor = '#22c55e';
+               } else if (o.status === 'shipped') {
+                 statusLabel = 'Shipped'; badgeBg = '#f3e8ff'; badgeColor = '#9333ea'; dotColor = '#a855f7';
+               } else if (o.status === 'delivered') {
+                 statusLabel = 'Delivered'; badgeBg = '#d1fae5'; badgeColor = '#059669'; dotColor = '#10b981';
+               } else if (o.status === 'cancelled') {
+                 statusLabel = 'Cancelled'; badgeBg = '#fee2e2'; badgeColor = '#dc2626'; dotColor = '#ef4444';
+               } else {
+                 statusLabel = o.status.charAt(0).toUpperCase() + o.status.slice(1);
+                 badgeBg = '#f1f5f9'; badgeColor = '#64748b'; dotColor = '#94a3b8';
+               }
+               const initials = o.customer_name
+                 ? o.customer_name.split(' ').map(function(n){ return n[0]; }).join('').toUpperCase().slice(0,2)
+                 : '??';
+          %>
+            <!-- Mobile Card -->
+            <div class="md:hidden px-4 py-4 border-b" style="border-color:rgba(134,116,97,0.06);">
+              <div class="flex items-start gap-3 mb-2">
+                <div class="w-12 h-12 rounded-xl bg-surface-container overflow-hidden shrink-0">
+                  <% if (o.order_image) { %>
+                    <img src="<%= o.order_image %>" alt="" class="w-full h-full object-cover" onerror="this.src='/images/placeholder-product.jpg'">
+                  <% } else { %>
+                    <div class="w-full h-full flex items-center justify-center text-secondary opacity-40"><span class="material-symbols-outlined">inventory_2</span></div>
+                  <% } %>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between gap-2">
+                    <a href="/admin/orders/<%= o.id %>" class="font-semibold text-sm text-on-surface hover:text-primary" style="text-decoration:none;">#ORD-<%= String(o.id).padStart(4,'0') %></a>
+                    <span style="display:inline-flex; align-items:center; padding:3px 8px; border-radius:6px; font-size:10px; font-weight:600; white-space:nowrap; background:<%= badgeBg %>; color:<%= badgeColor %>;"><%= statusLabel %></span>
+                  </div>
+                  <p class="text-xs text-secondary mt-0.5"><%= new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 mb-3">
+                <% if (o.customer_avatar) { %>
+                  <img src="<%= o.customer_avatar %>" alt="<%= initials %>" class="w-8 h-8 rounded-full object-cover shrink-0" onerror="this.onerror=null;this.src='';this.style.display='none';this.nextElementSibling.style.display='flex';">
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0" style="background:#d5e0f8; color:#3c475a; display:none;"><%= initials %></div>
+                <% } else { %>
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0" style="background:#d5e0f8; color:#3c475a;"><%= initials %></div>
+                <% } %>
+                <div>
+                  <p class="text-sm font-medium text-on-surface"><%= o.customer_name %></p>
+                  <% if (o.artisan_name) { %><p class="text-xs text-secondary"><%= o.artisan_name %></p><% } %>
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="font-semibold text-sm text-on-surface">$<%= Number(o.total_amount || 0).toFixed(2) %></span>
+                <a href="/admin/orders/<%= o.id %>" class="p-1.5 text-secondary bg-surface-container-low rounded-lg inline-flex" style="text-decoration:none;"><span class="material-symbols-outlined text-base">visibility</span></a>
+              </div>
+            </div>
+
+            <!-- Desktop Row -->
+            <div class="hidden md:grid px-6 py-4 border-b items-center hover:bg-surface-bright transition-colors"
+                 style="grid-template-columns: 9rem 1fr 1fr 8rem 8rem 6rem; border-color:rgba(134,116,97,0.06);">
+
+              <!-- Order + Date + Product Image -->
+              <div class="flex items-center gap-2">
+                <div class="w-10 h-10 rounded-lg bg-surface-container overflow-hidden shrink-0">
+                  <% if (o.order_image) { %>
+                    <img src="<%= o.order_image %>" alt="" class="w-full h-full object-cover" onerror="this.src='/images/placeholder-product.jpg'">
+                  <% } else { %>
+                    <div class="w-full h-full flex items-center justify-center text-secondary opacity-30"><span class="material-symbols-outlined" style="font-size:1.1rem;">inventory_2</span></div>
+                  <% } %>
+                </div>
+                <div>
+                  <a href="/admin/orders/<%= o.id %>" class="font-semibold text-sm text-on-surface hover:text-primary transition-colors" style="text-decoration:none;">#ORD-<%= String(o.id).padStart(4,'0') %></a>
+                  <p class="text-xs text-secondary mt-0.5"><%= new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></p>
+                </div>
+              </div>
+
+              <!-- Customer -->
+              <div class="flex items-center gap-2 min-w-0 pr-3">
+                <% if (o.customer_avatar) { %>
+                  <img src="<%= o.customer_avatar %>" alt="<%= initials %>" class="w-8 h-8 rounded-full object-cover shrink-0"
+                       onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0" style="background:#d5e0f8; color:#3c475a; display:none;"><%= initials %></div>
+                <% } else { %>
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0" style="background:#d5e0f8; color:#3c475a;"><%= initials %></div>
+                <% } %>
+                <span class="font-body text-sm text-on-surface truncate"><%= o.customer_name %></span>
+              </div>
+
+              <!-- Artisan -->
+              <div class="pr-3">
+                <% if (o.artisan_name) { %>
+                  <div class="flex items-center gap-1.5">
+                    <% if (o.artisan_avatar) { %>
+                      <img src="<%= o.artisan_avatar %>" alt="" class="w-6 h-6 rounded-full object-cover shrink-0"
+                           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                      <div class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0" style="background:#e8d5f8; color:#6d3a8c; display:none;"><%= o.artisan_name[0] %></div>
+                    <% } else { %>
+                      <div class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0" style="background:#e8d5f8; color:#6d3a8c;"><%= o.artisan_name[0] %></div>
+                    <% } %>
+                    <span class="font-body text-sm text-secondary truncate"><%= o.artisan_name %></span>
+                  </div>
+                <% } else { %>
+                  <span class="text-sm text-secondary opacity-40">—</span>
+                <% } %>
+              </div>
+
+              <!-- Total -->
+              <div class="font-body font-semibold text-on-surface text-sm">$<%= Number(o.total_amount || 0).toFixed(2) %></div>
+
+              <!-- Status -->
+              <div>
+                <span style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600; white-space:nowrap; background:<%= badgeBg %>; color:<%= badgeColor %>; letter-spacing:0.02em;">
+                  <span style="width:6px; height:6px; border-radius:50%; background:<%= dotColor %>; margin-right:6px; flex-shrink:0;"></span>
+                  <%= statusLabel %>
+                </span>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex justify-end items-center gap-1">
+                <a href="/admin/orders/<%= o.id %>"
+                   class="p-2 text-secondary hover:text-primary transition-colors rounded-md hover:bg-surface-container"
+                   title="View Order" style="text-decoration:none;">
+                  <span class="material-symbols-outlined" style="font-size:1.25rem;">visibility</span>
+                </a>
+              </div>
+            </div>
+          <% }); %>
+          </div>
+
+          <!-- Pagination -->
+          <div class="py-4 px-6 border-t border-surface-container-low flex items-center justify-between" style="border-color:rgba(134,116,97,0.08);">
+            <span class="text-sm text-secondary font-body">
+              Showing <%= ((pagination.page - 1) * pagination.limit) + 1 %>–<%= Math.min(pagination.page * pagination.limit, pagination.total) %> of <%= pagination.total.toLocaleString() %> orders
+            </span>
+            <% if (pagination.totalPages > 1) { %>
+              <div class="flex gap-1">
+                <% const sp2 = (filters.status ? '&status=' + encodeURIComponent(filters.status) : '') + (filters.search ? '&search=' + encodeURIComponent(filters.search) : ''); %>
+                <a href="/admin/orders?page=<%= pagination.page - 1 %><%= sp2 %>"
+                   class="p-1.5 rounded-md text-secondary hover:bg-surface-container transition-colors<%= pagination.page <= 1 ? ' pointer-events-none opacity-40' : '' %>"
+                   style="text-decoration:none;">
+                  <span class="material-symbols-outlined text-sm">chevron_left</span>
+                </a>
+                <% for (let pg = Math.max(1, pagination.page - 2); pg <= Math.min(pagination.totalPages, pagination.page + 2); pg++) { %>
+                  <a href="/admin/orders?page=<%= pg %><%= sp2 %>"
+                     class="w-8 h-8 rounded-md text-sm font-medium flex items-center justify-center transition-colors hover:bg-surface-container"
+                     style="<%= pg === pagination.page ? 'background:#e6e8ea; color:#191c1e;' : 'color:#545f73;' %>; text-decoration:none;"><%= pg %></a>
+                <% } %>
+                <% if (pagination.page + 2 < pagination.totalPages) { %>
+                  <span class="w-8 h-8 flex items-center justify-center text-secondary">…</span>
+                <% } %>
+                <a href="/admin/orders?page=<%= pagination.page + 1 %><%= sp2 %>"
+                   class="p-1.5 rounded-md text-secondary hover:bg-surface-container transition-colors<%= pagination.page >= pagination.totalPages ? ' pointer-events-none opacity-40' : '' %>"
+                   style="text-decoration:none;">
+                  <span class="material-symbols-outlined text-sm">chevron_right</span>
+                </a>
+              </div>
+            <% } %>
+          </div>
+
+        <% } else { %>
+          <div class="py-14 text-center">
+            <span class="material-symbols-outlined text-5xl text-secondary opacity-40">receipt_long</span>
+            <p class="text-secondary mt-3 text-sm">No orders found for this filter.</p>
+            <% if (filters.status || filters.search) { %>
+              <a href="/admin/orders" class="mt-3 inline-block text-primary text-sm font-medium hover:underline">Clear filters</a>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+    </div>
   </main>
 </div>
 

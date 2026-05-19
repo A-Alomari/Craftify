@@ -79,7 +79,7 @@ class Order {
   static findAll(filters = {}) {
     const db = getDb();
     let query = `
-      SELECT o.*, u.name as customer_name, u.email as customer_email,
+      SELECT o.*, u.name as customer_name, u.email as customer_email, u.avatar as customer_avatar,
         (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) as item_count
       FROM orders o
       JOIN users u ON o.user_id = u.id
@@ -131,6 +131,53 @@ class Order {
     }
 
     return db.prepare(query).all(...params);
+  }
+
+  static countAll(filters = {}) {
+    const db = getDb();
+    let query = `
+      SELECT COUNT(*) as count
+      FROM orders o
+      JOIN users u ON o.user_id = u.id
+      WHERE 1=1
+    `;
+    const params = [];
+
+    if (filters.statuses && filters.statuses.length > 0) {
+      query += ` AND o.status IN (${filters.statuses.map(() => '?').join(', ')})`;
+      params.push(...filters.statuses);
+    } else if (filters.status) {
+      query += ' AND o.status = ?';
+      params.push(filters.status);
+    }
+    if (filters.payment_status) {
+      query += ' AND o.payment_status = ?';
+      params.push(filters.payment_status);
+    }
+    if (filters.search) {
+      query += ' AND (CAST(o.id AS TEXT) = ? OR u.name LIKE ? OR u.email LIKE ?)';
+      params.push(filters.search, `%${filters.search}%`, `%${filters.search}%`);
+    }
+
+    return db.prepare(query).get(...params)?.count || 0;
+  }
+
+  static getStatusCounts() {
+    const db = getDb();
+    const rows = db.prepare(`
+      SELECT status, COUNT(*) as count FROM orders GROUP BY status
+    `).all();
+    const map = {};
+    rows.forEach(r => { map[r.status] = r.count; });
+    return {
+      total:      rows.reduce((s, r) => s + r.count, 0),
+      pending:    (map.pending || 0) + (map.confirmed || 0),
+      processing: map.processing || 0,
+      shipped:    map.shipped || 0,
+      delivered:  map.delivered || 0,
+      cancelled:  map.cancelled || 0,
+      refunded:   map.refunded || 0,
+    };
   }
 
   static create(orderData) {
@@ -188,10 +235,11 @@ class Order {
     const db = getDb();
     const placeholders = orderIds.map(() => '?').join(', ');
     const rows = db.prepare(`
-      SELECT oi.order_id, oi.product_id, p.name as product_name, p.images, u.name as artisan_name
+      SELECT oi.order_id, oi.product_id, p.name as product_name, p.images, u.name as artisan_name, ap.profile_image as artisan_avatar
       FROM order_items oi
       JOIN products p ON oi.product_id = p.id
       LEFT JOIN users u ON p.artisan_id = u.id
+      LEFT JOIN artisan_profiles ap ON p.artisan_id = ap.user_id
       WHERE oi.order_id IN (${placeholders})
       ORDER BY oi.order_id ASC, oi.id ASC
     `).all(...orderIds);
@@ -220,6 +268,7 @@ class Order {
         product_id: row.product_id,
         product_name: row.product_name,
         artisan_name: row.artisan_name || '',
+        artisan_avatar: row.artisan_avatar || '',
         image
       });
     });
@@ -392,6 +441,29 @@ class Order {
     `).all(startIso);
   }
 
+  // Returns the ISO string of the most recent order's created_at
+  static getLatestOrderDate() {
+    const db = getDb();
+    const row = db.prepare('SELECT MAX(created_at) as latest FROM orders').get();
+    return row?.latest || null;
+  }
+
+  // Dashboard chart: last 30 active days relative to newest order in DB
+  static getDashboardGrowthData() {
+    const db = getDb();
+    return db.prepare(`
+      SELECT DATE(created_at) as date, SUM(total_amount) as revenue, COUNT(*) as orders
+      FROM orders
+      WHERE status NOT IN ('cancelled')
+        AND DATE(created_at) >= DATE(
+          (SELECT MAX(DATE(created_at)) FROM orders WHERE status NOT IN ('cancelled')),
+          '-30 days'
+        )
+      GROUP BY DATE(created_at)
+      ORDER BY date
+    `).all();
+  }
+
   static getTopProductsSince(startIso, limit = 10) {
     const db = getDb();
     return db.prepare(`
@@ -409,7 +481,7 @@ class Order {
   static getTopArtisansSince(startIso, limit = 10) {
     const db = getDb();
     return db.prepare(`
-      SELECT ap.shop_name, u.name, SUM(oi.total_price) as revenue
+      SELECT ap.shop_name, u.name, ap.profile_image as avatar, SUM(oi.total_price) as revenue
       FROM order_items oi
       JOIN users u ON oi.artisan_id = u.id
       JOIN artisan_profiles ap ON u.id = ap.user_id

@@ -25,9 +25,12 @@ router.post('/artisans/:id/reject', adminController.rejectArtisan);
 
 // Products
 router.get('/products', adminController.products);
+router.get('/products/:id', adminController.productDetail);
 router.post('/products/:id/approve', adminController.approveProduct);
 router.post('/products/:id/reject', adminController.rejectProduct);
 router.post('/products/:id/featured', adminController.toggleFeatured);
+router.delete('/products/:id', adminController.deleteProduct);
+router.post('/products/:id/delete', adminController.deleteProduct);
 
 // Categories
 router.get('/categories', adminController.categories);
@@ -43,6 +46,7 @@ router.post('/orders/:id/status', adminController.updateOrderStatus);
 
 // Auctions
 router.get('/auctions', adminController.auctions);
+router.get('/auctions/:id', adminController.auctionDetail);
 router.post('/auctions/:id/approve', adminController.approveAuction);
 router.post('/auctions/:id/reject', adminController.rejectAuction);
 router.post('/auctions/:id/cancel', adminController.cancelAuction);
@@ -63,8 +67,13 @@ router.post('/coupons/:id/delete', adminController.deleteCoupon);
 
 // Reports
 router.get('/reports', adminController.reports);
+router.get('/reports/export', adminController.exportReport);
 
 // Settings
 router.get('/settings', adminController.settings);
+router.post('/settings', adminController.updateSettings);
+router.post('/settings/change-password', adminController.changeAdminPassword);
+router.get('/settings/newsletter/export', adminController.newsletterExport);
+router.get('/settings/audit', adminController.auditLog);
 
 module.exports = router;

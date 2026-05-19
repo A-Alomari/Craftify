@@ -232,6 +232,13 @@ exports.updateProduct = (req, res) => {
       height_cm: height_cm ? parseFloat(height_cm) : null
     });
 
+    // If the product was rejected, re-submit it for review
+    if (product.status === 'rejected') {
+      Product.update(id, { status: 'pending' });
+      req.flash('success_msg', 'Product updated and re-submitted for admin review');
+      return res.redirect('/artisan/products');
+    }
+
     req.flash('success_msg', 'Product updated successfully');
     if (updatedProduct && updatedProduct.status === 'approved') {
       res.redirect(`/products/${id}`);
@@ -302,6 +309,7 @@ exports.orders = (req, res) => {
                          Order.count({ artisan_id: artisanId, status: 'confirmed' });
     const inProduction  = Order.count({ artisan_id: artisanId, status: 'processing' });
     const readyToShip   = Order.count({ artisan_id: artisanId, status: 'ready' });
+    const delivered     = Order.count({ artisan_id: artisanId, status: 'delivered' });
 
     const totalPages = Math.max(1, Math.ceil(totalOrders / perPage));
 
@@ -309,7 +317,7 @@ exports.orders = (req, res) => {
       title: 'Order Queue - Craftify',
       orders,
       shopName,
-      stats: { totalPending, inProduction, readyToShip },
+      stats: { totalPending, inProduction, readyToShip, delivered },
       pagination: { currentPage, totalPages, totalOrders, perPage, offset },
       filters: { status: status || 'all', search: activeSearch }
     });
@@ -454,6 +462,19 @@ exports.newAuction = (req, res) => {
 exports.createAuction = (req, res) => {
   try {
     const { product_id, title, description, starting_bid, reserve_price, bid_increment, start_time, end_time } = req.body;
+
+    // Enforce max auction duration from platform settings
+    const SiteSetting = require('../models/SiteSetting');
+    const maxDays = parseInt(SiteSetting.get('max_auction_days') || '30', 10);
+    const durationMs = new Date(end_time) - new Date(start_time);
+    if (isNaN(durationMs) || durationMs <= 0) {
+      req.flash('error_msg', 'Auction end time must be after start time');
+      return res.redirect('/artisan/auctions/new');
+    }
+    if (durationMs / (1000 * 60 * 60 * 24) > maxDays) {
+      req.flash('error_msg', `Auction duration cannot exceed ${maxDays} days`);
+      return res.redirect('/artisan/auctions/new');
+    }
 
     // Product is optional — if provided, verify ownership
     let verifiedProductId = null;

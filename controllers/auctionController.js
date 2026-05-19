@@ -58,13 +58,24 @@ exports.show = (req, res) => {
       return res.redirect('/auctions');
     }
 
+    // Access control: non-listed auctions only visible to admin or the owning artisan
+    const visibleStatuses = ['active', 'pending', 'sold', 'ended', 'cancelled'];
+    if (!visibleStatuses.includes(auction.status)) {
+      const user = req.session.user;
+      const isAdmin = user && user.role === 'admin';
+      const isOwner = user && user.id === auction.artisan_id;
+      if (!isAdmin && !isOwner) {
+        req.flash('error_msg', 'This auction is not available yet');
+        return res.redirect('/auctions');
+      }
+    }
+
     const bids = Auction.getBids(id, 20);
     const userBid = req.session.user 
       ? bids.find(b => b.user_id === req.session.user.id) 
       : null;
 
-    // FIX: standalone auctions (no product) have their own `images` field;
-    // fall back to it when product_images is absent.
+    // Fall back to auction.images for standalone auctions without a linked product
     const images = JSON.parse(auction.product_images || auction.images || '[]');
     auction.imageArray = images.length > 0 ? images : ['/images/placeholder-product.svg'];
 

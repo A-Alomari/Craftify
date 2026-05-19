@@ -6,7 +6,7 @@
   const queryString = `role=${encodeURIComponent(roleFilter)}&status=${encodeURIComponent(statusFilter)}&search=${encodeURIComponent(searchFilter)}`;
 %>
 
-<div class="flex bg-surface min-h-screen">
+<div class="flex flex-col lg:flex-row bg-surface min-h-screen">
   <%- include('./partials/sidebar') %>
 
   <main class="flex-1 min-h-screen px-6 lg:px-8 py-8">
@@ -57,19 +57,28 @@
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="text-[10px] font-bold text-secondary uppercase tracking-widest border-b border-surface-container-high">
-                <th class="px-6 py-4">User</th>
+                <th class="px-6 py-4">User Profile</th>
                 <th class="px-6 py-4">Role</th>
                 <th class="px-6 py-4">Status</th>
                 <th class="px-6 py-4">Joined</th>
-                <th class="px-6 py-4 text-right">Action</th>
+                <th class="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-surface-container-high/50">
               <% users.forEach(function(u) { %>
                 <tr class="hover:bg-surface-container-low/20 transition-colors">
                   <td class="px-6 py-5">
-                    <p class="text-sm font-semibold text-on-surface"><%= u.name %></p>
-                    <p class="text-xs text-secondary"><%= u.email %></p>
+                    <div class="flex items-center gap-3">
+                      <% if (u.avatar) { %>
+                        <img src="<%= u.avatar %>" alt="<%= u.name %>" class="h-10 w-10 rounded-xl object-cover shrink-0 shadow-sm" />
+                      <% } else { %>
+                        <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(u.name) %>&size=40&background=e8d5c4&color=613b00&bold=true" alt="<%= u.name %>" class="h-10 w-10 rounded-xl object-cover shrink-0 shadow-sm" />
+                      <% } %>
+                      <div>
+                        <p class="text-sm font-semibold text-on-surface"><%= u.name %></p>
+                        <p class="text-xs text-secondary"><%= u.email %></p>
+                      </div>
+                    </div>
                   </td>
                   <td class="px-6 py-5">
                     <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest <%= u.role === 'admin' ? 'bg-tertiary-container text-on-tertiary-container' : (u.role === 'artisan' ? 'bg-secondary-container text-on-secondary-container' : 'bg-surface-container-high text-on-surface') %>"><%= u.role %></span>
@@ -82,23 +91,23 @@
                     <% if (u.id === (user && user.id)) { %>
                       <span class="text-xs text-secondary">Current account</span>
                     <% } else { %>
-                      <div class="inline-flex items-center gap-2">
+                      <div class="inline-flex items-center gap-1">
                         <% if (u.status === 'active') { %>
                           <form action="/admin/users/<%= u.id %>/status" method="POST" class="inline-block">
                             <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                             <input type="hidden" name="status" value="suspended">
-                            <button class="bg-amber-100 text-amber-700 hover:bg-amber-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Suspend</button>
+                            <button type="submit" title="Suspend User" class="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"><span class="material-symbols-outlined text-[20px]">block</span></button>
                           </form>
                         <% } else { %>
                           <form action="/admin/users/<%= u.id %>/status" method="POST" class="inline-block">
                             <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                             <input type="hidden" name="status" value="active">
-                            <button class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Activate</button>
+                            <button type="submit" title="Activate User" class="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"><span class="material-symbols-outlined text-[20px]">check_circle</span></button>
                           </form>
                         <% } %>
                         <form action="/admin/users/<%= u.id %>/delete" method="POST" class="inline-block" data-confirm="Delete this user account?">
                           <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                          <button class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">Delete</button>
+                          <button type="submit" title="Delete User" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><span class="material-symbols-outlined text-[20px]">delete</span></button>
                         </form>
                       </div>
                     <% } %>
