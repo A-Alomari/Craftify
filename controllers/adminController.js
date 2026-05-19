@@ -12,7 +12,6 @@ const AuditLog = require('../models/AuditLog');
 const bcrypt = require('bcryptjs');
 const NewsletterSubscription = require('../models/NewsletterSubscription');
 const PDFDocument = require('pdfkit');
-
 function getReportWindowStartIso(period) {
   // Anchor to latest order date in DB so seeded data always shows
   const latestRow = Order.getLatestOrderDate();
@@ -28,6 +27,7 @@ function getReportWindowStartIso(period) {
 
 function getPrevReportWindowStartIso(period) {
   const latestRow = Order.getLatestOrderDate();
+  
   const anchor = latestRow ? new Date(latestRow) : new Date();
   switch (period) {
     case 'week':  anchor.setDate(anchor.getDate() - 14);   break;
